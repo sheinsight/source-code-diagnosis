@@ -1,6 +1,6 @@
 {
   "name": "@shined/source-code-diagnosis",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.3",
   "main": "index.js",
   "types": "index.d.ts",
   "napi": {
@@ -25,6 +25,10 @@
     "access": "public",
     "registry": "https://github.com/sheinsight/source-code-diagnosis"
   },
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
   "license": "MIT",
   "packageManager": "yarn@1.22.0",
   "devDependencies": {
