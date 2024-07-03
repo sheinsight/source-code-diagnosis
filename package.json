@@ -45,7 +45,6 @@
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
     "universal": "napi universal",
-    "version": "napi version",
-    "prepack": "clean-pkg-json"
+    "version": "napi version"
   }
 }
