@@ -128,3 +128,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+target
+.DS_Store
+source-code-diagnosis.darwin-arm64.node

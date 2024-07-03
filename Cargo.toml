@@ -1,0 +1,27 @@
+[package]
+edition = "2021"
+name = "shined_source-code-diagnosis"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
+wax = "0.6.0"
+napi-derive = "2.12.2"
+napi = { version = "2.12.2", default-features = false, features = ["napi4"] }
+serde ={ version = "1.0", features = ["derive"] }
+oxc_allocator = {version = "0.16.3"}
+oxc_parser = {version = "0.16.3"}
+oxc_span = {version = "0.16.3"}
+oxc_ast = {version = "0.16.3"}
+threadpool = "1.8.1"
+
+
+[build-dependencies]
+napi-build = "2.0.1"
+
+[profile.release]
+lto = true
+strip = "symbols"
