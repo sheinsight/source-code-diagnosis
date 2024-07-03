@@ -11,6 +11,9 @@
   "files": [
     "source-code-diagnosis.linux-arm-musleabihf.node"
   ],
+  "repository": {
+    "url": "https://github.com/sheinsight/source-code-diagnosis"
+  },
   "license": "MIT",
   "engines": {
     "node": ">= 10"
