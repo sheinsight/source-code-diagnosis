@@ -18,6 +18,13 @@
       ]
     }
   },
+  "repository": {
+    "url": "https://github.com/sheinsight/source-code-diagnosis"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://github.com/sheinsight/source-code-diagnosis"
+  },
   "license": "MIT",
   "packageManager": "yarn@1.22.0",
   "devDependencies": {
