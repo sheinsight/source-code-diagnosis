@@ -22,8 +22,7 @@
     "url": "https://github.com/sheinsight/source-code-diagnosis"
   },
   "publishConfig": {
-    "access": "public",
-    "registry": "https://github.com/sheinsight/source-code-diagnosis"
+    "access": "public"
   },
   "files": [
     "index.js",
