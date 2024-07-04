@@ -4,6 +4,7 @@ use oxc_ast::Visit;
 
 use super::location::Location;
 
+#[derive(Debug)]
 pub struct DangerStringVisitor<'a> {
   pub used: Vec<Location>,
   pub file_path: PathBuf,

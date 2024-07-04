@@ -4,6 +4,7 @@
 extern crate napi_derive;
 
 mod danger_string;
+mod oxc_visit_processor;
 
 pub use danger_string::get_usage_of_danger_strings;
 

@@ -10,11 +10,11 @@ export interface Location {
   end: number
   filePath: string
 }
+export declare function getUsageOfDangerStrings(dangerStrings: Array<string>, options?: Options | undefined | null): Array<Location>
 export interface Options {
   pattern?: string
   ignore?: Array<string>
   cwd?: string
   concurrency?: number
 }
-export declare function getUsageOfDangerStrings(dangerStrings: Array<string>, options?: Options | undefined | null): Array<Location>
 export declare function a(a: number, b: number): number
