@@ -10,5 +10,6 @@ test('getUsageOfDangerStrings', (t) => {
   let response = getUsageOfDangerStrings(["bootcss.com","bootcdn.com","polyfill.com","polyfill.io"],{
     cwd: dirname(__filename),
   });
+  console.log(response);
   t.is(response.length,7)
 })

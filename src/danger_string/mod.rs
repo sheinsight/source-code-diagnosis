@@ -48,12 +48,7 @@ pub fn get_usage_of_danger_strings(
 
   let ignore_patterns: Vec<&str> = ignore_patterns_vec.iter().map(String::as_str).collect();
 
-  let dir = match current_dir() {
-    Ok(dir) => dir.display().to_string(),
-    Err(e) => {
-      return Err(Error::new(napi::Status::GenericFailure, e.to_string()));
-    }
-  };
+  let dir = current_dir()?.display().to_string();
 
   let cwd = options
     .as_ref()
@@ -76,8 +71,10 @@ pub fn get_usage_of_danger_strings(
     .map_err(|e| Error::new(napi::Status::GenericFailure, e.to_string()))?;
 
   let used = Arc::new(Mutex::new(Vec::new()));
+
   let danger_strings = Arc::new(danger_strings);
 
+  // TODO use rayon 🤔 ？
   let pool = ThreadPool::new(concurrency as usize);
 
   for entry in entries {
@@ -85,9 +82,8 @@ pub fn get_usage_of_danger_strings(
     let path = entry.path().to_path_buf();
     let used = Arc::clone(&used);
     let danger_strings = Arc::clone(&danger_strings);
-
-    pool.execute(move || {
-      if path.is_file() {
+    if path.is_file() {
+      pool.execute(move || {
         let source_text = read(&path)
           .map_err(|err| {
             Error::new(
@@ -98,29 +94,26 @@ pub fn get_usage_of_danger_strings(
           .unwrap();
 
         let source_text = String::from_utf8_lossy(&source_text);
-
         let allocator = Allocator::default();
         let source_type = SourceType::from_path(&path)
           .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
           .unwrap();
         let ret = Parser::new(&allocator, &source_text, source_type).parse();
-        let mut local_used = vec![];
-        DangerStringVisitor {
-          used: &mut local_used,
-          file_path: &path.to_str().unwrap().to_string(),
-          danger_strings: &danger_strings,
-        }
-        .visit_program(&ret.program);
-
+        let mut visitor = DangerStringVisitor::new(path.to_path_buf(), danger_strings.to_vec());
+        visitor.visit_program(&ret.program);
         let mut used = used.lock().unwrap();
-        used.extend(local_used);
-      }
-    });
+        used.extend(visitor.used);
+      });
+    }
   }
 
   pool.join();
 
-  let used = Arc::try_unwrap(used).unwrap().into_inner().unwrap();
+  let vec = Arc::try_unwrap(used)
+    .ok()
+    .expect("Arc has more than one strong reference")
+    .into_inner()
+    .expect("Mutex cannot be locked");
 
-  Ok(used)
+  Ok(vec)
 }
