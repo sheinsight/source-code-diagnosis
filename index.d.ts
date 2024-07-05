@@ -10,7 +10,7 @@ export interface DangerStringLocation {
   end: number
   filePath: string
 }
-export declare function getUsageOfDangerStrings(dangerStrings: Array<string>, options?: Options | undefined | null): Array<DangerStringLocation>
+export declare function getDangerStringsUsage(dangerStrings: Array<string>, options?: Options | undefined | null): Array<DangerStringLocation>
 export interface ModuleMemberUsageLocation {
   libName: string
   memberName: string

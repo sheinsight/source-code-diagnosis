@@ -18,7 +18,7 @@ mod danger_string_location;
 mod danger_string_visitor;
 
 #[napi]
-pub fn get_usage_of_danger_strings(
+pub fn get_danger_strings_usage(
   danger_strings: Vec<String>,
   options: Option<Options>,
 ) -> Result<Vec<DangerStringLocation>> {

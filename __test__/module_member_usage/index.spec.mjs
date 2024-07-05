@@ -6,7 +6,7 @@ import { dirname } from "node:path";
 // 获取当前文件的路径
 const __filename = fileURLToPath(import.meta.url);
 
-test("getUsageOfDangerStrings", (t) => {
+test("getModuleMemberUsage", (t) => {
 	const response = getModuleMemberUsage(["antd"], {
 		cwd: dirname(__filename),
 	});

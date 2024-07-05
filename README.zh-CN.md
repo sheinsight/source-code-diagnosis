@@ -1,6 +1,6 @@
 # source-code-diagnosis
 
-This is a grocery store based on the `Rust` tool class, mainly used for various unique analysis of source code, supporting multi-threading.
+这是一个基于 `Rust` 工具类的杂货铺，主要用于对源码进行各种唯独的分析，支持多线程。
 
 ## 如何安装
 
@@ -17,7 +17,7 @@ yarn add @shined/source-code-diagnosis -D
 
 ## getUsageOfDangerStrings
 
-Analyze the dangerous strings in the source code, usually used for third-party CDN detection.
+分析源码中存在的危险字符串，一般用于第三方 CDN 检测
 
 ```ts
 import { getDangerStringsUsage } from "@shined/source-code-diagnosis";
@@ -33,7 +33,7 @@ let response = getDangerStringsUsage(
 
 ## getModuleMemberUsage
 
-Analyze the usage rate of module members, generally used to analyze the number of times the exported members of a third-party package are used.
+分析模块成员的使用率，一般用于分析一个第三方包的导出成员被使用的次数
 
 ```ts
 const response = getModuleMemberUsage(["antd"], {

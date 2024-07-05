@@ -1,5 +1,5 @@
 import test from "ava";
-import { getUsageOfDangerStrings } from "../../index.js";
+import { getDangerStringsUsage } from "../../index.js";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
@@ -7,7 +7,7 @@ import { dirname } from "node:path";
 const __filename = fileURLToPath(import.meta.url);
 
 test("getUsageOfDangerStrings", (t) => {
-	const response = getUsageOfDangerStrings(["bootcss.com", "bootcdn.com", "polyfill.com", "polyfill.io"], {
+	const response = getDangerStringsUsage(["bootcss.com", "bootcdn.com", "polyfill.com", "polyfill.io"], {
 		cwd: dirname(__filename),
 	});
 	t.snapshot(response.sort((x) => x.filePath));
