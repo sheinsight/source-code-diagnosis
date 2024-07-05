@@ -2,11 +2,11 @@ use std::{marker::PhantomData, path::PathBuf};
 
 use oxc_ast::Visit;
 
-use super::location::Location;
+use super::danger_string_location::DangerStringLocation;
 
 #[derive(Debug)]
 pub struct DangerStringVisitor<'a> {
-  pub used: Vec<Location>,
+  pub used: Vec<DangerStringLocation>,
   pub file_path: PathBuf,
   pub danger_strings: Vec<String>,
   _phantom: PhantomData<&'a ()>,
@@ -32,7 +32,7 @@ impl<'a> Visit<'a> for DangerStringVisitor<'a> {
       .iter()
       .filter(|item| value.contains(&**item))
       .for_each(|item| {
-        self.used.push(Location {
+        self.used.push(DangerStringLocation {
           raw_value: value.to_string(),
           match_danger_string: item.to_string(),
           start: lit.span.start,

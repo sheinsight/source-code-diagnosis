@@ -1,6 +1,18 @@
 {
   "cSpell.words": [
+    "antd",
+    "bootcdn",
+    "bootcss",
     "napi",
     "threadpool"
-  ]
+  ],
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  }
 }

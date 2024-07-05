@@ -4,24 +4,24 @@ use std::{
   sync::{Arc, Mutex},
 };
 
-use danger_string_visitor::DangerStringVisitor;
-use location::Location;
+use module_member_usage_location::ModuleMemberUsageLocation;
+use module_member_usage_visitor::ModuleMemberUsageVisitor;
 use napi::{Error, Result};
 use oxc_allocator::Allocator;
 use oxc_ast::Visit;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
 
-use crate::oxc_visit_processor::{oxc_visit_process, Options};
+use crate::oxc_visitor_processor::{oxc_visit_process, Options};
 
-mod danger_string_visitor;
-mod location;
+pub mod module_member_usage_location;
+pub mod module_member_usage_visitor;
 
 #[napi]
-pub fn get_usage_of_danger_strings(
-  danger_strings: Vec<String>,
+pub fn get_module_member_usage(
+  npm_name_vec: Vec<String>,
   options: Option<Options>,
-) -> Result<Vec<Location>> {
+) -> Result<Vec<ModuleMemberUsageLocation>> {
   let used = Arc::new(Mutex::new(Vec::new()));
   let x = {
     let used = Arc::clone(&used);
@@ -41,7 +41,7 @@ pub fn get_usage_of_danger_strings(
       let allocator = Allocator::default();
       let ret = Parser::new(&allocator, &source_text, source_type).parse();
 
-      let mut x = DangerStringVisitor::new(path.to_path_buf(), danger_strings.to_vec());
+      let mut x = ModuleMemberUsageVisitor::new(path.to_path_buf(), npm_name_vec.to_vec());
 
       x.visit_program(&ret.program);
       let mut used = used.lock().unwrap();

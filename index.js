@@ -310,7 +310,7 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { getUsageOfDangerStrings, a } = nativeBinding
+const { getUsageOfDangerStrings, getModuleMemberUsage } = nativeBinding
 
 module.exports.getUsageOfDangerStrings = getUsageOfDangerStrings
-module.exports.a = a
+module.exports.getModuleMemberUsage = getModuleMemberUsage
