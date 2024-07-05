@@ -2,7 +2,7 @@
 
 This is a grocery store based on the `Rust` tool class, mainly used for various unique analysis of source code, supporting multi-threading.
 
-## 如何安装
+## How to install
 
 ```bash
 # pnpm
