@@ -7,8 +7,18 @@ import { dirname } from "node:path";
 const __filename = fileURLToPath(import.meta.url);
 
 test("getUsageOfDangerStrings", (t) => {
+	const cwd = dirname(__filename);
 	const response = getDangerStringsUsage(["bootcss.com", "bootcdn.com", "polyfill.com", "polyfill.io"], {
-		cwd: dirname(__filename),
+		cwd,
 	});
-	t.snapshot(response.sort((x) => x.filePath));
+	t.snapshot(
+		response
+			.sort((x) => x.filePath)
+			.map((x) => {
+				return {
+					...x,
+					filePath: x.filePath.replace(cwd, ""),
+				};
+			}),
+	);
 });

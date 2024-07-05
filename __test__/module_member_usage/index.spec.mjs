@@ -7,8 +7,18 @@ import { dirname } from "node:path";
 const __filename = fileURLToPath(import.meta.url);
 
 test("getModuleMemberUsage", (t) => {
+	const cwd = dirname(__filename);
 	const response = getModuleMemberUsage(["antd"], {
-		cwd: dirname(__filename),
+		cwd,
 	});
-	t.snapshot(response.sort((x) => x.filePath));
+	t.snapshot(
+		response
+			.sort((x) => x.filePath)
+			.map((x) => {
+				return {
+					...x,
+					filePath: x.filePath.replace(cwd, ""),
+				};
+			}),
+	);
 });
