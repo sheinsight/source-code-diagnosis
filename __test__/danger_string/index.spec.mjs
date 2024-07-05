@@ -1,7 +1,7 @@
 import test from "ava";
 import { getDangerStringsUsage } from "../../index.js";
 import { fileURLToPath } from "node:url";
-import { dirname } from "node:path";
+import { dirname, relative } from "node:path";
 
 // 获取当前文件的路径
 const __filename = fileURLToPath(import.meta.url);
@@ -17,7 +17,7 @@ test("getUsageOfDangerStrings", (t) => {
 			.map((x) => {
 				return {
 					...x,
-					filePath: x.filePath.replace(cwd, ""),
+					filePath: relative(cwd, x.filePath),
 				};
 			}),
 	);
