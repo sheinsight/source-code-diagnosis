@@ -1,0 +1,740 @@
+
+        pub const STATEMENTS: Statements = Statements {
+            
+          async_function: Compat {
+            name: "async_function",
+            description: "<code>async function</code> statement",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/async_function",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-async-function-definitions",
+            support: Support {
+              chrome: "55",
+              edge: "15",
+              firefox: "52",
+              ie: "false",
+              node: "No",
+              safari: "10.1",
+            },
+          }
+      
+
+          async_generator_function: Compat {
+            name: "async_generator_function",
+            description: "<code>async function*</code> statement",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/async_function*",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-async-generator-function-definitions",
+            support: Support {
+              chrome: "63",
+              edge: "No",
+              firefox: "55",
+              ie: "false",
+              node: "No",
+              safari: "12",
+            },
+          }
+      
+
+          block: Compat {
+            name: "block",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/block",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-block",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "11",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          break: Compat {
+            name: "break",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/break",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-break-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "3",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          class: Compat {
+            name: "class",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/class",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-class-definitions",
+            support: Support {
+              chrome: "49",
+              edge: "13",
+              firefox: "45",
+              ie: "false",
+              node: "No",
+              safari: "10.1",
+            },
+          }
+      
+
+          const: Compat {
+            name: "const",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/const",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-let-and-const-declarations",
+            support: Support {
+              chrome: "21",
+              edge: "12",
+              firefox: "36",
+              ie: "11",
+              node: "No",
+              safari: "5.1",
+            },
+          }
+      
+
+          continue: Compat {
+            name: "continue",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/continue",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-continue-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "3",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          debugger: Compat {
+            name: "debugger",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/debugger",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-debugger-statement",
+            support: Support {
+              chrome: "5",
+              edge: "12",
+              firefox: "1",
+              ie: "4",
+              node: "No",
+              safari: "5",
+            },
+          }
+      
+
+          do_while: Compat {
+            name: "do_while",
+            description: "<code>do...while</code>",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/do...while",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-do-while-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "4",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          empty: Compat {
+            name: "empty",
+            description: "Empty statement (<code>;</code>)",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/Empty",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-empty-statement",
+            support: Support {
+              chrome: "3",
+              edge: "12",
+              firefox: "1",
+              ie: "3",
+              node: "No",
+              safari: "5",
+            },
+          }
+      
+
+          export: Compat {
+            name: "export",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/export",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-scripts-and-modules.html#sec-exports",
+            support: Support {
+              chrome: "61",
+              edge: "16",
+              firefox: "60",
+              ie: "false",
+              node: "No",
+              safari: "10.1",
+            },
+          }
+      
+
+          default: Compat {
+            name: "default",
+            description: "<code>default</code> keyword with <code>export</code>",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/export",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-scripts-and-modules.html#sec-exports",
+            support: Support {
+              chrome: "61",
+              edge: "16",
+              firefox: "60",
+              ie: "false",
+              node: "No",
+              safari: "10.1",
+            },
+          }
+      
+
+          namespace: Compat {
+            name: "namespace",
+            description: "<code>export * as namespace</code>",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/export",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-scripts-and-modules.html#sec-exports",
+            support: Support {
+              chrome: "72",
+              edge: "No",
+              firefox: "80",
+              ie: "false",
+              node: "No",
+              safari: "14.1",
+            },
+          }
+      
+
+          for: Compat {
+            name: "for",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-for-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "3",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          for_await_of: Compat {
+            name: "for_await_of",
+            description: "<code>for await...of</code>",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for-await...of",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-for-in-and-for-of-statements",
+            support: Support {
+              chrome: "63",
+              edge: "No",
+              firefox: "57",
+              ie: "false",
+              node: "No",
+              safari: "12",
+            },
+          }
+      
+
+          for_in: Compat {
+            name: "for_in",
+            description: "<code>for...in</code>",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for...in",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-for-in-and-for-of-statements",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "3",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          for_of: Compat {
+            name: "for_of",
+            description: "<code>for...of</code>",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for...of",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-for-in-and-for-of-statements",
+            support: Support {
+              chrome: "38",
+              edge: "12",
+              firefox: "13",
+              ie: "false",
+              node: "No",
+              safari: "7",
+            },
+          }
+      
+
+          async_iterators: Compat {
+            name: "async_iterators",
+            description: "async iterators",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "63",
+              edge: "12",
+              firefox: "57",
+              ie: "false",
+              node: "No",
+              safari: "7",
+            },
+          }
+      
+
+          closing_iterators: Compat {
+            name: "closing_iterators",
+            description: "Closing iterators",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "51",
+              edge: "14",
+              firefox: "53",
+              ie: "false",
+              node: "No",
+              safari: "7",
+            },
+          }
+      
+
+          function: Compat {
+            name: "function",
+            description: "<code>function</code> statement",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "3",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          trailing_comma_in_parameters: Compat {
+            name: "trailing_comma_in_parameters",
+            description: "Trailing comma in parameters",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "58",
+              edge: "14",
+              firefox: "52",
+              ie: "false",
+              node: "No",
+              safari: "10",
+            },
+          }
+      
+
+          generator_function: Compat {
+            name: "generator_function",
+            description: "<code>function*</code> statement",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function*",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-generator-function-definitions",
+            support: Support {
+              chrome: "39",
+              edge: "13",
+              firefox: "26",
+              ie: "false",
+              node: "No",
+              safari: "10",
+            },
+          }
+      
+
+          IteratorResult_object: Compat {
+            name: "IteratorResult_object",
+            description: "<code>IteratorResult</code> object instead of throwing",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "49",
+              edge: "13",
+              firefox: "29",
+              ie: "false",
+              node: "No",
+              safari: "10",
+            },
+          }
+      
+
+          not_constructable_with_new: Compat {
+            name: "not_constructable_with_new",
+            description: "Not constructable with <code>new</code> (ES2016)",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "50",
+              edge: "13",
+              firefox: "43",
+              ie: "false",
+              node: "No",
+              safari: "10",
+            },
+          }
+      
+
+          trailing_comma_in_parameters: Compat {
+            name: "trailing_comma_in_parameters",
+            description: "Trailing comma in parameters",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "58",
+              edge: "14",
+              firefox: "52",
+              ie: "false",
+              node: "No",
+              safari: "10",
+            },
+          }
+      
+
+          if_else: Compat {
+            name: "if_else",
+            description: "<code>if...else</code>",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/if...else",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-if-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "3",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          import: Compat {
+            name: "import",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/import",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-scripts-and-modules.html#sec-imports",
+            support: Support {
+              chrome: "61",
+              edge: "16",
+              firefox: "60",
+              ie: "false",
+              node: "No",
+              safari: "10.1",
+            },
+          }
+      
+
+          worker_support: Compat {
+            name: "worker_support",
+            description: "Available in workers",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "80",
+              edge: "No",
+              firefox: "114",
+              ie: "false",
+              node: "No",
+              safari: "15",
+            },
+          }
+      
+
+          import_assertions: Compat {
+            name: "import_assertions",
+            description: "Import attributes with <code>assert</code> syntax (formerly import assertions)",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "91",
+              edge: "No",
+              firefox: "false",
+              ie: "false",
+              node: "No",
+              safari: "false",
+            },
+          }
+      
+
+          type_css: Compat {
+            name: "type_css",
+            description: "<code>assert {type: 'css'}</code>",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "93",
+              edge: "No",
+              firefox: "false",
+              ie: "false",
+              node: "No",
+              safari: "false",
+            },
+          }
+      
+
+          type_json: Compat {
+            name: "type_json",
+            description: "<code>assert {type: 'json'}</code>",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "91",
+              edge: "No",
+              firefox: "false",
+              ie: "false",
+              node: "No",
+              safari: "false",
+            },
+          }
+      
+
+          import_attributes: Compat {
+            name: "import_attributes",
+            description: "Import attributes (<code>with</code> syntax)",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "123",
+              edge: "No",
+              firefox: "false",
+              ie: "false",
+              node: "No",
+              safari: "17.2",
+            },
+          }
+      
+
+          type_css: Compat {
+            name: "type_css",
+            description: "<code>with {type: 'css'}</code>",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "123",
+              edge: "No",
+              firefox: "false",
+              ie: "false",
+              node: "No",
+              safari: "false",
+            },
+          }
+      
+
+          type_json: Compat {
+            name: "type_json",
+            description: "<code>with {type: 'json'}</code>",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "123",
+              edge: "No",
+              firefox: "false",
+              ie: "false",
+              node: "No",
+              safari: "17.2",
+            },
+          }
+      
+
+          service_worker_support: Compat {
+            name: "service_worker_support",
+            description: "Available in service workers",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "91",
+              edge: "No",
+              firefox: "false",
+              ie: "false",
+              node: "No",
+              safari: "15",
+            },
+          }
+      
+
+          worklet_support: Compat {
+            name: "worklet_support",
+            description: "Available in worklets",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "false",
+              edge: "No",
+              firefox: "114",
+              ie: "false",
+              node: "No",
+              safari: "false",
+            },
+          }
+      
+
+          label: Compat {
+            name: "label",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/label",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-labelled-statements",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "4",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          let: Compat {
+            name: "let",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/let",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-let-and-const-declarations",
+            support: Support {
+              chrome: "49",
+              edge: "14",
+              firefox: "44",
+              ie: "11",
+              node: "No",
+              safari: "10",
+            },
+          }
+      
+
+          return: Compat {
+            name: "return",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/return",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-return-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "3",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          switch: Compat {
+            name: "switch",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/switch",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-switch-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "4",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          throw: Compat {
+            name: "throw",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/throw",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-throw-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "5",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          try_catch: Compat {
+            name: "try_catch",
+            description: "<code>try...catch</code>",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/try...catch",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-try-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "5",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          optional_catch_binding: Compat {
+            name: "optional_catch_binding",
+            description: "Optional catch binding",
+            mdn_url: "undefined",
+            spec_url: "undefined",
+            support: Support {
+              chrome: "66",
+              edge: "No",
+              firefox: "58",
+              ie: "false",
+              node: "No",
+              safari: "11.1",
+            },
+          }
+      
+
+          var: Compat {
+            name: "var",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/var",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-variable-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "3",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          while: Compat {
+            name: "while",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/while",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-while-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "3",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+
+          with: Compat {
+            name: "with",
+            description: "undefined",
+            mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/with",
+            spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-with-statement",
+            support: Support {
+              chrome: "1",
+              edge: "12",
+              firefox: "1",
+              ie: "3",
+              node: "No",
+              safari: "1",
+            },
+          }
+      
+        }
+    

@@ -687,6 +687,7 @@ dependencies = [
  "oxc_ast",
  "oxc_parser",
  "oxc_span",
+ "oxc_syntax",
  "rayon",
  "serde",
  "threadpool",

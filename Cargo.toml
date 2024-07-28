@@ -16,8 +16,9 @@ oxc_allocator = {version = "0.16.3"}
 oxc_parser = {version = "0.16.3"}
 oxc_span = {version = "0.16.3"}
 oxc_ast = {version = "0.16.3"}
+oxc_syntax = {version = "0.16.3"}
 threadpool = "1.8.1"
-rayon = "1.10.0"
+rayon = "1.10.0" 
 
 
 [build-dependencies]

@@ -25,3 +25,4 @@ export interface Options {
   cwd?: string
   concurrency?: number
 }
+export declare function demo(dangerStrings: Array<string>, options?: Options | undefined | null): void

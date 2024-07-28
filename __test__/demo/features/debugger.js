@@ -1,0 +1,4 @@
+function potentiallyBuggyCode() {
+  debugger;
+  // do potentially buggy stuff to examine, step through, etc.
+}
