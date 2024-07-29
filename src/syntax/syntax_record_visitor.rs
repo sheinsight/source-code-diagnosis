@@ -282,9 +282,9 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_class_heritage(self, expr);
   }
 
-  fn visit_ts_class_implements(&mut self, expr: &oxc_ast::ast::TSClassImplements<'a>) {
-    oxc_ast::visit::walk::walk_ts_class_implements(self, expr);
-  }
+  // fn visit_ts_class_implements(&mut self, expr: &oxc_ast::ast::TSClassImplements<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_class_implements(self, expr);
+  // }
 
   // fn visit_class_body(&mut self, body: &oxc_ast::ast::ClassBody<'a>) {
   //   self.cache.insert(STATEMENTS.class);
@@ -312,6 +312,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_property_definition(&mut self, def: &oxc_ast::ast::PropertyDefinition<'a>) {
+    println!("property_definition");
     oxc_ast::visit::walk::walk_property_definition(self, def);
   }
 
@@ -319,9 +320,9 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_using_declaration(self, decl);
   }
 
-  fn visit_expression(&mut self, expr: &oxc_ast::ast::Expression<'a>) {
-    oxc_ast::visit::walk::walk_expression(self, expr);
-  }
+  // fn visit_expression(&mut self, expr: &oxc_ast::ast::Expression<'a>) {
+  //   oxc_ast::visit::walk::walk_expression(self, expr);
+  // }
 
   fn visit_meta_property(&mut self, meta: &oxc_ast::ast::MetaProperty<'a>) {
     oxc_ast::visit::walk::walk_meta_property(self, meta);
@@ -762,284 +763,284 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_declaration(self, decl);
   }
 
-  fn visit_ts_import_equals_declaration(
-    &mut self,
-    decl: &oxc_ast::ast::TSImportEqualsDeclaration<'a>,
-  ) {
-    oxc_ast::visit::walk::walk_ts_import_equals_declaration(self, decl);
-  }
-
-  fn visit_ts_module_reference(&mut self, reference: &oxc_ast::ast::TSModuleReference<'a>) {
-    oxc_ast::visit::walk::walk_ts_module_reference(self, reference);
-  }
-
-  fn visit_ts_type_name(&mut self, name: &oxc_ast::ast::TSTypeName<'a>) {
-    oxc_ast::visit::walk::walk_ts_type_name(self, name);
-  }
-
-  fn visit_ts_external_module_reference(
-    &mut self,
-    reference: &oxc_ast::ast::TSExternalModuleReference<'a>,
-  ) {
-    oxc_ast::visit::walk::walk_ts_external_module_reference(self, reference);
-  }
-
-  fn visit_ts_module_declaration(&mut self, decl: &oxc_ast::ast::TSModuleDeclaration<'a>) {
-    oxc_ast::visit::walk::walk_ts_module_declaration(self, decl);
-  }
-
-  fn visit_ts_module_block(&mut self, block: &oxc_ast::ast::TSModuleBlock<'a>) {
-    oxc_ast::visit::walk::walk_ts_module_block(self, block);
-  }
-
-  fn visit_ts_type_alias_declaration(&mut self, decl: &oxc_ast::ast::TSTypeAliasDeclaration<'a>) {
-    oxc_ast::visit::walk::walk_ts_type_alias_declaration(self, decl);
-  }
-
-  fn visit_ts_interface_declaration(&mut self, decl: &oxc_ast::ast::TSInterfaceDeclaration<'a>) {
-    oxc_ast::visit::walk::walk_ts_interface_declaration(self, decl);
-  }
-
-  fn visit_ts_interface_heritage(&mut self, heritage: &oxc_ast::ast::TSInterfaceHeritage<'a>) {
-    oxc_ast::visit::walk::walk_ts_interface_heritage(self, heritage);
-  }
-
-  fn visit_ts_as_expression(&mut self, expr: &oxc_ast::ast::TSAsExpression<'a>) {
-    oxc_ast::visit::walk::walk_ts_as_expression(self, expr);
-  }
-
-  fn visit_ts_satisfies_expression(&mut self, expr: &oxc_ast::ast::TSSatisfiesExpression<'a>) {
-    oxc_ast::visit::walk::walk_ts_satisfies_expression(self, expr);
-  }
-
-  fn visit_ts_non_null_expression(&mut self, expr: &oxc_ast::ast::TSNonNullExpression<'a>) {
-    oxc_ast::visit::walk::walk_ts_non_null_expression(self, expr);
-  }
-
-  fn visit_ts_type_assertion(&mut self, expr: &oxc_ast::ast::TSTypeAssertion<'a>) {
-    oxc_ast::visit::walk::walk_ts_type_assertion(self, expr);
-  }
-
-  fn visit_ts_instantiation_expression(
-    &mut self,
-    expr: &oxc_ast::ast::TSInstantiationExpression<'a>,
-  ) {
-    oxc_ast::visit::walk::walk_ts_instantiation_expression(self, expr);
-  }
-
-  fn visit_ts_type_annotation(&mut self, annotation: &oxc_ast::ast::TSTypeAnnotation<'a>) {
-    oxc_ast::visit::walk::walk_ts_type_annotation(self, annotation);
-  }
-
-  fn visit_ts_type(&mut self, ty: &oxc_ast::ast::TSType<'a>) {
-    oxc_ast::visit::walk::walk_ts_type(self, ty);
-  }
-
-  fn visit_ts_tuple_element(&mut self, ty: &oxc_ast::ast::TSTupleElement<'a>) {
-    oxc_ast::visit::walk::walk_ts_tuple_element(self, ty);
-  }
-
-  fn visit_ts_this_parameter(&mut self, param: &oxc_ast::ast::TSThisParameter<'a>) {
-    oxc_ast::visit::walk::walk_ts_this_parameter(self, param);
-  }
-
-  fn visit_ts_type_parameter(&mut self, ty: &oxc_ast::ast::TSTypeParameter<'a>) {
-    oxc_ast::visit::walk::walk_ts_type_parameter(self, ty);
-  }
-
-  fn visit_ts_type_parameter_instantiation(
-    &mut self,
-    ty: &oxc_ast::ast::TSTypeParameterInstantiation<'a>,
-  ) {
-    oxc_ast::visit::walk::walk_ts_type_parameter_instantiation(self, ty);
-  }
-
-  fn visit_ts_type_parameter_declaration(
-    &mut self,
-    ty: &oxc_ast::ast::TSTypeParameterDeclaration<'a>,
-  ) {
-    oxc_ast::visit::walk::walk_ts_type_parameter_declaration(self, ty);
-  }
-
-  fn visit_ts_any_keyword(&mut self, ty: &oxc_ast::ast::TSAnyKeyword) {
-    oxc_ast::visit::walk::walk_ts_any_keyword(self, ty);
-  }
-
-  fn visit_ts_big_int_keyword(&mut self, ty: &oxc_ast::ast::TSBigIntKeyword) {
-    oxc_ast::visit::walk::walk_ts_big_int_keyword(self, ty);
-  }
-
-  fn visit_ts_boolean_keyword(&mut self, ty: &oxc_ast::ast::TSBooleanKeyword) {
-    oxc_ast::visit::walk::walk_ts_boolean_keyword(self, ty);
-  }
-
-  fn visit_ts_intrinsic_keyword(&mut self, ty: &oxc_ast::ast::TSIntrinsicKeyword) {
-    oxc_ast::visit::walk::walk_ts_intrinsic_keyword(self, ty);
-  }
-
-  fn visit_ts_never_keyword(&mut self, ty: &oxc_ast::ast::TSNeverKeyword) {
-    oxc_ast::visit::walk::walk_ts_never_keyword(self, ty);
-  }
-
-  fn visit_ts_null_keyword(&mut self, ty: &oxc_ast::ast::TSNullKeyword) {
-    oxc_ast::visit::walk::walk_ts_null_keyword(self, ty);
-  }
-
-  fn visit_ts_number_keyword(&mut self, ty: &oxc_ast::ast::TSNumberKeyword) {
-    oxc_ast::visit::walk::walk_ts_number_keyword(self, ty);
-  }
-
-  fn visit_ts_object_keyword(&mut self, ty: &oxc_ast::ast::TSObjectKeyword) {
-    oxc_ast::visit::walk::walk_ts_object_keyword(self, ty);
-  }
-
-  fn visit_ts_string_keyword(&mut self, ty: &oxc_ast::ast::TSStringKeyword) {
-    oxc_ast::visit::walk::walk_ts_string_keyword(self, ty);
-  }
-
-  fn visit_ts_symbol_keyword(&mut self, ty: &oxc_ast::ast::TSSymbolKeyword) {
-    oxc_ast::visit::walk::walk_ts_symbol_keyword(self, ty);
-  }
-
-  fn visit_ts_undefined_keyword(&mut self, ty: &oxc_ast::ast::TSUndefinedKeyword) {
-    oxc_ast::visit::walk::walk_ts_undefined_keyword(self, ty);
-  }
-
-  fn visit_ts_unknown_keyword(&mut self, ty: &oxc_ast::ast::TSUnknownKeyword) {
-    oxc_ast::visit::walk::walk_ts_unknown_keyword(self, ty);
-  }
-
-  fn visit_ts_void_keyword(&mut self, ty: &oxc_ast::ast::TSVoidKeyword) {
-    oxc_ast::visit::walk::walk_ts_void_keyword(self, ty);
-  }
-
-  fn visit_ts_array_type(&mut self, ty: &oxc_ast::ast::TSArrayType<'a>) {
-    oxc_ast::visit::walk::walk_ts_array_type(self, ty);
-  }
-
-  fn visit_ts_conditional_type(&mut self, ty: &oxc_ast::ast::TSConditionalType<'a>) {
-    oxc_ast::visit::walk::walk_ts_conditional_type(self, ty);
-  }
-
-  fn visit_ts_constructor_type(&mut self, ty: &oxc_ast::ast::TSConstructorType<'a>) {
-    oxc_ast::visit::walk::walk_ts_constructor_type(self, ty);
-  }
-
-  fn visit_ts_function_type(&mut self, ty: &oxc_ast::ast::TSFunctionType<'a>) {
-    oxc_ast::visit::walk::walk_ts_function_type(self, ty);
-  }
-
-  fn visit_ts_import_type(&mut self, ty: &oxc_ast::ast::TSImportType<'a>) {
-    oxc_ast::visit::walk::walk_ts_import_type(self, ty);
-  }
-
-  fn visit_ts_indexed_access_type(&mut self, ty: &oxc_ast::ast::TSIndexedAccessType<'a>) {
-    oxc_ast::visit::walk::walk_ts_indexed_access_type(self, ty);
-  }
-
-  fn visit_ts_infer_type(&mut self, ty: &oxc_ast::ast::TSInferType<'a>) {
-    oxc_ast::visit::walk::walk_ts_infer_type(self, ty);
-  }
-
-  fn visit_ts_intersection_type(&mut self, ty: &oxc_ast::ast::TSIntersectionType<'a>) {
-    oxc_ast::visit::walk::walk_ts_intersection_type(self, ty);
-  }
-
-  fn visit_ts_literal_type(&mut self, ty: &oxc_ast::ast::TSLiteralType<'a>) {
-    oxc_ast::visit::walk::walk_ts_literal_type(self, ty);
-  }
-
-  fn visit_ts_mapped_type(&mut self, ty: &oxc_ast::ast::TSMappedType<'a>) {
-    oxc_ast::visit::walk::walk_ts_mapped_type(self, ty);
-  }
-
-  fn visit_ts_named_tuple_member(&mut self, ty: &oxc_ast::ast::TSNamedTupleMember<'a>) {
-    oxc_ast::visit::walk::walk_ts_named_tuple_member(self, ty);
-  }
-
-  fn visit_ts_qualified_name(&mut self, name: &oxc_ast::ast::TSQualifiedName<'a>) {
-    oxc_ast::visit::walk::walk_ts_qualified_name(self, name);
-  }
-
-  fn visit_ts_template_literal_type(&mut self, ty: &oxc_ast::ast::TSTemplateLiteralType<'a>) {
-    oxc_ast::visit::walk::walk_ts_template_literal_type(self, ty);
-  }
-
-  fn visit_ts_this_type(&mut self, ty: &oxc_ast::ast::TSThisType) {
-    oxc_ast::visit::walk::walk_ts_this_type(self, ty);
-  }
-
-  fn visit_ts_tuple_type(&mut self, ty: &oxc_ast::ast::TSTupleType<'a>) {
-    oxc_ast::visit::walk::walk_ts_tuple_type(self, ty);
-  }
-
-  fn visit_ts_type_literal(&mut self, ty: &oxc_ast::ast::TSTypeLiteral<'a>) {
-    oxc_ast::visit::walk::walk_ts_type_literal(self, ty);
-  }
-
-  fn visit_ts_type_operator_type(&mut self, ty: &oxc_ast::ast::TSTypeOperator<'a>) {
-    oxc_ast::visit::walk::walk_ts_type_operator_type(self, ty);
-  }
-
-  fn visit_ts_type_predicate(&mut self, ty: &oxc_ast::ast::TSTypePredicate<'a>) {
-    oxc_ast::visit::walk::walk_ts_type_predicate(self, ty);
-  }
-
-  fn visit_ts_type_query(&mut self, ty: &oxc_ast::ast::TSTypeQuery<'a>) {
-    oxc_ast::visit::walk::walk_ts_type_query(self, ty);
-  }
-
-  fn visit_ts_type_reference(&mut self, ty: &oxc_ast::ast::TSTypeReference<'a>) {
-    oxc_ast::visit::walk::walk_ts_type_reference(self, ty);
-  }
-
-  fn visit_ts_union_type(&mut self, ty: &oxc_ast::ast::TSUnionType<'a>) {
-    oxc_ast::visit::walk::walk_ts_union_type(self, ty);
-  }
-
-  fn visit_ts_signature(&mut self, signature: &oxc_ast::ast::TSSignature<'a>) {
-    oxc_ast::visit::walk::walk_ts_signature(self, signature);
-  }
-
-  fn visit_ts_construct_signature_declaration(
-    &mut self,
-    signature: &oxc_ast::ast::TSConstructSignatureDeclaration<'a>,
-  ) {
-    oxc_ast::visit::walk::walk_ts_construct_signature_declaration(self, signature);
-  }
-
-  fn visit_ts_method_signature(&mut self, signature: &oxc_ast::ast::TSMethodSignature<'a>) {
-    oxc_ast::visit::walk::walk_ts_method_signature(self, signature);
-  }
-
-  fn visit_ts_index_signature_name(&mut self, name: &oxc_ast::ast::TSIndexSignatureName<'a>) {
-    oxc_ast::visit::walk::walk_ts_index_signature_name(self, name);
-  }
-
-  fn visit_ts_index_signature(&mut self, signature: &oxc_ast::ast::TSIndexSignature<'a>) {
-    oxc_ast::visit::walk::walk_ts_index_signature(self, signature);
-  }
-
-  fn visit_ts_property_signature(&mut self, signature: &oxc_ast::ast::TSPropertySignature<'a>) {
-    oxc_ast::visit::walk::walk_ts_property_signature(self, signature);
-  }
-
-  fn visit_ts_call_signature_declaration(
-    &mut self,
-    signature: &oxc_ast::ast::TSCallSignatureDeclaration<'a>,
-  ) {
-    oxc_ast::visit::walk::walk_ts_call_signature_declaration(self, signature);
-  }
-
-  fn visit_ts_import_attributes(&mut self, attributes: &oxc_ast::ast::TSImportAttributes<'a>) {
-    oxc_ast::visit::walk::walk_ts_import_attributes(self, attributes);
-  }
-
-  fn visit_ts_import_attribute(&mut self, attribute: &oxc_ast::ast::TSImportAttribute<'a>) {
-    oxc_ast::visit::walk::walk_ts_import_attribute(self, attribute);
-  }
-
-  fn visit_ts_import_attribute_name(&mut self, name: &oxc_ast::ast::TSImportAttributeName<'a>) {
-    oxc_ast::visit::walk::walk_ts_import_attribute_name(self, name);
-  }
+  // fn visit_ts_import_equals_declaration(
+  //   &mut self,
+  //   decl: &oxc_ast::ast::TSImportEqualsDeclaration<'a>,
+  // ) {
+  //   oxc_ast::visit::walk::walk_ts_import_equals_declaration(self, decl);
+  // }
+
+  // fn visit_ts_module_reference(&mut self, reference: &oxc_ast::ast::TSModuleReference<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_module_reference(self, reference);
+  // }
+
+  // fn visit_ts_type_name(&mut self, name: &oxc_ast::ast::TSTypeName<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_type_name(self, name);
+  // }
+
+  // fn visit_ts_external_module_reference(
+  //   &mut self,
+  //   reference: &oxc_ast::ast::TSExternalModuleReference<'a>,
+  // ) {
+  //   oxc_ast::visit::walk::walk_ts_external_module_reference(self, reference);
+  // }
+
+  // fn visit_ts_module_declaration(&mut self, decl: &oxc_ast::ast::TSModuleDeclaration<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_module_declaration(self, decl);
+  // }
+
+  // fn visit_ts_module_block(&mut self, block: &oxc_ast::ast::TSModuleBlock<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_module_block(self, block);
+  // }
+
+  // fn visit_ts_type_alias_declaration(&mut self, decl: &oxc_ast::ast::TSTypeAliasDeclaration<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_type_alias_declaration(self, decl);
+  // }
+
+  // fn visit_ts_interface_declaration(&mut self, decl: &oxc_ast::ast::TSInterfaceDeclaration<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_interface_declaration(self, decl);
+  // }
+
+  // fn visit_ts_interface_heritage(&mut self, heritage: &oxc_ast::ast::TSInterfaceHeritage<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_interface_heritage(self, heritage);
+  // }
+
+  // fn visit_ts_as_expression(&mut self, expr: &oxc_ast::ast::TSAsExpression<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_as_expression(self, expr);
+  // }
+
+  // fn visit_ts_satisfies_expression(&mut self, expr: &oxc_ast::ast::TSSatisfiesExpression<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_satisfies_expression(self, expr);
+  // }
+
+  // fn visit_ts_non_null_expression(&mut self, expr: &oxc_ast::ast::TSNonNullExpression<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_non_null_expression(self, expr);
+  // }
+
+  // fn visit_ts_type_assertion(&mut self, expr: &oxc_ast::ast::TSTypeAssertion<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_type_assertion(self, expr);
+  // }
+
+  // fn visit_ts_instantiation_expression(
+  //   &mut self,
+  //   expr: &oxc_ast::ast::TSInstantiationExpression<'a>,
+  // ) {
+  //   oxc_ast::visit::walk::walk_ts_instantiation_expression(self, expr);
+  // }
+
+  // fn visit_ts_type_annotation(&mut self, annotation: &oxc_ast::ast::TSTypeAnnotation<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_type_annotation(self, annotation);
+  // }
+
+  // fn visit_ts_type(&mut self, ty: &oxc_ast::ast::TSType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_type(self, ty);
+  // }
+
+  // fn visit_ts_tuple_element(&mut self, ty: &oxc_ast::ast::TSTupleElement<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_tuple_element(self, ty);
+  // }
+
+  // fn visit_ts_this_parameter(&mut self, param: &oxc_ast::ast::TSThisParameter<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_this_parameter(self, param);
+  // }
+
+  // fn visit_ts_type_parameter(&mut self, ty: &oxc_ast::ast::TSTypeParameter<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_type_parameter(self, ty);
+  // }
+
+  // fn visit_ts_type_parameter_instantiation(
+  //   &mut self,
+  //   ty: &oxc_ast::ast::TSTypeParameterInstantiation<'a>,
+  // ) {
+  //   oxc_ast::visit::walk::walk_ts_type_parameter_instantiation(self, ty);
+  // }
+
+  // fn visit_ts_type_parameter_declaration(
+  //   &mut self,
+  //   ty: &oxc_ast::ast::TSTypeParameterDeclaration<'a>,
+  // ) {
+  //   oxc_ast::visit::walk::walk_ts_type_parameter_declaration(self, ty);
+  // }
+
+  // fn visit_ts_any_keyword(&mut self, ty: &oxc_ast::ast::TSAnyKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_any_keyword(self, ty);
+  // }
+
+  // fn visit_ts_big_int_keyword(&mut self, ty: &oxc_ast::ast::TSBigIntKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_big_int_keyword(self, ty);
+  // }
+
+  // fn visit_ts_boolean_keyword(&mut self, ty: &oxc_ast::ast::TSBooleanKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_boolean_keyword(self, ty);
+  // }
+
+  // fn visit_ts_intrinsic_keyword(&mut self, ty: &oxc_ast::ast::TSIntrinsicKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_intrinsic_keyword(self, ty);
+  // }
+
+  // fn visit_ts_never_keyword(&mut self, ty: &oxc_ast::ast::TSNeverKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_never_keyword(self, ty);
+  // }
+
+  // fn visit_ts_null_keyword(&mut self, ty: &oxc_ast::ast::TSNullKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_null_keyword(self, ty);
+  // }
+
+  // fn visit_ts_number_keyword(&mut self, ty: &oxc_ast::ast::TSNumberKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_number_keyword(self, ty);
+  // }
+
+  // fn visit_ts_object_keyword(&mut self, ty: &oxc_ast::ast::TSObjectKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_object_keyword(self, ty);
+  // }
+
+  // fn visit_ts_string_keyword(&mut self, ty: &oxc_ast::ast::TSStringKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_string_keyword(self, ty);
+  // }
+
+  // fn visit_ts_symbol_keyword(&mut self, ty: &oxc_ast::ast::TSSymbolKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_symbol_keyword(self, ty);
+  // }
+
+  // fn visit_ts_undefined_keyword(&mut self, ty: &oxc_ast::ast::TSUndefinedKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_undefined_keyword(self, ty);
+  // }
+
+  // fn visit_ts_unknown_keyword(&mut self, ty: &oxc_ast::ast::TSUnknownKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_unknown_keyword(self, ty);
+  // }
+
+  // fn visit_ts_void_keyword(&mut self, ty: &oxc_ast::ast::TSVoidKeyword) {
+  //   oxc_ast::visit::walk::walk_ts_void_keyword(self, ty);
+  // }
+
+  // fn visit_ts_array_type(&mut self, ty: &oxc_ast::ast::TSArrayType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_array_type(self, ty);
+  // }
+
+  // fn visit_ts_conditional_type(&mut self, ty: &oxc_ast::ast::TSConditionalType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_conditional_type(self, ty);
+  // }
+
+  // fn visit_ts_constructor_type(&mut self, ty: &oxc_ast::ast::TSConstructorType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_constructor_type(self, ty);
+  // }
+
+  // fn visit_ts_function_type(&mut self, ty: &oxc_ast::ast::TSFunctionType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_function_type(self, ty);
+  // }
+
+  // fn visit_ts_import_type(&mut self, ty: &oxc_ast::ast::TSImportType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_import_type(self, ty);
+  // }
+
+  // fn visit_ts_indexed_access_type(&mut self, ty: &oxc_ast::ast::TSIndexedAccessType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_indexed_access_type(self, ty);
+  // }
+
+  // fn visit_ts_infer_type(&mut self, ty: &oxc_ast::ast::TSInferType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_infer_type(self, ty);
+  // }
+
+  // fn visit_ts_intersection_type(&mut self, ty: &oxc_ast::ast::TSIntersectionType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_intersection_type(self, ty);
+  // }
+
+  // fn visit_ts_literal_type(&mut self, ty: &oxc_ast::ast::TSLiteralType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_literal_type(self, ty);
+  // }
+
+  // fn visit_ts_mapped_type(&mut self, ty: &oxc_ast::ast::TSMappedType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_mapped_type(self, ty);
+  // }
+
+  // fn visit_ts_named_tuple_member(&mut self, ty: &oxc_ast::ast::TSNamedTupleMember<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_named_tuple_member(self, ty);
+  // }
+
+  // fn visit_ts_qualified_name(&mut self, name: &oxc_ast::ast::TSQualifiedName<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_qualified_name(self, name);
+  // }
+
+  // fn visit_ts_template_literal_type(&mut self, ty: &oxc_ast::ast::TSTemplateLiteralType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_template_literal_type(self, ty);
+  // }
+
+  // fn visit_ts_this_type(&mut self, ty: &oxc_ast::ast::TSThisType) {
+  //   oxc_ast::visit::walk::walk_ts_this_type(self, ty);
+  // }
+
+  // fn visit_ts_tuple_type(&mut self, ty: &oxc_ast::ast::TSTupleType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_tuple_type(self, ty);
+  // }
+
+  // fn visit_ts_type_literal(&mut self, ty: &oxc_ast::ast::TSTypeLiteral<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_type_literal(self, ty);
+  // }
+
+  // fn visit_ts_type_operator_type(&mut self, ty: &oxc_ast::ast::TSTypeOperator<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_type_operator_type(self, ty);
+  // }
+
+  // fn visit_ts_type_predicate(&mut self, ty: &oxc_ast::ast::TSTypePredicate<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_type_predicate(self, ty);
+  // }
+
+  // fn visit_ts_type_query(&mut self, ty: &oxc_ast::ast::TSTypeQuery<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_type_query(self, ty);
+  // }
+
+  // fn visit_ts_type_reference(&mut self, ty: &oxc_ast::ast::TSTypeReference<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_type_reference(self, ty);
+  // }
+
+  // fn visit_ts_union_type(&mut self, ty: &oxc_ast::ast::TSUnionType<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_union_type(self, ty);
+  // }
+
+  // fn visit_ts_signature(&mut self, signature: &oxc_ast::ast::TSSignature<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_signature(self, signature);
+  // }
+
+  // fn visit_ts_construct_signature_declaration(
+  //   &mut self,
+  //   signature: &oxc_ast::ast::TSConstructSignatureDeclaration<'a>,
+  // ) {
+  //   oxc_ast::visit::walk::walk_ts_construct_signature_declaration(self, signature);
+  // }
+
+  // fn visit_ts_method_signature(&mut self, signature: &oxc_ast::ast::TSMethodSignature<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_method_signature(self, signature);
+  // }
+
+  // fn visit_ts_index_signature_name(&mut self, name: &oxc_ast::ast::TSIndexSignatureName<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_index_signature_name(self, name);
+  // }
+
+  // fn visit_ts_index_signature(&mut self, signature: &oxc_ast::ast::TSIndexSignature<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_index_signature(self, signature);
+  // }
+
+  // fn visit_ts_property_signature(&mut self, signature: &oxc_ast::ast::TSPropertySignature<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_property_signature(self, signature);
+  // }
+
+  // fn visit_ts_call_signature_declaration(
+  //   &mut self,
+  //   signature: &oxc_ast::ast::TSCallSignatureDeclaration<'a>,
+  // ) {
+  //   oxc_ast::visit::walk::walk_ts_call_signature_declaration(self, signature);
+  // }
+
+  // fn visit_ts_import_attributes(&mut self, attributes: &oxc_ast::ast::TSImportAttributes<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_import_attributes(self, attributes);
+  // }
+
+  // fn visit_ts_import_attribute(&mut self, attribute: &oxc_ast::ast::TSImportAttribute<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_import_attribute(self, attribute);
+  // }
+
+  // fn visit_ts_import_attribute_name(&mut self, name: &oxc_ast::ast::TSImportAttributeName<'a>) {
+  //   oxc_ast::visit::walk::walk_ts_import_attribute_name(self, name);
+  // }
 }

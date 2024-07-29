@@ -2,6 +2,7 @@ mod classes;
 mod compat;
 mod functions;
 mod grammar;
+mod operators;
 mod regular_expressions;
 mod statements;
 mod support;

@@ -1,21 +1,20 @@
-class Example {
-  // 方法定义
-  method() { // 对应 Rust 中的 MethodDefinition
+// 对象字面量中的属性定义
+const obj = {
+  property1: 42, 
+  property2: "Hello", 
+  method() { // 对应 Rust 中的 PropertyDefinition
     console.log("This is a method.");
   }
+};
 
-  // 静态方法定义
-  static staticMethod() { // 对应 Rust 中的 MethodDefinition
-    console.log("This is a static method.");
+// 类中的属性定义
+class Example {
+  constructor() {
+    this.property1 = 42; // 对应 Rust 中的 PropertyDefinition
+    this.property2 = "Hello"; // 对应 Rust 中的 PropertyDefinition
   }
 
-  // getter 方法定义
-  get value() { // 对应 Rust 中的 MethodDefinition
-    return this._value;
-  }
-
-  // setter 方法定义
-  set value(val) { // 对应 Rust 中的 MethodDefinition
-    this._value = val;
+  method() { // 对应 Rust 中的 PropertyDefinition
+    console.log("This is a method.");
   }
 }
