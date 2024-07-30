@@ -4,6 +4,7 @@
     "bootcdn",
     "bootcss",
     "Builtins",
+    "deno",
     "napi",
     "threadpool"
   ],

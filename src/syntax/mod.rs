@@ -1,16 +1,9 @@
-mod builtins;
-mod classes;
 mod compat;
-mod functions;
-mod grammar;
 mod operators;
-mod regular_expressions;
-mod statements;
-mod support;
+
 mod syntax_record_visitor;
 use std::{
   fs::read,
-  ops::Deref,
   path::PathBuf,
   sync::{Arc, Mutex},
 };
@@ -21,7 +14,7 @@ use oxc_allocator::Allocator;
 use oxc_ast::Visit;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
-use support::Support;
+
 use syntax_record_visitor::SyntaxRecordVisitor;
 
 use crate::oxc_visitor_processor::{oxc_visit_process, Options};
@@ -74,10 +67,14 @@ pub fn demo(danger_strings: Vec<String>, options: Option<Options>) -> Result<()>
       // println!("file: {:?}", x.cache.len());
 
       x.cache.iter().for_each(|item| {
-        println!("syntax: {} ", item.name,);
+        println!("syntax: {} ", item.compat.name);
         println!(
-          "compat: chrome:{:<10} safari:{:<10} edge:{:<10}",
-          item.support.chrome, item.support.safari, item.support.edge
+          "chrome:{:<10} firefox:{:<10} safari:{:<10} edge:{:<10} opera:{:<10}",
+          item.compat.support.chrome,
+          item.compat.support.firefox,
+          item.compat.support.safari,
+          item.compat.support.edge,
+          item.compat.support.opera,
         );
         println!("file: {}", path.display().to_string());
         println!("-----------------------------------");

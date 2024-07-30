@@ -1,24 +1,23 @@
-use std::{
-  collections::{HashMap, HashSet},
-  marker::PhantomData,
-  path::PathBuf,
-};
+use std::{marker::PhantomData, path::PathBuf};
 
 use oxc_ast::Visit;
-use oxc_syntax::scope::ScopeFlags;
+use oxc_syntax::{
+  operator::{AssignmentOperator, BinaryOperator},
+  scope::ScopeFlags,
+};
 
-use super::compat::Compat;
+use super::{compat::CompatBox, operators::OPERATORS};
 
 #[derive(Debug)]
 pub struct SyntaxRecordVisitor<'a> {
-  pub cache: HashSet<Compat<'a>>,
+  pub cache: Vec<CompatBox>,
   _phantom: PhantomData<&'a ()>,
 }
 
 impl<'a> SyntaxRecordVisitor<'a> {
   pub fn new(file_path: PathBuf, danger_strings: Vec<String>) -> Self {
     Self {
-      cache: HashSet::new(),
+      cache: Vec::new(),
       _phantom: PhantomData {},
     }
   }
@@ -85,9 +84,9 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_empty_statement(self, stmt);
   }
 
-  // fn visit_expression_statement(&mut self, stmt: &oxc_ast::ast::ExpressionStatement<'a>) {
-  //   oxc_ast::visit::walk::walk_expression_statement(self, stmt);
-  // }
+  fn visit_expression_statement(&mut self, stmt: &oxc_ast::ast::ExpressionStatement<'a>) {
+    oxc_ast::visit::walk::walk_expression_statement(self, stmt);
+  }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for
   fn visit_for_statement(&mut self, stmt: &oxc_ast::ast::ForStatement<'a>) {
@@ -287,9 +286,9 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_using_declaration(self, decl);
   }
 
-  // fn visit_expression(&mut self, expr: &oxc_ast::ast::Expression<'a>) {
-  //   oxc_ast::visit::walk::walk_expression(self, expr);
-  // }
+  fn visit_expression(&mut self, expr: &oxc_ast::ast::Expression<'a>) {
+    oxc_ast::visit::walk::walk_expression(self, expr);
+  }
 
   fn visit_meta_property(&mut self, meta: &oxc_ast::ast::MetaProperty<'a>) {
     oxc_ast::visit::walk::walk_meta_property(self, meta);
@@ -320,6 +319,20 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_assignment_expression(&mut self, expr: &oxc_ast::ast::AssignmentExpression<'a>) {
+    if expr.operator == AssignmentOperator::Addition {
+      self.cache.push(CompatBox {
+        start: expr.span.start,
+        end: expr.span.end,
+        compat: OPERATORS.addition_assignment,
+      });
+    }
+    if expr.operator == AssignmentOperator::Assign {
+      self.cache.push(CompatBox {
+        start: expr.span.start,
+        end: expr.span.end,
+        compat: OPERATORS.assignment,
+      });
+    }
     oxc_ast::visit::walk::walk_assignment_expression(self, expr);
   }
 
@@ -332,6 +345,13 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_binary_expression(&mut self, expr: &oxc_ast::ast::BinaryExpression<'a>) {
+    if expr.operator == BinaryOperator::Addition {
+      self.cache.push(CompatBox {
+        start: expr.span.start,
+        end: expr.span.end,
+        compat: OPERATORS.addition,
+      });
+    }
     oxc_ast::visit::walk::walk_binary_expression(self, expr);
   }
 
