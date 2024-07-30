@@ -7,7 +7,7 @@ use std::{
 use oxc_ast::Visit;
 use oxc_syntax::scope::ScopeFlags;
 
-use super::{classes::CLASSES, compat::Compat, functions::FUNCTIONS, statements::STATEMENTS};
+use super::compat::Compat;
 
 #[derive(Debug)]
 pub struct SyntaxRecordVisitor<'a> {
@@ -57,37 +57,31 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/block
   fn visit_block_statement(&mut self, stmt: &oxc_ast::ast::BlockStatement<'a>) {
-    self.cache.insert(STATEMENTS.block);
     oxc_ast::visit::walk::walk_block_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/break
   fn visit_break_statement(&mut self, stmt: &oxc_ast::ast::BreakStatement<'a>) {
-    self.cache.insert(STATEMENTS.r#break);
     oxc_ast::visit::walk::walk_break_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/continue
   fn visit_continue_statement(&mut self, stmt: &oxc_ast::ast::ContinueStatement<'a>) {
-    self.cache.insert(STATEMENTS.r#continue);
     oxc_ast::visit::walk::walk_continue_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/debugger
   fn visit_debugger_statement(&mut self, stmt: &oxc_ast::ast::DebuggerStatement) {
-    self.cache.insert(STATEMENTS.r#debugger);
     oxc_ast::visit::walk::walk_debugger_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/do...while
   fn visit_do_while_statement(&mut self, stmt: &oxc_ast::ast::DoWhileStatement<'a>) {
-    self.cache.insert(STATEMENTS.do_while);
     oxc_ast::visit::walk::walk_do_while_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/Empty
   fn visit_empty_statement(&mut self, stmt: &oxc_ast::ast::EmptyStatement) {
-    self.cache.insert(STATEMENTS.empty);
     oxc_ast::visit::walk::walk_empty_statement(self, stmt);
   }
 
@@ -97,7 +91,6 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for
   fn visit_for_statement(&mut self, stmt: &oxc_ast::ast::ForStatement<'a>) {
-    self.cache.insert(STATEMENTS.r#for);
     oxc_ast::visit::walk::walk_for_statement(self, stmt);
   }
 
@@ -108,16 +101,11 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for...in
   fn visit_for_in_statement(&mut self, stmt: &oxc_ast::ast::ForInStatement<'a>) {
-    self.cache.insert(STATEMENTS.for_in);
     oxc_ast::visit::walk::walk_for_in_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for...of
   fn visit_for_of_statement(&mut self, stmt: &oxc_ast::ast::ForOfStatement<'a>) {
-    self.cache.insert(STATEMENTS.for_of);
-    if stmt.r#await {
-      self.cache.insert(STATEMENTS.for_await_of);
-    }
     oxc_ast::visit::walk::walk_for_of_statement(self, stmt);
   }
 
@@ -127,25 +115,21 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/if...else
   fn visit_if_statement(&mut self, stmt: &oxc_ast::ast::IfStatement<'a>) {
-    self.cache.insert(STATEMENTS.if_else);
     oxc_ast::visit::walk::walk_if_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/label
   fn visit_labeled_statement(&mut self, stmt: &oxc_ast::ast::LabeledStatement<'a>) {
-    self.cache.insert(STATEMENTS.r#label);
     oxc_ast::visit::walk::walk_labeled_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/return
   fn visit_return_statement(&mut self, stmt: &oxc_ast::ast::ReturnStatement<'a>) {
-    self.cache.insert(STATEMENTS.r#return);
     oxc_ast::visit::walk::walk_return_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/switch
   fn visit_switch_statement(&mut self, stmt: &oxc_ast::ast::SwitchStatement<'a>) {
-    self.cache.insert(STATEMENTS.r#switch);
     oxc_ast::visit::walk::walk_switch_statement(self, stmt);
   }
 
@@ -156,13 +140,11 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/throw
   fn visit_throw_statement(&mut self, stmt: &oxc_ast::ast::ThrowStatement<'a>) {
-    self.cache.insert(STATEMENTS.r#throw);
     oxc_ast::visit::walk::walk_throw_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/try...catch
   fn visit_try_statement(&mut self, stmt: &oxc_ast::ast::TryStatement<'a>) {
-    self.cache.insert(STATEMENTS.try_catch);
     oxc_ast::visit::walk::walk_try_statement(self, stmt);
   }
 
@@ -183,13 +165,11 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/while
   fn visit_while_statement(&mut self, stmt: &oxc_ast::ast::WhileStatement<'a>) {
-    self.cache.insert(STATEMENTS.r#while);
     oxc_ast::visit::walk::walk_while_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/with
   fn visit_with_statement(&mut self, stmt: &oxc_ast::ast::WithStatement<'a>) {
-    self.cache.insert(STATEMENTS.r#with);
     oxc_ast::visit::walk::walk_with_statement(self, stmt);
   }
 
@@ -200,15 +180,12 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   fn visit_variable_declaration(&mut self, decl: &oxc_ast::ast::VariableDeclaration<'a>) {
     if decl.kind == oxc_ast::ast::VariableDeclarationKind::Const {
       // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/const
-      self.cache.insert(STATEMENTS.r#const);
     }
     if decl.kind == oxc_ast::ast::VariableDeclarationKind::Let {
       // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/let
-      self.cache.insert(STATEMENTS.r#let);
     }
     if decl.kind == oxc_ast::ast::VariableDeclarationKind::Var {
       // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/var
-      self.cache.insert(STATEMENTS.r#var);
     }
 
     oxc_ast::visit::walk::walk_variable_declaration(self, decl);
@@ -232,19 +209,16 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     // self.cache.insert(STATEMENTS.function);
 
     // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions
-    self.cache.insert(FUNCTIONS.functions);
+
     match (func.r#async, func.generator) {
       (true, true) => {
         // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/async_function*
-        self.cache.insert(STATEMENTS.async_generator_function);
       }
       (true, false) => {
         // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/async_function
-        self.cache.insert(STATEMENTS.async_function);
       }
       (false, true) => {
         // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function*
-        self.cache.insert(STATEMENTS.generator_function);
       }
       _ => {}
     };
@@ -272,13 +246,11 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/class
   fn visit_class(&mut self, class: &oxc_ast::ast::Class<'a>) {
-    self.cache.insert(STATEMENTS.class);
     oxc_ast::visit::walk::walk_class(self, class);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/extends
   fn visit_class_heritage(&mut self, expr: &oxc_ast::ast::Expression<'a>) {
-    self.cache.insert(CLASSES.extends);
     oxc_ast::visit::walk::walk_class_heritage(self, expr);
   }
 
@@ -297,14 +269,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/static
   fn visit_static_block(&mut self, block: &oxc_ast::ast::StaticBlock<'a>) {
-    self.cache.insert(CLASSES.static_initialization_blocks);
     oxc_ast::visit::walk::walk_static_block(self, block);
   }
 
   fn visit_method_definition(&mut self, def: &oxc_ast::ast::MethodDefinition<'a>) {
-    if def.r#static {
-      self.cache.insert(CLASSES.r#static);
-    }
     // if def.kind == oxc_ast::ast::MethodDefinitionKind::Method {
     //   self.cache.insert(FUNCTIONS.method);
     // }
@@ -312,7 +280,6 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_property_definition(&mut self, def: &oxc_ast::ast::PropertyDefinition<'a>) {
-    println!("property_definition");
     oxc_ast::visit::walk::walk_property_definition(self, def);
   }
 
@@ -629,9 +596,6 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_assignment_pattern(&mut self, pat: &oxc_ast::ast::AssignmentPattern<'a>) {
-    self
-      .cache
-      .insert(FUNCTIONS.default_parameters_parameters_without_defaults_after_default_parameters);
     oxc_ast::visit::walk::walk_assignment_pattern(self, pat);
   }
 
