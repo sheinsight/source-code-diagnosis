@@ -1,13 +1,13 @@
 use super::compat::{Compat, Status, Support};
 
-pub struct ArrowFunctions<'a> {
+pub struct Functions<'a> {
 
   pub arrow_functions: Compat<'a>,
 
   pub trailing_comma: Compat<'a>,
 }
 
-pub const ARROW_FUNCTIONS: ArrowFunctions = ArrowFunctions {
+pub const FUNCTIONS: Functions = Functions {
   arrow_functions: Compat {
     name: "arrow_functions",
     description: "Arrow functions",

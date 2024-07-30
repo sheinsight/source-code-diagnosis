@@ -7,7 +7,7 @@ use oxc_syntax::{
   scope::ScopeFlags,
 };
 
-use super::{arrow_functions::ARROW_FUNCTIONS, compat::CompatBox, operators::OPERATORS};
+use super::{compat::CompatBox, functions::FUNCTIONS, operators::OPERATORS};
 
 #[derive(Debug)]
 pub struct SyntaxRecordVisitor<'a> {
@@ -347,7 +347,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     self.cache.push(CompatBox {
       start: expr.span.start,
       end: expr.span.end,
-      compat: ARROW_FUNCTIONS.arrow_functions,
+      compat: FUNCTIONS.arrow_functions,
     });
 
     // check trailing_comma
@@ -357,7 +357,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: params_span.start,
         end: params_span.end,
-        compat: ARROW_FUNCTIONS.trailing_comma,
+        compat: FUNCTIONS.trailing_comma,
       });
     }
     oxc_ast::visit::walk::walk_arrow_expression(self, expr);

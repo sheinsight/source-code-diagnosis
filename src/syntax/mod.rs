@@ -1,5 +1,5 @@
-mod arrow_functions;
 mod compat;
+mod functions;
 mod operators;
 mod syntax_record_visitor;
 use std::{
