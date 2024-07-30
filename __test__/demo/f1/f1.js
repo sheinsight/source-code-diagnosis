@@ -1,10 +1,4 @@
-let a = 2;
-let b = 'hello';
+const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
 
-console.log((a += 3)); // Addition
-// Expected output: 5
-
-
-let x = a++;
-console.log((b += ' world')); // Concatenation
-// Expected output: "hello world"
+materials.map((material,v,) => material.length)
+// Expected output: Array [8, 6, 7, 9]

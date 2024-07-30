@@ -1,25 +1,32 @@
 use std::{marker::PhantomData, path::PathBuf};
 
 use oxc_ast::Visit;
+use oxc_span::Span;
 use oxc_syntax::{
   operator::{AssignmentOperator, BinaryOperator},
   scope::ScopeFlags,
 };
 
-use super::{compat::CompatBox, operators::OPERATORS};
+use super::{arrow_functions::ARROW_FUNCTIONS, compat::CompatBox, operators::OPERATORS};
 
 #[derive(Debug)]
 pub struct SyntaxRecordVisitor<'a> {
   pub cache: Vec<CompatBox>,
+  source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
 }
 
 impl<'a> SyntaxRecordVisitor<'a> {
-  pub fn new(file_path: PathBuf, danger_strings: Vec<String>) -> Self {
+  pub fn new(source_code: &'a str) -> Self {
     Self {
       cache: Vec::new(),
+      source_code,
       _phantom: PhantomData {},
     }
+  }
+
+  fn get_source_code(&self, span: Span) -> &str {
+    &self.source_code[span.start as usize..span.end as usize]
   }
 }
 
@@ -337,6 +344,22 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_arrow_expression(&mut self, expr: &oxc_ast::ast::ArrowFunctionExpression<'a>) {
+    self.cache.push(CompatBox {
+      start: expr.span.start,
+      end: expr.span.end,
+      compat: ARROW_FUNCTIONS.arrow_functions,
+    });
+
+    // check trailing_comma
+    let params_span = expr.params.span;
+    let params_source_code = self.get_source_code(params_span);
+    if params_source_code.ends_with(",)") {
+      self.cache.push(CompatBox {
+        start: params_span.start,
+        end: params_span.end,
+        compat: ARROW_FUNCTIONS.trailing_comma,
+      });
+    }
     oxc_ast::visit::walk::walk_arrow_expression(self, expr);
   }
 

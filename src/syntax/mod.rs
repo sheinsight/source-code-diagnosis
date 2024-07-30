@@ -1,6 +1,6 @@
+mod arrow_functions;
 mod compat;
 mod operators;
-
 mod syntax_record_visitor;
 use std::{
   fs::read,
@@ -40,7 +40,7 @@ pub fn demo(danger_strings: Vec<String>, options: Option<Options>) -> Result<()>
       let allocator = Allocator::default();
       let ret = Parser::new(&allocator, &source_text, source_type).parse();
 
-      let mut x = SyntaxRecordVisitor::new(path.to_path_buf(), danger_strings.to_vec());
+      let mut x = SyntaxRecordVisitor::new(source_text.as_str());
 
       x.visit_program(&ret.program);
 
