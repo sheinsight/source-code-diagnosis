@@ -4,6 +4,7 @@ import generate_grammar from "./get_grammar.mjs"
 import generate_functions from "./get_functions.mjs"
 import generate_classes from "./get_classes.mjs"
 import generate_operators from "./get_operators.mjs"
+import generate_builtins from "./get_builtins.mjs"
 
 
 await Promise.all([
@@ -12,5 +13,6 @@ await Promise.all([
   generate_functions(),
   generate_classes(),
   generate_regular_expressions(),
-  generate_operators()
+  generate_operators(),
+  generate_builtins()
 ])

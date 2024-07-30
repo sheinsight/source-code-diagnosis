@@ -3,6 +3,7 @@
     "antd",
     "bootcdn",
     "bootcss",
+    "Builtins",
     "napi",
     "threadpool"
   ],

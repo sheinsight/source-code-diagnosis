@@ -1,3 +1,4 @@
+mod builtins;
 mod classes;
 mod compat;
 mod functions;
