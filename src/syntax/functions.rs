@@ -65,19 +65,32 @@ pub const FUNCTIONS: Functions = Functions {
       deprecated: false
     }
   },
-    arguments: Compat {
-      name: "arguments", 
-      description: "", 
-      mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments", 
-      spec_url: "https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-arguments-exotic-objects", 
-      tags:&[
-        "web-features:snapshot:ecmascript-1"
-      ],
-      support: Support {
-        chrome: "1",
-        chrome_android: "1",
-        firefox: "1", 
-        firefox_android: "1", 
-        safari: "1", safari_ios: "1", opera: "3", opera_android: "3", ie: "3", edge: "12", deno:"1.0", node: "0.10.0" }, 
-        status: Status { experimental: false, standard_track: true, deprecated: false } },
+  arguments: Compat {
+    name: "arguments", 
+    description: "", 
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments", 
+    spec_url: "https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-arguments-exotic-objects", 
+    tags:&[
+      "web-features:snapshot:ecmascript-1"
+    ],
+    support: Support {
+      chrome: "1",
+      chrome_android: "1",
+      firefox: "1", 
+      firefox_android: "1", 
+      safari: "1", 
+      safari_ios: "1", 
+      opera: "3", 
+      opera_android: "3", 
+      ie: "3", 
+      edge: "12", 
+      deno:"1.0",
+      node: "0.10.0"
+    },
+    status: Status {
+      experimental: false,
+      standard_track: true,
+      deprecated: false
+    }
+  },
 };
