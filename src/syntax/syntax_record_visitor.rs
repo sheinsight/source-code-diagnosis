@@ -1,6 +1,9 @@
-use std::marker::PhantomData;
+use std::{any::Any, marker::PhantomData, ops::Not};
 
-use oxc_ast::Visit;
+use oxc_ast::{
+  ast::{AssignmentPattern, BindingPattern, BindingPatternKind},
+  Visit,
+};
 use oxc_span::Span;
 use oxc_syntax::{
   operator::{AssignmentOperator, BinaryOperator},
@@ -249,6 +252,18 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     // self.cache.insert(STATEMENTS.function);
 
     // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions
+
+    if func.params.is_empty().not() {
+      for param in func.params.items.iter() {
+        if let BindingPatternKind::AssignmentPattern(_) = param.pattern.kind {
+          self.cache.push(CompatBox {
+            start: param.span.start,
+            end: param.span.end,
+            compat: FUNCTIONS.default_parameters,
+          })
+        }
+      }
+    }
 
     match (func.r#async, func.generator) {
       (true, true) => {

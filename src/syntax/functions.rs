@@ -6,6 +6,8 @@ pub struct Functions<'a> {
   pub arrow_functions: Compat<'a>,
 
   pub trailing_comma: Compat<'a>,
+
+  pub default_parameters: Compat<'a>,
 }
 
 pub const FUNCTIONS: Functions = Functions {
@@ -92,5 +94,32 @@ pub const FUNCTIONS: Functions = Functions {
       standard_track: true,
       deprecated: false
     }
+  },
+  default_parameters: Compat { 
+    name: "default_parameters", 
+    description:"Default parameters",
+    mdn_url:"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Default_parameters", 
+    spec_url:"https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions",
+    tags:&[
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: Support { 
+      chrome: "49", 
+      chrome_android: "49", 
+      firefox: "15", 
+      firefox_android: "15", 
+      safari: "10", 
+      safari_ios: "10", 
+      opera: "49", 
+      opera_android: "49", 
+      ie: "0", 
+      edge: "14", 
+      deno: "1.0", 
+      node: "6.0.0" 
+    }, status: Status { 
+      experimental: false, 
+      standard_track: true, 
+      deprecated: false 
+    } 
   },
 };

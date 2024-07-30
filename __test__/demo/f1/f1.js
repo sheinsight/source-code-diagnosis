@@ -1,4 +1,9 @@
-const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
+function multiply(a, b = 1) {
+  return a * b;
+}
 
-materials.map((material,v,) => material.length)
-// Expected output: Array [8, 6, 7, 9]
+console.log(multiply(5, 2));
+// Expected output: 10
+
+console.log(multiply(5));
+// Expected output: 5

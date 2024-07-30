@@ -79,7 +79,12 @@ pub fn demo(
           item.compat.support.edge,
           item.compat.support.opera,
         );
-        println!("file: {}", path.display().to_string());
+        println!(
+          "file: {} {}:{}",
+          path.display().to_string(),
+          item.start,
+          item.end
+        );
         println!("-----------------------------------");
       })
     }
