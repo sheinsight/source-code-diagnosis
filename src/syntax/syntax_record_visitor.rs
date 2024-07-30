@@ -1,4 +1,4 @@
-use std::{marker::PhantomData, path::PathBuf};
+use std::marker::PhantomData;
 
 use oxc_ast::Visit;
 use oxc_span::Span;
@@ -72,17 +72,26 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/continue
-  fn visit_continue_statement(&mut self, stmt: &oxc_ast::ast::ContinueStatement<'a>) {
+  fn visit_continue_statement(
+    &mut self,
+    stmt: &oxc_ast::ast::ContinueStatement<'a>,
+  ) {
     oxc_ast::visit::walk::walk_continue_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/debugger
-  fn visit_debugger_statement(&mut self, stmt: &oxc_ast::ast::DebuggerStatement) {
+  fn visit_debugger_statement(
+    &mut self,
+    stmt: &oxc_ast::ast::DebuggerStatement,
+  ) {
     oxc_ast::visit::walk::walk_debugger_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/do...while
-  fn visit_do_while_statement(&mut self, stmt: &oxc_ast::ast::DoWhileStatement<'a>) {
+  fn visit_do_while_statement(
+    &mut self,
+    stmt: &oxc_ast::ast::DoWhileStatement<'a>,
+  ) {
     oxc_ast::visit::walk::walk_do_while_statement(self, stmt);
   }
 
@@ -91,7 +100,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_empty_statement(self, stmt);
   }
 
-  fn visit_expression_statement(&mut self, stmt: &oxc_ast::ast::ExpressionStatement<'a>) {
+  fn visit_expression_statement(
+    &mut self,
+    stmt: &oxc_ast::ast::ExpressionStatement<'a>,
+  ) {
     oxc_ast::visit::walk::walk_expression_statement(self, stmt);
   }
 
@@ -106,12 +118,18 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   // }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for...in
-  fn visit_for_in_statement(&mut self, stmt: &oxc_ast::ast::ForInStatement<'a>) {
+  fn visit_for_in_statement(
+    &mut self,
+    stmt: &oxc_ast::ast::ForInStatement<'a>,
+  ) {
     oxc_ast::visit::walk::walk_for_in_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for...of
-  fn visit_for_of_statement(&mut self, stmt: &oxc_ast::ast::ForOfStatement<'a>) {
+  fn visit_for_of_statement(
+    &mut self,
+    stmt: &oxc_ast::ast::ForOfStatement<'a>,
+  ) {
     oxc_ast::visit::walk::walk_for_of_statement(self, stmt);
   }
 
@@ -125,17 +143,26 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/label
-  fn visit_labeled_statement(&mut self, stmt: &oxc_ast::ast::LabeledStatement<'a>) {
+  fn visit_labeled_statement(
+    &mut self,
+    stmt: &oxc_ast::ast::LabeledStatement<'a>,
+  ) {
     oxc_ast::visit::walk::walk_labeled_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/return
-  fn visit_return_statement(&mut self, stmt: &oxc_ast::ast::ReturnStatement<'a>) {
+  fn visit_return_statement(
+    &mut self,
+    stmt: &oxc_ast::ast::ReturnStatement<'a>,
+  ) {
     oxc_ast::visit::walk::walk_return_statement(self, stmt);
   }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/switch
-  fn visit_switch_statement(&mut self, stmt: &oxc_ast::ast::SwitchStatement<'a>) {
+  fn visit_switch_statement(
+    &mut self,
+    stmt: &oxc_ast::ast::SwitchStatement<'a>,
+  ) {
     oxc_ast::visit::walk::walk_switch_statement(self, stmt);
   }
 
@@ -183,7 +210,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   //   oxc_ast::visit::walk::walk_directive(self, directive);
   // }
 
-  fn visit_variable_declaration(&mut self, decl: &oxc_ast::ast::VariableDeclaration<'a>) {
+  fn visit_variable_declaration(
+    &mut self,
+    decl: &oxc_ast::ast::VariableDeclaration<'a>,
+  ) {
     if decl.kind == oxc_ast::ast::VariableDeclarationKind::Const {
       // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/const
     }
@@ -211,7 +241,11 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   //   oxc_ast::visit::walk::walk_variable_declarator(self, declarator);
   // }
 
-  fn visit_function(&mut self, func: &oxc_ast::ast::Function<'a>, flags: Option<ScopeFlags>) {
+  fn visit_function(
+    &mut self,
+    func: &oxc_ast::ast::Function<'a>,
+    flags: Option<ScopeFlags>,
+  ) {
     // self.cache.insert(STATEMENTS.function);
 
     // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions
@@ -278,18 +312,27 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_static_block(self, block);
   }
 
-  fn visit_method_definition(&mut self, def: &oxc_ast::ast::MethodDefinition<'a>) {
+  fn visit_method_definition(
+    &mut self,
+    def: &oxc_ast::ast::MethodDefinition<'a>,
+  ) {
     // if def.kind == oxc_ast::ast::MethodDefinitionKind::Method {
     //   self.cache.insert(FUNCTIONS.method);
     // }
     oxc_ast::visit::walk::walk_method_definition(self, def);
   }
 
-  fn visit_property_definition(&mut self, def: &oxc_ast::ast::PropertyDefinition<'a>) {
+  fn visit_property_definition(
+    &mut self,
+    def: &oxc_ast::ast::PropertyDefinition<'a>,
+  ) {
     oxc_ast::visit::walk::walk_property_definition(self, def);
   }
 
-  fn visit_using_declaration(&mut self, decl: &oxc_ast::ast::UsingDeclaration<'a>) {
+  fn visit_using_declaration(
+    &mut self,
+    decl: &oxc_ast::ast::UsingDeclaration<'a>,
+  ) {
     oxc_ast::visit::walk::walk_using_declaration(self, decl);
   }
 
@@ -301,11 +344,17 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_meta_property(self, meta);
   }
 
-  fn visit_array_expression(&mut self, expr: &oxc_ast::ast::ArrayExpression<'a>) {
+  fn visit_array_expression(
+    &mut self,
+    expr: &oxc_ast::ast::ArrayExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_array_expression(self, expr);
   }
 
-  fn visit_array_expression_element(&mut self, arg: &oxc_ast::ast::ArrayExpressionElement<'a>) {
+  fn visit_array_expression_element(
+    &mut self,
+    arg: &oxc_ast::ast::ArrayExpressionElement<'a>,
+  ) {
     oxc_ast::visit::walk::walk_array_expression_element(self, arg);
   }
 
@@ -317,7 +366,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_spread_element(self, elem);
   }
 
-  fn visit_expression_array_element(&mut self, expr: &oxc_ast::ast::Expression<'a>) {
+  fn visit_expression_array_element(
+    &mut self,
+    expr: &oxc_ast::ast::Expression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_expression_array_element(self, expr);
   }
 
@@ -325,7 +377,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_elision(self, elision);
   }
 
-  fn visit_assignment_expression(&mut self, expr: &oxc_ast::ast::AssignmentExpression<'a>) {
+  fn visit_assignment_expression(
+    &mut self,
+    expr: &oxc_ast::ast::AssignmentExpression<'a>,
+  ) {
     if expr.operator == AssignmentOperator::Addition {
       self.cache.push(CompatBox {
         start: expr.span.start,
@@ -343,7 +398,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_assignment_expression(self, expr);
   }
 
-  fn visit_arrow_expression(&mut self, expr: &oxc_ast::ast::ArrowFunctionExpression<'a>) {
+  fn visit_arrow_expression(
+    &mut self,
+    expr: &oxc_ast::ast::ArrowFunctionExpression<'a>,
+  ) {
     self.cache.push(CompatBox {
       start: expr.span.start,
       end: expr.span.end,
@@ -363,11 +421,17 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_arrow_expression(self, expr);
   }
 
-  fn visit_await_expression(&mut self, expr: &oxc_ast::ast::AwaitExpression<'a>) {
+  fn visit_await_expression(
+    &mut self,
+    expr: &oxc_ast::ast::AwaitExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_await_expression(self, expr);
   }
 
-  fn visit_binary_expression(&mut self, expr: &oxc_ast::ast::BinaryExpression<'a>) {
+  fn visit_binary_expression(
+    &mut self,
+    expr: &oxc_ast::ast::BinaryExpression<'a>,
+  ) {
     if expr.operator == BinaryOperator::Addition {
       self.cache.push(CompatBox {
         start: expr.span.start,
@@ -382,7 +446,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_call_expression(self, expr);
   }
 
-  fn visit_chain_expression(&mut self, expr: &oxc_ast::ast::ChainExpression<'a>) {
+  fn visit_chain_expression(
+    &mut self,
+    expr: &oxc_ast::ast::ChainExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_chain_expression(self, expr);
   }
 
@@ -390,19 +457,31 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_chain_element(self, elem);
   }
 
-  fn visit_conditional_expression(&mut self, expr: &oxc_ast::ast::ConditionalExpression<'a>) {
+  fn visit_conditional_expression(
+    &mut self,
+    expr: &oxc_ast::ast::ConditionalExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_conditional_expression(self, expr);
   }
 
-  fn visit_import_expression(&mut self, expr: &oxc_ast::ast::ImportExpression<'a>) {
+  fn visit_import_expression(
+    &mut self,
+    expr: &oxc_ast::ast::ImportExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_import_expression(self, expr);
   }
 
-  fn visit_logical_expression(&mut self, expr: &oxc_ast::ast::LogicalExpression<'a>) {
+  fn visit_logical_expression(
+    &mut self,
+    expr: &oxc_ast::ast::LogicalExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_logical_expression(self, expr);
   }
 
-  fn visit_member_expression(&mut self, expr: &oxc_ast::ast::MemberExpression<'a>) {
+  fn visit_member_expression(
+    &mut self,
+    expr: &oxc_ast::ast::MemberExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_member_expression(self, expr);
   }
 
@@ -413,11 +492,17 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_computed_member_expression(self, expr);
   }
 
-  fn visit_static_member_expression(&mut self, expr: &oxc_ast::ast::StaticMemberExpression<'a>) {
+  fn visit_static_member_expression(
+    &mut self,
+    expr: &oxc_ast::ast::StaticMemberExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_static_member_expression(self, expr);
   }
 
-  fn visit_private_field_expression(&mut self, expr: &oxc_ast::ast::PrivateFieldExpression<'a>) {
+  fn visit_private_field_expression(
+    &mut self,
+    expr: &oxc_ast::ast::PrivateFieldExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_private_field_expression(self, expr);
   }
 
@@ -425,11 +510,17 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_new_expression(self, expr);
   }
 
-  fn visit_object_expression(&mut self, expr: &oxc_ast::ast::ObjectExpression<'a>) {
+  fn visit_object_expression(
+    &mut self,
+    expr: &oxc_ast::ast::ObjectExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_object_expression(self, expr);
   }
 
-  fn visit_object_property_kind(&mut self, prop: &oxc_ast::ast::ObjectPropertyKind<'a>) {
+  fn visit_object_property_kind(
+    &mut self,
+    prop: &oxc_ast::ast::ObjectPropertyKind<'a>,
+  ) {
     oxc_ast::visit::walk::walk_object_property_kind(self, prop);
   }
 
@@ -441,15 +532,24 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_property_key(self, key);
   }
 
-  fn visit_parenthesized_expression(&mut self, expr: &oxc_ast::ast::ParenthesizedExpression<'a>) {
+  fn visit_parenthesized_expression(
+    &mut self,
+    expr: &oxc_ast::ast::ParenthesizedExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_parenthesized_expression(self, expr);
   }
 
-  fn visit_private_in_expression(&mut self, expr: &oxc_ast::ast::PrivateInExpression<'a>) {
+  fn visit_private_in_expression(
+    &mut self,
+    expr: &oxc_ast::ast::PrivateInExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_private_in_expression(self, expr);
   }
 
-  fn visit_sequence_expression(&mut self, expr: &oxc_ast::ast::SequenceExpression<'a>) {
+  fn visit_sequence_expression(
+    &mut self,
+    expr: &oxc_ast::ast::SequenceExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_sequence_expression(self, expr);
   }
 
@@ -464,15 +564,24 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_this_expression(self, expr);
   }
 
-  fn visit_unary_expression(&mut self, expr: &oxc_ast::ast::UnaryExpression<'a>) {
+  fn visit_unary_expression(
+    &mut self,
+    expr: &oxc_ast::ast::UnaryExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_unary_expression(self, expr);
   }
 
-  fn visit_update_expression(&mut self, expr: &oxc_ast::ast::UpdateExpression<'a>) {
+  fn visit_update_expression(
+    &mut self,
+    expr: &oxc_ast::ast::UpdateExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_update_expression(self, expr);
   }
 
-  fn visit_yield_expression(&mut self, expr: &oxc_ast::ast::YieldExpression<'a>) {
+  fn visit_yield_expression(
+    &mut self,
+    expr: &oxc_ast::ast::YieldExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_yield_expression(self, expr);
   }
 
@@ -480,19 +589,31 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_super(self, expr);
   }
 
-  fn visit_assignment_target(&mut self, target: &oxc_ast::ast::AssignmentTarget<'a>) {
+  fn visit_assignment_target(
+    &mut self,
+    target: &oxc_ast::ast::AssignmentTarget<'a>,
+  ) {
     oxc_ast::visit::walk::walk_assignment_target(self, target);
   }
 
-  fn visit_simple_assignment_target(&mut self, target: &oxc_ast::ast::SimpleAssignmentTarget<'a>) {
+  fn visit_simple_assignment_target(
+    &mut self,
+    target: &oxc_ast::ast::SimpleAssignmentTarget<'a>,
+  ) {
     oxc_ast::visit::walk::walk_simple_assignment_target(self, target);
   }
 
-  fn visit_assignment_target_pattern(&mut self, pat: &oxc_ast::ast::AssignmentTargetPattern<'a>) {
+  fn visit_assignment_target_pattern(
+    &mut self,
+    pat: &oxc_ast::ast::AssignmentTargetPattern<'a>,
+  ) {
     oxc_ast::visit::walk::walk_assignment_target_pattern(self, pat);
   }
 
-  fn visit_array_assignment_target(&mut self, target: &oxc_ast::ast::ArrayAssignmentTarget<'a>) {
+  fn visit_array_assignment_target(
+    &mut self,
+    target: &oxc_ast::ast::ArrayAssignmentTarget<'a>,
+  ) {
     oxc_ast::visit::walk::walk_array_assignment_target(self, target);
   }
 
@@ -510,7 +631,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_assignment_target_with_default(self, target);
   }
 
-  fn visit_object_assignment_target(&mut self, target: &oxc_ast::ast::ObjectAssignmentTarget<'a>) {
+  fn visit_object_assignment_target(
+    &mut self,
+    target: &oxc_ast::ast::ObjectAssignmentTarget<'a>,
+  ) {
     oxc_ast::visit::walk::walk_object_assignment_target(self, target);
   }
 
@@ -525,17 +649,24 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     &mut self,
     ident: &oxc_ast::ast::AssignmentTargetPropertyIdentifier<'a>,
   ) {
-    oxc_ast::visit::walk::walk_assignment_target_property_identifier(self, ident);
+    oxc_ast::visit::walk::walk_assignment_target_property_identifier(
+      self, ident,
+    );
   }
 
   fn visit_assignment_target_property_property(
     &mut self,
     property: &oxc_ast::ast::AssignmentTargetPropertyProperty<'a>,
   ) {
-    oxc_ast::visit::walk::walk_assignment_target_property_property(self, property);
+    oxc_ast::visit::walk::walk_assignment_target_property_property(
+      self, property,
+    );
   }
 
-  fn visit_assignment_target_rest(&mut self, rest: &oxc_ast::ast::AssignmentTargetRest<'a>) {
+  fn visit_assignment_target_rest(
+    &mut self,
+    rest: &oxc_ast::ast::AssignmentTargetRest<'a>,
+  ) {
     oxc_ast::visit::walk::walk_assignment_target_rest(self, rest);
   }
 
@@ -543,23 +674,42 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_jsx_element(self, elem);
   }
 
-  fn visit_jsx_opening_element(&mut self, elem: &oxc_ast::ast::JSXOpeningElement<'a>) {
+  fn visit_jsx_opening_element(
+    &mut self,
+    elem: &oxc_ast::ast::JSXOpeningElement<'a>,
+  ) {
     oxc_ast::visit::walk::walk_jsx_opening_element(self, elem);
   }
 
-  fn visit_jsx_closing_element(&mut self, elem: &oxc_ast::ast::JSXClosingElement<'a>) {
+  fn visit_jsx_closing_element(
+    &mut self,
+    elem: &oxc_ast::ast::JSXClosingElement<'a>,
+  ) {
     oxc_ast::visit::walk::walk_jsx_closing_element(self, elem);
   }
 
-  fn visit_jsx_element_name(&mut self, name: &oxc_ast::ast::JSXElementName<'a>) {
+  fn visit_jsx_element_name(
+    &mut self,
+    name: &oxc_ast::ast::JSXElementName<'a>,
+  ) {
     oxc_ast::visit::walk::walk_jsx_element_name(self, name);
   }
 
   fn visit_jsx_identifier(&mut self, ident: &oxc_ast::ast::JSXIdentifier<'a>) {
+    if ident.name == "arguments" {
+      self.cache.push(CompatBox {
+        start: ident.span.start,
+        end: ident.span.end,
+        compat: FUNCTIONS.arguments,
+      });
+    }
     oxc_ast::visit::walk::walk_jsx_identifier(self, ident);
   }
 
-  fn visit_jsx_member_expression(&mut self, expr: &oxc_ast::ast::JSXMemberExpression<'a>) {
+  fn visit_jsx_member_expression(
+    &mut self,
+    expr: &oxc_ast::ast::JSXMemberExpression<'a>,
+  ) {
     oxc_ast::visit::walk::walk_jsx_member_expression(self, expr);
   }
 
@@ -570,27 +720,45 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_jsx_member_expression_object(self, expr);
   }
 
-  fn visit_jsx_namespaced_name(&mut self, name: &oxc_ast::ast::JSXNamespacedName<'a>) {
+  fn visit_jsx_namespaced_name(
+    &mut self,
+    name: &oxc_ast::ast::JSXNamespacedName<'a>,
+  ) {
     oxc_ast::visit::walk::walk_jsx_namespaced_name(self, name);
   }
 
-  fn visit_jsx_attribute_item(&mut self, item: &oxc_ast::ast::JSXAttributeItem<'a>) {
+  fn visit_jsx_attribute_item(
+    &mut self,
+    item: &oxc_ast::ast::JSXAttributeItem<'a>,
+  ) {
     oxc_ast::visit::walk::walk_jsx_attribute_item(self, item);
   }
 
-  fn visit_jsx_attribute(&mut self, attribute: &oxc_ast::ast::JSXAttribute<'a>) {
+  fn visit_jsx_attribute(
+    &mut self,
+    attribute: &oxc_ast::ast::JSXAttribute<'a>,
+  ) {
     oxc_ast::visit::walk::walk_jsx_attribute(self, attribute);
   }
 
-  fn visit_jsx_spread_attribute(&mut self, attribute: &oxc_ast::ast::JSXSpreadAttribute<'a>) {
+  fn visit_jsx_spread_attribute(
+    &mut self,
+    attribute: &oxc_ast::ast::JSXSpreadAttribute<'a>,
+  ) {
     oxc_ast::visit::walk::walk_jsx_spread_attribute(self, attribute);
   }
 
-  fn visit_jsx_attribute_value(&mut self, value: &oxc_ast::ast::JSXAttributeValue<'a>) {
+  fn visit_jsx_attribute_value(
+    &mut self,
+    value: &oxc_ast::ast::JSXAttributeValue<'a>,
+  ) {
     oxc_ast::visit::walk::walk_jsx_attribute_value(self, value);
   }
 
-  fn visit_jsx_expression_container(&mut self, expr: &oxc_ast::ast::JSXExpressionContainer<'a>) {
+  fn visit_jsx_expression_container(
+    &mut self,
+    expr: &oxc_ast::ast::JSXExpressionContainer<'a>,
+  ) {
     oxc_ast::visit::walk::walk_jsx_expression_container(self, expr);
   }
 
@@ -606,7 +774,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_jsx_child(self, child);
   }
 
-  fn visit_jsx_spread_child(&mut self, child: &oxc_ast::ast::JSXSpreadChild<'a>) {
+  fn visit_jsx_spread_child(
+    &mut self,
+    child: &oxc_ast::ast::JSXSpreadChild<'a>,
+  ) {
     oxc_ast::visit::walk::walk_jsx_spread_child(self, child);
   }
 
@@ -618,7 +789,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_binding_pattern(self, pat);
   }
 
-  fn visit_binding_identifier(&mut self, ident: &oxc_ast::ast::BindingIdentifier<'a>) {
+  fn visit_binding_identifier(
+    &mut self,
+    ident: &oxc_ast::ast::BindingIdentifier<'a>,
+  ) {
     oxc_ast::visit::walk::walk_binding_identifier(self, ident);
   }
 
@@ -626,7 +800,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_object_pattern(self, pat);
   }
 
-  fn visit_binding_property(&mut self, prop: &oxc_ast::ast::BindingProperty<'a>) {
+  fn visit_binding_property(
+    &mut self,
+    prop: &oxc_ast::ast::BindingProperty<'a>,
+  ) {
     oxc_ast::visit::walk::walk_binding_property(self, prop);
   }
 
@@ -638,23 +815,38 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_rest_element(self, pat);
   }
 
-  fn visit_assignment_pattern(&mut self, pat: &oxc_ast::ast::AssignmentPattern<'a>) {
+  fn visit_assignment_pattern(
+    &mut self,
+    pat: &oxc_ast::ast::AssignmentPattern<'a>,
+  ) {
     oxc_ast::visit::walk::walk_assignment_pattern(self, pat);
   }
 
-  fn visit_identifier_reference(&mut self, ident: &oxc_ast::ast::IdentifierReference<'a>) {
+  fn visit_identifier_reference(
+    &mut self,
+    ident: &oxc_ast::ast::IdentifierReference<'a>,
+  ) {
     oxc_ast::visit::walk::walk_identifier_reference(self, ident);
   }
 
-  fn visit_private_identifier(&mut self, ident: &oxc_ast::ast::PrivateIdentifier<'a>) {
+  fn visit_private_identifier(
+    &mut self,
+    ident: &oxc_ast::ast::PrivateIdentifier<'a>,
+  ) {
     oxc_ast::visit::walk::walk_private_identifier(self, ident);
   }
 
-  fn visit_label_identifier(&mut self, ident: &oxc_ast::ast::LabelIdentifier<'a>) {
+  fn visit_label_identifier(
+    &mut self,
+    ident: &oxc_ast::ast::LabelIdentifier<'a>,
+  ) {
     oxc_ast::visit::walk::walk_label_identifier(self, ident);
   }
 
-  fn visit_identifier_name(&mut self, ident: &oxc_ast::ast::IdentifierName<'a>) {
+  fn visit_identifier_name(
+    &mut self,
+    ident: &oxc_ast::ast::IdentifierName<'a>,
+  ) {
     oxc_ast::visit::walk::walk_identifier_name(self, ident);
   }
 
@@ -678,7 +870,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_string_literal(self, lit);
   }
 
-  fn visit_template_literal(&mut self, lit: &oxc_ast::ast::TemplateLiteral<'a>) {
+  fn visit_template_literal(
+    &mut self,
+    lit: &oxc_ast::ast::TemplateLiteral<'a>,
+  ) {
     oxc_ast::visit::walk::walk_template_literal(self, lit);
   }
 
@@ -690,11 +885,17 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_template_element(self, elem);
   }
 
-  fn visit_module_declaration(&mut self, decl: &oxc_ast::ast::ModuleDeclaration<'a>) {
+  fn visit_module_declaration(
+    &mut self,
+    decl: &oxc_ast::ast::ModuleDeclaration<'a>,
+  ) {
     oxc_ast::visit::walk::walk_module_declaration(self, decl);
   }
 
-  fn visit_import_declaration(&mut self, decl: &oxc_ast::ast::ImportDeclaration<'a>) {
+  fn visit_import_declaration(
+    &mut self,
+    decl: &oxc_ast::ast::ImportDeclaration<'a>,
+  ) {
     oxc_ast::visit::walk::walk_import_declaration(self, decl);
   }
 
@@ -702,11 +903,17 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_with_clause(self, with_clause);
   }
 
-  fn visit_import_attribute(&mut self, attribute: &oxc_ast::ast::ImportAttribute<'a>) {
+  fn visit_import_attribute(
+    &mut self,
+    attribute: &oxc_ast::ast::ImportAttribute<'a>,
+  ) {
     oxc_ast::visit::walk::walk_import_attribute(self, attribute);
   }
 
-  fn visit_import_attribute_key(&mut self, key: &oxc_ast::ast::ImportAttributeKey<'a>) {
+  fn visit_import_attribute_key(
+    &mut self,
+    key: &oxc_ast::ast::ImportAttributeKey<'a>,
+  ) {
     oxc_ast::visit::walk::walk_import_attribute_key(self, key);
   }
 
@@ -717,7 +924,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_import_declaration_specifier(self, specifier);
   }
 
-  fn visit_import_specifier(&mut self, specifier: &oxc_ast::ast::ImportSpecifier<'a>) {
+  fn visit_import_specifier(
+    &mut self,
+    specifier: &oxc_ast::ast::ImportSpecifier<'a>,
+  ) {
     oxc_ast::visit::walk::walk_import_specifier(self, specifier);
   }
 
@@ -735,7 +945,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_import_name_specifier(self, specifier);
   }
 
-  fn visit_export_all_declaration(&mut self, decl: &oxc_ast::ast::ExportAllDeclaration<'a>) {
+  fn visit_export_all_declaration(
+    &mut self,
+    decl: &oxc_ast::ast::ExportAllDeclaration<'a>,
+  ) {
     oxc_ast::visit::walk::walk_export_all_declaration(self, decl);
   }
 
@@ -746,15 +959,24 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_export_default_declaration(self, decl);
   }
 
-  fn visit_export_named_declaration(&mut self, decl: &oxc_ast::ast::ExportNamedDeclaration<'a>) {
+  fn visit_export_named_declaration(
+    &mut self,
+    decl: &oxc_ast::ast::ExportNamedDeclaration<'a>,
+  ) {
     oxc_ast::visit::walk::walk_export_named_declaration(self, decl);
   }
 
-  fn visit_export_specifier(&mut self, specifier: &oxc_ast::ast::ExportSpecifier<'a>) {
+  fn visit_export_specifier(
+    &mut self,
+    specifier: &oxc_ast::ast::ExportSpecifier<'a>,
+  ) {
     oxc_ast::visit::walk::walk_export_specifier(self, specifier);
   }
 
-  fn visit_module_export_name(&mut self, name: &oxc_ast::ast::ModuleExportName<'a>) {
+  fn visit_module_export_name(
+    &mut self,
+    name: &oxc_ast::ast::ModuleExportName<'a>,
+  ) {
     oxc_ast::visit::walk::walk_module_export_name(self, name);
   }
 

@@ -41,7 +41,10 @@ pub fn get_module_member_usage(
       let allocator = Allocator::default();
       let ret = Parser::new(&allocator, &source_text, source_type).parse();
 
-      let mut x = ModuleMemberUsageVisitor::new(path.to_path_buf(), npm_name_vec.to_vec());
+      let mut x = ModuleMemberUsageVisitor::new(
+        path.to_path_buf(),
+        npm_name_vec.to_vec(),
+      );
 
       x.visit_program(&ret.program);
       let mut used = used.lock().unwrap();

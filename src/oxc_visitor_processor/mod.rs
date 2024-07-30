@@ -16,7 +16,10 @@ pub struct Options {
   pub concurrency: Option<i32>,
 }
 
-pub fn oxc_visit_process<F>(create_visit: F, options: Option<Options>) -> Result<()>
+pub fn oxc_visit_process<F>(
+  create_visit: F,
+  options: Option<Options>,
+) -> Result<()>
 where
   F: FnMut(PathBuf) + Send + 'static,
 {
@@ -35,7 +38,8 @@ where
         .collect()
     });
 
-  let ignore_patterns: Vec<&str> = ignore_patterns_vec.iter().map(String::as_str).collect();
+  let ignore_patterns: Vec<&str> =
+    ignore_patterns_vec.iter().map(String::as_str).collect();
 
   let dir = current_dir()?.display().to_string();
 
@@ -51,7 +55,9 @@ where
 
   let glob = match Glob::new(default_pattern) {
     Ok(glob) => glob,
-    Err(e) => return Err(Error::new(napi::Status::GenericFailure, e.to_string())),
+    Err(e) => {
+      return Err(Error::new(napi::Status::GenericFailure, e.to_string()))
+    }
   };
 
   let entries = glob
@@ -65,7 +71,8 @@ where
   let pool = ThreadPool::new(concurrency as usize);
 
   for entry in entries {
-    let entry = entry.map_err(|e| Error::new(napi::Status::GenericFailure, e.to_string()))?;
+    let entry = entry
+      .map_err(|e| Error::new(napi::Status::GenericFailure, e.to_string()))?;
     let path = entry.path().to_path_buf();
 
     let create_visit = Arc::clone(&create_visit);

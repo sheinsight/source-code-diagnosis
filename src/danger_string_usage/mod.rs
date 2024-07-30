@@ -41,7 +41,8 @@ pub fn get_danger_strings_usage(
       let allocator = Allocator::default();
       let ret = Parser::new(&allocator, &source_text, source_type).parse();
 
-      let mut x = DangerStringVisitor::new(path.to_path_buf(), danger_strings.to_vec());
+      let mut x =
+        DangerStringVisitor::new(path.to_path_buf(), danger_strings.to_vec());
 
       x.visit_program(&ret.program);
       let mut used = used.lock().unwrap();

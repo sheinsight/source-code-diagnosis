@@ -20,7 +20,10 @@ use syntax_record_visitor::SyntaxRecordVisitor;
 use crate::oxc_visitor_processor::{oxc_visit_process, Options};
 
 #[napi]
-pub fn demo(danger_strings: Vec<String>, options: Option<Options>) -> Result<()> {
+pub fn demo(
+  danger_strings: Vec<String>,
+  options: Option<Options>,
+) -> Result<()> {
   let used: Arc<Mutex<Vec<Compat>>> = Arc::new(Mutex::new(Vec::new()));
   let x = {
     let used = Arc::clone(&used);

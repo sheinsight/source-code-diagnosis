@@ -1,7 +1,10 @@
 use std::{collections::HashMap, marker::PhantomData, path::PathBuf};
 
 use oxc_ast::{
-  ast::{Expression, ImportDeclarationSpecifier, JSXElementName, JSXMemberExpressionObject},
+  ast::{
+    Expression, ImportDeclarationSpecifier, JSXElementName,
+    JSXMemberExpressionObject,
+  },
   Visit,
 };
 
@@ -38,7 +41,10 @@ impl<'a> ModuleMemberUsageVisitor<'a> {
 }
 
 impl<'a> Visit<'a> for ModuleMemberUsageVisitor<'a> {
-  fn visit_import_declaration(&mut self, decl: &oxc_ast::ast::ImportDeclaration) {
+  fn visit_import_declaration(
+    &mut self,
+    decl: &oxc_ast::ast::ImportDeclaration,
+  ) {
     let value = decl.source.value.to_string();
     if self.npm_libs.contains(&value) {
       if let Some(specifiers) = &decl.specifiers {
@@ -75,7 +81,10 @@ impl<'a> Visit<'a> for ModuleMemberUsageVisitor<'a> {
     }
   }
 
-  fn visit_identifier_reference(&mut self, ident: &oxc_ast::ast::IdentifierReference<'a>) {
+  fn visit_identifier_reference(
+    &mut self,
+    ident: &oxc_ast::ast::IdentifierReference<'a>,
+  ) {
     if let Some(v) = self.mapper.get(&ident.name.to_string()) {
       self.used.push(ModuleMemberUsageLocation {
         lib_name: v.npm_lib_name.to_string(),
@@ -114,13 +123,17 @@ impl<'a> Visit<'a> for ModuleMemberUsageVisitor<'a> {
     }
   }
 
-  fn visit_jsx_opening_element(&mut self, elem: &oxc_ast::ast::JSXOpeningElement<'a>) {
+  fn visit_jsx_opening_element(
+    &mut self,
+    elem: &oxc_ast::ast::JSXOpeningElement<'a>,
+  ) {
     match &elem.name {
       JSXElementName::MemberExpression(expr) => {
         if let JSXMemberExpressionObject::Identifier(reference) = &expr.object {
           let name = reference.name.to_string();
           if let Some(v) = self.mapper.get(&name) {
-            if v.imported_name == ES_DEFAULT || v.imported_name == ES_NAMESPACE {
+            if v.imported_name == ES_DEFAULT || v.imported_name == ES_NAMESPACE
+            {
               self.used.push(ModuleMemberUsageLocation {
                 lib_name: v.npm_lib_name.to_string(),
                 member_name: expr.property.name.to_string(),
