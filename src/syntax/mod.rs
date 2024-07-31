@@ -74,7 +74,7 @@ pub fn demo(
         let seg = &source_text[item.start as usize..item.end as usize];
         println!("syntax: {} ", item.compat.name);
         println!(
-          "chrome:{:<10} firefox:{:<10} safari:{:<10} edge:{:<10} opera:{:<10} demo:{:<10} node:{:<10}",
+          "chrome:{:<10} firefox:{:<10} safari:{:<10} edge:{:<10} opera:{:<10} deno:{:<10} node:{:<10}",
           item.compat.support.chrome,
           item.compat.support.firefox,
           item.compat.support.safari,

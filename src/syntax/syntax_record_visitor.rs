@@ -2,7 +2,8 @@ use std::{marker::PhantomData, ops::Not};
 
 use oxc_ast::{
   ast::{
-    BindingPatternKind, Expression, MethodDefinitionKind, ObjectPropertyKind,
+    Argument, ArrayExpressionElement, BindingPatternKind, Expression,
+    MethodDefinitionKind, ObjectPropertyKind,
   },
   AstKind, Visit,
 };
@@ -423,6 +424,13 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     &mut self,
     arg: &oxc_ast::ast::ArrayExpressionElement<'a>,
   ) {
+    if let ArrayExpressionElement::SpreadElement(arg) = arg {
+      self.cache.push(CompatBox {
+        start: arg.span.start,
+        end: arg.span.end,
+        compat: OPERATORS.spread_in_arrays,
+      });
+    }
     oxc_ast::visit::walk::walk_array_expression_element(self, arg);
   }
 
@@ -511,6 +519,15 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_call_expression(&mut self, expr: &oxc_ast::ast::CallExpression<'a>) {
+    for arg in &expr.arguments {
+      if let Argument::SpreadElement(arg) = arg {
+        self.cache.push(CompatBox {
+          start: arg.span.start,
+          end: arg.span.end,
+          compat: OPERATORS.spread_in_function_calls,
+        });
+      }
+    }
     oxc_ast::visit::walk::walk_call_expression(self, expr);
   }
 

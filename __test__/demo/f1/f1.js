@@ -8,3 +8,9 @@ let x = function () {
 		}
 	}
 };
+
+let t = [];
+
+let x = [1, 2, ...t];
+
+x(...t);

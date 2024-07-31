@@ -9,7 +9,12 @@ pub struct Operators<'a> {
 
   pub spread: Compat<'a>,
 
+  pub spread_in_arrays: Compat<'a>,
+
   pub spread_in_object_literals: Compat<'a>,
+
+  pub spread_in_function_calls: Compat<'a>,
+
 }
 
 pub const OPERATORS: Operators = Operators {
@@ -146,6 +151,64 @@ pub const OPERATORS: Operators = Operators {
       status: Status { 
         experimental: false, 
         standard_track: true,
+        deprecated: false 
+      }
+    },
+
+    spread_in_arrays: Compat { 
+      name: "spread_in_arrays", 
+      description: "Spread in array literals", 
+      mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_array_literals", 
+      spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-SpreadElement", 
+      tags: &[
+        "web-features:snapshot:ecmascript-2015"
+      ], 
+      support: Support { 
+        chrome: "46", 
+        chrome_android: "46", 
+        firefox: "16", 
+        firefox_android: "16", 
+        safari: "8", 
+        safari_ios: "8", 
+        opera: "37", 
+        opera_android: "37", 
+        ie: "0", 
+        edge: "12", 
+        deno: "1.0", 
+        node: "5.0.0"
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    },
+
+    spread_in_function_calls: Compat { 
+      name: "spread_in_function_calls", 
+      description: "Spread in function calls", 
+      mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_function_calls", 
+      spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-ArgumentList", 
+      tags: &[
+        "web-features:snapshot:ecmascript-2015"
+      ], 
+      support: Support { 
+        chrome: "46", 
+        chrome_android: "46", 
+        firefox: "27", 
+        firefox_android: "27", 
+        safari: "8", 
+        safari_ios: "8", 
+        opera: "46", 
+        opera_android: "46", 
+        ie: "0", 
+        edge: "12", 
+        deno: "1.0", 
+        node: "5.0.0"
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
         deprecated: false 
       }
     },
