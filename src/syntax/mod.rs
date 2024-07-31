@@ -70,6 +70,8 @@ pub fn demo(
       // println!("file: {:?}", x.cache.len());
 
       x.cache.iter().for_each(|item| {
+        // 片段
+        let seg = &source_text[item.start as usize..item.end as usize];
         println!("syntax: {} ", item.compat.name);
         println!(
           "chrome:{:<10} firefox:{:<10} safari:{:<10} edge:{:<10} opera:{:<10}",
@@ -85,6 +87,8 @@ pub fn demo(
           item.start,
           item.end
         );
+        println!("seg: {}", seg);
+
         println!("-----------------------------------");
       })
     }

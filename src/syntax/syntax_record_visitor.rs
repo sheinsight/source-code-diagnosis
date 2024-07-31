@@ -1,8 +1,8 @@
 use std::{any::Any, marker::PhantomData, ops::Not};
 
 use oxc_ast::{
-  ast::{AssignmentPattern, BindingPattern, BindingPatternKind},
-  Visit,
+  ast::{BindingPatternKind, Expression, MethodDefinitionKind},
+  AstKind, Visit,
 };
 use oxc_span::Span;
 use oxc_syntax::{
@@ -15,6 +15,7 @@ use super::{compat::CompatBox, functions::FUNCTIONS, operators::OPERATORS};
 #[derive(Debug)]
 pub struct SyntaxRecordVisitor<'a> {
   pub cache: Vec<CompatBox>,
+  parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
 }
@@ -23,6 +24,7 @@ impl<'a> SyntaxRecordVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
     Self {
       cache: Vec::new(),
+      parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
     }
@@ -34,9 +36,13 @@ impl<'a> SyntaxRecordVisitor<'a> {
 }
 
 impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
-  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {}
+  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
+    self.parent_stack.push(kind);
+  }
 
-  fn leave_node(&mut self, kind: oxc_ast::AstKind<'a>) {}
+  fn leave_node(&mut self, kind: oxc_ast::AstKind<'a>) {
+    self.parent_stack.pop();
+  }
 
   fn enter_scope(&mut self, flags: ScopeFlags) {}
 
@@ -115,7 +121,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_for_statement(self, stmt);
   }
 
-  // fn visit_for_statement_init(&mut self, init: &oxc_ast::ast::ForStatementInit<'a>) {
+  // fn visit_for_statement_init(
+  //   &mut self,
+  //   init: &oxc_ast::ast::ForStatementInit<'a>,
+  // ) {
   //   self.cache.insert(STATEMENTS.r#for);
   //   oxc_ast::visit::walk::walk_for_statement_init(self, init);
   // }
@@ -136,9 +145,12 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_for_of_statement(self, stmt);
   }
 
-  // fn visit_for_statement_left(&mut self, left: &oxc_ast::ast::ForStatementLeft<'a>) {
-  //   oxc_ast::visit::walk::walk_for_statement_left(self, left);
-  // }
+  fn visit_for_statement_left(
+    &mut self,
+    left: &oxc_ast::ast::ForStatementLeft<'a>,
+  ) {
+    oxc_ast::visit::walk::walk_for_statement_left(self, left);
+  }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/if...else
   fn visit_if_statement(&mut self, stmt: &oxc_ast::ast::IfStatement<'a>) {
@@ -169,10 +181,9 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_switch_statement(self, stmt);
   }
 
-  // fn visit_switch_case(&mut self, case: &oxc_ast::ast::SwitchCase<'a>) {
-  //   self.cache.insert(STATEMENTS.switch);
-  //   oxc_ast::visit::walk::walk_switch_case(self, case);
-  // }
+  fn visit_switch_case(&mut self, case: &oxc_ast::ast::SwitchCase<'a>) {
+    oxc_ast::visit::walk::walk_switch_case(self, case);
+  }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/throw
   fn visit_throw_statement(&mut self, stmt: &oxc_ast::ast::ThrowStatement<'a>) {
@@ -184,20 +195,23 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_try_statement(self, stmt);
   }
 
-  // fn visit_catch_clause(&mut self, clause: &oxc_ast::ast::CatchClause<'a>) {
-  //   self.cache.insert(STATEMENTS.try_catch);
-  //   oxc_ast::visit::walk::walk_catch_clause(self, clause);
-  // }
+  fn visit_catch_clause(&mut self, clause: &oxc_ast::ast::CatchClause<'a>) {
+    oxc_ast::visit::walk::walk_catch_clause(self, clause);
+  }
 
-  // fn visit_catch_parameter(&mut self, param: &oxc_ast::ast::CatchParameter<'a>) {
-  //   self.cache.insert(STATEMENTS.try_catch);
-  //   oxc_ast::visit::walk::walk_catch_parameter(self, param);
-  // }
+  fn visit_catch_parameter(
+    &mut self,
+    param: &oxc_ast::ast::CatchParameter<'a>,
+  ) {
+    oxc_ast::visit::walk::walk_catch_parameter(self, param);
+  }
 
-  // fn visit_finally_clause(&mut self, clause: &oxc_ast::ast::BlockStatement<'a>) {
-  //   self.cache.insert(STATEMENTS.block);
-  //   oxc_ast::visit::walk::walk_finally_clause(self, clause);
-  // }
+  fn visit_finally_clause(
+    &mut self,
+    clause: &oxc_ast::ast::BlockStatement<'a>,
+  ) {
+    oxc_ast::visit::walk::walk_finally_clause(self, clause);
+  }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/while
   fn visit_while_statement(&mut self, stmt: &oxc_ast::ast::WhileStatement<'a>) {
@@ -209,9 +223,9 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_with_statement(self, stmt);
   }
 
-  // fn visit_directive(&mut self, directive: &oxc_ast::ast::Directive<'a>) {
-  //   oxc_ast::visit::walk::walk_directive(self, directive);
-  // }
+  fn visit_directive(&mut self, directive: &oxc_ast::ast::Directive<'a>) {
+    oxc_ast::visit::walk::walk_directive(self, directive);
+  }
 
   fn visit_variable_declaration(
     &mut self,
@@ -249,15 +263,21 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     func: &oxc_ast::ast::Function<'a>,
     flags: Option<ScopeFlags>,
   ) {
+    // 获取父节点
+    if let Some(parent) = self.parent_stack.last() {
+      if let AstKind::ObjectProperty(_) = parent {
+        println!("当前函数的父节点是 ObjectProperty");
+        /*
+          - if parent node is ObjectProperty, then return
+          - because if object property is a function  visit_object_property handler
+        */
+        return;
+      }
+    }
+
     // self.cache.insert(STATEMENTS.function);
 
     // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions
-
-    self.cache.push(CompatBox {
-      start: func.span.start,
-      end: func.span.end,
-      compat: FUNCTIONS.functions,
-    });
 
     if func.params.is_empty().not() {
       for param in func.params.items.iter() {
@@ -281,24 +301,35 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       (false, true) => {
         // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function*
       }
-      _ => {}
+      _ => {
+        self.cache.push(CompatBox {
+          start: func.span.start,
+          end: func.span.end,
+          compat: FUNCTIONS.functions,
+        });
+      }
     };
 
     oxc_ast::visit::walk::walk_function(self, func, flags);
   }
 
-  // fn visit_function_body(&mut self, body: &oxc_ast::ast::FunctionBody<'a>) {
-  //   self.cache.insert(STATEMENTS.function);
-  //   oxc_ast::visit::walk::walk_function_body(self, body);
-  // }
+  fn visit_function_body(&mut self, body: &oxc_ast::ast::FunctionBody<'a>) {
+    oxc_ast::visit::walk::walk_function_body(self, body);
+  }
 
-  // fn visit_formal_parameters(&mut self, params: &oxc_ast::ast::FormalParameters<'a>) {
-  //   oxc_ast::visit::walk::walk_formal_parameters(self, params);
-  // }
+  fn visit_formal_parameters(
+    &mut self,
+    params: &oxc_ast::ast::FormalParameters<'a>,
+  ) {
+    oxc_ast::visit::walk::walk_formal_parameters(self, params);
+  }
 
-  // fn visit_formal_parameter(&mut self, param: &oxc_ast::ast::FormalParameter<'a>) {
-  //   oxc_ast::visit::walk::walk_formal_parameter(self, param);
-  // }
+  fn visit_formal_parameter(
+    &mut self,
+    param: &oxc_ast::ast::FormalParameter<'a>,
+  ) {
+    oxc_ast::visit::walk::walk_formal_parameter(self, param);
+  }
 
   fn visit_decorator(&mut self, decorator: &oxc_ast::ast::Decorator<'a>) {
     // 🤔  mdn none ???
@@ -315,18 +346,20 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_class_heritage(self, expr);
   }
 
-  // fn visit_ts_class_implements(&mut self, expr: &oxc_ast::ast::TSClassImplements<'a>) {
-  //   oxc_ast::visit::walk::walk_ts_class_implements(self, expr);
-  // }
+  fn visit_ts_class_implements(
+    &mut self,
+    expr: &oxc_ast::ast::TSClassImplements<'a>,
+  ) {
+    oxc_ast::visit::walk::walk_ts_class_implements(self, expr);
+  }
 
-  // fn visit_class_body(&mut self, body: &oxc_ast::ast::ClassBody<'a>) {
-  //   self.cache.insert(STATEMENTS.class);
-  //   oxc_ast::visit::walk::walk_class_body(self, body);
-  // }
+  fn visit_class_body(&mut self, body: &oxc_ast::ast::ClassBody<'a>) {
+    oxc_ast::visit::walk::walk_class_body(self, body);
+  }
 
-  // fn visit_class_element(&mut self, elem: &oxc_ast::ast::ClassElement<'a>) {
-  //   oxc_ast::visit::walk::walk_class_element(self, elem);
-  // }
+  fn visit_class_element(&mut self, elem: &oxc_ast::ast::ClassElement<'a>) {
+    oxc_ast::visit::walk::walk_class_element(self, elem);
+  }
 
   // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/static
   fn visit_static_block(&mut self, block: &oxc_ast::ast::StaticBlock<'a>) {
@@ -337,6 +370,13 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     &mut self,
     def: &oxc_ast::ast::MethodDefinition<'a>,
   ) {
+    if def.kind == MethodDefinitionKind::Method {
+      self.cache.push(CompatBox {
+        start: def.span.start,
+        end: def.span.end,
+        compat: FUNCTIONS.method_definitions,
+      });
+    }
     // if def.kind == oxc_ast::ast::MethodDefinitionKind::Method {
     //   self.cache.insert(FUNCTIONS.method);
     // }
@@ -546,12 +586,83 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_object_property(&mut self, prop: &oxc_ast::ast::ObjectProperty<'a>) {
+    // 匹配函数类型
+
+    if let Expression::FunctionExpression(ref func) = prop.value {
+      match (func.r#async, func.generator) {
+        (true, true) => {
+          /*
+            const myObject = {
+              async *hello() {},
+            };
+          */
+          self.cache.push(CompatBox {
+            start: prop.span.start,
+            end: prop.span.end,
+            compat: FUNCTIONS.method_definitions_async_generator_methods,
+          });
+        }
+        (true, false) => {
+          /*
+            const myObject = {
+              async hello() {},
+            };
+          */
+          self.cache.push(CompatBox {
+            start: prop.span.start,
+            end: prop.span.end,
+            compat: FUNCTIONS.method_definitions_async_methods,
+          });
+        }
+        (false, true) => {
+          /*
+            const myObject = {
+              *hello() {},
+            };
+          */
+          self.cache.push(CompatBox {
+            start: prop.span.start,
+            end: prop.span.end,
+            compat: FUNCTIONS
+              .method_definitions_generator_methods_not_constructable,
+          });
+        }
+        (false, false) => {
+          /*
+            const myObject = {
+              hello() {},
+            };
+          */
+          self.cache.push(CompatBox {
+            start: prop.span.start,
+            end: prop.span.end,
+            compat: FUNCTIONS.method_definitions,
+          });
+        }
+      }
+    }
+
     if prop.kind == oxc_ast::ast::PropertyKind::Get {
+      /*
+        const myObject = {
+          get name() {
+            return "myObject";
+          },
+        };
+      */
       self.cache.push(CompatBox {
         start: prop.span.start,
         end: prop.span.end,
         compat: FUNCTIONS.getter,
       });
+
+      /*
+        const myObject = {
+          get ["hello" + "world"]() {
+            return "myObject";
+          },
+        };
+      */
       if prop.computed {
         self.cache.push(CompatBox {
           start: prop.span.start,

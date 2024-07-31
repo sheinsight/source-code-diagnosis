@@ -10,12 +10,12 @@ const __filename = fileURLToPath(import.meta.url);
 test("getModuleMemberUsage", (t) => {
 	const start = performance.now();
 	const cwd = dirname(__filename);
-	
+
 	demo(["antd"], {
-		cwd:join(cwd, "f1"),
-		concurrency:2
+		cwd: join(cwd, "f1"),
+		concurrency: 2,
 	});
 	const end = performance.now();
-	console.log("Execution time: " + (end - start) + "ms");
+	console.log(`Execution time: ${end - start}ms`);
 	t.is(1, 1);
 });

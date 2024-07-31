@@ -1,9 +1,39 @@
-function multiply(a, b = 1) {
-  return a * b;
-}
+// Using a named property
+const obj = {
+	f: async function* () {
+		yield 1;
+		yield 2;
+		yield 3;
+	},
+};
 
-console.log(multiply(5, 2));
-// Expected output: 10
+// The same object using shorthand syntax
+const obj2 = {
+	async *f() {
+		yield 1;
+		yield 2;
+		yield 3;
+	},
+};
 
-console.log(multiply(5));
-// Expected output: 5
+const obj3 = {
+	async f() {},
+};
+
+const obj4 = {
+	f: async function a() {},
+};
+
+const obj5 = {
+	*f() {},
+};
+
+const obj6 = {
+	fL: function* a() {},
+};
+
+const obj7 = {
+	fL: function a() {},
+};
+
+// function a() {}

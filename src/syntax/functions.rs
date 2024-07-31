@@ -15,6 +15,14 @@ pub struct Functions<'a> {
   pub getter: Compat<'a>,
 
   pub getter_computed_property_names: Compat<'a>,
+
+  pub method_definitions: Compat<'a>,
+
+  pub method_definitions_async_generator_methods: Compat<'a>,
+
+  pub method_definitions_async_methods: Compat<'a>,
+
+  pub method_definitions_generator_methods_not_constructable: Compat<'a>,
 }
 
 pub const FUNCTIONS: Functions = Functions {
@@ -212,6 +220,122 @@ pub const FUNCTIONS: Functions = Functions {
       edge: "12", 
       deno: "1.0", 
       node: "4.0.0"
+    }, 
+    status: Status { 
+      experimental: false, 
+      standard_track: true, 
+      deprecated: false 
+    }
+  },
+
+  method_definitions: Compat { 
+    name: "method_definitions", 
+    description: "Method definitions", 
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions", 
+    spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions", 
+    tags: &[
+      "web-features:snapshot:ecmascript-2015"
+    ], 
+    support: Support { 
+      chrome: "39", 
+      chrome_android: "39", 
+      firefox: "34", 
+      firefox_android: "34", 
+      safari: "9", 
+      safari_ios: "9", 
+      opera: "39", 
+      opera_android: "39", 
+      ie: "0", 
+      edge: "12", 
+      deno: "1.0", 
+      node: "4.0.0"
+    }, 
+    status: Status { 
+      experimental: false, 
+      standard_track: true, 
+      deprecated: false 
+    }
+  },
+  
+  method_definitions_async_generator_methods: Compat { 
+    name: "async_generator_methods", 
+    description: "Method definitions",
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions", 
+    spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions", 
+    tags: &[
+      "web-features:snapshot:ecmascript-2015"
+    ], 
+    support: Support { 
+      chrome: "39", 
+      chrome_android: "39", 
+      firefox: "34", 
+      firefox_android: "34", 
+      safari: "9", 
+      safari_ios: "9", 
+      opera: "39", 
+      opera_android: "39", 
+      ie: "0", 
+      edge: "12", 
+      deno: "1.0", 
+      node: "4.0.0" 
+    }, 
+    status: Status { 
+      experimental: false, 
+      standard_track: true, 
+      deprecated: false 
+    }
+  },
+  
+  method_definitions_async_methods: Compat { 
+    name: "async_methods", 
+    description: "Async methods", 
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions", 
+    spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions", 
+    tags: &[
+      "web-features:snapshot:ecmascript-2015"
+    ], 
+    support: Support { 
+      chrome: "55", 
+      chrome_android: "55", 
+      firefox: "52", 
+      firefox_android: "52", 
+      safari: "10.1", 
+      safari_ios: "10.1", 
+      opera: "55", 
+      opera_android: "55", 
+      ie: "0", 
+      edge: "15",
+      deno: "1.0", 
+      node: "7.6.0"
+    }, 
+    status: Status { 
+      experimental: false, 
+      standard_track: true, 
+      deprecated: false 
+    }
+  },
+  
+  method_definitions_generator_methods_not_constructable: Compat { 
+    name: "generator_methods_not_constructable", 
+    description: "Generator methods are not constructable (ES2016)", 
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions", 
+    spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions", 
+    tags: &[
+      "web-features:snapshot:ecmascript-2015"
+    ], 
+    support: Support { 
+      chrome: "42", 
+      chrome_android: "42", 
+      firefox: "43", 
+      firefox_android: "43", 
+      safari: "9.1", 
+      safari_ios: "9.1", 
+      opera: "42", 
+      opera_android: "42", 
+      ie: "0", 
+      edge: "13", 
+      deno: "1.0", 
+      node: "6.0.0"
     }, 
     status: Status { 
       experimental: false, 
