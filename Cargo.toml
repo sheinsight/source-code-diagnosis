@@ -21,6 +21,7 @@ threadpool = "1.8.1"
 rayon = "1.10.0" 
 
 
+
 [build-dependencies]
 napi-build = "2.0.1"
 

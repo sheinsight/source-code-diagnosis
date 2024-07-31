@@ -11,11 +11,13 @@ test("getModuleMemberUsage", (t) => {
 	const start = performance.now();
 	const cwd = dirname(__filename);
 
-	demo(["antd"], {
+	const res = demo(["antd"], {
 		cwd: join(cwd, "f1"),
 		concurrency: 2,
 	});
 	const end = performance.now();
 	console.log(`Execution time: ${end - start}ms`);
+
+	console.log(res);
 	t.is(1, 1);
 });

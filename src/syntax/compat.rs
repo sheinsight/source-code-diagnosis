@@ -1,40 +1,46 @@
-#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy)]
-pub struct Compat<'a> {
-  pub name: &'a str,
-  pub description: &'a str,
-  pub mdn_url: &'a str,
-  pub spec_url: &'a str,
-  pub tags: &'a [&'a str],
-  pub support: Support<'a>,
+use serde::Serialize;
+
+#[napi(object)]
+#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Serialize)]
+pub struct Compat {
+  pub name: String,
+  pub description: String,
+  pub mdn_url: String,
+  pub spec_url: String,
+  pub tags: Vec<String>,
+  pub support: Support,
   pub status: Status,
 }
 
-#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy)]
+#[napi(object)]
+#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy, Serialize)]
 pub struct Status {
   pub experimental: bool,
   pub standard_track: bool,
   pub deprecated: bool,
 }
 
-#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy)]
-pub struct Support<'a> {
-  pub chrome: &'a str,
-  pub chrome_android: &'a str,
-  pub firefox: &'a str,
-  pub firefox_android: &'a str,
-  pub safari: &'a str,
-  pub safari_ios: &'a str,
-  pub opera: &'a str,
-  pub opera_android: &'a str,
-  pub ie: &'a str,
-  pub edge: &'a str,
-  pub deno: &'a str,
-  pub node: &'a str,
+#[napi(object)]
+#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Serialize)]
+pub struct Support {
+  pub chrome: String,
+  pub chrome_android: String,
+  pub firefox: String,
+  pub firefox_android: String,
+  pub safari: String,
+  pub safari_ios: String,
+  pub opera: String,
+  pub opera_android: String,
+  pub ie: String,
+  pub edge: String,
+  pub deno: String,
+  pub node: String,
 }
 
-#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy)]
+#[napi(object)]
+#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Serialize)]
 pub struct CompatBox {
   pub start: u32,
   pub end: u32,
-  pub compat: Compat<'static>,
+  pub compat: Compat,
 }

@@ -25,4 +25,37 @@ export interface Options {
   cwd?: string
   concurrency?: number
 }
-export declare function demo(dangerStrings: Array<string>, options?: Options | undefined | null): void
+export interface Compat {
+  name: string
+  description: string
+  mdnUrl: string
+  specUrl: string
+  tags: Array<string>
+  support: Support
+  status: Status
+}
+export interface Status {
+  experimental: boolean
+  standardTrack: boolean
+  deprecated: boolean
+}
+export interface Support {
+  chrome: string
+  chromeAndroid: string
+  firefox: string
+  firefoxAndroid: string
+  safari: string
+  safariIos: string
+  opera: string
+  operaAndroid: string
+  ie: string
+  edge: string
+  deno: string
+  node: string
+}
+export interface CompatBox {
+  start: number
+  end: number
+  compat: Compat
+}
+export declare function demo(dangerStrings: Array<string>, options?: Options | undefined | null): Array<CompatBox>

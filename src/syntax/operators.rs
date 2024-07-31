@@ -1,246 +1,260 @@
 use super::compat::{Compat, Status, Support};
+use crate::str;
 
-pub struct Operators<'a> {
-  pub addition_assignment: Compat<'a>,
+#[derive(Debug)]
+pub struct Operators {
 
-  pub addition: Compat<'a>,
+  pub addition_assignment: Compat,
 
-  pub assignment: Compat<'a>,
+  pub addition: Compat,
 
-  pub spread: Compat<'a>,
+  pub assignment: Compat,
 
-  pub spread_in_arrays: Compat<'a>,
+  pub spread: Compat,
 
-  pub spread_in_object_literals: Compat<'a>,
+  pub spread_in_arrays: Compat,
 
-  pub spread_in_function_calls: Compat<'a>,
+  pub spread_in_object_literals: Compat,
 
-  pub exponentiation_assignment: Compat<'a>,
+  pub spread_in_function_calls: Compat,
+
+  pub exponentiation_assignment: Compat,
 
 }
 
-pub const OPERATORS: Operators = Operators {
 
-  addition_assignment: Compat {
-    name: "addition_assignment",
-    description: "Addition assignment (<code>x += y</code>)",
-    mdn_url:
-      "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Addition_assignment",
-    spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators",
-    tags: &["web-features:snapshot:ecmascript-1"],
-    support: Support {
-        chrome: "1",
-        chrome_android: "1",
-        firefox: "1",
-        firefox_android: "1",
-        safari: "1",
-        safari_ios: "1",
-        opera: "3",
-        opera_android: "3",
-        ie: "3",
-        edge: "12",
-        deno: "1.0",
-        node: "0.10.0",
-    },
-    status: Status {
-      experimental: false,
-      standard_track: true,
-      deprecated: false,
-    },
-  },
+pub fn create_operators() -> Operators{
+  Operators {
 
-  addition: Compat {
-    name: "addition", 
-    description: "Addition (<code>+</code>)", 
-    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Addition",
-    spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-addition-operator-plus", 
-    tags: &["web-features:snapshot:ecmascript-1"], 
-    support: Support {
-      chrome: "1", 
-      chrome_android: "1", 
-      firefox: "1", 
-      firefox_android: "1", 
-      safari: "1", 
-      safari_ios: "1", 
-      opera: "3", 
-      opera_android: "10.1", 
-      ie: "3", 
-      edge: "12", 
-      deno: "1.0", 
-      node: "0.10.0" 
-    },
-    status: Status {
-      experimental: false,
-      standard_track: true,
-      deprecated: false
-    }
-  },
-
-  assignment: Compat {
-    name: "assignment",
-    description: "Assignment (<code>x = y</code>)",
-    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Assignment",
-    spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators",
-    tags: &["web-features:snapshot:ecmascript-1"],
-    support: Support {
-      chrome: "1", 
-      chrome_android: "1", 
-      firefox: "1", 
-      firefox_android: "1", 
-      safari: "1", 
-      safari_ios: "1", 
-      opera: "3", 
-      opera_android: "10.1", 
-      ie: "3", 
-      edge: "12", 
-      deno: "1.0", 
-      node: "0.10.0"
-    },
-    status: Status {
-      experimental: false,
-      standard_track: true,
-      deprecated: false
-    }
-  },
-    spread: Compat { 
-      name: "spread", 
-      description: "Spread syntax (...)", 
-      mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax", 
-      spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-SpreadElement", 
-      tags: &[
-        "web-features:snapshot:ecmascript-2015"
-      ], 
-      support: Support { 
-        chrome: "46", 
-        chrome_android: "46", 
-        firefox: "16", 
-        firefox_android: "16", 
-        safari: "8", 
-        safari_ios: "8", 
-        opera: "37", 
-        opera_android: "37", 
-        ie: "0", 
-        edge: "12", 
-        deno: "1.0", 
-        node: "5.0.0"
-      }, 
-      status: Status { 
+    addition_assignment: Compat {
+      name: str!("addition_assignment"),
+      description: str!("Addition assignment (<code>x += y</code>)"),
+      mdn_url:
+        str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Addition_assignment"),
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators"),
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-1")
+      ],
+      support: Support {
+          chrome: str!("1"),
+          chrome_android: str!("1"),
+          firefox: str!("1"),
+          firefox_android: str!("1"),
+          safari: str!("1"),
+          safari_ios: str!("1"),
+          opera: str!("3"),
+          opera_android: str!("3"),
+          ie: str!("3"),
+          edge: str!("12"),
+          deno: str!("1.0"),
+          node: str!("0.10.0"),
+      },
+      status: Status {
         experimental: false,
         standard_track: true,
-        deprecated: false 
-      }
+        deprecated: false,
+      },
     },
-    spread_in_object_literals: Compat { 
-      name: "spread_in_object_literals", 
-      description: "Spread in object literals", 
-      mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_object_literals", 
-      spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-PropertyDefinition", 
-      tags: &[], 
-      support: Support { 
-        chrome: "60", 
-        chrome_android: "60", 
-        firefox: "55", 
-        firefox_android: "55", 
-        safari: "11.1", 
-        safari_ios: "11.1", 
-        opera: "60", 
-        opera_android: "60", 
-        ie: "0", 
-        edge: "60", 
-        deno: "1.0", 
-        node: "8.3.0" 
-      }, 
-      status: Status { 
-        experimental: false, 
+  
+    addition: Compat {
+      name: str!("addition"),
+      description: str!("Addition (<code>+</code>)"), 
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Addition"),
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-addition-operator-plus"), 
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-1")
+      ], 
+      support: Support {
+        chrome: str!("1"), 
+        chrome_android: str!("1"), 
+        firefox: str!("1"), 
+        firefox_android: str!("1"), 
+        safari: str!("1"), 
+        safari_ios: str!("1"), 
+        opera: str!("3"), 
+        opera_android: str!("10.1"), 
+        ie: str!("3"), 
+        edge: str!("12"), 
+        deno: str!("1.0"), 
+        node: str!("0.10.0")
+      },
+      status: Status {
+        experimental: false,
         standard_track: true,
-        deprecated: false 
+        deprecated: false
       }
     },
+  
+    assignment: Compat {
+      name: str!("assignment"),
+      description: str!("Assignment (<code>=</code>)"),
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Assignment"),
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators"),
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-1")
+      ],
+      support: Support {
+        chrome: str!("1"), 
+        chrome_android: str!("1"), 
+        firefox: str!("1"), 
+        firefox_android: str!("1"), 
+        safari: str!("1"), 
+        safari_ios: str!("1"), 
+        opera: str!("3"), 
+        opera_android: str!("10.1"), 
+        ie: str!("3"), 
+        edge: str!("12"), 
+        deno: str!("1.0"), 
+        node: str!("0.10.0")
+      },
+      status: Status {
+        experimental: false,
+        standard_track: true,
+        deprecated: false
+      }
+    },
+      spread: Compat { 
+        name: str!("spread"), 
+        description: str!("Spread syntax (...)"), 
+        mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax"), 
+        spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-SpreadElement"), 
+        tags: vec![
+          str!("web-features:snapshot:ecmascript-2015")
+        ], 
+        support: Support { 
+          chrome: str!("46"), 
+          chrome_android: str!("46"), 
+          firefox: str!("16"), 
+          firefox_android: str!("16"), 
+          safari: str!("8"), 
+          safari_ios: str!("8"), 
+          opera: str!("37"), 
+          opera_android: str!("37"), 
+          ie: str!("0"), 
+          edge: str!("12"), 
+          deno: str!("1.0"), 
+          node: str!("5.0.0")
+        }, 
+        status: Status { 
+          experimental: false,
+          standard_track: true,
+          deprecated: false 
+        }
+      },
+      spread_in_object_literals: Compat { 
+        name: str!("spread_in_object_literals"), 
+        description: str!("Spread in object literals"), 
+        mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_object_literals"), 
+        spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-PropertyDefinition"), 
+        tags: vec![], 
+        support: Support { 
+          chrome: str!("60"),
+          chrome_android: str!("60"),
+          firefox: str!("55"),
+          firefox_android: str!("55"),
+          safari: str!("11.1"),
+          safari_ios: str!("11.1"),
+          opera: str!("60"),
+          opera_android: str!("60"),
+          ie: str!("0"),
+          edge: str!("60"),
+          deno: str!("1.0"),
+          node: str!("8.3.0")
+        }, 
+        status: Status { 
+          experimental: false, 
+          standard_track: true,
+          deprecated: false 
+        }
+      },
+  
+      spread_in_arrays: Compat { 
+        name: str!("spread_in_arrays"),
+        description: str!("Spread in array literals"),
+        mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_array_literals"),
+        spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-SpreadElement"),
+        tags: vec![
+          str!("web-features:snapshot:ecmascript-2015")
+        ], 
+        support: Support { 
+          chrome: str!("46"),
+          chrome_android: str!("46"),
+          firefox: str!("16"),
+          firefox_android: str!("16"),
+          safari: str!("8"),
+          safari_ios: str!("8"),
+          opera: str!("37"),
+          opera_android: str!("37"),
+          ie: str!("0"),
+          edge: str!("12"),
+          deno: str!("1.0"),
+          node: str!("5.0.0")
+        }, 
+        status: Status { 
+          experimental: false, 
+          standard_track: true, 
+          deprecated: false 
+        }
+      },
+  
+      spread_in_function_calls: Compat { 
+        name: str!("spread_in_function_calls"),
+        description: str!("Spread in function calls"),
+        mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_function_calls"), 
+        spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-ArgumentList"), 
+        tags: vec![
+          str!("web-features:snapshot:ecmascript-2015")
+        ], 
+        support: Support { 
+          chrome: str!("46"),
+          chrome_android: str!("46"),
+          firefox: str!("27"),
+          firefox_android: str!("27"),
+          safari: str!("8"),
+          safari_ios: str!("8"),
+          opera: str!("46"),
+          opera_android: str!("46"),
+          ie: str!("0"),
+          edge: str!("12"),
+          deno: str!("1.0"),
+          node: str!("5.0.0")
+        }, 
+        status: Status { 
+          experimental: false, 
+          standard_track: true, 
+          deprecated: false 
+        }
+      },
+  
+      exponentiation_assignment: Compat { 
+        name: str!("exponentiation_assignment"),
+        description: str!("Exponentiation assignment (<code>x **= y</code>)"),
+        mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Exponentiation_assignment"),
+        spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators"),
+        tags: vec![
+          str!("web-features:snapshot:ecmascript-2016")
+        ], 
+        support: Support { 
+          chrome: str!("52"),
+          chrome_android: str!("52"),
+          firefox: str!("52"),
+          firefox_android: str!("52"),
+          safari: str!("10.1"),
+          safari_ios: str!("10.1"),
+          opera: str!("52"),
+          opera_android: str!("52"),
+          ie: str!("0"),
+          edge: str!("14"),
+          deno: str!("1.0"),
+          node: str!("7.0.0")
+        }, 
+        status: Status { 
+          experimental: false, 
+          standard_track: true, 
+          deprecated: false 
+        }
+      },
+  }
+}
 
-    spread_in_arrays: Compat { 
-      name: "spread_in_arrays", 
-      description: "Spread in array literals", 
-      mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_array_literals", 
-      spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-SpreadElement", 
-      tags: &[
-        "web-features:snapshot:ecmascript-2015"
-      ], 
-      support: Support { 
-        chrome: "46", 
-        chrome_android: "46", 
-        firefox: "16", 
-        firefox_android: "16", 
-        safari: "8", 
-        safari_ios: "8", 
-        opera: "37", 
-        opera_android: "37", 
-        ie: "0", 
-        edge: "12", 
-        deno: "1.0", 
-        node: "5.0.0"
-      }, 
-      status: Status { 
-        experimental: false, 
-        standard_track: true, 
-        deprecated: false 
-      }
-    },
 
-    spread_in_function_calls: Compat { 
-      name: "spread_in_function_calls", 
-      description: "Spread in function calls", 
-      mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_function_calls", 
-      spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-ArgumentList", 
-      tags: &[
-        "web-features:snapshot:ecmascript-2015"
-      ], 
-      support: Support { 
-        chrome: "46", 
-        chrome_android: "46", 
-        firefox: "27", 
-        firefox_android: "27", 
-        safari: "8", 
-        safari_ios: "8", 
-        opera: "46", 
-        opera_android: "46", 
-        ie: "0", 
-        edge: "12", 
-        deno: "1.0", 
-        node: "5.0.0"
-      }, 
-      status: Status { 
-        experimental: false, 
-        standard_track: true, 
-        deprecated: false 
-      }
-    },
-
-    exponentiation_assignment: Compat { 
-      name: "exponentiation_assignment", 
-      description: "Exponentiation assignment (<code>x **= y</code>)", 
-      mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Exponentiation_assignment", 
-      spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators", 
-      tags: &[
-        "web-features:snapshot:ecmascript-2016"
-      ], 
-      support: Support { 
-        chrome: "52", 
-        chrome_android: "52", 
-        firefox: "52", 
-        firefox_android: "52", 
-        safari: "10.1", 
-        safari_ios: "10.1", 
-        opera: "52", 
-        opera_android: "52", 
-        ie: "0", 
-        edge: "14", 
-        deno: "1.0", 
-        node: "7.0.0" 
-      }, 
-      status: Status { 
-        experimental: false, 
-        standard_track: true, 
-        deprecated: false 
-      }
-    },
-};

@@ -13,7 +13,11 @@ use oxc_syntax::{
   scope::ScopeFlags,
 };
 
-use super::{compat::CompatBox, functions::FUNCTIONS, operators::OPERATORS};
+use super::{
+  compat::CompatBox,
+  functions::{create_functions, Functions},
+  operators::{create_operators, Operators},
+};
 
 #[derive(Debug)]
 pub struct SyntaxRecordVisitor<'a> {
@@ -21,6 +25,8 @@ pub struct SyntaxRecordVisitor<'a> {
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
+  functions: Functions,
+  operators: Operators,
 }
 
 impl<'a> SyntaxRecordVisitor<'a> {
@@ -30,6 +36,8 @@ impl<'a> SyntaxRecordVisitor<'a> {
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
+      functions: create_functions(),
+      operators: create_operators(),
     }
   }
 
@@ -293,7 +301,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
           self.cache.push(CompatBox {
             start: param.span.start,
             end: param.span.end,
-            compat: FUNCTIONS.default_parameters,
+            compat: self.functions.default_parameters.clone(),
           })
         }
       }
@@ -313,7 +321,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         self.cache.push(CompatBox {
           start: func.span.start,
           end: func.span.end,
-          compat: FUNCTIONS.functions,
+          compat: self.functions.functions.clone(),
         });
       }
     };
@@ -382,11 +390,11 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: def.span.start,
         end: def.span.end,
-        compat: FUNCTIONS.method_definitions,
+        compat: self.functions.method_definitions.clone(),
       });
     }
     // if def.kind == oxc_ast::ast::MethodDefinitionKind::Method {
-    //   self.cache.insert(FUNCTIONS.method);
+    //   self.cache.insert(self.functions.method);
     // }
     oxc_ast::visit::walk::walk_method_definition(self, def);
   }
@@ -428,7 +436,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: arg.span.start,
         end: arg.span.end,
-        compat: OPERATORS.spread_in_arrays,
+        compat: self.operators.spread_in_arrays.clone(),
       });
     }
     oxc_ast::visit::walk::walk_array_expression_element(self, arg);
@@ -461,21 +469,21 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
-        compat: OPERATORS.addition_assignment,
+        compat: self.operators.addition_assignment.clone(),
       });
     }
     if expr.operator == AssignmentOperator::Assign {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
-        compat: OPERATORS.assignment,
+        compat: self.operators.assignment.clone(),
       });
     }
     if expr.operator == AssignmentOperator::Exponential {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
-        compat: OPERATORS.exponentiation_assignment,
+        compat: self.operators.exponentiation_assignment.clone(),
       });
     }
     oxc_ast::visit::walk::walk_assignment_expression(self, expr);
@@ -488,7 +496,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     self.cache.push(CompatBox {
       start: expr.span.start,
       end: expr.span.end,
-      compat: FUNCTIONS.arrow_functions,
+      compat: self.functions.arrow_functions.clone(),
     });
 
     // check trailing_comma
@@ -498,7 +506,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: params_span.start,
         end: params_span.end,
-        compat: FUNCTIONS.arrow_functions_trailing_comma,
+        compat: self.functions.arrow_functions_trailing_comma.clone(),
       });
     }
     oxc_ast::visit::walk::walk_arrow_function_expression(self, expr);
@@ -519,7 +527,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
-        compat: OPERATORS.addition,
+        compat: self.operators.addition.clone(),
       });
     }
     oxc_ast::visit::walk::walk_binary_expression(self, expr);
@@ -531,7 +539,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         self.cache.push(CompatBox {
           start: arg.span.start,
           end: arg.span.end,
-          compat: OPERATORS.spread_in_function_calls,
+          compat: self.operators.spread_in_function_calls.clone(),
         });
       }
     }
@@ -612,7 +620,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         self.cache.push(CompatBox {
           start: p.span.start,
           end: p.span.end,
-          compat: OPERATORS.spread_in_object_literals,
+          compat: self.operators.spread_in_object_literals.clone(),
         });
       }
     }
@@ -641,7 +649,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
           self.cache.push(CompatBox {
             start: prop.span.start,
             end: prop.span.end,
-            compat: FUNCTIONS.method_definitions_async_generator_methods,
+            compat: self
+              .functions
+              .method_definitions_async_generator_methods
+              .clone(),
           });
         }
         (true, false) => {
@@ -653,7 +664,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
           self.cache.push(CompatBox {
             start: prop.span.start,
             end: prop.span.end,
-            compat: FUNCTIONS.method_definitions_async_methods,
+            compat: self.functions.method_definitions_async_methods.clone(),
           });
         }
         (false, true) => {
@@ -665,8 +676,10 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
           self.cache.push(CompatBox {
             start: prop.span.start,
             end: prop.span.end,
-            compat: FUNCTIONS
-              .method_definitions_generator_methods_not_constructable,
+            compat: self
+              .functions
+              .method_definitions_generator_methods_not_constructable
+              .clone(),
           });
         }
         (false, false) => {
@@ -678,7 +691,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
           self.cache.push(CompatBox {
             start: prop.span.start,
             end: prop.span.end,
-            compat: FUNCTIONS.method_definitions,
+            compat: self.functions.method_definitions.clone(),
           });
         }
       }
@@ -695,7 +708,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: prop.span.start,
         end: prop.span.end,
-        compat: FUNCTIONS.getter,
+        compat: self.functions.getter.clone(),
       });
 
       /*
@@ -709,7 +722,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         self.cache.push(CompatBox {
           start: prop.span.start,
           end: prop.span.end,
-          compat: FUNCTIONS.getter_computed_property_names,
+          compat: self.functions.getter_computed_property_names.clone(),
         });
       }
     }
@@ -889,7 +902,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: ident.span.start,
         end: ident.span.end,
-        compat: FUNCTIONS.arguments,
+        compat: self.functions.arguments.clone(),
       });
     }
     oxc_ast::visit::walk::walk_jsx_identifier(self, ident);

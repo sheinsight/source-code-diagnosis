@@ -1,21 +1,22 @@
 mod compat;
 mod functions;
 mod operators;
-mod syntax_record_visitor;
+mod utils;
+mod visitor;
 use std::{
   fs::read,
   path::PathBuf,
   sync::{Arc, Mutex},
 };
 
-use compat::Compat;
+use compat::{Compat, CompatBox};
 use napi::{Error, Result};
 use oxc_allocator::Allocator;
 use oxc_ast::Visit;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
 
-use syntax_record_visitor::SyntaxRecordVisitor;
+use visitor::SyntaxRecordVisitor;
 
 use crate::oxc_visitor_processor::{oxc_visit_process, Options};
 
@@ -23,8 +24,8 @@ use crate::oxc_visitor_processor::{oxc_visit_process, Options};
 pub fn demo(
   danger_strings: Vec<String>,
   options: Option<Options>,
-) -> Result<()> {
-  let used: Arc<Mutex<Vec<Compat>>> = Arc::new(Mutex::new(Vec::new()));
+) -> Result<Vec<CompatBox>> {
+  let used: Arc<Mutex<Vec<CompatBox>>> = Arc::new(Mutex::new(Vec::new()));
   let x = {
     let used = Arc::clone(&used);
     move |path: PathBuf| {
@@ -47,53 +48,34 @@ pub fn demo(
 
       x.visit_program(&ret.program);
 
-      // used.extend(x.cache);
-      // let mut used = used.lock().unwrap();
-      // x.cache.iter().for_each(|item| {
-      //   let x = item.clone();
-      //   used.push(Compat {
-      //     name: x.name,
-      //     description: x.description,
-      //     mdn_url: x.mdn_url,
-      //     spec_url: x.spec_url,
-      //     support: Support {
-      //       chrome: x.support.chrome,
-      //       edge: x.support.edge,
-      //       firefox: x.support.firefox,
-      //       ie: x.support.ie,
-      //       node: x.support.node,
-      //       safari: x.support.safari,
-      //     },
-      //   });
-      // });
+      // x.cache.sort_by_cached_key(|x| x.compat.support.chrome);
 
-      // println!("file: {:?}", x.cache.len());
-
-      x.cache.sort_by_cached_key(|x| x.compat.support.chrome);
+      let mut u = used.lock().unwrap();
 
       for item in x.cache.iter() {
+        u.push(item.clone());
         // 片段
-        let seg = &source_text[item.start as usize..item.end as usize];
-        println!("syntax: {} ", item.compat.name);
-        println!(
-          "chrome:{:<10} firefox:{:<10} safari:{:<10} edge:{:<10} opera:{:<10} deno:{:<10} node:{:<10}",
-          item.compat.support.chrome,
-          item.compat.support.firefox,
-          item.compat.support.safari,
-          item.compat.support.edge,
-          item.compat.support.opera,
-          item.compat.support.deno,
-          item.compat.support.node
-        );
-        println!(
-          "file: {} {}:{}",
-          path.display().to_string(),
-          item.start,
-          item.end
-        );
+        // let seg = &source_text[item.start as usize..item.end as usize];
+        // println!("syntax: {} ", item.compat.name);
+        // println!(
+        //   "chrome:{:<10} firefox:{:<10} safari:{:<10} edge:{:<10} opera:{:<10} deno:{:<10} node:{:<10}",
+        //   item.compat.support.chrome,
+        //   item.compat.support.firefox,
+        //   item.compat.support.safari,
+        //   item.compat.support.edge,
+        //   item.compat.support.opera,
+        //   item.compat.support.deno,
+        //   item.compat.support.node
+        // );
+        // println!(
+        //   "file: {} {}:{}",
+        //   path.display().to_string(),
+        //   item.start,
+        //   item.end
+        // );
         // println!("seg: {}", seg);
 
-        println!("-----------------------------------");
+        // println!("-----------------------------------");
       }
     }
   };
@@ -108,5 +90,5 @@ pub fn demo(
   println!("used: {:?}", used);
 
   // Ok(used)
-  Ok(())
+  Ok(used)
 }
