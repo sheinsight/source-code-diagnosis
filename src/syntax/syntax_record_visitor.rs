@@ -471,6 +471,13 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         compat: OPERATORS.assignment,
       });
     }
+    if expr.operator == AssignmentOperator::Exponential {
+      self.cache.push(CompatBox {
+        start: expr.span.start,
+        end: expr.span.end,
+        compat: OPERATORS.exponentiation_assignment,
+      });
+    }
     oxc_ast::visit::walk::walk_assignment_expression(self, expr);
   }
 

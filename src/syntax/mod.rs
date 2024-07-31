@@ -69,6 +69,8 @@ pub fn demo(
 
       // println!("file: {:?}", x.cache.len());
 
+      x.cache.sort_by_cached_key(|x| x.compat.support.chrome);
+
       for item in x.cache.iter() {
         // 片段
         let seg = &source_text[item.start as usize..item.end as usize];

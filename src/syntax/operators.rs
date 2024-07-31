@@ -15,6 +15,8 @@ pub struct Operators<'a> {
 
   pub spread_in_function_calls: Compat<'a>,
 
+  pub exponentiation_assignment: Compat<'a>,
+
 }
 
 pub const OPERATORS: Operators = Operators {
@@ -205,6 +207,35 @@ pub const OPERATORS: Operators = Operators {
         edge: "12", 
         deno: "1.0", 
         node: "5.0.0"
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    },
+
+    exponentiation_assignment: Compat { 
+      name: "exponentiation_assignment", 
+      description: "Exponentiation assignment (<code>x **= y</code>)", 
+      mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Exponentiation_assignment", 
+      spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators", 
+      tags: &[
+        "web-features:snapshot:ecmascript-2016"
+      ], 
+      support: Support { 
+        chrome: "52", 
+        chrome_android: "52", 
+        firefox: "52", 
+        firefox_android: "52", 
+        safari: "10.1", 
+        safari_ios: "10.1", 
+        opera: "52", 
+        opera_android: "52", 
+        ie: "0", 
+        edge: "14", 
+        deno: "1.0", 
+        node: "7.0.0" 
       }, 
       status: Status { 
         experimental: false, 
