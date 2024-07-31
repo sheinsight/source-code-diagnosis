@@ -253,6 +253,12 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
 
     // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions
 
+    self.cache.push(CompatBox {
+      start: func.span.start,
+      end: func.span.end,
+      compat: FUNCTIONS.functions,
+    });
+
     if func.params.is_empty().not() {
       for param in func.params.items.iter() {
         if let BindingPatternKind::AssignmentPattern(_) = param.pattern.kind {
@@ -430,7 +436,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: params_span.start,
         end: params_span.end,
-        compat: FUNCTIONS.trailing_comma,
+        compat: FUNCTIONS.arrow_functions_trailing_comma,
       });
     }
     oxc_ast::visit::walk::walk_arrow_expression(self, expr);
@@ -540,6 +546,21 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_object_property(&mut self, prop: &oxc_ast::ast::ObjectProperty<'a>) {
+    if prop.kind == oxc_ast::ast::PropertyKind::Get {
+      self.cache.push(CompatBox {
+        start: prop.span.start,
+        end: prop.span.end,
+        compat: FUNCTIONS.getter,
+      });
+      if prop.computed {
+        self.cache.push(CompatBox {
+          start: prop.span.start,
+          end: prop.span.end,
+          compat: FUNCTIONS.getter_computed_property_names,
+        });
+      }
+    }
+
     oxc_ast::visit::walk::walk_object_property(self, prop);
   }
 

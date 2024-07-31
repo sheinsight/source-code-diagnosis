@@ -1,16 +1,53 @@
 use super::compat::{Compat, Status, Support};
 
 pub struct Functions<'a> {
+
+  pub functions: Compat<'a>,
+
   pub arguments: Compat<'a>,
 
   pub arrow_functions: Compat<'a>,
 
-  pub trailing_comma: Compat<'a>,
+  pub arrow_functions_trailing_comma: Compat<'a>,
 
   pub default_parameters: Compat<'a>,
+
+  pub getter: Compat<'a>,
+
+  pub getter_computed_property_names: Compat<'a>,
 }
 
 pub const FUNCTIONS: Functions = Functions {
+
+  functions: Compat { 
+    name: "functions", 
+    description: "", 
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions", 
+    spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions", 
+    tags: &[
+      "web-features:snapshot:ecmascript-1"
+    ], 
+    support: Support { 
+      chrome: "1", 
+      chrome_android: "1", 
+      firefox: "1", 
+      firefox_android: "1", 
+      safari: "1", 
+      safari_ios: "1", 
+      opera: "3", 
+      opera_android: "10.1", 
+      ie: "3", 
+      edge: "12", 
+      deno: "1.0", 
+      node: "0.10.0"
+    }, 
+    status: Status { 
+      experimental: false, 
+      standard_track: true, 
+      deprecated: false 
+    }
+  },
+
   arrow_functions: Compat {
     name: "arrow_functions",
     description: "Arrow functions",
@@ -41,7 +78,7 @@ pub const FUNCTIONS: Functions = Functions {
     },
   },
 
-  trailing_comma: Compat {
+  arrow_functions_trailing_comma: Compat {
     name: "trailing_comma", 
     description: "Trailing comma in parameters", 
     mdn_url: "", 
@@ -67,6 +104,7 @@ pub const FUNCTIONS: Functions = Functions {
       deprecated: false
     }
   },
+
   arguments: Compat {
     name: "arguments", 
     description: "", 
@@ -95,6 +133,7 @@ pub const FUNCTIONS: Functions = Functions {
       deprecated: false
     }
   },
+
   default_parameters: Compat { 
     name: "default_parameters", 
     description:"Default parameters",
@@ -122,4 +161,63 @@ pub const FUNCTIONS: Functions = Functions {
       deprecated: false 
     } 
   },
+
+  getter: Compat { 
+    name: "get", 
+    description: "", 
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get", 
+    spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions", 
+    tags: &[
+      "web-features:snapshot:ecmascript-5"
+    ], 
+    support: Support { 
+      chrome: "1", 
+      chrome_android: "1", 
+      firefox: "1.5", 
+      firefox_android: "1.5", 
+      safari: "3", 
+      safari_ios: "1", 
+      opera: "9.5", 
+      opera_android: "9.5", 
+      ie: "9", 
+      edge: "12", 
+      deno: "1.0", 
+      node: "0.10.0" 
+    },
+    status: Status { 
+      experimental: false,
+      standard_track: true,
+      deprecated: false 
+    }
+  },
+
+  getter_computed_property_names: Compat { 
+    name: "computed_property_names", 
+    description: "Computed property names", 
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get", 
+    spec_url: "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions", 
+    tags: &[
+      "web-features:snapshot:ecmascript-5"
+    ], 
+    support: Support { 
+      chrome: "46", 
+      chrome_android: "46", 
+      firefox: "34", 
+      firefox_android: "34", 
+      safari: "9.1", 
+      safari_ios: "9.1", 
+      opera: "47", 
+      opera_android: "47", 
+      ie: "0", 
+      edge: "12", 
+      deno: "1.0", 
+      node: "4.0.0"
+    }, 
+    status: Status { 
+      experimental: false, 
+      standard_track: true, 
+      deprecated: false 
+    }
+  },
+    
 };
