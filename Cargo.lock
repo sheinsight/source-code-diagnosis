@@ -46,9 +46,9 @@ dependencies = [
 
 [[package]]
 name = "castaway"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a17ed5635fc8536268e5d4de1e22e81ac34419e5f052d4d51f4e01dcc263fcc"
+checksum = "0abae9be0aaf9ea96a3b1b8b1b55c602ca751eba1b1500220cea4ecbafe7c0d5"
 dependencies = [
  "rustversion",
 ]
@@ -61,13 +61,14 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "compact_str"
-version = "0.7.1"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f86b9c4c00838774a6d902ef931eff7470720c51d90c2e32cfe15dc304737b3f"
+checksum = "6050c3a16ddab2e412160b31f2c871015704239bca62f72f6e5f0be631d3f644"
 dependencies = [
  "castaway",
  "cfg-if",
  "itoa",
+ "rustversion",
  "ryu",
  "static_assertions",
 ]
@@ -314,6 +315,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "nonmax"
+version = "0.5.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "610a5acd306ec67f907abe5567859a3c693fb9886eb1f012ab8f2a47bef3db51"
+
+[[package]]
 name = "num-bigint"
 version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -365,9 +372,9 @@ checksum = "caff54706df99d2a78a5a4e3455ff45448d81ef1bb63c22cd14052ca0e993a3f"
 
 [[package]]
 name = "oxc_allocator"
-version = "0.16.3"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "944ce079709849f7621902c7747141336fbdfa5419ae8da8ac11edc5679e977f"
+checksum = "d13ede3c9a61af2e332001f8e67be54b7607df9c373996c94da6976efba49122"
 dependencies = [
  "allocator-api2",
  "bumpalo",
@@ -375,9 +382,9 @@ dependencies = [
 
 [[package]]
 name = "oxc_ast"
-version = "0.16.3"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0814bc95355ba0ff7f60db5a01504cfdbbd44ae269cf4238356080964ae2ddbf"
+checksum = "5046087d4fab69a6fc1f15668186b391a1387f207557d38dd6881eb12660c269"
 dependencies = [
  "bitflags",
  "num-bigint",
@@ -389,15 +396,15 @@ dependencies = [
 
 [[package]]
 name = "oxc_ast_macros"
-version = "0.16.3"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34f6e9a0084937918818610e310edd9234b324863fcf46d9b5106b92fba30824"
+checksum = "8d7b8dbb7a3c8b5b7900aec7d108fe5d0343466e8329173c93af9321ab84fb9a"
 
 [[package]]
 name = "oxc_diagnostics"
-version = "0.16.3"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db41d3247dde8f6112233692d1d8065f8828cddf8c8735281b4a67238937d70b"
+checksum = "48bff61a24cf90580dece1f2d004bd76cfcf37745035950ba0d9a5c7608bb68c"
 dependencies = [
  "miette",
  "owo-colors",
@@ -407,15 +414,15 @@ dependencies = [
 
 [[package]]
 name = "oxc_index"
-version = "0.16.3"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1bdb0c0067294f8919bf259393c5d8f36b8cff40ff63d698cc921cacec77fc58"
+checksum = "25d04d5746cd2616b79ea741cc5a695ac1b797bb2e576fcc044f5cda9ba314cd"
 
 [[package]]
 name = "oxc_parser"
-version = "0.16.3"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f05c4d50a236bc5412b1702af99a4ddab88b60e8ef8d14178d74fba234fdd648"
+checksum = "dba92420b066218b244f2856af5af8aa4ba215a5780105915ecf0f5b88bb2ea7"
 dependencies = [
  "assert-unchecked",
  "bitflags",
@@ -433,22 +440,24 @@ dependencies = [
 
 [[package]]
 name = "oxc_span"
-version = "0.16.3"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37c8fb1f1dd18f8832b173939aff1c8a6fb2c50a6f95adf1aee817a65482e549"
+checksum = "390f25de067cef1c993dedc5deefaa7f20acd9cac73a50f3744c8f68ad779218"
 dependencies = [
  "compact_str",
  "miette",
+ "oxc_allocator",
 ]
 
 [[package]]
 name = "oxc_syntax"
-version = "0.16.3"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a2909d1da9949782e08d633f46a4f3a52dcd3ef539b7a0ebfc5d02d7f6eb159"
+checksum = "fe2f97996eb9126d75242aeda761640407497925107d09c9872aa92c6c5566de"
 dependencies = [
  "bitflags",
  "dashmap",
+ "nonmax",
  "oxc_index",
  "oxc_span",
  "phf",

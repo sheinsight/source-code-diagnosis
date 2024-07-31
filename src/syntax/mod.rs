@@ -69,17 +69,19 @@ pub fn demo(
 
       // println!("file: {:?}", x.cache.len());
 
-      x.cache.iter().for_each(|item| {
+      for item in x.cache.iter() {
         // 片段
         let seg = &source_text[item.start as usize..item.end as usize];
         println!("syntax: {} ", item.compat.name);
         println!(
-          "chrome:{:<10} firefox:{:<10} safari:{:<10} edge:{:<10} opera:{:<10}",
+          "chrome:{:<10} firefox:{:<10} safari:{:<10} edge:{:<10} opera:{:<10} demo:{:<10} node:{:<10}",
           item.compat.support.chrome,
           item.compat.support.firefox,
           item.compat.support.safari,
           item.compat.support.edge,
           item.compat.support.opera,
+          item.compat.support.deno,
+          item.compat.support.node
         );
         println!(
           "file: {} {}:{}",
@@ -87,10 +89,10 @@ pub fn demo(
           item.start,
           item.end
         );
-        println!("seg: {}", seg);
+        // println!("seg: {}", seg);
 
         println!("-----------------------------------");
-      })
+      }
     }
   };
   oxc_visit_process(x, options)?;

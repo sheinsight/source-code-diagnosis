@@ -1,7 +1,9 @@
-use std::{any::Any, marker::PhantomData, ops::Not};
+use std::{marker::PhantomData, ops::Not};
 
 use oxc_ast::{
-  ast::{BindingPatternKind, Expression, MethodDefinitionKind},
+  ast::{
+    BindingPatternKind, Expression, MethodDefinitionKind, ObjectPropertyKind,
+  },
   AstKind, Visit,
 };
 use oxc_span::Span;
@@ -44,7 +46,12 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn enter_scope(&mut self, flags: ScopeFlags) {}
+  fn enter_scope(
+    &mut self,
+    flags: ScopeFlags,
+    scope_id: &std::cell::Cell<Option<oxc_syntax::scope::ScopeId>>,
+  ) {
+  }
 
   fn leave_scope(&mut self) {}
 
@@ -261,16 +268,16 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   fn visit_function(
     &mut self,
     func: &oxc_ast::ast::Function<'a>,
-    flags: Option<ScopeFlags>,
+    flags: ScopeFlags,
   ) {
     // 获取父节点
     if let Some(parent) = self.parent_stack.last() {
       if let AstKind::ObjectProperty(_) = parent {
-        println!("当前函数的父节点是 ObjectProperty");
         /*
           - if parent node is ObjectProperty, then return
           - because if object property is a function  visit_object_property handler
         */
+        oxc_ast::visit::walk::walk_function(self, func, flags);
         return;
       }
     }
@@ -459,7 +466,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_assignment_expression(self, expr);
   }
 
-  fn visit_arrow_expression(
+  fn visit_arrow_function_expression(
     &mut self,
     expr: &oxc_ast::ast::ArrowFunctionExpression<'a>,
   ) {
@@ -479,7 +486,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         compat: FUNCTIONS.arrow_functions_trailing_comma,
       });
     }
-    oxc_ast::visit::walk::walk_arrow_expression(self, expr);
+    oxc_ast::visit::walk::walk_arrow_function_expression(self, expr);
   }
 
   fn visit_await_expression(
@@ -575,6 +582,17 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     &mut self,
     expr: &oxc_ast::ast::ObjectExpression<'a>,
   ) {
+    // TODO
+    for prop in expr.properties.iter() {
+      if let ObjectPropertyKind::SpreadProperty(p) = prop {
+        self.cache.push(CompatBox {
+          start: p.span.start,
+          end: p.span.end,
+          compat: OPERATORS.spread_in_object_literals,
+        });
+      }
+    }
+
     oxc_ast::visit::walk::walk_object_expression(self, expr);
   }
 
@@ -958,10 +976,6 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_array_pattern(self, pat);
   }
 
-  fn visit_rest_element(&mut self, pat: &oxc_ast::ast::BindingRestElement<'a>) {
-    oxc_ast::visit::walk::walk_rest_element(self, pat);
-  }
-
   fn visit_assignment_pattern(
     &mut self,
     pat: &oxc_ast::ast::AssignmentPattern<'a>,
@@ -997,20 +1011,12 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_identifier_name(self, ident);
   }
 
-  fn visit_number_literal(&mut self, lit: &oxc_ast::ast::NumericLiteral<'a>) {
-    oxc_ast::visit::walk::walk_number_literal(self, lit);
-  }
-
   fn visit_boolean_literal(&mut self, lit: &oxc_ast::ast::BooleanLiteral) {
     oxc_ast::visit::walk::walk_boolean_literal(self, lit);
   }
 
   fn visit_null_literal(&mut self, lit: &oxc_ast::ast::NullLiteral) {
     oxc_ast::visit::walk::walk_null_literal(self, lit);
-  }
-
-  fn visit_bigint_literal(&mut self, lit: &oxc_ast::ast::BigIntLiteral<'a>) {
-    oxc_ast::visit::walk::walk_bigint_literal(self, lit);
   }
 
   fn visit_string_literal(&mut self, lit: &oxc_ast::ast::StringLiteral<'a>) {
@@ -1022,14 +1028,6 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     lit: &oxc_ast::ast::TemplateLiteral<'a>,
   ) {
     oxc_ast::visit::walk::walk_template_literal(self, lit);
-  }
-
-  fn visit_reg_expr_literal(&mut self, lit: &oxc_ast::ast::RegExpLiteral<'a>) {
-    oxc_ast::visit::walk::walk_reg_expr_literal(self, lit);
-  }
-
-  fn visit_template_element(&mut self, elem: &oxc_ast::ast::TemplateElement) {
-    oxc_ast::visit::walk::walk_template_element(self, elem);
   }
 
   fn visit_module_declaration(
@@ -1085,13 +1083,6 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     oxc_ast::visit::walk::walk_import_default_specifier(self, specifier);
   }
 
-  fn visit_import_name_specifier(
-    &mut self,
-    specifier: &oxc_ast::ast::ImportNamespaceSpecifier<'a>,
-  ) {
-    oxc_ast::visit::walk::walk_import_name_specifier(self, specifier);
-  }
-
   fn visit_export_all_declaration(
     &mut self,
     decl: &oxc_ast::ast::ExportAllDeclaration<'a>,
@@ -1125,14 +1116,6 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     name: &oxc_ast::ast::ModuleExportName<'a>,
   ) {
     oxc_ast::visit::walk::walk_module_export_name(self, name);
-  }
-
-  fn visit_enum_member(&mut self, member: &oxc_ast::ast::TSEnumMember<'a>) {
-    oxc_ast::visit::walk::walk_enum_member(self, member);
-  }
-
-  fn visit_enum(&mut self, decl: &oxc_ast::ast::TSEnumDeclaration<'a>) {
-    oxc_ast::visit::walk::walk_enum(self, decl);
   }
 
   fn visit_declaration(&mut self, decl: &oxc_ast::ast::Declaration<'a>) {
