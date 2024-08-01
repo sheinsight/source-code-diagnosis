@@ -2,8 +2,8 @@ use std::{marker::PhantomData, ops::Not};
 
 use oxc_ast::{
   ast::{
-    Argument, ArrayExpressionElement, BindingPatternKind, Expression,
-    MethodDefinitionKind, ObjectPropertyKind,
+    Argument, ArrayExpressionElement, BindingPatternKind, Declaration,
+    Expression, MethodDefinitionKind, ObjectPropertyKind,
   },
   AstKind, Visit,
 };
@@ -1054,6 +1054,19 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_object_pattern(&mut self, pat: &oxc_ast::ast::ObjectPattern<'a>) {
+    let parent = self.parent_stack.last();
+    let is_destructuring = match parent {
+      Some(AstKind::VariableDeclarator(_)) => true,
+      _ => false,
+    };
+    if is_destructuring {
+      self.cache.push(CompatBox {
+        start: pat.span.start,
+        end: pat.span.end,
+        compat: self.operators.destructuring.clone(),
+      });
+    }
+
     oxc_ast::visit::walk::walk_object_pattern(self, pat);
   }
 
@@ -1065,6 +1078,18 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_array_pattern(&mut self, pat: &oxc_ast::ast::ArrayPattern<'a>) {
+    let parent = self.parent_stack.last();
+    let is_destructuring = match parent {
+      Some(AstKind::VariableDeclarator(_)) => true,
+      _ => false,
+    };
+    if is_destructuring {
+      self.cache.push(CompatBox {
+        start: pat.span.start,
+        end: pat.span.end,
+        compat: self.operators.destructuring.clone(),
+      });
+    }
     oxc_ast::visit::walk::walk_array_pattern(self, pat);
   }
 
