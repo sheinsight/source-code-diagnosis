@@ -51,7 +51,7 @@ export interface Support {
   ie: string
   edge: string
   deno: string
-  node: string
+  nodejs: string
 }
 export interface CompatBox {
   start: number

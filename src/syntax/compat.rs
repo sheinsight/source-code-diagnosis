@@ -1,7 +1,9 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[napi(object)]
-#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Serialize)]
+#[derive(
+  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
+)]
 pub struct Compat {
   pub name: String,
   pub description: String,
@@ -13,7 +15,9 @@ pub struct Compat {
 }
 
 #[napi(object)]
-#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy, Serialize)]
+#[derive(
+  Debug, Default, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize,
+)]
 pub struct Status {
   pub experimental: bool,
   pub standard_track: bool,
@@ -21,7 +25,9 @@ pub struct Status {
 }
 
 #[napi(object)]
-#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Serialize)]
+#[derive(
+  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
+)]
 pub struct Support {
   pub chrome: String,
   pub chrome_android: String,
@@ -34,11 +40,13 @@ pub struct Support {
   pub ie: String,
   pub edge: String,
   pub deno: String,
-  pub node: String,
+  pub nodejs: String,
 }
 
 #[napi(object)]
-#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Serialize)]
+#[derive(
+  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
+)]
 pub struct CompatBox {
   pub start: u32,
   pub end: u32,

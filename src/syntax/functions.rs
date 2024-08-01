@@ -53,7 +53,7 @@ pub fn create_functions() -> Functions {
         ie: str!("3"), 
         edge: str!("12"), 
         deno: str!("1.0"), 
-        node: str!("0.10.0")
+        nodejs: str!("0.10.0")
       }, 
       status: Status { 
         experimental: false, 
@@ -85,7 +85,7 @@ pub fn create_functions() -> Functions {
         ie: str!("0"), 
         edge: str!("12"), 
         deno: str!("1.0"), 
-        node: str!("4.0.0" )
+        nodejs: str!("4.0.0" )
       },
       status: Status {
         experimental: false,
@@ -117,7 +117,7 @@ pub fn create_functions() -> Functions {
         ie: str!("0"), 
         edge: str!("12"), 
         deno: str!("1.0"), 
-        node: str!("8.0.0") 
+        nodejs: str!("8.0.0") 
       },
       status: Status {
         experimental: false,
@@ -148,7 +148,7 @@ pub fn create_functions() -> Functions {
         ie: str!("3"), 
         edge: str!("12"), 
         deno:str!("1.0"),
-        node: str!("0.10.0")
+        nodejs: str!("0.10.0")
       },
       status: Status {
         experimental: false,
@@ -179,7 +179,7 @@ pub fn create_functions() -> Functions {
         ie: str!("0"), 
         edge: str!("14"), 
         deno: str!("1.0"), 
-        node: str!("6.0.0")
+        nodejs: str!("6.0.0")
       }, status: Status { 
         experimental: false, 
         standard_track: true, 
@@ -209,7 +209,7 @@ pub fn create_functions() -> Functions {
         ie: str!("9"), 
         edge: str!("12"), 
         deno: str!("1.0"), 
-        node: str!("0.10.0") 
+        nodejs: str!("0.10.0") 
       },
       status: Status { 
         experimental: false,
@@ -240,7 +240,7 @@ pub fn create_functions() -> Functions {
         ie: str!("0"), 
         edge: str!("12"), 
         deno: str!("1.0"), 
-        node: str!("4.0.0")
+        nodejs: str!("4.0.0")
       }, 
       status: Status { 
         experimental: false, 
@@ -271,7 +271,7 @@ pub fn create_functions() -> Functions {
         ie: str!("0"), 
         edge: str!("12"), 
         deno: str!("1.0"), 
-        node: str!("4.0.0")
+        nodejs: str!("4.0.0")
       }, 
       status: Status { 
         experimental: false, 
@@ -302,7 +302,7 @@ pub fn create_functions() -> Functions {
         ie: str!("0"), 
         edge: str!("12"), 
         deno: str!("1.0"), 
-        node: str!("4.0.0") 
+        nodejs: str!("4.0.0") 
       }, 
       status: Status { 
         experimental: false, 
@@ -333,7 +333,7 @@ pub fn create_functions() -> Functions {
         ie: str!("0"), 
         edge: str!("15"),
         deno: str!("1.0"), 
-        node: str!("7.6.0")
+        nodejs: str!("7.6.0")
       }, 
       status: Status { 
         experimental: false, 
@@ -364,7 +364,7 @@ pub fn create_functions() -> Functions {
         ie: str!("0"), 
         edge: str!("13"), 
         deno: str!("1.0"), 
-        node: str!("6.0.0")
+        nodejs: str!("6.0.0")
       }, 
       status: Status { 
         experimental: false, 

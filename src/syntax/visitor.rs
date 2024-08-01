@@ -13,10 +13,12 @@ use oxc_syntax::{
   scope::ScopeFlags,
 };
 
+use crate::syntax::compat::Compat;
+
 use super::{
   compat::CompatBox,
   functions::{create_functions, Functions},
-  operators::{create_operators, Operators},
+  operators::Operators,
 };
 
 #[derive(Debug)]
@@ -31,13 +33,16 @@ pub struct SyntaxRecordVisitor<'a> {
 
 impl<'a> SyntaxRecordVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
+    let config_str = include_str!("./browser_compat_data/operators.json");
+    let operators: Operators = serde_json::from_str(config_str).unwrap();
+
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
       functions: create_functions(),
-      operators: create_operators(),
+      operators: operators,
     }
   }
 
@@ -547,7 +552,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     };
 
     let compat = if is_top_level_await {
-      self.operators.r#await_top_level.clone()
+      self.operators.r#top_level.clone()
     } else {
       self.operators.r#await.clone()
     };

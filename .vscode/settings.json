@@ -1,21 +1,14 @@
 {
-  "cSpell.words": [
-    "antd",
-    "bootcdn",
-    "bootcss",
-    "Builtins",
-    "deno",
-    "napi",
-    "threadpool"
-  ],
-  "[javascript]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[rust]": {
-    "editor.defaultFormatter": "rust-lang.rust-analyzer",
-    "editor.formatOnSave": true 
-  }
+	"cSpell.words": ["antd", "bootcdn", "bootcss", "Builtins", "deno", "napi", "threadpool"],
+	"[javascript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[rust]": {
+		"editor.defaultFormatter": "rust-lang.rust-analyzer",
+		"editor.formatOnSave": true
+	},
+	"editor.defaultFormatter": "biomejs.biome"
 }
