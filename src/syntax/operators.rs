@@ -36,6 +36,10 @@ pub struct Operators {
 
   pub destructuring: Compat,
 
+  pub rest_in_arrays: Compat,
+
+  pub rest_in_objects: Compat
+
 }
 
 
@@ -537,8 +541,69 @@ pub fn create_operators() -> Operators{
       }
     },
 
-    
+    rest_in_arrays: Compat { 
+      name: str!("rest_in_arrays"), 
+      description: str!("Rest in arrays"), 
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment"), 
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-destructuring-assignment"),
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-destructuring-binding-patterns")
+      ], 
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-2015")
+      ], 
+      support: Support { 
+        chrome: str!("49"), 
+        chrome_android: str!("49"), 
+        firefox: str!("41"), 
+        firefox_android: str!("41"), 
+        safari: str!("9.1"), 
+        safari_ios: str!("9.1"), 
+        opera: str!("49"), 
+        opera_android: str!("49"), 
+        ie: str!("0"), 
+        edge: str!("16"), 
+        deno: str!("1.0"), 
+        node: str!("6.0.0")
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    },
 
+    rest_in_objects: Compat { 
+      name: str!("rest_in_objects"), 
+      description: str!("Rest in objects"), 
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment"), 
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-destructuring-assignment"),
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-destructuring-binding-patterns")
+      ], 
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-2015")
+      ], 
+      support: Support { 
+        chrome: str!("60"), 
+        chrome_android: str!("60"), 
+        firefox: str!("55"), 
+        firefox_android: str!("55"), 
+        safari: str!("11.1"), 
+        safari_ios: str!("11.1"), 
+        opera: str!("60"), 
+        opera_android: str!("60"), 
+        ie: str!("0"), 
+        edge: str!("60"), 
+        deno: str!("1.0"), 
+        node: str!("8.3.0")
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    }
   }
 
   
