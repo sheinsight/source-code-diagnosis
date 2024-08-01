@@ -22,6 +22,8 @@ pub struct Operators {
 
   pub r#null: Compat,
 
+  pub nullish_coalescing: Compat,
+
   pub nullish_coalescing_assignment: Compat,
 
 }
@@ -312,6 +314,35 @@ pub fn create_operators() -> Operators{
         edge: str!("85"), 
         deno: str!("1.2"), 
         node: str!("15.0.0")
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    },
+
+    nullish_coalescing: Compat { 
+      name: str!("nullish_coalescing"), 
+      description: str!("Nullish coalescing operator (<code>??</code>)"), 
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing"), 
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-CoalesceExpression"), 
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-2020")
+      ], 
+      support: Support { 
+        chrome: str!("80"), 
+        chrome_android: str!("80"), 
+        firefox: str!("72"), 
+        firefox_android: str!("72"), 
+        safari: str!("13.1"), 
+        safari_ios: str!("13.1"), 
+        opera: str!("80"), 
+        opera_android: str!("80"), 
+        ie: str!("0"), 
+        edge: str!("80"), 
+        deno: str!("1.0"), 
+        node: str!("14.0.0")
       }, 
       status: Status { 
         experimental: false, 

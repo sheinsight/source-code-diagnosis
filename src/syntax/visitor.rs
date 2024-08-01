@@ -9,7 +9,7 @@ use oxc_ast::{
 };
 use oxc_span::Span;
 use oxc_syntax::{
-  operator::{AssignmentOperator, BinaryOperator},
+  operator::{AssignmentOperator, BinaryOperator, LogicalOperator},
   scope::ScopeFlags,
 };
 
@@ -582,6 +582,13 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     &mut self,
     expr: &oxc_ast::ast::LogicalExpression<'a>,
   ) {
+    if expr.operator == LogicalOperator::Coalesce {
+      self.cache.push(CompatBox {
+        start: expr.span.start,
+        end: expr.span.end,
+        compat: self.operators.nullish_coalescing.clone(),
+      });
+    }
     oxc_ast::visit::walk::walk_logical_expression(self, expr);
   }
 
