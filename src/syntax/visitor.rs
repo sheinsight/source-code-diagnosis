@@ -15,11 +15,7 @@ use oxc_syntax::{
 
 use crate::syntax::compat::Compat;
 
-use super::{
-  compat::CompatBox,
-  functions::{create_functions, Functions},
-  operators::Operators,
-};
+use super::{compat::CompatBox, functions::Functions, operators::Operators};
 
 #[derive(Debug)]
 pub struct SyntaxRecordVisitor<'a> {
@@ -33,15 +29,16 @@ pub struct SyntaxRecordVisitor<'a> {
 
 impl<'a> SyntaxRecordVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let config_str = include_str!("./browser_compat_data/operators.json");
-    let operators: Operators = serde_json::from_str(config_str).unwrap();
-
+    let operators_str = include_str!("./browser_compat_data/operators.json");
+    let functions_str = include_str!("./browser_compat_data/functions.json");
+    let operators: Operators = serde_json::from_str(operators_str).unwrap();
+    let functions: Functions = serde_json::from_str(functions_str).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      functions: create_functions(),
+      functions: functions,
       operators: operators,
     }
   }

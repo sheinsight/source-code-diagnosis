@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use super::compat::{Compat, Status, Support};
+use super::compat::Compat;
 
 #[derive(Debug, Deserialize)]
 pub struct Operators {
