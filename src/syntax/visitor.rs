@@ -798,6 +798,19 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     &mut self,
     expr: &oxc_ast::ast::YieldExpression<'a>,
   ) {
+    if expr.delegate {
+      self.cache.push(CompatBox {
+        start: expr.span.start,
+        end: expr.span.end,
+        compat: self.operators.r#yield_star.clone(),
+      });
+    } else {
+      self.cache.push(CompatBox {
+        start: expr.span.start,
+        end: expr.span.end,
+        compat: self.operators.r#yield.clone(),
+      });
+    }
     oxc_ast::visit::walk::walk_yield_expression(self, expr);
   }
 

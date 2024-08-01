@@ -26,6 +26,10 @@ pub struct Operators {
 
   pub nullish_coalescing_assignment: Compat,
 
+  pub r#yield: Compat,
+
+  pub r#yield_star: Compat,
+
 }
 
 
@@ -343,6 +347,64 @@ pub fn create_operators() -> Operators{
         edge: str!("80"), 
         deno: str!("1.0"), 
         node: str!("14.0.0")
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    },
+
+    r#yield: Compat { 
+      name: str!("yield"), 
+      description: str!(""), 
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/yield"), 
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#prod-YieldExpression"), 
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-2015")
+      ], 
+      support: Support { 
+        chrome: str!("39"), 
+        chrome_android: str!("39"), 
+        firefox: str!("26"), 
+        firefox_android: str!("26"), 
+        safari: str!("10"), 
+        safari_ios: str!("10"), 
+        opera: str!("39"), 
+        opera_android: str!("39"), 
+        ie: str!("0"), 
+        edge: str!("12"), 
+        deno: str!("1.0"), 
+        node: str!("4.0.0")
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    },
+
+    r#yield_star: Compat { 
+      name: str!("yield_star"), 
+      description: str!("<code>yield*</code>"), 
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/yield*"), 
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-generator-function-definitions-runtime-semantics-evaluation"), 
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-2015")
+      ], 
+      support: Support { 
+        chrome: str!("39"), 
+        chrome_android: str!("39"), 
+        firefox: str!("27"), 
+        firefox_android: str!("27"), 
+        safari: str!("10"), 
+        safari_ios: str!("10"), 
+        opera: str!("39"), 
+        opera_android: str!("39"), 
+        ie: str!("0"), 
+        edge: str!("12"), 
+        deno: str!("1.0"), 
+        node: str!("4.0.0")
       }, 
       status: Status { 
         experimental: false, 
