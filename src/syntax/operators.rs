@@ -14,9 +14,9 @@ pub struct Operators {
 
   pub spread_in_arrays: Compat,
 
-  pub spread_in_object_literals: Compat,
-
   pub spread_in_function_calls: Compat,
+
+  pub spread_in_object_literals: Compat,
 
   pub exponentiation_assignment: Compat,
 
@@ -24,6 +24,7 @@ pub struct Operators {
 
 
 pub fn create_operators() -> Operators{
+  
   Operators {
 
     addition_assignment: Compat {
@@ -113,147 +114,150 @@ pub fn create_operators() -> Operators{
         deprecated: false
       }
     },
-      spread: Compat { 
-        name: str!("spread"), 
-        description: str!("Spread syntax (...)"), 
-        mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax"), 
-        spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-SpreadElement"), 
-        tags: vec![
-          str!("web-features:snapshot:ecmascript-2015")
-        ], 
-        support: Support { 
-          chrome: str!("46"), 
-          chrome_android: str!("46"), 
-          firefox: str!("16"), 
-          firefox_android: str!("16"), 
-          safari: str!("8"), 
-          safari_ios: str!("8"), 
-          opera: str!("37"), 
-          opera_android: str!("37"), 
-          ie: str!("0"), 
-          edge: str!("12"), 
-          deno: str!("1.0"), 
-          node: str!("5.0.0")
-        }, 
-        status: Status { 
-          experimental: false,
-          standard_track: true,
-          deprecated: false 
-        }
-      },
-      spread_in_object_literals: Compat { 
-        name: str!("spread_in_object_literals"), 
-        description: str!("Spread in object literals"), 
-        mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_object_literals"), 
-        spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-PropertyDefinition"), 
-        tags: vec![], 
-        support: Support { 
-          chrome: str!("60"),
-          chrome_android: str!("60"),
-          firefox: str!("55"),
-          firefox_android: str!("55"),
-          safari: str!("11.1"),
-          safari_ios: str!("11.1"),
-          opera: str!("60"),
-          opera_android: str!("60"),
-          ie: str!("0"),
-          edge: str!("60"),
-          deno: str!("1.0"),
-          node: str!("8.3.0")
-        }, 
-        status: Status { 
-          experimental: false, 
-          standard_track: true,
-          deprecated: false 
-        }
-      },
+
+    spread: Compat { 
+      name: str!("spread"), 
+      description: str!("Spread syntax (...)"), 
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax"), 
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-SpreadElement"), 
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-2015")
+      ], 
+      support: Support { 
+        chrome: str!("46"), 
+        chrome_android: str!("46"), 
+        firefox: str!("16"), 
+        firefox_android: str!("16"), 
+        safari: str!("8"), 
+        safari_ios: str!("8"), 
+        opera: str!("37"), 
+        opera_android: str!("37"), 
+        ie: str!("0"), 
+        edge: str!("12"), 
+        deno: str!("1.0"), 
+        node: str!("5.0.0")
+      }, 
+      status: Status { 
+        experimental: false,
+        standard_track: true,
+        deprecated: false 
+      }
+    },
+
+    spread_in_object_literals: Compat { 
+      name: str!("spread_in_object_literals"), 
+      description: str!("Spread in object literals"), 
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_object_literals"), 
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-PropertyDefinition"), 
+      tags: vec![], 
+      support: Support { 
+        chrome: str!("60"),
+        chrome_android: str!("60"),
+        firefox: str!("55"),
+        firefox_android: str!("55"),
+        safari: str!("11.1"),
+        safari_ios: str!("11.1"),
+        opera: str!("60"),
+        opera_android: str!("60"),
+        ie: str!("0"),
+        edge: str!("60"),
+        deno: str!("1.0"),
+        node: str!("8.3.0")
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true,
+        deprecated: false 
+      }
+    },
   
-      spread_in_arrays: Compat { 
-        name: str!("spread_in_arrays"),
-        description: str!("Spread in array literals"),
-        mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_array_literals"),
-        spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-SpreadElement"),
-        tags: vec![
-          str!("web-features:snapshot:ecmascript-2015")
-        ], 
-        support: Support { 
-          chrome: str!("46"),
-          chrome_android: str!("46"),
-          firefox: str!("16"),
-          firefox_android: str!("16"),
-          safari: str!("8"),
-          safari_ios: str!("8"),
-          opera: str!("37"),
-          opera_android: str!("37"),
-          ie: str!("0"),
-          edge: str!("12"),
-          deno: str!("1.0"),
-          node: str!("5.0.0")
-        }, 
-        status: Status { 
-          experimental: false, 
-          standard_track: true, 
-          deprecated: false 
-        }
-      },
+    spread_in_arrays: Compat { 
+      name: str!("spread_in_arrays"),
+      description: str!("Spread in array literals"),
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_array_literals"),
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-SpreadElement"),
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-2015")
+      ], 
+      support: Support { 
+        chrome: str!("46"),
+        chrome_android: str!("46"),
+        firefox: str!("16"),
+        firefox_android: str!("16"),
+        safari: str!("8"),
+        safari_ios: str!("8"),
+        opera: str!("37"),
+        opera_android: str!("37"),
+        ie: str!("0"),
+        edge: str!("12"),
+        deno: str!("1.0"),
+        node: str!("5.0.0")
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    },
   
-      spread_in_function_calls: Compat { 
-        name: str!("spread_in_function_calls"),
-        description: str!("Spread in function calls"),
-        mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_function_calls"), 
-        spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-ArgumentList"), 
-        tags: vec![
-          str!("web-features:snapshot:ecmascript-2015")
-        ], 
-        support: Support { 
-          chrome: str!("46"),
-          chrome_android: str!("46"),
-          firefox: str!("27"),
-          firefox_android: str!("27"),
-          safari: str!("8"),
-          safari_ios: str!("8"),
-          opera: str!("46"),
-          opera_android: str!("46"),
-          ie: str!("0"),
-          edge: str!("12"),
-          deno: str!("1.0"),
-          node: str!("5.0.0")
-        }, 
-        status: Status { 
-          experimental: false, 
-          standard_track: true, 
-          deprecated: false 
-        }
-      },
+    spread_in_function_calls: Compat { 
+      name: str!("spread_in_function_calls"),
+      description: str!("Spread in function calls"),
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Spread_syntax#Spread_in_function_calls"), 
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-ArgumentList"), 
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-2015")
+      ], 
+      support: Support { 
+        chrome: str!("46"),
+        chrome_android: str!("46"),
+        firefox: str!("27"),
+        firefox_android: str!("27"),
+        safari: str!("8"),
+        safari_ios: str!("8"),
+        opera: str!("46"),
+        opera_android: str!("46"),
+        ie: str!("0"),
+        edge: str!("12"),
+        deno: str!("1.0"),
+        node: str!("5.0.0")
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    },
   
-      exponentiation_assignment: Compat { 
-        name: str!("exponentiation_assignment"),
-        description: str!("Exponentiation assignment (<code>x **= y</code>)"),
-        mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Exponentiation_assignment"),
-        spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators"),
-        tags: vec![
-          str!("web-features:snapshot:ecmascript-2016")
-        ], 
-        support: Support { 
-          chrome: str!("52"),
-          chrome_android: str!("52"),
-          firefox: str!("52"),
-          firefox_android: str!("52"),
-          safari: str!("10.1"),
-          safari_ios: str!("10.1"),
-          opera: str!("52"),
-          opera_android: str!("52"),
-          ie: str!("0"),
-          edge: str!("14"),
-          deno: str!("1.0"),
-          node: str!("7.0.0")
-        }, 
-        status: Status { 
-          experimental: false, 
-          standard_track: true, 
-          deprecated: false 
-        }
-      },
+    exponentiation_assignment: Compat { 
+      name: str!("exponentiation_assignment"),
+      description: str!("Exponentiation assignment (<code>x **= y</code>)"),
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Exponentiation_assignment"),
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators"),
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-2016")
+      ], 
+      support: Support { 
+        chrome: str!("52"),
+        chrome_android: str!("52"),
+        firefox: str!("52"),
+        firefox_android: str!("52"),
+        safari: str!("10.1"),
+        safari_ios: str!("10.1"),
+        opera: str!("52"),
+        opera_android: str!("52"),
+        ie: str!("0"),
+        edge: str!("14"),
+        deno: str!("1.0"),
+        node: str!("7.0.0")
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    },
+
   }
 }
 

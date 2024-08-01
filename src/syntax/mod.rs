@@ -4,8 +4,8 @@ mod operators;
 mod utils;
 mod visitor;
 use std::{
-  fs::read,
-  path::PathBuf,
+  fs::{self, read},
+  path::{Path, PathBuf},
   sync::{Arc, Mutex},
 };
 
@@ -21,8 +21,31 @@ use visitor::SyntaxRecordVisitor;
 use crate::oxc_visitor_processor::{oxc_visit_process, Options};
 
 #[napi]
-pub fn demo(
-  danger_strings: Vec<String>,
+pub fn check_browser_supported_by_file_path(
+  target: String,
+  file_path: String,
+) -> Result<Vec<CompatBox>> {
+  let f = Path::new(&file_path);
+
+  let source_text = fs::read_to_string(f)?;
+
+  let mut x = SyntaxRecordVisitor::new(source_text.as_str());
+
+  // let source_text = String::from_utf8(source_text).unwrap();
+  let source_type = SourceType::from_path(&f)
+    .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
+    .unwrap();
+  let allocator = Allocator::default();
+  let ret = Parser::new(&allocator, &source_text, source_type).parse();
+
+  x.visit_program(&ret.program);
+
+  Ok(x.cache)
+}
+
+#[napi]
+pub fn check_browser_supported(
+  target: String,
   options: Option<Options>,
 ) -> Result<Vec<CompatBox>> {
   let used: Arc<Mutex<Vec<CompatBox>>> = Arc::new(Mutex::new(Vec::new()));
@@ -87,7 +110,7 @@ pub fn demo(
     .into_inner()
     .expect("Mutex cannot be locked");
 
-  println!("used: {:?}", used);
+  // println!("used: {:?}", used);
 
   // Ok(used)
   Ok(used)

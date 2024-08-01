@@ -58,4 +58,5 @@ export interface CompatBox {
   end: number
   compat: Compat
 }
-export declare function demo(dangerStrings: Array<string>, options?: Options | undefined | null): Array<CompatBox>
+export declare function checkBrowserSupportedByFilePath(target: string, filePath: string): Array<CompatBox>
+export declare function checkBrowserSupported(target: string, options?: Options | undefined | null): Array<CompatBox>

@@ -3,6 +3,7 @@ use crate::str;
 
 #[derive(Debug)]
 pub struct Functions {
+
   pub functions: Compat,
 
   pub arguments: Compat,
@@ -27,6 +28,7 @@ pub struct Functions {
 }
 
 pub fn create_functions() -> Functions {
+
   Functions {
 
     functions: Compat { 
