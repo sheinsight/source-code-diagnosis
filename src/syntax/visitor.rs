@@ -486,6 +486,13 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         compat: self.operators.exponentiation_assignment.clone(),
       });
     }
+    if expr.operator == AssignmentOperator::LogicalNullish {
+      self.cache.push(CompatBox {
+        start: expr.span.start,
+        end: expr.span.end,
+        compat: self.operators.nullish_coalescing_assignment.clone(),
+      });
+    }
     oxc_ast::visit::walk::walk_assignment_expression(self, expr);
   }
 
@@ -1053,6 +1060,11 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_null_literal(&mut self, lit: &oxc_ast::ast::NullLiteral) {
+    self.cache.push(CompatBox {
+      start: lit.span.start,
+      end: lit.span.end,
+      compat: self.operators.null.clone(),
+    });
     oxc_ast::visit::walk::walk_null_literal(self, lit);
   }
 

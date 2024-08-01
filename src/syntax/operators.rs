@@ -20,6 +20,10 @@ pub struct Operators {
 
   pub exponentiation_assignment: Compat,
 
+  pub r#null: Compat,
+
+  pub nullish_coalescing_assignment: Compat,
+
 }
 
 
@@ -250,6 +254,64 @@ pub fn create_operators() -> Operators{
         edge: str!("14"),
         deno: str!("1.0"),
         node: str!("7.0.0")
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    },
+
+    r#null: Compat { 
+      name: str!("null"), 
+      description: str!(""), 
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/null"), 
+      spec_url: str!("https://tc39.es/ecma262/multipage/overview.html#sec-null-value"), 
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-1")
+      ], 
+      support: Support { 
+        chrome: str!("1"), 
+        chrome_android: str!("1"), 
+        firefox: str!("1"), 
+        firefox_android: str!("1"), 
+        safari: str!("1"), 
+        safari_ios: str!("1"), 
+        opera: str!("3"), 
+        opera_android: str!("10.1"), 
+        ie: str!("0"), 
+        edge: str!("12"), 
+        deno: str!("1.0"), 
+        node: str!("0.10.0")
+      }, 
+      status: Status { 
+        experimental: false, 
+        standard_track: true, 
+        deprecated: false 
+      }
+    },
+
+    nullish_coalescing_assignment: Compat { 
+      name: str!("nullish_coalescing_assignment"), 
+      description: str!("Nullish coalescing assignment (<code>x ??= y</code>)"), 
+      mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_assignment"), 
+      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators"), 
+      tags: vec![
+        str!("web-features:snapshot:ecmascript-2020")
+      ], 
+      support: Support { 
+        chrome: str!("85"), 
+        chrome_android: str!("85"), 
+        firefox: str!("79"), 
+        firefox_android: str!("79"), 
+        safari: str!("14"), 
+        safari_ios: str!("14"), 
+        opera: str!("85"), 
+        opera_android: str!("85"), 
+        ie: str!("0"), 
+        edge: str!("85"), 
+        deno: str!("1.2"), 
+        node: str!("15.0.0")
       }, 
       status: Status { 
         experimental: false, 
