@@ -6,7 +6,7 @@ pub struct Compat {
   pub name: String,
   pub description: String,
   pub mdn_url: String,
-  pub spec_url: String,
+  pub spec_url: Vec<String>,
   pub tags: Vec<String>,
   pub support: Support,
   pub status: Status,

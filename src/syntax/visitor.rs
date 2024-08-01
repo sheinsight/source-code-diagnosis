@@ -523,6 +523,34 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     &mut self,
     expr: &oxc_ast::ast::AwaitExpression<'a>,
   ) {
+    // println!("visit_await_expression {:?}", self.parent_stack.last());
+
+    // TODO top-level await is self.operators.r#await_top_level.clone()
+    let parent = self.parent_stack.last();
+
+    let is_top_level_await = match parent {
+      Some(AstKind::Program(_)) => true,
+      Some(AstKind::ExportDefaultDeclaration(_)) => true,
+      Some(AstKind::ImportDeclaration(_)) => true,
+      Some(AstKind::ExpressionStatement(_)) => true,
+      Some(AstKind::VariableDeclaration(_)) => true,
+      Some(AstKind::ReturnStatement(_)) => true,
+      Some(AstKind::IfStatement(_)) => true,
+      _ => false,
+    };
+
+    let compat = if is_top_level_await {
+      self.operators.r#await_top_level.clone()
+    } else {
+      self.operators.r#await.clone()
+    };
+
+    self.cache.push(CompatBox {
+      start: expr.span.start,
+      end: expr.span.end,
+      compat: compat,
+    });
+
     oxc_ast::visit::walk::walk_await_expression(self, expr);
   }
 

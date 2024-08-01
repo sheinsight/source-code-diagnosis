@@ -35,7 +35,9 @@ pub fn create_functions() -> Functions {
       name: str!("functions"),
       description: str!(""), 
       mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions"), 
-      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions"), 
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions")
+      ], 
       tags: vec![
         str!("web-features:snapshot:ecmascript-1")
       ], 
@@ -65,7 +67,9 @@ pub fn create_functions() -> Functions {
       description: str!("Arrow functions"),
       mdn_url:
         str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Arrow_functions"),
-      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-arrow-function-definitions"),
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-arrow-function-definitions")
+      ],
       tags: vec![
         str!("web-features:snapshot:ecmascript-2015")
       ],
@@ -93,8 +97,11 @@ pub fn create_functions() -> Functions {
     arrow_functions_trailing_comma: Compat {
       name: str!("trailing_comma"), 
       description: str!("Trailing comma in parameters"), 
-      mdn_url: str!(""), 
-      spec_url: str!(""), 
+      mdn_url:
+        str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Arrow_functions"),
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-arrow-function-definitions")
+      ],
       tags: vec![
         str!("web-features:snapshot:ecmascript-2017")
       ], 
@@ -123,7 +130,9 @@ pub fn create_functions() -> Functions {
       name: str!("arguments"),
       description: str!(""), 
       mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments"), 
-      spec_url: str!("https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-arguments-exotic-objects"), 
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-arguments-exotic-objects")
+      ], 
       tags:vec![
         str!("web-features:snapshot:ecmascript-1")
       ],
@@ -152,7 +161,9 @@ pub fn create_functions() -> Functions {
       name: str!("default_parameters"), 
       description:str!("Default parameters"),
       mdn_url:str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Default_parameters"), 
-      spec_url:str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions"),
+      spec_url:vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions")
+      ],
       tags:vec![
         str!("web-features:snapshot:ecmascript-2015")
       ],
@@ -180,7 +191,9 @@ pub fn create_functions() -> Functions {
       name: str!("get"), 
       description: str!(""), 
       mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get"), 
-      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"), 
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions")
+      ], 
       tags: vec![
         str!("web-features:snapshot:ecmascript-5")
       ], 
@@ -209,7 +222,9 @@ pub fn create_functions() -> Functions {
       name: str!("computed_property_names"), 
       description: str!("Computed property names"), 
       mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get"), 
-      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"), 
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions")
+      ], 
       tags: vec![
         str!("web-features:snapshot:ecmascript-5")
       ], 
@@ -238,7 +253,9 @@ pub fn create_functions() -> Functions {
       name: str!("method_definitions"), 
       description: str!("Method definitions"), 
       mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions"), 
-      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"), 
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions")
+      ], 
       tags: vec![
         str!("web-features:snapshot:ecmascript-2015")
       ], 
@@ -267,7 +284,9 @@ pub fn create_functions() -> Functions {
       name: str!("async_generator_methods"), 
       description: str!("Method definitions"),
       mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions"), 
-      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"), 
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions")
+      ], 
       tags: vec![
         str!("web-features:snapshot:ecmascript-2015")
       ], 
@@ -296,7 +315,9 @@ pub fn create_functions() -> Functions {
       name: str!("async_methods"), 
       description: str!("Async methods"), 
       mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions"), 
-      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"), 
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions")
+      ], 
       tags: vec![
         str!("web-features:snapshot:ecmascript-2015")
       ], 
@@ -325,7 +346,9 @@ pub fn create_functions() -> Functions {
       name: str!("generator_methods_not_constructable"), 
       description: str!("Generator methods are not constructable (ES2016)"), 
       mdn_url: str!("https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions"), 
-      spec_url: str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"), 
+      spec_url: vec![
+        str!("https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions")
+      ], 
       tags: vec![
         str!("web-features:snapshot:ecmascript-2015")
       ], 

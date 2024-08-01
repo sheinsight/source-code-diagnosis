@@ -29,7 +29,7 @@ export interface Compat {
   name: string
   description: string
   mdnUrl: string
-  specUrl: string
+  specUrl: Array<string>
   tags: Array<string>
   support: Support
   status: Status
