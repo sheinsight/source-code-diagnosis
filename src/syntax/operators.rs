@@ -49,4 +49,6 @@ pub struct Operators {
   pub options_parameter: Compat,
 
   pub import_meta: Compat,
+
+  pub resolve: Compat,
 }

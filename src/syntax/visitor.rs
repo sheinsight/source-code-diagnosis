@@ -11,6 +11,7 @@ use oxc_span::Span;
 use oxc_syntax::{
   operator::{AssignmentOperator, BinaryOperator, LogicalOperator},
   scope::ScopeFlags,
+  xml_entities,
 };
 
 use crate::syntax::compat::Compat;
@@ -671,6 +672,16 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     &mut self,
     expr: &oxc_ast::ast::StaticMemberExpression<'a>,
   ) {
+    if let Expression::MetaProperty(_) = expr.object {
+      if expr.property.name == "resolve" {
+        self.cache.push(CompatBox {
+          start: expr.span.start,
+          end: expr.span.end,
+          compat: self.operators.resolve.clone(),
+        });
+      }
+    }
+
     oxc_ast::visit::walk::walk_static_member_expression(self, expr);
   }
 
