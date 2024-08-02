@@ -243,6 +243,36 @@
 		}
 	},
 
+	"exponentiation": {
+		"name": "exponentiation",
+		"description": "Exponentiation (<code>**</code>)",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Exponentiation",
+		"spec_url": ["https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-exp-operator"],
+		"tags": ["web-features:snapshot:ecmascript-2016"],
+		"support": {
+			"chrome": "52",
+			"chrome_android": "52",
+			"deno": "1.0",
+			"edge": "14",
+			"firefox": "52",
+			"firefox_android": "52",
+			"ie": "-1",
+			"nodejs": "7.0.0",
+			"oculus": "52",
+			"opera": "52",
+			"opera_android": "52",
+			"safari": "10.1",
+			"safari_ios": "10.1",
+			"samsunginternet_android": "52",
+			"webview_android": "51"
+		},
+		"status": {
+			"experimental": false,
+			"standard_track": true,
+			"deprecated": false
+		}
+	},
+
 	"null": {
 		"name": "null",
 		"description": "Null (<code>null</code>)",

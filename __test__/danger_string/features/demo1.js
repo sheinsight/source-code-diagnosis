@@ -1,1 +1,1 @@
-console.log("bootcss.com")
+console.log("bootcss.com");

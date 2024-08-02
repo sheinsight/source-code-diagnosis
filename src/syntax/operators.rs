@@ -18,6 +18,8 @@ pub struct Operators {
 
   pub spread_in_object_literals: Compat,
 
+  pub exponentiation: Compat,
+
   pub exponentiation_assignment: Compat,
 
   pub r#null: Compat,

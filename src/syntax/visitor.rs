@@ -574,6 +574,13 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         compat: self.operators.addition.clone(),
       });
     }
+    if expr.operator == BinaryOperator::Exponential {
+      self.cache.push(CompatBox {
+        start: expr.span.start,
+        end: expr.span.end,
+        compat: self.operators.exponentiation.clone(),
+      });
+    }
     oxc_ast::visit::walk::walk_binary_expression(self, expr);
   }
 
