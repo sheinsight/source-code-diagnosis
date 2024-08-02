@@ -426,6 +426,11 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
   }
 
   fn visit_meta_property(&mut self, meta: &oxc_ast::ast::MetaProperty<'a>) {
+    self.cache.push(CompatBox {
+      start: meta.span.start,
+      end: meta.span.end,
+      compat: self.operators.import_meta.clone(),
+    });
     oxc_ast::visit::walk::walk_meta_property(self, meta);
   }
 
