@@ -38,7 +38,13 @@ pub struct Operators {
 
   pub destructuring: Compat,
 
+  pub computed_property_names: Compat,
+
   pub rest_in_arrays: Compat,
 
   pub rest_in_objects: Compat,
+
+  pub import: Compat,
+
+  pub options_parameter: Compat,
 }

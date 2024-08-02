@@ -3,4 +3,4 @@ import { test } from "../common.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 
-test("nullish_coalescing_assignment", __filename);
+test("import", __filename);

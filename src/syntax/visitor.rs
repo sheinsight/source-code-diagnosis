@@ -2,8 +2,8 @@ use std::{marker::PhantomData, ops::Not};
 
 use oxc_ast::{
   ast::{
-    Argument, ArrayExpressionElement, BindingPatternKind, Declaration,
-    Expression, MethodDefinitionKind, ObjectPropertyKind,
+    Argument, ArrayExpressionElement, BindingPatternKind, BindingProperty,
+    Declaration, Expression, MethodDefinitionKind, ObjectPropertyKind,
   },
   AstKind, Visit,
 };
@@ -619,6 +619,18 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     &mut self,
     expr: &oxc_ast::ast::ImportExpression<'a>,
   ) {
+    self.cache.push(CompatBox {
+      start: expr.span.start,
+      end: expr.span.end,
+      compat: self.operators.import.clone(),
+    });
+    if expr.arguments.is_empty().not() {
+      self.cache.push(CompatBox {
+        start: expr.span.start,
+        end: expr.span.end,
+        compat: self.operators.options_parameter.clone(),
+      });
+    }
     oxc_ast::visit::walk::walk_import_expression(self, expr);
   }
 
@@ -1096,6 +1108,16 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         end: pat.span.end,
         compat: self.operators.rest_in_objects.clone(),
       });
+    }
+
+    for prop in pat.properties.iter() {
+      if prop.computed {
+        self.cache.push(CompatBox {
+          start: prop.span.start,
+          end: prop.span.end,
+          compat: self.operators.computed_property_names.clone(),
+        });
+      }
     }
 
     oxc_ast::visit::walk::walk_object_pattern(self, pat);

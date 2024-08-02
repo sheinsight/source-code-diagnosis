@@ -1,20 +1,6 @@
-import test from "ava";
-import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { checkBrowserSupportedByFilePath } from "../../../index.js";
-import { performance } from "node:perf_hooks";
+import { test } from "../common.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 
-test("should to has spread_in_object_literals", (t) => {
-	const start = performance.now();
-	const cwd = dirname(__filename);
-
-	const res = checkBrowserSupportedByFilePath("", __filename.replace(/\.spec\.mjs$/, ".js"));
-
-	const end = performance.now();
-
-	console.log(`Execution time: ${end - start}ms`);
-
-	t.truthy(res.some((item) => item.compat.name === "spread_in_object_literals"));
-});
+test("spread_in_object_literals", __filename);
