@@ -75,10 +75,10 @@ builtins 1182
   - [ ] conditional 1
   - [ ] decrement 2
   - [ ] delete 1
-  - [x] **destructuring** 49
-    - [x] **computed_property_names** 49
-    - [x] **rest_in_arrays** 49
-    - [x] **rest_in_objects** 60
+  - [x] **destructuring** 49 🚨
+    - [x] **computed_property_names** 49 🚨
+    - [x] **rest_in_arrays** 49 🚨
+    - [x] **rest_in_objects** 60 🚨
   - [ ] division_assignment 1
   - [ ] division 1
   - [ ] equality 1
@@ -93,9 +93,9 @@ builtins 1182
   - [ ] grouping 1
   - [ ] **import_meta** 64
     - [ ] **resolve** 105
-  - [ ] **import** 63
+  - [x] **import** 63
     - [ ] **worker_support** 80
-    - [ ] **options_parameter** 91
+    - [x] **options_parameter** 91
   - [ ] in 1
   - [ ] increment 2
   - [ ] inequality 1

@@ -3,4 +3,5 @@ pub mod common_trait;
 pub mod destructuring;
 pub mod exponentiation;
 pub mod exponentiation_assignment;
+pub mod import;
 pub mod t;
