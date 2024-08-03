@@ -5,12 +5,20 @@ use oxc_span::Span;
 
 use crate::syntax::{compat::CompatBox, operators::Operators};
 
+use super::common_trait::CommonTrait;
+
 pub struct AwaitVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
   operators: Operators,
+}
+
+impl CommonTrait for AwaitVisitor<'_> {
+  fn get_cache(&self) -> Vec<CompatBox> {
+    self.cache.clone()
+  }
 }
 
 impl<'a> AwaitVisitor<'a> {
@@ -80,6 +88,8 @@ mod tests {
   use oxc_parser::Parser;
   use oxc_span::SourceType;
 
+  use crate::syntax::operators_n::t::t_any;
+
   use super::*;
 
   fn t<F>(source_code: &str, assert_fn: F)
@@ -96,8 +106,7 @@ mod tests {
 
   #[test]
   fn should_exist_await() {
-    t(
-      r##"
+    let source_code = r##"
 async function f3() {
   const y = await 20;
   console.log(y); // 20
@@ -105,27 +114,24 @@ async function f3() {
   const obj = {};
   console.log((await obj) === obj); // true
 }
-
 f3();
-"##,
-      |res| {
-        assert!(res.iter().any(|compat| compat.compat.name == "await"));
-      },
-    );
+"##;
+    let allocator = Allocator::default();
+    t_any("await", source_code, &allocator, AwaitVisitor::new);
   }
 
   #[test]
   fn should_exist_top_level_await() {
-    t(
-      r##"
+    let source_code = r##"
 const response = await fetch('https://api.example.com/data');
 const data = await response.json();
-"##,
-      |res| {
-        assert!(res
-          .iter()
-          .any(|compat| compat.compat.name == "await_top_level"));
-      },
+"##;
+    let allocator = Allocator::default();
+    t_any(
+      "await_top_level",
+      source_code,
+      &allocator,
+      AwaitVisitor::new,
     );
   }
 }

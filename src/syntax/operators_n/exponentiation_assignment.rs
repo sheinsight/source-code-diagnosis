@@ -6,12 +6,20 @@ use oxc_syntax::operator::AssignmentOperator;
 
 use crate::syntax::{compat::CompatBox, operators::Operators};
 
+use super::common_trait::CommonTrait;
+
 pub struct ExponentiationAssignmentVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
   operators: Operators,
+}
+
+impl CommonTrait for ExponentiationAssignmentVisitor<'_> {
+  fn get_cache(&self) -> Vec<CompatBox> {
+    self.cache.clone()
+  }
 }
 
 impl<'a> ExponentiationAssignmentVisitor<'a> {
@@ -59,36 +67,23 @@ impl<'a> Visit<'a> for ExponentiationAssignmentVisitor<'a> {
 
 #[cfg(test)]
 mod tests {
+  use crate::syntax::operators_n::t::t_any;
   use oxc_allocator::Allocator;
-  use oxc_parser::Parser;
-  use oxc_span::SourceType;
 
   use super::*;
 
-  fn t<F>(source_code: &str, assert_fn: F)
-  where
-    F: Fn(Vec<CompatBox>),
-  {
-    let mut visitor = ExponentiationAssignmentVisitor::new(&source_code);
-    let allocator = Allocator::default();
-    let source_type = SourceType::default();
-    let ret = Parser::new(&allocator, source_code, source_type).parse();
-    visitor.visit_program(&ret.program);
-    assert_fn(visitor.cache);
-  }
-
   #[test]
   fn should_exist_exponentiation_assignment() {
-    t(
-      r##"
+    let source_code = r##"
 let a = 2;
 a **= 2;
-"##,
-      |res| {
-        assert!(res
-          .iter()
-          .any(|compat| compat.compat.name == "exponentiation_assignment"));
-      },
+"##;
+    let allocator = Allocator::default();
+    t_any(
+      "exponentiation_assignment",
+      source_code,
+      &allocator,
+      ExponentiationAssignmentVisitor::new,
     );
   }
 }

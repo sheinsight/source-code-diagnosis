@@ -6,12 +6,20 @@ use oxc_syntax::operator::BinaryOperator;
 
 use crate::syntax::{compat::CompatBox, operators::Operators};
 
+use super::common_trait::CommonTrait;
+
 pub struct ExponentiationVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
   operators: Operators,
+}
+
+impl CommonTrait for ExponentiationVisitor<'_> {
+  fn get_cache(&self) -> Vec<CompatBox> {
+    self.cache.clone()
+  }
 }
 
 impl<'a> ExponentiationVisitor<'a> {
@@ -59,35 +67,22 @@ impl<'a> Visit<'a> for ExponentiationVisitor<'a> {
 
 #[cfg(test)]
 mod tests {
+  use crate::syntax::operators_n::t::t_any;
   use oxc_allocator::Allocator;
-  use oxc_parser::Parser;
-  use oxc_span::SourceType;
 
   use super::*;
 
-  fn t<F>(source_code: &str, assert_fn: F)
-  where
-    F: Fn(Vec<CompatBox>),
-  {
-    let mut visitor = ExponentiationVisitor::new(&source_code);
-    let allocator = Allocator::default();
-    let source_type = SourceType::default();
-    let ret = Parser::new(&allocator, source_code, source_type).parse();
-    visitor.visit_program(&ret.program);
-    assert_fn(visitor.cache);
-  }
-
   #[test]
   fn should_exist_exponentiation() {
-    t(
-      r##"
+    let source_code = r##"
 console.log(3 ** 4);
-"##,
-      |res| {
-        assert!(res
-          .iter()
-          .any(|compat| compat.compat.name == "exponentiation"));
-      },
+"##;
+    let allocator = Allocator::default();
+    t_any(
+      "exponentiation",
+      source_code,
+      &allocator,
+      ExponentiationVisitor::new,
     );
   }
 }
