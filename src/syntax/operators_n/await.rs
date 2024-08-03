@@ -2,17 +2,25 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
+use serde::Deserialize;
+use serde_json::from_str;
 
-use crate::syntax::{compat::CompatBox, operators::Operators};
+use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
+
+#[derive(Debug, Deserialize)]
+pub struct AwaitBrowserCompatMetadata {
+  r#await: Compat,
+  r#await_top_level: Compat,
+}
 
 pub struct AwaitVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
-  operators: Operators,
+  browser_compat_meta_data: AwaitBrowserCompatMetadata,
 }
 
 impl CommonTrait for AwaitVisitor<'_> {
@@ -23,14 +31,14 @@ impl CommonTrait for AwaitVisitor<'_> {
 
 impl<'a> AwaitVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let operators_str = include_str!("./browser_compat_data/operators.json");
-    let operators: Operators = serde_json::from_str(operators_str).unwrap();
+    let browser_compat_meta_data: AwaitBrowserCompatMetadata =
+      from_str(include_str!("./await.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      operators: operators,
+      browser_compat_meta_data: browser_compat_meta_data,
     }
   }
 
@@ -67,14 +75,14 @@ impl<'a> Visit<'a> for AwaitVisitor<'a> {
         start: it.span.start,
         end: it.span.end,
         code_seg: self.get_source_code(it.span).to_string(),
-        compat: self.operators.r#await_top_level.clone(),
+        compat: self.browser_compat_meta_data.r#await_top_level.clone(),
       });
     } else {
       self.cache.push(CompatBox {
         start: it.span.start,
         end: it.span.end,
         code_seg: self.get_source_code(it.span).to_string(),
-        compat: self.operators.r#await.clone(),
+        compat: self.browser_compat_meta_data.r#await.clone(),
       });
     }
 
@@ -84,25 +92,10 @@ impl<'a> Visit<'a> for AwaitVisitor<'a> {
 
 #[cfg(test)]
 mod tests {
-  use oxc_allocator::Allocator;
-  use oxc_parser::Parser;
-  use oxc_span::SourceType;
-
   use crate::syntax::operators_n::t::t_any;
+  use oxc_allocator::Allocator;
 
   use super::*;
-
-  fn t<F>(source_code: &str, assert_fn: F)
-  where
-    F: Fn(Vec<CompatBox>),
-  {
-    let mut visitor = AwaitVisitor::new(&source_code);
-    let allocator = Allocator::default();
-    let source_type = SourceType::default();
-    let ret = Parser::new(&allocator, source_code, source_type).parse();
-    visitor.visit_program(&ret.program);
-    assert_fn(visitor.cache);
-  }
 
   #[test]
   fn should_exist_await() {

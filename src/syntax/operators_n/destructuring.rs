@@ -2,17 +2,27 @@ use std::marker::PhantomData;
 
 use oxc_ast::{visit::walk, AstKind, Visit};
 use oxc_span::Span;
+use serde::Deserialize;
+use serde_json::from_str;
 
-use crate::syntax::{compat::CompatBox, operators::Operators};
+use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
+
+#[derive(Debug, Deserialize)]
+pub struct DestructuringBrowserCompatMetadata {
+  destructuring: Compat,
+  rest_in_arrays: Compat,
+  rest_in_objects: Compat,
+  computed_property_names: Compat,
+}
 
 pub struct DestructuringVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
-  operators: Operators,
+  browser_compat_meta_data: DestructuringBrowserCompatMetadata,
 }
 
 impl CommonTrait for DestructuringVisitor<'_> {
@@ -23,14 +33,14 @@ impl CommonTrait for DestructuringVisitor<'_> {
 
 impl<'a> DestructuringVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let operators_str = include_str!("./browser_compat_data/operators.json");
-    let operators: Operators = serde_json::from_str(operators_str).unwrap();
+    let browser_compat_meta_data: DestructuringBrowserCompatMetadata =
+      from_str(include_str!("./destructuring.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      operators: operators,
+      browser_compat_meta_data,
     }
   }
 
@@ -62,7 +72,7 @@ impl<'a> Visit<'a> for DestructuringVisitor<'a> {
         start: pat.span.start,
         end: pat.span.end,
         code_seg: self.get_source_code(pat.span).to_string(),
-        compat: self.operators.destructuring.clone(),
+        compat: self.browser_compat_meta_data.destructuring.clone(),
       });
     }
 
@@ -71,7 +81,7 @@ impl<'a> Visit<'a> for DestructuringVisitor<'a> {
         start: pat.span.start,
         end: pat.span.end,
         code_seg: self.get_source_code(pat.span).to_string(),
-        compat: self.operators.rest_in_objects.clone(),
+        compat: self.browser_compat_meta_data.rest_in_objects.clone(),
       });
     }
 
@@ -81,7 +91,10 @@ impl<'a> Visit<'a> for DestructuringVisitor<'a> {
           start: prop.span.start,
           end: prop.span.end,
           code_seg: self.get_source_code(prop.span).to_string(),
-          compat: self.operators.computed_property_names.clone(),
+          compat: self
+            .browser_compat_meta_data
+            .computed_property_names
+            .clone(),
         });
       }
     }
@@ -95,7 +108,7 @@ impl<'a> Visit<'a> for DestructuringVisitor<'a> {
         start: it.span.start,
         end: it.span.end,
         code_seg: self.get_source_code(it.span).to_string(),
-        compat: self.operators.destructuring.clone(),
+        compat: self.browser_compat_meta_data.destructuring.clone(),
       });
     }
     if let Some(_) = it.rest {
@@ -103,7 +116,7 @@ impl<'a> Visit<'a> for DestructuringVisitor<'a> {
         start: it.span.start,
         end: it.span.end,
         code_seg: self.get_source_code(it.span).to_string(),
-        compat: self.operators.rest_in_arrays.clone(),
+        compat: self.browser_compat_meta_data.rest_in_arrays.clone(),
       });
     }
 
@@ -119,7 +132,7 @@ impl<'a> Visit<'a> for DestructuringVisitor<'a> {
         start: it.span.start,
         end: it.span.end,
         code_seg: self.get_source_code(it.span).to_string(),
-        compat: self.operators.destructuring.clone(),
+        compat: self.browser_compat_meta_data.destructuring.clone(),
       });
     }
 
@@ -128,7 +141,7 @@ impl<'a> Visit<'a> for DestructuringVisitor<'a> {
         start: it.span.start,
         end: it.span.end,
         code_seg: self.get_source_code(it.span).to_string(),
-        compat: self.operators.rest_in_arrays.clone(),
+        compat: self.browser_compat_meta_data.rest_in_arrays.clone(),
       });
     }
     walk::walk_array_assignment_target(self, it);

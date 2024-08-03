@@ -3,17 +3,23 @@ use std::marker::PhantomData;
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
 use oxc_syntax::operator::BinaryOperator;
+use serde_json::from_str;
 
-use crate::syntax::{compat::CompatBox, operators::Operators};
+use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
+
+#[derive(Debug, serde::Deserialize)]
+pub struct ExponentiationBrowserCompatMetadata {
+  exponentiation: Compat,
+}
 
 pub struct ExponentiationVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
-  operators: Operators,
+  browser_compat_meta_data: ExponentiationBrowserCompatMetadata,
 }
 
 impl CommonTrait for ExponentiationVisitor<'_> {
@@ -24,14 +30,14 @@ impl CommonTrait for ExponentiationVisitor<'_> {
 
 impl<'a> ExponentiationVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let operators_str = include_str!("./browser_compat_data/operators.json");
-    let operators: Operators = serde_json::from_str(operators_str).unwrap();
+    let browser_compat_meta_data: ExponentiationBrowserCompatMetadata =
+      from_str(include_str!("./exponentiation.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      operators: operators,
+      browser_compat_meta_data: browser_compat_meta_data,
     }
   }
 
@@ -58,7 +64,7 @@ impl<'a> Visit<'a> for ExponentiationVisitor<'a> {
         start: expr.span.start,
         end: expr.span.end,
         code_seg: self.get_source_code(expr.span).to_string(),
-        compat: self.operators.exponentiation.clone(),
+        compat: self.browser_compat_meta_data.exponentiation.clone(),
       });
     }
     oxc_ast::visit::walk::walk_binary_expression(self, expr);

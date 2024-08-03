@@ -1,0 +1,133 @@
+{
+  "destructuring": {
+		"name": "destructuring",
+		"description": "Destructuring assignment",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment",
+		"spec_url": [
+			"https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-destructuring-assignment",
+			"https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-destructuring-binding-patterns"
+		],
+		"tags": ["web-features:snapshot:ecmascript-2015"],
+		"support": {
+			"chrome": "49",
+			"chrome_android": "49",
+			"deno": "1.0",
+			"edge": "14",
+			"firefox": "41",
+			"firefox_android": "41",
+			"ie": "-1",
+			"nodejs": "6.0.0",
+			"oculus": "49",
+			"opera": "49",
+			"opera_android": "49",
+			"safari": "8",
+			"safari_ios": "8",
+			"samsunginternet_android": "49",
+			"webview_android": "49"
+		},
+		"status": {
+			"experimental": false,
+			"standard_track": true,
+			"deprecated": false
+		}
+	},
+
+	"computed_property_names": {
+		"name": "computed_property_names",
+		"description": "Computed property names",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment",
+		"spec_url": [
+			"https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-destructuring-assignment",
+			"https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-destructuring-binding-patterns"
+		],
+		"tags": ["web-features:snapshot:ecmascript-2015"],
+		"support": {
+			"chrome": "49",
+			"chrome_android": "49",
+			"deno": "1.0",
+			"edge": "14",
+			"firefox": "41",
+			"firefox_android": "41",
+			"ie": "-1",
+			"nodejs": "6.0.0",
+			"oculus": "49",
+			"opera": "49",
+			"opera_android": "49",
+			"safari": "10",
+			"safari_ios": "10",
+			"samsunginternet_android": "49",
+			"webview_android": "49"
+		},
+		"status": {
+			"experimental": false,
+			"standard_track": true,
+			"deprecated": false
+		}
+	},
+
+	"rest_in_arrays": {
+		"name": "rest_in_arrays",
+		"description": "Rest in arrays",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment",
+		"spec_url": [
+			"https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-destructuring-assignment",
+			"https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-destructuring-binding-patterns"
+		],
+		"tags": ["web-features:snapshot:ecmascript-2015"],
+		"support": {
+			"chrome": "49",
+			"chrome_android": "49",
+			"deno": "1.0",
+			"edge": "16",
+			"firefox": "41",
+			"firefox_android": "41",
+			"ie": "-1",
+			"nodejs": "6.0.0",
+			"oculus": "49",
+			"opera": "49",
+			"opera_android": "49",
+			"safari": "9.1",
+			"safari_ios": "9.1",
+			"samsunginternet_android": "49",
+			"webview_android": "49"
+		},
+		"status": {
+			"experimental": false,
+			"standard_track": true,
+			"deprecated": false
+		}
+	},
+
+	"rest_in_objects": {
+		"name": "rest_in_objects",
+		"description": "Rest in objects",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment",
+		"spec_url": [
+			"https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-destructuring-assignment",
+			"https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-destructuring-binding-patterns"
+		],
+		"tags": ["web-features:snapshot:ecmascript-2015"],
+		"support": {
+			"chrome": "60",
+			"chrome_android": "60",
+			"deno": "1.0",
+			"edge": "60",
+			"firefox": "55",
+			"firefox_android": "55",
+			"ie": "-1",
+			"nodejs": "8.3.0",
+			"oculus": "60",
+			"opera": "60",
+			"opera_android": "60",
+			"safari": "11.1",
+			"safari_ios": "11.1",
+			"samsunginternet_android": "60",
+			"webview_android": "60"
+		},
+		"status": {
+			"experimental": false,
+			"standard_track": true,
+			"deprecated": false
+		}
+	}
+}
