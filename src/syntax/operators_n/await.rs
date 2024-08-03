@@ -2,7 +2,6 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
-use oxc_syntax::operator::BinaryOperator;
 
 use crate::syntax::{compat::CompatBox, operators::Operators};
 
