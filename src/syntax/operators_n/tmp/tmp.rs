@@ -62,14 +62,7 @@ mod tests {
   use super::*;
 
   #[test]
-  fn should_exist_await() {
-    let source_code = r##""##;
-    let allocator = Allocator::default();
-    t_any("tmp", source_code, &allocator, TmpVisitor::new);
-  }
-
-  #[test]
-  fn should_exist_top_level_await() {
+  fn should_test() {
     let source_code = r##""##;
     let allocator = Allocator::default();
     t_any("tmp", source_code, &allocator, TmpVisitor::new);
