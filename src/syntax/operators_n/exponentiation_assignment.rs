@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
-use oxc_syntax::{operator::AssignmentOperator, xml_entities};
+use oxc_syntax::operator::AssignmentOperator;
 
 use crate::syntax::{compat::CompatBox, operators::Operators};
 

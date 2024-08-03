@@ -459,8 +459,8 @@
 		}
 	},
 
-	"top_level": {
-		"name": "top_level",
+	"await_top_level": {
+		"name": "await_top_level",
 		"description": "Use at module top level",
 		"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/await#top_level_await",
 		"spec_url": [

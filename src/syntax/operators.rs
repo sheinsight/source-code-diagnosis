@@ -34,7 +34,7 @@ pub struct Operators {
 
   pub r#await: Compat,
 
-  pub r#top_level: Compat,
+  pub r#await_top_level: Compat,
 
   pub destructuring: Compat,
 

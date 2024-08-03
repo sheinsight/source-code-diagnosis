@@ -566,7 +566,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     };
 
     let compat = if is_top_level_await {
-      self.operators.r#top_level.clone()
+      self.operators.r#await_top_level.clone()
     } else {
       self.operators.r#await.clone()
     };
