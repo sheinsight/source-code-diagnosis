@@ -61,8 +61,8 @@ builtins 1182
   - [ ] assignment 1
   - [ ] **async_function** 55
   - [ ] **async_generator_function** 63
-  - [ ] **await** 55
-    - [ ] **top_level** 89
+  - [x] **await** 55
+    - [x] **top_level** 89
   - [ ] bitwise_and_assignment 1
   - [ ] bitwise_and 1
   - [ ] bitwise_not 1
