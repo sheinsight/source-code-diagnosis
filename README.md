@@ -43,14 +43,26 @@ const response = getModuleMemberUsage(["antd"], {
 
 ## checkSupportBrowser
 
+共 1393 条规则，其中 189 条 chrome 要从 40 开始兼容。
+
+operators 89 个
+classes 30 个
+functions 20 个
+grammar 20 个
+regular_expressions 19 个
+statements 45 个
+builtins 1182
+
+第一批计划做 100 个。
+
 - [ ] operators
   - [ ] addition 1
   - [ ] addition_assignment 1
   - [ ] assignment 1
-  - [ ] async_function 55
-  - [ ] async_generator_function 63
-  - [ ] await 55
-    - [ ] top_level 89
+  - [ ] **async_function** 55
+  - [ ] **async_generator_function** 63
+  - [ ] **await** 55
+    - [ ] **top_level** 89
   - [ ] bitwise_and_assignment 1
   - [ ] bitwise_and 1
   - [ ] bitwise_not 1
@@ -58,32 +70,32 @@ const response = getModuleMemberUsage(["antd"], {
   - [ ] bitwise_or 1
   - [ ] bitwise_xor_assignment 1
   - [ ] bitwise_xor 1
-  - [ ] class 42
+  - [ ] **class** 42
   - [ ] comma 1
   - [ ] conditional 1
   - [ ] decrement 2
   - [ ] delete 1
-  - [ ] destructuring 49
-    - [ ] computed_property_names 49
-    - [ ] rest_in_arrays 49
-    - [ ] rest_in_objects 60
+  - [ ] **destructuring** 49
+    - [ ] **computed_property_names** 49
+    - [ ] **rest_in_arrays** 49
+    - [ ] **rest_in_objects** 60
   - [ ] division_assignment 1
   - [ ] division 1
   - [ ] equality 1
-  - [ ] exponentiation_assignment 52
-  - [ ] exponentiation 52
+  - [x] **exponentiation_assignment** 52
+  - [x] **exponentiation** 52
   - [ ] function 1
-    - [ ] trailing_comma 58
-  - [ ] generator_function 49
-    - [ ] trailing_comma 58
+    - [ ] **trailing_comma** 58
+  - [ ] **generator_function** 49
+    - [ ] **trailing_comma** 58
   - [ ] greater_than_or_equal 1
   - [ ] greater_than 1
   - [ ] grouping 1
-  - [ ] import_meta 64
-    - [ ] resolve 105
-  - [ ] import 63
-    - [ ] worker_support 80
-    - [ ] options_parameter 91
+  - [ ] **import_meta** 64
+    - [ ] **resolve** 105
+  - [ ] **import** 63
+    - [ ] **worker_support** 80
+    - [ ] **options_parameter** 91
   - [ ] in 1
   - [ ] increment 2
   - [ ] inequality 1
@@ -92,38 +104,38 @@ const response = getModuleMemberUsage(["antd"], {
   - [ ] left_shift 1
   - [ ] less_than_or_equal 1
   - [ ] less_than 1
-  - [ ] logical_and_assignment 85
+  - [ ] **logical_and_assignment** 85
   - [ ] logical_and 1
   - [ ] logical_not 1
-  - [ ] logical_or_assignment 85
+  - [ ] **logical_or_assignment** 85
   - [ ] logical_or 1
   - [ ] multiplication_assignment 1
   - [ ] multiplication 1
-  - [ ] new_target 46
+  - [ ] **new_target** 46
   - [ ] new 1
   - [ ] null 1
-  - [ ] nullish_coalescing_assignment 85
-  - [ ] nullish_coalescing 80
+  - [ ] **nullish_coalescing_assignment** 85
+  - [ ] **nullish_coalescing** 80
   - [ ] object_initializer 1
-    - [ ] computed_property_names 47
-    - [ ] shorthand_method_names 47
-    - [ ] shorthand_property_names 47
-    - [ ] spread_properties 60
-  - [ ] optional_chaining 80
+    - [ ] **computed_property_names** 47
+    - [ ] **shorthand_method_names** 47
+    - [ ] **shorthand_property_names** 47
+    - [ ] **spread_properties** 60
+  - [ ] **optional_chaining** 80
   - [ ] property_accessors 1
   - [ ] remainder_assignment 1
   - [ ] remainder 1
   - [ ] right_shift_assignment 1
   - [ ] right_shift 1
-  - [ ] spread 46
-    - [ ] spread_in_arrays 46
-    - [ ] spread_in_function_calls 46
-    - [ ] spread_in_object_literals 60
+  - [ ] **spread** 46
+    - [ ] **spread_in_arrays** 46
+    - [ ] **spread_in_function_calls** 46
+    - [ ] **spread_in_object_literals** 60
   - [ ] strict_equality 1
   - [ ] strict_inequality 1
   - [ ] subtraction_assignment 1
   - [ ] subtraction 1
-  - [ ] super 42
+  - [ ] **super** 42
   - [ ] this 1
   - [ ] typeof 1
   - [ ] unary_negation 1
@@ -133,58 +145,58 @@ const response = getModuleMemberUsage(["antd"], {
   - [ ] void 1
   - [ ] yield_star 39
   - [ ] yield 39
-- [ ] classes 49
-  - [ ] constructor 49
-  - [ ] extends 49
-  - [ ] private_class_fields 74
-  - [ ] private_class_fields_in 91
-  - [ ] private_class_methods 84
-  - [ ] public_class_fields 72
-  - [ ] static 49
-  - [ ] static_class_fields 72
-  - [ ] static_initialization_blocks 94
+- [ ] **classes** 49
+  - [ ] **constructor** 49
+  - [ ] **extends** 49
+  - [ ] **private_class_fields** 74
+  - [ ] **private_class_fields_in** 91
+  - [ ] **private_class_methods** 84
+  - [ ] **public_class_fields** 72
+  - [ ] **static** 49
+  - [ ] **static_class_fields** 72
+  - [ ] **static_initialization_blocks** 94
 - [ ] functions 1
   - [ ] arguments 1
     - [ ] callee 1
     - [ ] length 1
-    - [ ] @@iterator 52
-  - [ ] arrow_functions 45
-    - [ ] trailing_comma 58
-  - [ ] block_level_functions 49
-  - [ ] default_parameters 49
-    - [ ] destructured_parameter_with_default_value_assignment 49
-    - [ ] parameters_without_defaults_after_default_parameters 49
+    - [ ] **@@iterator** 52
+  - [ ] **arrow_functions** 45
+    - [ ] **trailing_comma** 58
+  - [ ] **block_level_functions** 49
+  - [ ] **default_parameters** 49
+    - [ ] **destructured_parameter_with_default_value_assignment** 49
+    - [ ] **parameters_without_defaults_after_default_parameters** 49
   - [ ] get 1
-    - [ ] computed_property_names 46
+    - [ ] **computed_property_names** 46
   - [ ] method_definitions 39
-    - [ ] async_generator_methods 63
-    - [ ] async_methods 55
-    - [ ] generator_methods_not_constructable 42
-  - [ ] rest_parameters 47
-    - [ ] destructuring 49
+    - [ ] **async_generator_methods** 63
+    - [ ] **async_methods** 55
+    - [ ] **generator_methods_not_constructable** 42
+  - [ ] **rest_parameters** 47
+    - [ ] **destructuring** 49
   - [ ] set 1
-    - [ ] computed_property_names 46
+    - [ ] **computed_property_names** 46
 - [ ] grammar 1
   - [ ] array_literals 1
-  - [ ] binary_numeric_literals 41
+  - [ ] **binary_numeric_literals** 41
   - [ ] boolean_literals 1
   - [ ] decimal_numeric_literals 1
-  - [ ] hashbang_comments 74
+  - [ ] **hashbang_comments** 74
   - [ ] hexadecimal_escape_sequences 1
   - [ ] hexadecimal_numeric_literals 1
   - [ ] null_literal 1
-  - [ ] numeric_separators 75
-  - [ ] octal_numeric_literals 41
+  - [ ] **numeric_separators** 75
+  - [ ] **octal_numeric_literals** 41
   - [ ] regular_expression_literals 1
   - [ ] string_literals 1
   - [ ] unicode_escape_sequences 1
-  - [ ] unicode_point_escapes 44
-  - [ ] shorthand_object_literals 43
-  - [ ] template_literals 41
-    - [ ] template_literal_revision 62
+  - [ ] **unicode_point_escapes** 44
+  - [ ] **shorthand_object_literals** 43
+  - [ ] **template_literals** 41
+    - [ ] **template_literal_revision** 62
   - [ ] trailing_commas 1
-    - [ ] trailing_commas_in_dynamic_import 91
-    - [ ] trailing_commas_in_functions 58
+    - [ ] **trailing_commas_in_dynamic_import** 91
+    - [ ] **trailing_commas_in_functions** 58
     - [ ] trailing_commas_in_object_literals 1
 - [ ] regular_expressions 1
   - [ ] backreference 1
@@ -192,65 +204,65 @@ const response = getModuleMemberUsage(["antd"], {
   - [ ] character_class 1
   - [ ] character_class_escape 1
   - [ ] character_escape 1
-    - [ ] unicode 50
+    - [ ] **unicode** 50
   - [ ] disjunction 1
   - [ ] input_boundary_assertion 1
   - [ ] literal_character 1
   - [ ] lookahead_assertion 1
-  - [ ] lookbehind_assertion 62
-  - [ ] modifier 125
-  - [ ] named_backreference 64
-  - [ ] named_capturing_group 64
-    - [ ] duplicate_named_capturing_groups 125
+  - [ ] **lookbehind_assertion** 62
+  - [ ] **modifier** 125
+  - [ ] **named_backreference** 64
+  - [ ] **named_capturing_group** 64
+    - [ ] **duplicate_named_capturing_groups** 125
   - [ ] non_capturing_group 1
   - [ ] quantifier 1
-  - [ ] unicode_character_class_escape 64
+  - [ ] **unicode_character_class_escape** 64
   - [ ] wildcard 1
   - [ ] word_boundary_assertion 1
 - [ ] statements 1
-  - [ ] async_function 55
-  - [ ] async_generator_function 63
+  - [ ] **async_function** 55
+  - [ ] **async_generator_function** 63
   - [ ] block 1
   - [ ] break 1
-  - [ ] class 49
+  - [ ] **class** 49
   - [ ] const 21
   - [ ] continue 1
   - [ ] debugger 5
   - [ ] do_while 1
   - [ ] empty 3
-  - [ ] export 61
-    - [ ] default 61
-    - [ ] namespace 72
+  - [ ] **export** 61
+    - [ ] **default** 61
+    - [ ] **namespace** 72
   - [ ] for 1
-  - [ ] for_await_of 63
+  - [ ] **for_await_of** 63
   - [ ] for_in 1
   - [ ] for_of 38
-    - [ ] async_iterators 63
-    - [ ] closing_iterators 51
+    - [ ] **async_iterators** 63
+    - [ ] **closing_iterators** 51
   - [ ] function 1
-    - [ ] trailing_comma_in_parameters 58
+    - [ ] **trailing_comma_in_parameters** 58
   - [ ] generator_function 39
-    - [ ] IteratorResult_object 49
-    - [ ] not_constructable_with_new 50
-    - [ ] trailing_comma_in_parameters 58
+    - [ ] **IteratorResult_object** 49
+    - [ ] **not_constructable_with_new** 50
+    - [ ] **trailing_comma_in_parameters** 58
   - [ ] if_else 1
-  - [ ] import 61
-    - [ ] worker_support 80
-    - [ ] import_assertions 91
-      - [ ] type_css 93
-      - [ ] type_json 91
-    - [ ] import_attributes 123
-      - [ ] type_css 123
-      - [ ] type_json 123
-    - [ ] service_worker_support 91
-    - [ ] worklet_support 114
+  - [ ] **import** 61
+    - [ ] **worker_support** 80
+    - [ ] **import_assertions** 91
+      - [ ] **type_css** 93
+      - [ ] **type_json** 91
+    - [ ] **import_attributes** 123
+      - [ ] **type_css** 123
+      - [ ] **type_json** 123
+    - [ ] **service_worker_support** 91
+    - [ ] **worklet_support** 114
   - [ ] label 1
-  - [ ] let 49
+  - [ ] **let** 49
   - [ ] return 1
   - [ ] switch 1
   - [ ] throw 1
   - [ ] try_catch 1
-    - [ ] optional_catch_binding 66
+    - [ ] **optional_catch_binding** 66
   - [ ] var 1
   - [ ] while 1
   - [ ] with 1

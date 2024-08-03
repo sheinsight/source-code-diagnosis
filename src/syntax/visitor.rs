@@ -310,6 +310,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
           self.cache.push(CompatBox {
             start: param.span.start,
             end: param.span.end,
+            code_seg: self.get_source_code(param.span).to_string(),
             compat: self.functions.default_parameters.clone(),
           })
         }
@@ -330,6 +331,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         self.cache.push(CompatBox {
           start: func.span.start,
           end: func.span.end,
+          code_seg: self.get_source_code(func.span).to_string(),
           compat: self.functions.functions.clone(),
         });
       }
@@ -399,6 +401,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: def.span.start,
         end: def.span.end,
+        code_seg: self.get_source_code(def.span).to_string(),
         compat: self.functions.method_definitions.clone(),
       });
     }
@@ -430,6 +433,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     self.cache.push(CompatBox {
       start: meta.span.start,
       end: meta.span.end,
+      code_seg: self.get_source_code(meta.span).to_string(),
       compat: self.operators.import_meta.clone(),
     });
     oxc_ast::visit::walk::walk_meta_property(self, meta);
@@ -450,6 +454,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: arg.span.start,
         end: arg.span.end,
+        code_seg: self.get_source_code(arg.span).to_string(),
         compat: self.operators.spread_in_arrays.clone(),
       });
     }
@@ -483,6 +488,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
         compat: self.operators.addition_assignment.clone(),
       });
     }
@@ -490,6 +496,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
         compat: self.operators.assignment.clone(),
       });
     }
@@ -497,6 +504,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
         compat: self.operators.exponentiation_assignment.clone(),
       });
     }
@@ -504,6 +512,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
         compat: self.operators.nullish_coalescing_assignment.clone(),
       });
     }
@@ -518,6 +527,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     self.cache.push(CompatBox {
       start: expr.span.start,
       end: expr.span.end,
+      code_seg: self.get_source_code(expr.span).to_string(),
       compat: self.functions.arrow_functions.clone(),
     });
 
@@ -528,6 +538,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: params_span.start,
         end: params_span.end,
+        code_seg: self.get_source_code(params_span).to_string(),
         compat: self.functions.arrow_functions_trailing_comma.clone(),
       });
     }
@@ -563,6 +574,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     self.cache.push(CompatBox {
       start: expr.span.start,
       end: expr.span.end,
+      code_seg: self.get_source_code(expr.span).to_string(),
       compat: compat,
     });
 
@@ -577,6 +589,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
         compat: self.operators.addition.clone(),
       });
     }
@@ -584,6 +597,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
         compat: self.operators.exponentiation.clone(),
       });
     }
@@ -596,6 +610,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         self.cache.push(CompatBox {
           start: arg.span.start,
           end: arg.span.end,
+          code_seg: self.get_source_code(arg.span).to_string(),
           compat: self.operators.spread_in_function_calls.clone(),
         });
       }
@@ -628,12 +643,14 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     self.cache.push(CompatBox {
       start: expr.span.start,
       end: expr.span.end,
+      code_seg: self.get_source_code(expr.span).to_string(),
       compat: self.operators.import.clone(),
     });
     if expr.arguments.is_empty().not() {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
         compat: self.operators.options_parameter.clone(),
       });
     }
@@ -648,6 +665,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
         compat: self.operators.nullish_coalescing.clone(),
       });
     }
@@ -677,6 +695,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         self.cache.push(CompatBox {
           start: expr.span.start,
           end: expr.span.end,
+          code_seg: self.get_source_code(expr.span).to_string(),
           compat: self.operators.resolve.clone(),
         });
       }
@@ -706,6 +725,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         self.cache.push(CompatBox {
           start: p.span.start,
           end: p.span.end,
+          code_seg: self.get_source_code(p.span).to_string(),
           compat: self.operators.spread_in_object_literals.clone(),
         });
       }
@@ -735,6 +755,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
           self.cache.push(CompatBox {
             start: prop.span.start,
             end: prop.span.end,
+            code_seg: self.get_source_code(prop.span).to_string(),
             compat: self
               .functions
               .method_definitions_async_generator_methods
@@ -750,6 +771,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
           self.cache.push(CompatBox {
             start: prop.span.start,
             end: prop.span.end,
+            code_seg: self.get_source_code(prop.span).to_string(),
             compat: self.functions.method_definitions_async_methods.clone(),
           });
         }
@@ -762,6 +784,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
           self.cache.push(CompatBox {
             start: prop.span.start,
             end: prop.span.end,
+            code_seg: self.get_source_code(prop.span).to_string(),
             compat: self
               .functions
               .method_definitions_generator_methods_not_constructable
@@ -777,6 +800,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
           self.cache.push(CompatBox {
             start: prop.span.start,
             end: prop.span.end,
+            code_seg: self.get_source_code(prop.span).to_string(),
             compat: self.functions.method_definitions.clone(),
           });
         }
@@ -794,6 +818,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: prop.span.start,
         end: prop.span.end,
+        code_seg: self.get_source_code(prop.span).to_string(),
         compat: self.functions.getter.clone(),
       });
 
@@ -808,6 +833,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         self.cache.push(CompatBox {
           start: prop.span.start,
           end: prop.span.end,
+          code_seg: self.get_source_code(prop.span).to_string(),
           compat: self.functions.getter_computed_property_names.clone(),
         });
       }
@@ -874,12 +900,14 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
         compat: self.operators.r#yield_star.clone(),
       });
     } else {
       self.cache.push(CompatBox {
         start: expr.span.start,
         end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
         compat: self.operators.r#yield.clone(),
       });
     }
@@ -919,6 +947,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: target.span.start,
         end: target.span.end,
+        code_seg: self.get_source_code(target.span).to_string(),
         compat: self.operators.rest_in_arrays.clone(),
       });
     }
@@ -1008,6 +1037,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: ident.span.start,
         end: ident.span.end,
+        code_seg: self.get_source_code(ident.span).to_string(),
         compat: self.functions.arguments.clone(),
       });
     }
@@ -1114,6 +1144,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: pat.span.start,
         end: pat.span.end,
+        code_seg: self.get_source_code(pat.span).to_string(),
         compat: self.operators.destructuring.clone(),
       });
     }
@@ -1122,6 +1153,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: pat.span.start,
         end: pat.span.end,
+        code_seg: self.get_source_code(pat.span).to_string(),
         compat: self.operators.rest_in_objects.clone(),
       });
     }
@@ -1131,6 +1163,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
         self.cache.push(CompatBox {
           start: prop.span.start,
           end: prop.span.end,
+          code_seg: self.get_source_code(prop.span).to_string(),
           compat: self.operators.computed_property_names.clone(),
         });
       }
@@ -1156,6 +1189,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
       self.cache.push(CompatBox {
         start: pat.span.start,
         end: pat.span.end,
+        code_seg: self.get_source_code(pat.span).to_string(),
         compat: self.operators.destructuring.clone(),
       });
     }
@@ -1205,6 +1239,7 @@ impl<'a> Visit<'a> for SyntaxRecordVisitor<'a> {
     self.cache.push(CompatBox {
       start: lit.span.start,
       end: lit.span.end,
+      code_seg: self.get_source_code(lit.span).to_string(),
       compat: self.operators.null.clone(),
     });
     oxc_ast::visit::walk::walk_null_literal(self, lit);

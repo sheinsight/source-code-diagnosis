@@ -50,5 +50,6 @@ pub struct Support {
 pub struct CompatBox {
   pub start: u32,
   pub end: u32,
+  pub code_seg: String,
   pub compat: Compat,
 }
