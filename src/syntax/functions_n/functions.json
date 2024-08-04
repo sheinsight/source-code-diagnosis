@@ -1,0 +1,647 @@
+{
+  "functions": {
+    "name": "functions",
+    "description": "函数",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    "support": {
+      "chrome": "1",
+      "chrome_android": "1",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "1",
+      "firefox_android": "1",
+      "ie": "3",
+      "nodejs": "0.10.0",
+      "oculus": "1",
+      "opera": "3",
+      "opera_android": "10.1",
+      "safari": "1",
+      "safari_ios": "1",
+      "samsunginternet_android": "1",
+      "webview_android": "1"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "arguments": {
+    "name": "arguments",
+    "description": "arguments 对象",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-arguments-exotic-objects"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    "support": {
+      "chrome": "1",
+      "chrome_android": "1",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "1",
+      "firefox_android": "1",
+      "ie": "3",
+      "nodejs": "0.10.0",
+      "oculus": "1",
+      "opera": "3",
+      "opera_android": "10.1",
+      "safari": "1",
+      "safari_ios": "1",
+      "samsunginternet_android": "1",
+      "webview_android": "1"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "arguments_callee": {
+    "name": "arguments_callee",
+    "description": "arguments.callee",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments/callee",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-arguments-exotic-objects"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    "support": {
+      "chrome": "1",
+      "chrome_android": "1",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "1",
+      "firefox_android": "1",
+      "ie": "6",
+      "nodejs": "0.10.0",
+      "oculus": "1",
+      "opera": "4",
+      "opera_android": "10.1",
+      "safari": "1",
+      "safari_ios": "1",
+      "samsunginternet_android": "1",
+      "webview_android": "1"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": true
+    }
+  },
+  "arguments_length": {
+    "name": "arguments_length",
+    "description": "arguments.length",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments/length",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-arguments-exotic-objects"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    "support": {
+      "chrome": "1",
+      "chrome_android": "1",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "1",
+      "firefox_android": "1",
+      "ie": "4",
+      "nodejs": "0.10.0",
+      "oculus": "1",
+      "opera": "4",
+      "opera_android": "10.1",
+      "safari": "1",
+      "safari_ios": "1",
+      "samsunginternet_android": "1",
+      "webview_android": "1"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "arguments_iterator": {
+    "name": "arguments_@@iterator",
+    "description": "arguments[Symbol.iterator]",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments/Symbol.iterator",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-createunmappedargumentsobject",
+      "https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-createmappedargumentsobject"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "52",
+      "chrome_android": "52",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "46",
+      "firefox_android": "46",
+      "ie": "-1",
+      "nodejs": "4.0.0",
+      "oculus": "52",
+      "opera": "52",
+      "opera_android": "52",
+      "safari": "9",
+      "safari_ios": "9",
+      "samsunginternet_android": "52",
+      "webview_android": "52"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "arrow_functions": {
+    "name": "arrow_functions",
+    "description": "箭头函数",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Arrow_functions",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-arrow-function-definitions"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "45",
+      "chrome_android": "45",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "22",
+      "firefox_android": "22",
+      "ie": "-1",
+      "nodejs": "4.0.0",
+      "oculus": "45",
+      "opera": "45",
+      "opera_android": "45",
+      "safari": "10",
+      "safari_ios": "10",
+      "samsunginternet_android": "45",
+      "webview_android": "45"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "arrow_functions_trailing_comma": {
+    "name": "arrow_functions_trailing_comma",
+    "description": "箭头函数参数中的尾随逗号",
+    "tags": [
+      "web-features:snapshot:ecmascript-2017"
+    ],
+    "support": {
+      "chrome": "58",
+      "chrome_android": "58",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "52",
+      "firefox_android": "52",
+      "ie": "-1",
+      "nodejs": "8.0.0",
+      "oculus": "58",
+      "opera": "58",
+      "opera_android": "58",
+      "safari": "10",
+      "safari_ios": "10",
+      "samsunginternet_android": "58",
+      "webview_android": "58"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "block_level_functions": {
+    "name": "block_level_functions",
+    "description": "块级函数",
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "49",
+      "chrome_android": "49",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "46",
+      "firefox_android": "46",
+      "ie": "11",
+      "nodejs": "4.0.0",
+      "oculus": "49",
+      "opera": "49",
+      "opera_android": "49",
+      "safari": "10",
+      "safari_ios": "10",
+      "samsunginternet_android": "49",
+      "webview_android": "49"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "default_parameters": {
+    "name": "default_parameters",
+    "description": "默认参数",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Default_parameters",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "49",
+      "chrome_android": "49",
+      "deno": "1.0",
+      "edge": "14",
+      "firefox": "15",
+      "firefox_android": "15",
+      "ie": "-1",
+      "nodejs": "6.0.0",
+      "oculus": "49",
+      "opera": "49",
+      "opera_android": "49",
+      "safari": "10",
+      "safari_ios": "10",
+      "samsunginternet_android": "49",
+      "webview_android": "49"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+ "default_parameters_destructured_parameter_with_default_value_assignment": {
+    "name": "default_parameters_destructured_parameter_with_default_value_assignment",
+    "description": "解构参数的默认值赋值",
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "49",
+      "chrome_android": "49",
+      "deno": "1.0",
+      "edge": "14",
+      "firefox": "41",
+      "firefox_android": "41",
+      "ie": "-1",
+      "nodejs": "6.0.0",
+      "oculus": "49",
+      "opera": "49",
+      "opera_android": "49",
+      "safari": "10",
+      "safari_ios": "10",
+      "samsunginternet_android": "49",
+      "webview_android": "49"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "default_parameters_parameters_without_defaults_after_default_parameters": {
+    "name": "default_parameters_parameters_without_defaults_after_default_parameters",
+    "description": "默认参数后的无默认值参数",
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "49",
+      "chrome_android": "49",
+      "deno": "1.0",
+      "edge": "14",
+      "firefox": "26",
+      "firefox_android": "26",
+      "ie": "-1",
+      "nodejs": "6.0.0",
+      "oculus": "49",
+      "opera": "49",
+      "opera_android": "49",
+      "safari": "10",
+      "safari_ios": "10",
+      "samsunginternet_android": "49",
+      "webview_android": "49"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "getter": {
+    "name": "get",
+    "description": "getter 方法",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-5"
+    ],
+    "support": {
+      "chrome": "1",
+      "chrome_android": "1",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "1.5",
+      "firefox_android": "1.5",
+      "ie": "9",
+      "nodejs": "0.10.0",
+      "oculus": "1",
+      "opera": "9.5",
+      "opera_android": "9.5",
+      "safari": "3",
+      "safari_ios": "1",
+      "samsunginternet_android": "1",
+      "webview_android": "1"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "getter_computed_property_names": {
+    "name": "get_computed_property_names",
+    "description": "getter 方法的计算属性名",
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "46",
+      "chrome_android": "46",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "34",
+      "firefox_android": "34",
+      "ie": "-1",
+      "nodejs": "4.0.0",
+      "oculus": "46",
+      "opera": "47",
+      "opera_android": "47",
+      "safari": "9.1",
+      "safari_ios": "9.1",
+      "samsunginternet_android": "46",
+      "webview_android": "46"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "method_definitions": {
+    "name": "method_definitions",
+    "description": "方法定义",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "39",
+      "chrome_android": "39",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "34",
+      "firefox_android": "34",
+      "ie": "-1",
+      "nodejs": "4.0.0",
+      "oculus": "39",
+      "opera": "39",
+      "opera_android": "39",
+      "safari": "9",
+      "safari_ios": "9",
+      "samsunginternet_android": "39",
+      "webview_android": "39"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "async_generator_methods": {
+    "name": "async_generator_methods",
+    "description": "异步生成器方法",
+    "support": {
+      "chrome": "63",
+      "chrome_android": "63",
+      "deno": "1.0",
+      "edge": "63",
+      "firefox": "55",
+      "firefox_android": "55",
+      "ie": "-1",
+      "nodejs": "10.0.0",
+      "oculus": "63",
+      "opera": "63",
+      "opera_android": "63",
+      "safari": "12",
+      "safari_ios": "12",
+      "samsunginternet_android": "63",
+      "webview_android": "63"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "async_methods": {
+    "name": "async_methods",
+    "description": "异步方法",
+    "support": {
+      "chrome": "55",
+      "chrome_android": "55",
+      "deno": "1.0",
+      "edge": "15",
+      "firefox": "52",
+      "firefox_android": "52",
+      "ie": "-1",
+      "nodejs": "7.6.0",
+      "oculus": "55",
+      "opera": "55",
+      "opera_android": "55",
+      "safari": "10.1",
+      "safari_ios": "10.1",
+      "samsunginternet_android": "55",
+      "webview_android": "55"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "generator_methods_not_constructable": {
+    "name": "generator_methods_not_constructable",
+    "description": "生成器方法不可构造（ES2016）",
+    "support": {
+      "chrome": "42",
+      "chrome_android": "42",
+      "deno": "1.0",
+      "edge": "13",
+      "firefox": "43",
+      "firefox_android": "43",
+      "ie": "-1",
+      "nodejs": "6.0.0",
+      "oculus": "42",
+      "opera": "42",
+      "opera_android": "42",
+      "safari": "9.1",
+      "safari_ios": "9.1",
+      "samsunginternet_android": "42",
+      "webview_android": "42"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "rest_parameters": {
+    "name": "rest_parameters",
+    "description": "剩余参数",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/rest_parameters",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "47",
+      "chrome_android": "47",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "15",
+      "firefox_android": "15",
+      "ie": "-1",
+      "nodejs": "6.0.0",
+      "oculus": "47",
+      "opera": "47",
+      "opera_android": "47",
+      "safari": "10",
+      "safari_ios": "10",
+      "samsunginternet_android": "47",
+      "webview_android": "47"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "rest_parameters_destructuring": {
+    "name": "rest_parameters_destructuring",
+    "description": "解构剩余参数",
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "49",
+      "chrome_android": "49",
+      "deno": "1.0",
+      "edge": "49",
+      "firefox": "52",
+      "firefox_android": "52",
+      "ie": "-1",
+      "nodejs": "6.0.0",
+      "oculus": "49",
+      "opera": "49",
+      "opera_android": "49",
+      "safari": "10",
+      "safari_ios": "10",
+      "samsunginternet_android": "49",
+      "webview_android": "49"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "set": {
+    "name": "set",
+    "description": "setter 方法",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/set",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-5"
+    ],
+    "support": {
+      "chrome": "1",
+      "chrome_android": "1",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "1.5",
+      "firefox_android": "1.5",
+      "ie": "9",
+      "nodejs": "0.10.0",
+      "oculus": "1",
+      "opera": "9.5",
+      "opera_android": "9.5",
+      "safari": "3",
+      "safari_ios": "1",
+      "samsunginternet_android": "1",
+      "webview_android": "1"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "set_computed_property_names": {
+    "name": "set_computed_property_names",
+    "description": "setter 方法的计算属性名",
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "46",
+      "chrome_android": "46",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "34",
+      "firefox_android": "34",
+      "ie": "-1",
+      "nodejs": "4.0.0",
+      "oculus": "46",
+      "opera": "47",
+      "opera_android": "47",
+      "safari": "9.1",
+      "safari_ios": "9.1",
+      "samsunginternet_android": "46",
+      "webview_android": "46"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  }
+}
