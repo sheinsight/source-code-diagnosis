@@ -12,10 +12,18 @@ use std::{
   sync::{Arc, Mutex},
 };
 
-use compat::{Compat, CompatBox};
+use compat::CompatBox;
 use napi::{Error, Result};
+use operators_n::{
+  async_function::AsyncFunctionVisitor,
+  async_generator_function::AsyncGeneratorFunctionVisitor, class::ClassVisitor,
+  destructuring::DestructuringVisitor, exponentiation::ExponentiationVisitor,
+  exponentiation_assignment::ExponentiationAssignmentVisitor,
+  function::FunctionVisitor, generator_function::GeneratorFunctionVisitor,
+  import::ImportVisitor, r#await::AwaitVisitor,
+};
 use oxc_allocator::Allocator;
-use oxc_ast::Visit;
+use oxc_ast::{ast::Program, Visit};
 use oxc_parser::Parser;
 use oxc_span::SourceType;
 
@@ -70,39 +78,79 @@ pub fn check_browser_supported(
       let allocator = Allocator::default();
       let ret = Parser::new(&allocator, &source_text, source_type).parse();
 
-      let mut x = SyntaxRecordVisitor::new(source_text.as_str());
+      // let mut x = SyntaxRecordVisitor::new(source_text.as_str());
 
-      x.visit_program(&ret.program);
+      let mut x1 = AsyncFunctionVisitor::new(source_text.as_str());
+      let mut x2 = AsyncGeneratorFunctionVisitor::new(source_text.as_str());
+      let mut x3 = AwaitVisitor::new(source_text.as_str());
+      let mut x4 = ClassVisitor::new(source_text.as_str());
+      let mut x5 = DestructuringVisitor::new(source_text.as_str());
+      let mut x6 = ExponentiationAssignmentVisitor::new(source_text.as_str());
+      let mut x7 = ExponentiationVisitor::new(source_text.as_str());
+      let mut x8 = FunctionVisitor::new(source_text.as_str());
+      let mut x9 = GeneratorFunctionVisitor::new(source_text.as_str());
+      let mut x10 = ImportVisitor::new(source_text.as_str());
 
-      // x.cache.sort_by_cached_key(|x| x.compat.support.chrome);
+      x1.visit_program(&ret.program);
+      x2.visit_program(&ret.program);
+      x3.visit_program(&ret.program);
+      x4.visit_program(&ret.program);
+      x5.visit_program(&ret.program);
+      x6.visit_program(&ret.program);
+      x7.visit_program(&ret.program);
+      x8.visit_program(&ret.program);
+      x9.visit_program(&ret.program);
+      x10.visit_program(&ret.program);
 
-      let mut u = used.lock().unwrap();
-
-      for item in x.cache.iter() {
+      x1.cache.iter().for_each(|item| {
+        let mut u = used.lock().unwrap();
         u.push(item.clone());
-        // 片段
-        // let seg = &source_text[item.start as usize..item.end as usize];
-        // println!("syntax: {} ", item.compat.name);
-        // println!(
-        //   "chrome:{:<10} firefox:{:<10} safari:{:<10} edge:{:<10} opera:{:<10} deno:{:<10} node:{:<10}",
-        //   item.compat.support.chrome,
-        //   item.compat.support.firefox,
-        //   item.compat.support.safari,
-        //   item.compat.support.edge,
-        //   item.compat.support.opera,
-        //   item.compat.support.deno,
-        //   item.compat.support.node
-        // );
-        // println!(
-        //   "file: {} {}:{}",
-        //   path.display().to_string(),
-        //   item.start,
-        //   item.end
-        // );
-        // println!("seg: {}", seg);
+      });
 
-        // println!("-----------------------------------");
-      }
+      x2.cache.iter().for_each(|item| {
+        let mut u = used.lock().unwrap();
+        u.push(item.clone());
+      });
+
+      x3.cache.iter().for_each(|item| {
+        let mut u = used.lock().unwrap();
+        u.push(item.clone());
+      });
+
+      x4.cache.iter().for_each(|item| {
+        let mut u = used.lock().unwrap();
+        u.push(item.clone());
+      });
+
+      x5.cache.iter().for_each(|item| {
+        let mut u = used.lock().unwrap();
+        u.push(item.clone());
+      });
+
+      x6.cache.iter().for_each(|item| {
+        let mut u = used.lock().unwrap();
+        u.push(item.clone());
+      });
+
+      x7.cache.iter().for_each(|item| {
+        let mut u = used.lock().unwrap();
+        u.push(item.clone());
+      });
+
+      x8.cache.iter().for_each(|item| {
+        let mut u = used.lock().unwrap();
+        u.push(item.clone());
+      });
+
+      x9.cache.iter().for_each(|item| {
+        let mut u = used.lock().unwrap();
+        u.push(item.clone());
+      });
+
+      x10.cache.iter().for_each(|item| {
+        let mut u = used.lock().unwrap();
+        u.push(item.clone());
+      });
     }
   };
   oxc_visit_process(x, options)?;

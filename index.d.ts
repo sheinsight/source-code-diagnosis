@@ -56,6 +56,7 @@ export interface Support {
 export interface CompatBox {
   start: number
   end: number
+  codeSeg: string
   compat: Compat
 }
 export declare function checkBrowserSupportedByFilePath(target: string, filePath: string): Array<CompatBox>

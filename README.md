@@ -145,16 +145,16 @@ builtins 1182
   - [ ] void 1
   - [ ] yield_star 39
   - [ ] yield 39
-- [ ] **classes** 49
-  - [ ] **constructor** 49
-  - [ ] **extends** 49
-  - [ ] **private_class_fields** 74
-  - [ ] **private_class_fields_in** 91
-  - [ ] **private_class_methods** 84
-  - [ ] **public_class_fields** 72
-  - [ ] **static** 49
-  - [ ] **static_class_fields** 72
-  - [ ] **static_initialization_blocks** 94
+- [x] **classes** 49
+  - [x] **constructor** 49
+  - [x] **extends** 49
+  - [x] **private_class_fields** 74
+  - [x] **private_class_fields_in** 91
+  - [x] **private_class_methods** 84
+  - [x] **public_class_fields** 72
+  - [x] **static** 49
+  - [x] **static_class_fields** 72
+  - [x] **static_initialization_blocks** 94
 - [ ] functions 1
   - [ ] arguments 1
     - [ ] callee 1

@@ -16,7 +16,6 @@ use crate::syntax::{
 #[derive(Debug, Deserialize)]
 pub struct FunctionsBrowserCompatMetadata {
   pub functions: Compat,
-  pub arguments: Compat,
   pub arguments_callee: Compat,
   pub arguments_length: Compat,
   pub arguments_iterator: Compat,
@@ -95,36 +94,6 @@ impl<'a> Visit<'a> for FunctionsVisitor<'a> {
     });
 
     oxc_ast::visit::walk::walk_function(self, it, flags);
-  }
-
-  fn visit_computed_member_expression(
-    &mut self,
-    it: &oxc_ast::ast::ComputedMemberExpression<'a>,
-  ) {
-    let code_seg = self.get_source_code(it.span).to_string();
-    if let Expression::ComputedMemberExpression(_) = it.object {
-      self.cache.push(CompatBox {
-        start: it.span.start,
-        end: it.span.end,
-        code_seg: code_seg.clone(),
-        compat: self.browser_compat_meta_data.arguments.clone(),
-      });
-    }
-
-    oxc_ast::visit::walk::walk_computed_member_expression(self, it);
-  }
-
-  fn visit_identifier_name(&mut self, it: &oxc_ast::ast::IdentifierName<'a>) {
-    if it.name == "arguments" {
-      let code_seg = self.get_source_code(it.span).to_string();
-      self.cache.push(CompatBox {
-        start: it.span.start,
-        end: it.span.end,
-        code_seg: code_seg.clone(),
-        compat: self.browser_compat_meta_data.arguments.clone(),
-      });
-    }
-    oxc_ast::visit::walk::walk_identifier_name(self, it);
   }
 
   fn visit_static_member_expression(
@@ -244,10 +213,10 @@ mod tests {
 
   use super::*;
 
-  #[test]
-  fn should_test() {
-    let source_code = r##""##;
-    let allocator = Allocator::default();
-    t_any("tmp", source_code, &allocator, FunctionsVisitor::new);
-  }
+  // #[test]
+  // fn should_test() {
+  //   let source_code = r##""##;
+  //   let allocator = Allocator::default();
+  //   t_any("tmp", source_code, &allocator, FunctionsVisitor::new);
+  // }
 }
