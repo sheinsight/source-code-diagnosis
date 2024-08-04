@@ -1,3 +1,4 @@
+pub mod async_function;
 pub mod r#await;
 pub mod common_trait;
 pub mod destructuring;
