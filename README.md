@@ -70,7 +70,7 @@ builtins 1182
   - [ ] bitwise_or 1
   - [ ] bitwise_xor_assignment 1
   - [ ] bitwise_xor 1
-  - [ ] **class** 42
+  - [x] **class** 42
   - [ ] comma 1
   - [ ] conditional 1
   - [ ] decrement 2
@@ -86,8 +86,8 @@ builtins 1182
   - [x] **exponentiation** 52
   - [x] function 1
     - [x] **trailing_comma** 58
-  - [ ] **generator_function** 49
-    - [ ] **trailing_comma** 58
+  - [x] **generator_function** 49
+    - [x] **trailing_comma** 58
   - [ ] greater_than_or_equal 1
   - [ ] greater_than 1
   - [ ] grouping 1

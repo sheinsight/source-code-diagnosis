@@ -1,6 +1,7 @@
 pub mod async_function;
 pub mod async_generator_function;
 pub mod r#await;
+pub mod class;
 pub mod common_trait;
 pub mod destructuring;
 pub mod exponentiation;
