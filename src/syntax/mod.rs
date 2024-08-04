@@ -1,3 +1,4 @@
+mod classes;
 mod compat;
 mod functions;
 mod operators;

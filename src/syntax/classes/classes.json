@@ -1,0 +1,324 @@
+{
+  "classes": {
+    "name": "classes",
+    "description": "类",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-class-definitions"
+    ],
+    "tags": [
+      "web-features:class-syntax",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "49",
+      "chrome_android": "49",
+      "deno": "1.0",
+      "edge": "13",
+      "firefox": "45",
+      "firefox_android": "45",
+      "ie": "-1",
+      "nodejs": "6.0.0",
+      "oculus": "49",
+      "opera": "49",
+      "opera_android": "49",
+      "safari": "9",
+      "safari_ios": "9",
+      "samsunginternet_android": "49",
+      "webview_android": "49"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "constructor": {
+    "name": "constructor",
+    "description": "构造函数",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/constructor",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-static-semantics-constructormethod"
+    ],
+    "tags": [
+      "web-features:class-syntax",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "49",
+      "chrome_android": "49",
+      "deno": "1.0",
+      "edge": "13",
+      "firefox": "45",
+      "firefox_android": "45",
+      "ie": "-1",
+      "nodejs": "6.0.0",
+      "oculus": "49",
+      "opera": "49",
+      "opera_android": "49",
+      "safari": "9",
+      "safari_ios": "9",
+      "samsunginternet_android": "49",
+      "webview_android": "49"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "extends": {
+    "name": "extends",
+    "description": "类继承",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/extends",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-class-definitions"
+    ],
+    "tags": [
+      "web-features:class-syntax",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "49",
+      "chrome_android": "49",
+      "deno": "1.0",
+      "edge": "13",
+      "firefox": "45",
+      "firefox_android": "45",
+      "ie": "-1",
+      "nodejs": "6.0.0",
+      "oculus": "49",
+      "opera": "49",
+      "opera_android": "49",
+      "safari": "9",
+      "safari_ios": "9",
+      "samsunginternet_android": "49",
+      "webview_android": "49"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "private_class_fields": {
+    "name": "private_class_fields",
+    "description": "私有类字段",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/Private_properties",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-lexical-grammar.html#prod-PrivateIdentifier"
+    ],
+    "tags":[],
+    "support": {
+      "chrome": "74",
+      "chrome_android": "74",
+      "deno": "1.0",
+      "edge": "74",
+      "firefox": "90",
+      "firefox_android": "90",
+      "ie": "-1",
+      "nodejs": "12.0.0",
+      "oculus": "74",
+      "opera": "74",
+      "opera_android": "74",
+      "safari": "14.1",
+      "safari_ios": "14.1",
+      "samsunginternet_android": "74",
+      "webview_android": "74"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "private_class_fields_in": {
+    "name": "private_class_fields_in",
+    "description": "私有类字段的 'in' 操作符",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/Private_properties",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-00OK517S"
+    ],
+    "tags":[],
+    "support": {
+      "chrome": "91",
+      "chrome_android": "91",
+      "deno": "1.9",
+      "edge": "91",
+      "firefox": "90",
+      "firefox_android": "90",
+      "ie": "-1",
+      "nodejs": "16.4.0",
+      "oculus": "91",
+      "opera": "91",
+      "opera_android": "91",
+      "safari": "15",
+      "safari_ios": "15",
+      "samsunginternet_android": "91",
+      "webview_android": "91"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "private_class_methods": {
+    "name": "private_class_methods",
+    "description": "私有类方法",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/Private_properties",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-lexical-grammar.html#prod-PrivateIdentifier"
+    ],
+    "tags":[],
+    "support": {
+      "chrome": "84",
+      "chrome_android": "84",
+      "deno": "1.0",
+      "edge": "84",
+      "firefox": "90",
+      "firefox_android": "90",
+      "ie": "-1",
+      "nodejs": "14.6.0",
+      "oculus": "84",
+      "opera": "84",
+      "opera_android": "84",
+      "safari": "15",
+      "safari_ios": "15",
+      "samsunginternet_android": "84",
+      "webview_android": "84"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "public_class_fields": {
+    "name": "public_class_fields",
+    "description": "公共类字段",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/Public_class_fields",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#prod-FieldDefinition"
+    ],
+    "tags": [],
+    "support": {
+      "chrome": "72",
+      "chrome_android": "72",
+      "deno": "1.0",
+      "edge": "72",
+      "firefox": "69",
+      "firefox_android": "69",
+      "ie": "-1",
+      "nodejs": "12.0.0",
+      "oculus": "72",
+      "opera": "72",
+      "opera_android": "72",
+      "safari": "16",
+      "safari_ios": "16",
+      "samsunginternet_android": "72",
+      "webview_android": "72"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "static": {
+    "name": "static",
+    "description": "静态方法和属性",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/static",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-class-definitions"
+    ],
+    "tags": [
+      "web-features:class-syntax",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "49",
+      "chrome_android": "49",
+      "deno": "1.0",
+      "edge": "13",
+      "firefox": "45",
+      "firefox_android": "45",
+      "ie": "-1",
+      "nodejs": "6.0.0",
+      "oculus": "49",
+      "opera": "49",
+      "opera_android": "49",
+      "safari": "9",
+      "safari_ios": "9",
+      "samsunginternet_android": "49",
+      "webview_android": "49"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "static_class_fields": {
+    "name": "static_class_fields",
+    "description": "静态类字段",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/Public_class_fields",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#prod-FieldDefinition"
+    ],
+    "tags":[],
+    "support": {
+      "chrome": "72",
+      "chrome_android": "72",
+      "deno": "1.0",
+      "edge": "72",
+      "firefox": "75",
+      "firefox_android": "75",
+      "ie": "-1",
+      "nodejs": "12.0.0",
+      "oculus": "72",
+      "opera": "72",
+      "opera_android": "72",
+      "safari": "14.1",
+      "safari_ios": "14.1",
+      "samsunginternet_android": "72",
+      "webview_android": "72"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "static_initialization_blocks": {
+    "name": "static_initialization_blocks",
+    "description": "类静态初始化块",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/Static_initialization_blocks",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#prod-ClassStaticBlock"
+    ],
+    "tags":[],
+    "support": {
+      "chrome": "94",
+      "chrome_android": "94",
+      "deno": "1.14",
+      "edge": "94",
+      "firefox": "93",
+      "firefox_android": "93",
+      "ie": "-1",
+      "nodejs": "16.11.0",
+      "oculus": "94",
+      "opera": "94",
+      "opera_android": "94",
+      "safari": "16.4",
+      "safari_ios": "16.4",
+      "samsunginternet_android": "94",
+      "webview_android": "94"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  }
+}
