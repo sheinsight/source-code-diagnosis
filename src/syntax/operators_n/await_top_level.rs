@@ -2,6 +2,7 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
+use serde::Deserialize;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
@@ -24,7 +25,8 @@ impl CommonTrait for AwaitVisitor<'_> {
 
 impl<'a> AwaitVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./await.json")).unwrap();
+    let compat: Compat =
+      from_str(include_str!("./await_top_level.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -62,12 +64,14 @@ impl<'a> Visit<'a> for AwaitVisitor<'a> {
   }
 
   fn visit_await_expression(&mut self, it: &oxc_ast::ast::AwaitExpression<'a>) {
-    self.cache.push(CompatBox {
-      start: it.span.start,
-      end: it.span.end,
-      code_seg: self.get_source_code(it.span).to_string(),
-      compat: self.compat.clone(),
-    });
+    if self.is_top_level_await() {
+      self.cache.push(CompatBox {
+        start: it.span.start,
+        end: it.span.end,
+        code_seg: self.get_source_code(it.span).to_string(),
+        compat: self.compat.clone(),
+      });
+    }
     oxc_ast::visit::walk::walk_await_expression(self, it);
   }
 }
@@ -80,18 +84,17 @@ mod tests {
   use super::*;
 
   #[test]
-  fn should_exist_await() {
+  fn should_exist_top_level_await() {
     let source_code = r##"
-async function f3() {
-  const y = await 20;
-  console.log(y); // 20
-
-  const obj = {};
-  console.log((await obj) === obj); // true
-}
-f3();
+const response = await fetch('https://api.example.com/data');
+const data = await response.json();
 "##;
     let allocator = Allocator::default();
-    t_any("await", source_code, &allocator, AwaitVisitor::new);
+    t_any(
+      "await_top_level",
+      source_code,
+      &allocator,
+      AwaitVisitor::new,
+    );
   }
 }
