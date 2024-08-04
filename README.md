@@ -114,7 +114,7 @@ builtins 1182
   - [x] **new_target** 46
   - [ ] new 1
   - [ ] null 1
-  - [ ] **nullish_coalescing_assignment** 85
+  - [x] **nullish_coalescing_assignment** 85
   - [ ] **nullish_coalescing** 80
   - [ ] object_initializer 1
     - [ ] **computed_property_names** 47
