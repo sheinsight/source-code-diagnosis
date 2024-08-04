@@ -104,10 +104,10 @@ builtins 1182
   - [ ] left_shift 1
   - [ ] less_than_or_equal 1
   - [ ] less_than 1
-  - [ ] **logical_and_assignment** 85
+  - [x] **logical_and_assignment** 85
   - [ ] logical_and 1
   - [ ] logical_not 1
-  - [ ] **logical_or_assignment** 85
+  - [x] **logical_or_assignment** 85
   - [ ] logical_or 1
   - [ ] multiplication_assignment 1
   - [ ] multiplication 1
