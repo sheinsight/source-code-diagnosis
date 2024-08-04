@@ -11,6 +11,7 @@ pub mod destructuring_rest_in_objects;
 pub mod exponentiation;
 pub mod exponentiation_assignment;
 pub mod function;
+pub mod function_trailing_comma;
 pub mod generator_function;
 pub mod import;
 pub mod logical_and_assignment;

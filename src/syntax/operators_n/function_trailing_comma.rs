@@ -24,7 +24,8 @@ impl CommonTrait for FunctionVisitor<'_> {
 
 impl<'a> FunctionVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./function.json")).unwrap();
+    let compat: Compat =
+      from_str(include_str!("./function_trailing_comma.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -53,11 +54,13 @@ impl<'a> Visit<'a> for FunctionVisitor<'a> {
     it: &oxc_ast::ast::Function<'a>,
     flags: oxc_syntax::scope::ScopeFlags,
   ) {
-    if !it.r#async && !it.generator {
+    let params_span = it.params.span;
+    let code_seg = self.get_source_code(params_span);
+    if code_seg.ends_with(",)") {
       self.cache.push(CompatBox {
         start: it.span.start,
         end: it.span.end,
-        code_seg: self.get_source_code(it.span).to_string(),
+        code_seg: code_seg.to_string(),
         compat: self.compat.clone(),
       });
     }
@@ -74,13 +77,18 @@ mod tests {
   use super::*;
 
   #[test]
-  fn should_exits_function_of_function_declaration() {
+  fn should_exits_function_trailing_comma_of_function_declaration() {
     let source_code = r##"
-const getRectArea = function (width, height) {
+const getRectArea = function (width, height,) {
 
 };
     "##;
     let allocator = Allocator::default();
-    t_any("function", source_code, &allocator, FunctionVisitor::new);
+    t_any(
+      "function_trailing_comma",
+      source_code,
+      &allocator,
+      FunctionVisitor::new,
+    );
   }
 }
