@@ -1,0 +1,35 @@
+{
+  "new_target": {
+    "name": "new_target",
+    "description": "<code>new.target</code>",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/new.target",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-built-in-function-objects"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "46",
+      "chrome_android": "46",
+      "deno": "1.0",
+      "edge": "13",
+      "firefox": "41",
+      "firefox_android": "41",
+      "ie": "-1",
+      "nodejs": "5.0.0",
+      "oculus": "46",
+      "opera": "46",
+      "opera_android": "46",
+      "safari": "11",
+      "safari_ios": "11",
+      "samsunginternet_android": "46",
+      "webview_android": "46"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  }
+}

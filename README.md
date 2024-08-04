@@ -111,7 +111,7 @@ builtins 1182
   - [ ] logical_or 1
   - [ ] multiplication_assignment 1
   - [ ] multiplication 1
-  - [ ] **new_target** 46
+  - [x] **new_target** 46
   - [ ] new 1
   - [ ] null 1
   - [ ] **nullish_coalescing_assignment** 85
