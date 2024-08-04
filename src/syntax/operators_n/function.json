@@ -1,0 +1,68 @@
+{
+  "function": {
+    "name": "function",
+    "description": "<code>function</code> expression",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/function",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    "support": {
+      "chrome": "1",
+      "chrome_android": "1",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "1",
+      "firefox_android": "1",
+      "ie": "3",
+      "nodejs": "0.10.0",
+      "oculus": "1",
+      "opera": "3",
+      "opera_android": "10.1",
+      "safari": "1",
+      "safari_ios": "1",
+      "samsunginternet_android": "1",
+      "webview_android": "1"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "function_trailing_comma": {
+    "name": "function_trailing_comma",
+    "description": "Trailing comma in parameters",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/function",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    "support": {
+      "chrome": "58",
+      "chrome_android": "58",
+      "deno": "1.0",
+      "edge": "14",
+      "firefox": "52",
+      "firefox_android": "52",
+      "ie": "-1",
+      "nodejs": "8.0.0",
+      "oculus": "58",
+      "opera": "58",
+      "opera_android": "58",
+      "safari": "10",
+      "safari_ios": "10",
+      "samsunginternet_android": "58",
+      "webview_android": "58"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  }
+}
