@@ -26,13 +26,14 @@ impl CommonTrait for GeneratorFunctionVisitor<'_> {
 impl<'a> GeneratorFunctionVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
     let compat: Compat =
-      from_str(include_str!("./generator_function.json")).unwrap();
+      from_str(include_str!("./generator_function_trailing_comma.json"))
+        .unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      compat,
+      compat: compat,
     }
   }
 
@@ -57,7 +58,8 @@ impl<'a> Visit<'a> for GeneratorFunctionVisitor<'a> {
   ) {
     let code_seg = self.get_source_code(it.span).to_string();
 
-    if it.generator && !it.r#async {
+    let params = self.get_source_code(it.params.span);
+    if params.ends_with(",)") {
       self.cache.push(CompatBox {
         start: it.span.start,
         end: it.span.end,
@@ -78,9 +80,9 @@ mod tests {
   use super::*;
 
   #[test]
-  fn should_exits_generator_function_of_generator_function() {
+  fn should_exits_generator_function_trailing_comma() {
     let source_code = r##"
-const foo = function* () {
+const foo = async function* (a,b,) {
   yield 'a';
   yield 'b';
   yield 'c';
@@ -88,25 +90,7 @@ const foo = function* () {
     "##;
     let allocator = Allocator::default();
     t_any(
-      "generator_function",
-      source_code,
-      &allocator,
-      GeneratorFunctionVisitor::new,
-    );
-  }
-
-  #[test]
-  fn should_not_exits_generator_function_of_async_generator_function() {
-    let source_code = r##"
-const foo = async function* () {
-  yield 'a';
-  yield 'b';
-  yield 'c';
-};
-    "##;
-    let allocator = Allocator::default();
-    t_any_not(
-      "generator_function",
+      "generator_function_trailing_comma",
       source_code,
       &allocator,
       GeneratorFunctionVisitor::new,
