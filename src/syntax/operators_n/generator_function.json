@@ -1,0 +1,68 @@
+{
+  "generator_function": {
+    "name": "generator_function",
+    "description": "<code>function*</code> expression",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/function*",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-generator-function-definitions"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "49",
+      "chrome_android": "49",
+      "deno": "1.0",
+      "edge": "12",
+      "firefox": "26",
+      "firefox_android": "26",
+      "ie": "-1",
+      "nodejs": "4.0.0",
+      "oculus": "49",
+      "opera": "49",
+      "opera_android": "49",
+      "safari": "10",
+      "safari_ios": "10",
+      "samsunginternet_android": "49",
+      "webview_android": "49"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  },
+  "generator_function_trailing_comma": {
+    "name": "generator_function_trailing_comma",
+    "description": "Trailing comma in parameters",
+    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/function*",
+    "spec_url": [
+      "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-generator-function-definitions"
+    ],
+    "tags": [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    "support": {
+      "chrome": "58",
+      "chrome_android": "58",
+      "deno": "1.0",
+      "edge": "58",
+      "firefox": "52",
+      "firefox_android": "52",
+      "ie": "-1",
+      "nodejs": "8.0.0",
+      "oculus": "58",
+      "opera": "58",
+      "opera_android": "58",
+      "safari": "10",
+      "safari_ios": "10",
+      "samsunginternet_android": "58",
+      "webview_android": "58"
+    },
+    "status": {
+      "experimental": false,
+      "standard_track": true,
+      "deprecated": false
+    }
+  }
+}

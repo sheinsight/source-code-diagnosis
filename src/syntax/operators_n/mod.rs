@@ -6,5 +6,6 @@ pub mod destructuring;
 pub mod exponentiation;
 pub mod exponentiation_assignment;
 pub mod function;
+pub mod generator_function;
 pub mod import;
 pub mod t;
