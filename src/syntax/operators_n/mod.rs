@@ -9,4 +9,5 @@ pub mod exponentiation_assignment;
 pub mod function;
 pub mod generator_function;
 pub mod import;
+pub mod logical_and_assignment;
 pub mod t;
