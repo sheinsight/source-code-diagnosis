@@ -1,9 +1,6 @@
 use std::marker::PhantomData;
 
-use oxc_ast::{
-  ast::{Argument, ArrayExpressionElement, ObjectPropertyKind},
-  AstKind, Visit,
-};
+use oxc_ast::{ast::ObjectPropertyKind, AstKind, Visit};
 use oxc_span::Span;
 use serde_json::from_str;
 
@@ -27,7 +24,8 @@ impl CommonTrait for SpreadVisitor<'_> {
 
 impl<'a> SpreadVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./spread.json")).unwrap();
+    let compat: Compat =
+      from_str(include_str!("./spread_in_object_literals.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -51,14 +49,22 @@ impl<'a> Visit<'a> for SpreadVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_spread_element(&mut self, it: &oxc_ast::ast::SpreadElement<'a>) {
-    self.cache.push(CompatBox {
-      start: it.span.start,
-      end: it.span.end,
-      code_seg: self.get_source_code(it.span).to_string(),
-      compat: self.compat.clone(),
-    });
-    oxc_ast::visit::walk::walk_spread_element(self, it);
+  fn visit_object_expression(
+    &mut self,
+    expr: &oxc_ast::ast::ObjectExpression<'a>,
+  ) {
+    for prop in expr.properties.iter() {
+      if let ObjectPropertyKind::SpreadProperty(p) = prop {
+        self.cache.push(CompatBox {
+          start: p.span.start,
+          end: p.span.end,
+          code_seg: self.get_source_code(p.span).to_string(),
+          compat: self.compat.clone(),
+        });
+      }
+    }
+
+    oxc_ast::visit::walk::walk_object_expression(self, expr);
   }
 }
 
@@ -70,20 +76,19 @@ mod tests {
   use super::*;
 
   #[test]
-  fn should_exits_spread_1() {
+  fn should_exits_spread_in_object_literals() {
     let source_code = r##"
-console.log(sum(...numbers));
-"##;
-    let allocator = Allocator::default();
-    t_any("spread", source_code, &allocator, SpreadVisitor::new);
-  }
+const obj1 = { foo: "bar", x: 42 };
+const obj2 = { bar: "baz", y: 13 };
 
-  #[test]
-  fn should_exits_spread_2() {
-    let source_code = r##"
-const obj = { ...true, ..."test", ...10 };
-"##;
+const mergedObj = { ...obj1, ...obj2 };
+        "##;
     let allocator = Allocator::default();
-    t_any("spread", source_code, &allocator, SpreadVisitor::new);
+    t_any(
+      "spread_in_object_literals",
+      source_code,
+      &allocator,
+      SpreadVisitor::new,
+    );
   }
 }

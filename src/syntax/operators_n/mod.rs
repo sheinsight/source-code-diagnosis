@@ -22,5 +22,8 @@ pub mod new_target;
 pub mod nullish_coalescing;
 pub mod nullish_coalescing_assignment;
 pub mod spread;
+pub mod spread_in_arrays;
+pub mod spread_in_function_calls;
+pub mod spread_in_object_literals;
 pub mod super_keyword;
 pub mod t;

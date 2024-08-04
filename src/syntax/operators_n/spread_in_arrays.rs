@@ -1,9 +1,6 @@
 use std::marker::PhantomData;
 
-use oxc_ast::{
-  ast::{Argument, ArrayExpressionElement, ObjectPropertyKind},
-  AstKind, Visit,
-};
+use oxc_ast::{ast::ArrayExpressionElement, AstKind, Visit};
 use oxc_span::Span;
 use serde_json::from_str;
 
@@ -27,13 +24,14 @@ impl CommonTrait for SpreadVisitor<'_> {
 
 impl<'a> SpreadVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./spread.json")).unwrap();
+    let compat: Compat =
+      from_str(include_str!("./spread_in_arrays.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      compat: compat,
+      compat,
     }
   }
 
@@ -51,14 +49,19 @@ impl<'a> Visit<'a> for SpreadVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_spread_element(&mut self, it: &oxc_ast::ast::SpreadElement<'a>) {
-    self.cache.push(CompatBox {
-      start: it.span.start,
-      end: it.span.end,
-      code_seg: self.get_source_code(it.span).to_string(),
-      compat: self.compat.clone(),
-    });
-    oxc_ast::visit::walk::walk_spread_element(self, it);
+  fn visit_array_expression_element(
+    &mut self,
+    it: &oxc_ast::ast::ArrayExpressionElement<'a>,
+  ) {
+    if let ArrayExpressionElement::SpreadElement(arg) = it {
+      self.cache.push(CompatBox {
+        start: arg.span.start,
+        end: arg.span.end,
+        code_seg: self.get_source_code(arg.span).to_string(),
+        compat: self.compat.clone(),
+      });
+    }
+    oxc_ast::visit::walk::walk_array_expression_element(self, it);
   }
 }
 
@@ -70,20 +73,17 @@ mod tests {
   use super::*;
 
   #[test]
-  fn should_exits_spread_1() {
+  fn should_exits_spread_in_arrays() {
     let source_code = r##"
-console.log(sum(...numbers));
+const parts = ["shoulders", "knees"];
+const lyrics = ["head", ...parts, "and", "toes"];    
 "##;
     let allocator = Allocator::default();
-    t_any("spread", source_code, &allocator, SpreadVisitor::new);
-  }
-
-  #[test]
-  fn should_exits_spread_2() {
-    let source_code = r##"
-const obj = { ...true, ..."test", ...10 };
-"##;
-    let allocator = Allocator::default();
-    t_any("spread", source_code, &allocator, SpreadVisitor::new);
+    t_any(
+      "spread_in_arrays",
+      source_code,
+      &allocator,
+      SpreadVisitor::new,
+    );
   }
 }
