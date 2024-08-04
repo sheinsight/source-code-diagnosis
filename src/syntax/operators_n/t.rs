@@ -31,3 +31,20 @@ pub fn t_any<'a, V>(
   let cache = visitor.get_cache();
   assert!(cache.iter().any(|compat| compat.compat.name == name));
 }
+
+pub fn t_any_not<'a, V>(
+  name: &str,
+  source_code: &'a str,
+  allocator: &'a Allocator,
+  create: fn(&'a str) -> V,
+) where
+  V: Visit<'a> + CommonTrait,
+{
+  let mut visitor = create(source_code);
+  let source_type = SourceType::default();
+  let parser = Parser::new(&allocator, source_code, source_type);
+  let ret = parser.parse();
+  visitor.visit_program(&ret.program);
+  let cache = visitor.get_cache();
+  assert!(!cache.iter().any(|compat| compat.compat.name == name));
+}
