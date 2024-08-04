@@ -1,6 +1,6 @@
-{
-	"name": "destructuring",
-	"description": "Destructuring assignment",
+{ 
+	"name": "rest_in_objects",
+	"description": "Rest in objects",
 	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment",
 	"spec_url": [
 		"https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-destructuring-assignment",
@@ -8,21 +8,21 @@
 	],
 	"tags": ["web-features:snapshot:ecmascript-2015"],
 	"support": {
-		"chrome": "49",
-		"chrome_android": "49",
+		"chrome": "60",
+		"chrome_android": "60",
 		"deno": "1.0",
-		"edge": "14",
-		"firefox": "41",
-		"firefox_android": "41",
+		"edge": "60",
+		"firefox": "55",
+		"firefox_android": "55",
 		"ie": "-1",
-		"nodejs": "6.0.0",
-		"oculus": "49",
-		"opera": "49",
-		"opera_android": "49",
-		"safari": "8",
-		"safari_ios": "8",
-		"samsunginternet_android": "49",
-		"webview_android": "49"
+		"nodejs": "8.3.0",
+		"oculus": "60",
+		"opera": "60",
+		"opera_android": "60",
+		"safari": "11.1",
+		"safari_ios": "11.1",
+		"samsunginternet_android": "60",
+		"webview_android": "60"
 	},
 	"status": {
 		"experimental": false,

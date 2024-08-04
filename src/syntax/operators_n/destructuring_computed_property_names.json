@@ -1,6 +1,6 @@
 {
-	"name": "destructuring",
-	"description": "Destructuring assignment",
+	"name": "computed_property_names",
+	"description": "Computed property names",
 	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment",
 	"spec_url": [
 		"https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-destructuring-assignment",
@@ -19,8 +19,8 @@
 		"oculus": "49",
 		"opera": "49",
 		"opera_android": "49",
-		"safari": "8",
-		"safari_ios": "8",
+		"safari": "10",
+		"safari_ios": "10",
 		"samsunginternet_android": "49",
 		"webview_android": "49"
 	},
