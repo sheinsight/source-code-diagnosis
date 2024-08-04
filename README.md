@@ -135,7 +135,7 @@ builtins 1182
   - [ ] strict_inequality 1
   - [ ] subtraction_assignment 1
   - [ ] subtraction 1
-  - [ ] **super** 42
+  - [x] **super** 42
   - [ ] this 1
   - [ ] typeof 1
   - [ ] unary_negation 1
