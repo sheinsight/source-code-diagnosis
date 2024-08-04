@@ -127,10 +127,10 @@ builtins 1182
   - [ ] remainder 1
   - [ ] right_shift_assignment 1
   - [ ] right_shift 1
-  - [ ] **spread** 46
-    - [ ] **spread_in_arrays** 46
-    - [ ] **spread_in_function_calls** 46
-    - [ ] **spread_in_object_literals** 60
+  - [x] **spread** 46
+    - [x] **spread_in_arrays** 46
+    - [x] **spread_in_function_calls** 46
+    - [x] **spread_in_object_literals** 60
   - [ ] strict_equality 1
   - [ ] strict_inequality 1
   - [ ] subtraction_assignment 1

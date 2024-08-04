@@ -14,4 +14,5 @@ pub mod logical_or_assignment;
 pub mod new_target;
 pub mod nullish_coalescing;
 pub mod nullish_coalescing_assignment;
+pub mod spread;
 pub mod t;
