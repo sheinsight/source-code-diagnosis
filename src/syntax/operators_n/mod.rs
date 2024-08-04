@@ -15,6 +15,7 @@ pub mod function_trailing_comma;
 pub mod generator_function;
 pub mod generator_function_trailing_comma;
 pub mod import;
+pub mod import_options_parameter;
 pub mod logical_and_assignment;
 pub mod logical_or_assignment;
 pub mod new_target;

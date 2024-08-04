@@ -2,7 +2,6 @@ use std::{marker::PhantomData, ops::Not};
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
-use serde::Deserialize;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
@@ -25,7 +24,8 @@ impl CommonTrait for ImportVisitor<'_> {
 
 impl<'a> ImportVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./import.json")).unwrap();
+    let compat: Compat =
+      from_str(include_str!("./import_options_parameter.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -53,12 +53,14 @@ impl<'a> Visit<'a> for ImportVisitor<'a> {
     &mut self,
     expr: &oxc_ast::ast::ImportExpression<'a>,
   ) {
-    self.cache.push(CompatBox {
-      start: expr.span.start,
-      end: expr.span.end,
-      code_seg: self.get_source_code(expr.span).to_string(),
-      compat: self.compat.clone(),
-    });
+    if expr.arguments.is_empty().not() {
+      self.cache.push(CompatBox {
+        start: expr.span.start,
+        end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
+        compat: self.compat.clone(),
+      });
+    }
     oxc_ast::visit::walk::walk_import_expression(self, expr);
   }
 }
@@ -71,12 +73,23 @@ mod tests {
   use super::*;
 
   #[test]
-  fn should_exist_import() {
+  fn should_exist_import_options_parameter() {
     let source_code = r#"
-import(moduleName);
-    "#;
+import("./module.js", { a: 1 })
+	.then((module) => {
+		console.log(module.default);
+	})
+	.catch((error) => {
+		console.error("Error importing module:", error);
+	});
+"#;
 
     let allocator = Allocator::default();
-    t_any("import", source_code, &allocator, ImportVisitor::new)
+    t_any(
+      "import_options_parameter",
+      source_code,
+      &allocator,
+      ImportVisitor::new,
+    );
   }
 }
