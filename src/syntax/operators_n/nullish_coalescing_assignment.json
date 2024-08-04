@@ -1,35 +1,33 @@
 {
-  "nullish_coalescing_assignment": {
-    "name": "nullish_coalescing_assignment",
-    "description": "Nullish coalescing assignment (<code>x ??= y</code>)",
-    "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_assignment",
-    "spec_url": [
-      "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators"
-    ],
-    "tags": [
-      "web-features:snapshot:ecmascript-2020"
-    ],
-    "support": {
-      "chrome": "85",
-      "chrome_android": "85",
-      "deno": "1.2",
-      "edge": "85",
-      "firefox": "79",
-      "firefox_android": "79",
-      "ie": "-1",
-      "nodejs": "15.0.0",
-      "oculus": "85",
-      "opera": "85",
-      "opera_android": "85",
-      "safari": "14",
-      "safari_ios": "14",
-      "samsunginternet_android": "85",
-      "webview_android": "85"
-    },
-    "status": {
-      "experimental": false,
-      "standard_track": true,
-      "deprecated": false
-    }
+  "name": "nullish_coalescing_assignment",
+  "description": "Nullish coalescing assignment (<code>x ??= y</code>)",
+  "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_assignment",
+  "spec_url": [
+    "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-assignment-operators"
+  ],
+  "tags": [
+    "web-features:snapshot:ecmascript-2020"
+  ],
+  "support": {
+    "chrome": "85",
+    "chrome_android": "85",
+    "deno": "1.2",
+    "edge": "85",
+    "firefox": "79",
+    "firefox_android": "79",
+    "ie": "-1",
+    "nodejs": "15.0.0",
+    "oculus": "85",
+    "opera": "85",
+    "opera_android": "85",
+    "safari": "14",
+    "safari_ios": "14",
+    "samsunginternet_android": "85",
+    "webview_android": "85"
+  },
+  "status": {
+    "experimental": false,
+    "standard_track": true,
+    "deprecated": false
   }
 }

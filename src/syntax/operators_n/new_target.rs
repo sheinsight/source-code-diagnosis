@@ -2,24 +2,18 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
-use serde::Deserialize;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-#[derive(Debug, Deserialize)]
-pub struct NewTargetBrowserCompatMetadata {
-  pub new_target: Compat,
-}
-
 pub struct NewTargetVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
-  browser_compat_meta_data: NewTargetBrowserCompatMetadata,
+  compat: Compat,
 }
 
 impl CommonTrait for NewTargetVisitor<'_> {
@@ -30,14 +24,13 @@ impl CommonTrait for NewTargetVisitor<'_> {
 
 impl<'a> NewTargetVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let browser_compat_meta_data: NewTargetBrowserCompatMetadata =
-      from_str(include_str!("./new_target.json")).unwrap();
+    let compat: Compat = from_str(include_str!("./new_target.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      browser_compat_meta_data: browser_compat_meta_data,
+      compat: compat,
     }
   }
 
@@ -62,7 +55,7 @@ impl<'a> Visit<'a> for NewTargetVisitor<'a> {
         start: it.span.start,
         end: it.span.end,
         code_seg: code_seg,
-        compat: self.browser_compat_meta_data.new_target.clone(),
+        compat: self.compat.clone(),
       });
     }
     oxc_ast::visit::walk::walk_meta_property(self, it);

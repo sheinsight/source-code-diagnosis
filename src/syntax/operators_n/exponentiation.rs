@@ -9,17 +9,12 @@ use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-#[derive(Debug, serde::Deserialize)]
-pub struct ExponentiationBrowserCompatMetadata {
-  exponentiation: Compat,
-}
-
 pub struct ExponentiationVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
-  browser_compat_meta_data: ExponentiationBrowserCompatMetadata,
+  compat: Compat,
 }
 
 impl CommonTrait for ExponentiationVisitor<'_> {
@@ -30,14 +25,14 @@ impl CommonTrait for ExponentiationVisitor<'_> {
 
 impl<'a> ExponentiationVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let browser_compat_meta_data: ExponentiationBrowserCompatMetadata =
+    let compat: Compat =
       from_str(include_str!("./exponentiation.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      browser_compat_meta_data: browser_compat_meta_data,
+      compat: compat,
     }
   }
 
@@ -64,7 +59,7 @@ impl<'a> Visit<'a> for ExponentiationVisitor<'a> {
         start: expr.span.start,
         end: expr.span.end,
         code_seg: self.get_source_code(expr.span).to_string(),
-        compat: self.browser_compat_meta_data.exponentiation.clone(),
+        compat: self.compat.clone(),
       });
     }
     oxc_ast::visit::walk::walk_binary_expression(self, expr);

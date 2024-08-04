@@ -1,28 +1,19 @@
 use std::marker::PhantomData;
 
-use oxc_ast::{
-  ast::{CallExpression, Expression},
-  AstKind, Visit,
-};
+use oxc_ast::{ast::Expression, AstKind, Visit};
 use oxc_span::Span;
-use serde::Deserialize;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-#[derive(Debug, Deserialize)]
-pub struct SuperKeywordBrowserCompatMetadata {
-  pub super_keyword: Compat,
-}
-
 pub struct SuperKeywordVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
-  browser_compat_meta_data: SuperKeywordBrowserCompatMetadata,
+  compat: Compat,
 }
 
 impl CommonTrait for SuperKeywordVisitor<'_> {
@@ -33,14 +24,14 @@ impl CommonTrait for SuperKeywordVisitor<'_> {
 
 impl<'a> SuperKeywordVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let browser_compat_meta_data: SuperKeywordBrowserCompatMetadata =
+    let compat: Compat =
       from_str(include_str!("./super_keyword.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      browser_compat_meta_data: browser_compat_meta_data,
+      compat: compat,
     }
   }
 
@@ -65,7 +56,7 @@ impl<'a> Visit<'a> for SuperKeywordVisitor<'a> {
         start: it.span.start,
         end: it.span.end,
         code_seg: code_segment,
-        compat: self.browser_compat_meta_data.super_keyword.clone(),
+        compat: self.compat.clone(),
       });
     }
     oxc_ast::visit::walk::walk_call_expression(self, it);
@@ -81,7 +72,7 @@ impl<'a> Visit<'a> for SuperKeywordVisitor<'a> {
         start: it.span.start,
         end: it.span.end,
         code_seg: code_segment,
-        compat: self.browser_compat_meta_data.super_keyword.clone(),
+        compat: self.compat.clone(),
       });
     }
     oxc_ast::visit::walk::walk_static_member_expression(self, it);

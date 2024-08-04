@@ -3,24 +3,18 @@ use std::marker::PhantomData;
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
 use oxc_syntax::operator::AssignmentOperator;
-use serde::Deserialize;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-#[derive(Debug, Deserialize)]
-pub struct NullishCoalescingAssignmentBrowserCompatMetadata {
-  pub nullish_coalescing_assignment: Compat,
-}
-
 pub struct NullishCoalescingAssignmentVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
-  browser_compat_meta_data: NullishCoalescingAssignmentBrowserCompatMetadata,
+  compat: Compat,
 }
 
 impl CommonTrait for NullishCoalescingAssignmentVisitor<'_> {
@@ -31,14 +25,14 @@ impl CommonTrait for NullishCoalescingAssignmentVisitor<'_> {
 
 impl<'a> NullishCoalescingAssignmentVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let browser_compat_meta_data: NullishCoalescingAssignmentBrowserCompatMetadata =
+    let compat: Compat =
       from_str(include_str!("./nullish_coalescing_assignment.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      browser_compat_meta_data: browser_compat_meta_data,
+      compat: compat,
     }
   }
 
@@ -66,10 +60,7 @@ impl<'a> Visit<'a> for NullishCoalescingAssignmentVisitor<'a> {
         start: it.span.start,
         end: it.span.end,
         code_seg: code_seg,
-        compat: self
-          .browser_compat_meta_data
-          .nullish_coalescing_assignment
-          .clone(),
+        compat: self.compat.clone(),
       });
     }
     oxc_ast::visit::walk::walk_assignment_expression(self, it);

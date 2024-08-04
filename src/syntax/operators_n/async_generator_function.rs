@@ -2,24 +2,18 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
-use serde::Deserialize;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-#[derive(Debug, Deserialize)]
-pub struct AsyncGeneratorFunctionBrowserCompatMetadata {
-  pub async_generator_function: Compat,
-}
-
 pub struct AsyncGeneratorFunctionVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
-  browser_compat_meta_data: AsyncGeneratorFunctionBrowserCompatMetadata,
+  compat: Compat,
 }
 
 impl CommonTrait for AsyncGeneratorFunctionVisitor<'_> {
@@ -30,14 +24,14 @@ impl CommonTrait for AsyncGeneratorFunctionVisitor<'_> {
 
 impl<'a> AsyncGeneratorFunctionVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let browser_compat_meta_data: AsyncGeneratorFunctionBrowserCompatMetadata =
+    let compat: Compat =
       from_str(include_str!("./async_generator_function.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      browser_compat_meta_data: browser_compat_meta_data,
+      compat: compat,
     }
   }
 
@@ -65,10 +59,7 @@ impl<'a> Visit<'a> for AsyncGeneratorFunctionVisitor<'a> {
         start: it.span.start,
         end: it.span.end,
         code_seg: self.get_source_code(it.span).to_string(),
-        compat: self
-          .browser_compat_meta_data
-          .async_generator_function
-          .clone(),
+        compat: self.compat.clone(),
       });
     }
     oxc_ast::visit::walk::walk_function(self, it, flags);
