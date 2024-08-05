@@ -1,8 +1,5 @@
-mod classes;
 mod compat;
-mod functions;
-mod grammar;
-mod operators;
+
 mod utils;
 mod visitor;
 use std::{
@@ -13,14 +10,7 @@ use std::{
 
 use compat::CompatBox;
 use napi::{Error, Result};
-use operators::{
-  async_function::AsyncFunctionVisitor,
-  async_generator_function::AsyncGeneratorFunctionVisitor, class::ClassVisitor,
-  destructuring::DestructuringVisitor, exponentiation::ExponentiationVisitor,
-  exponentiation_assignment::ExponentiationAssignmentVisitor,
-  function::FunctionVisitor, generator_function::GeneratorFunctionVisitor,
-  import::ImportVisitor, r#await::AwaitVisitor,
-};
+
 use oxc_allocator::Allocator;
 use oxc_ast::{ast::Program, Visit};
 use oxc_parser::Parser;
@@ -78,78 +68,6 @@ pub fn check_browser_supported(
       let ret = Parser::new(&allocator, &source_text, source_type).parse();
 
       // let mut x = SyntaxRecordVisitor::new(source_text.as_str());
-
-      let mut x1 = AsyncFunctionVisitor::new(source_text.as_str());
-      let mut x2 = AsyncGeneratorFunctionVisitor::new(source_text.as_str());
-      let mut x3 = AwaitVisitor::new(source_text.as_str());
-      let mut x4 = ClassVisitor::new(source_text.as_str());
-      let mut x5 = DestructuringVisitor::new(source_text.as_str());
-      let mut x6 = ExponentiationAssignmentVisitor::new(source_text.as_str());
-      let mut x7 = ExponentiationVisitor::new(source_text.as_str());
-      let mut x8 = FunctionVisitor::new(source_text.as_str());
-      let mut x9 = GeneratorFunctionVisitor::new(source_text.as_str());
-      let mut x10 = ImportVisitor::new(source_text.as_str());
-
-      x1.visit_program(&ret.program);
-      x2.visit_program(&ret.program);
-      x3.visit_program(&ret.program);
-      x4.visit_program(&ret.program);
-      x5.visit_program(&ret.program);
-      x6.visit_program(&ret.program);
-      x7.visit_program(&ret.program);
-      x8.visit_program(&ret.program);
-      x9.visit_program(&ret.program);
-      x10.visit_program(&ret.program);
-
-      x1.cache.iter().for_each(|item| {
-        let mut u = used.lock().unwrap();
-        u.push(item.clone());
-      });
-
-      x2.cache.iter().for_each(|item| {
-        let mut u = used.lock().unwrap();
-        u.push(item.clone());
-      });
-
-      x3.cache.iter().for_each(|item| {
-        let mut u = used.lock().unwrap();
-        u.push(item.clone());
-      });
-
-      x4.cache.iter().for_each(|item| {
-        let mut u = used.lock().unwrap();
-        u.push(item.clone());
-      });
-
-      x5.cache.iter().for_each(|item| {
-        let mut u = used.lock().unwrap();
-        u.push(item.clone());
-      });
-
-      x6.cache.iter().for_each(|item| {
-        let mut u = used.lock().unwrap();
-        u.push(item.clone());
-      });
-
-      x7.cache.iter().for_each(|item| {
-        let mut u = used.lock().unwrap();
-        u.push(item.clone());
-      });
-
-      x8.cache.iter().for_each(|item| {
-        let mut u = used.lock().unwrap();
-        u.push(item.clone());
-      });
-
-      x9.cache.iter().for_each(|item| {
-        let mut u = used.lock().unwrap();
-        u.push(item.clone());
-      });
-
-      x10.cache.iter().for_each(|item| {
-        let mut u = used.lock().unwrap();
-        u.push(item.clone());
-      });
     }
   };
   oxc_visit_process(x, options)?;

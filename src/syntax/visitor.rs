@@ -1,20 +1,7 @@
-use std::{marker::PhantomData, ops::Not};
+use std::marker::PhantomData;
 
-use oxc_ast::{
-  ast::{
-    Argument, ArrayExpressionElement, BindingPatternKind, BindingProperty,
-    Declaration, Expression, MethodDefinitionKind, ObjectPropertyKind,
-  },
-  AstKind, Visit,
-};
+use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
-use oxc_syntax::{
-  operator::{AssignmentOperator, BinaryOperator, LogicalOperator},
-  scope::ScopeFlags,
-  xml_entities,
-};
-
-use crate::syntax::compat::Compat;
 
 use super::compat::CompatBox;
 
@@ -28,9 +15,6 @@ pub struct SyntaxRecordVisitor<'a> {
 
 impl<'a> SyntaxRecordVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let operators_str = include_str!("./browser_compat_data/operators.json");
-    let functions_str = include_str!("./browser_compat_data/functions.json");
-
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
