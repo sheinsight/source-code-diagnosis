@@ -90,7 +90,7 @@ impl<'a> Visit<'a> for DestructuringVisitor<'a> {
 mod tests {
   use oxc_allocator::Allocator;
 
-  use crate::syntax::operators_n::t::{t, t_any};
+  use crate::syntax::operators::t::{t, t_any};
 
   use super::*;
 

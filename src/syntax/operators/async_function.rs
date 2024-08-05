@@ -2,14 +2,13 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
-use serde::Deserialize;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct AwaitVisitor<'a> {
+pub struct AsyncFunctionVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -17,16 +16,16 @@ pub struct AwaitVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for AwaitVisitor<'_> {
+impl CommonTrait for AsyncFunctionVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> AwaitVisitor<'a> {
+impl<'a> AsyncFunctionVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
     let compat: Compat =
-      from_str(include_str!("./await_top_level.json")).unwrap();
+      from_str(include_str!("./async_function.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -39,22 +38,9 @@ impl<'a> AwaitVisitor<'a> {
   fn get_source_code(&self, span: Span) -> &str {
     &self.source_code[span.start as usize..span.end as usize]
   }
-
-  fn is_top_level_await(&self) -> bool {
-    match self.parent_stack.last() {
-      Some(AstKind::Program(_))
-      | Some(AstKind::ExportDefaultDeclaration(_))
-      | Some(AstKind::ImportDeclaration(_))
-      | Some(AstKind::ExpressionStatement(_))
-      | Some(AstKind::VariableDeclarator(_))
-      | Some(AstKind::ReturnStatement(_))
-      | Some(AstKind::IfStatement(_)) => true,
-      _ => false,
-    }
-  }
 }
 
-impl<'a> Visit<'a> for AwaitVisitor<'a> {
+impl<'a> Visit<'a> for AsyncFunctionVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -63,38 +49,75 @@ impl<'a> Visit<'a> for AwaitVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_await_expression(&mut self, it: &oxc_ast::ast::AwaitExpression<'a>) {
-    if self.is_top_level_await() {
+  fn visit_function(
+    &mut self,
+    it: &oxc_ast::ast::Function<'a>,
+    flags: oxc_syntax::scope::ScopeFlags,
+  ) {
+    if it.r#async && !it.generator {
       self.cache.push(CompatBox {
         start: it.span.start,
         end: it.span.end,
-        code_seg: self.get_source_code(it.span).to_string(),
         compat: self.compat.clone(),
+        code_seg: self.get_source_code(it.span).to_string(),
       });
     }
-    oxc_ast::visit::walk::walk_await_expression(self, it);
+    oxc_ast::visit::walk::walk_function(self, it, flags);
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+  use crate::syntax::operators::t::{t_any, t_any_not};
   use oxc_allocator::Allocator;
 
   use super::*;
 
   #[test]
-  fn should_exist_top_level_await() {
+  fn should_exist_async_of_function() {
     let source_code = r##"
-const response = await fetch('https://api.example.com/data');
-const data = await response.json();
-"##;
+function (param0) {
+
+}
+    "##;
     let allocator = Allocator::default();
-    t_any(
-      "await_top_level",
+    t_any_not(
+      "async_function",
       source_code,
       &allocator,
-      AwaitVisitor::new,
+      AsyncFunctionVisitor::new,
+    );
+  }
+
+  #[test]
+  fn should_exist_async_of_async_function() {
+    let source_code = r##"
+async function (param0) {
+
+}
+    "##;
+    let allocator = Allocator::default();
+    t_any(
+      "async_function",
+      source_code,
+      &allocator,
+      AsyncFunctionVisitor::new,
+    );
+  }
+
+  #[test]
+  fn should_exist_async_of_async_generate_function() {
+    let source_code = r##"
+async function* (param0) {
+
+}
+    "##;
+    let allocator = Allocator::default();
+    t_any_not(
+      "async_function",
+      source_code,
+      &allocator,
+      AsyncFunctionVisitor::new,
     );
   }
 }

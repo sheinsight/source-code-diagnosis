@@ -2,14 +2,14 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
-use oxc_syntax::operator::BinaryOperator;
+use oxc_syntax::operator::LogicalOperator;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct ExponentiationVisitor<'a> {
+pub struct NullishCoalescingVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -17,16 +17,16 @@ pub struct ExponentiationVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for ExponentiationVisitor<'_> {
+impl CommonTrait for NullishCoalescingVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> ExponentiationVisitor<'a> {
+impl<'a> NullishCoalescingVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
     let compat: Compat =
-      from_str(include_str!("./exponentiation.json")).unwrap();
+      from_str(include_str!("./nullish_coalescing.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -41,49 +41,57 @@ impl<'a> ExponentiationVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for ExponentiationVisitor<'a> {
+impl<'a> Visit<'a> for NullishCoalescingVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
 
-  fn leave_node(&mut self, kind: oxc_ast::AstKind<'a>) {
+  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.pop();
   }
 
-  fn visit_binary_expression(
+  fn visit_logical_expression(
     &mut self,
-    expr: &oxc_ast::ast::BinaryExpression<'a>,
+    it: &oxc_ast::ast::LogicalExpression<'a>,
   ) {
-    if expr.operator == BinaryOperator::Exponential {
+    let code_seg = self.get_source_code(it.span).to_string();
+    if it.operator == LogicalOperator::Coalesce {
       self.cache.push(CompatBox {
-        start: expr.span.start,
-        end: expr.span.end,
-        code_seg: self.get_source_code(expr.span).to_string(),
+        start: it.span.start,
+        end: it.span.end,
         compat: self.compat.clone(),
+        code_seg,
       });
     }
-    oxc_ast::visit::walk::walk_binary_expression(self, expr);
+    oxc_ast::visit::walk::walk_logical_expression(self, it);
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+  use crate::syntax::operators::t::t_any;
   use oxc_allocator::Allocator;
 
   use super::*;
 
   #[test]
-  fn should_exist_exponentiation() {
+  fn should_test() {
     let source_code = r##"
-console.log(3 ** 4);
+const foo = null ?? 'default string';
+console.log(foo);
+
+
+const baz = 0 ?? 42;
+console.log(baz);
+
+
 "##;
     let allocator = Allocator::default();
     t_any(
-      "exponentiation",
+      "nullish_coalescing",
       source_code,
       &allocator,
-      ExponentiationVisitor::new,
+      NullishCoalescingVisitor::new,
     );
   }
 }

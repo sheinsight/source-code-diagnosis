@@ -4,12 +4,11 @@ use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
 use serde_json::from_str;
 
-use crate::syntax::{
-  compat::{Compat, CompatBox},
-  operators::common_trait::CommonTrait,
-};
+use crate::syntax::compat::{Compat, CompatBox};
 
-pub struct ClassesVisitor<'a> {
+use super::common_trait::CommonTrait;
+
+pub struct NewTargetVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -17,15 +16,15 @@ pub struct ClassesVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for ClassesVisitor<'_> {
+impl CommonTrait for NewTargetVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> ClassesVisitor<'a> {
+impl<'a> NewTargetVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./extends.json")).unwrap();
+    let compat: Compat = from_str(include_str!("./new_target.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -40,7 +39,7 @@ impl<'a> ClassesVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for ClassesVisitor<'a> {
+impl<'a> Visit<'a> for NewTargetVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -49,17 +48,17 @@ impl<'a> Visit<'a> for ClassesVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_class(&mut self, it: &oxc_ast::ast::Class<'a>) {
-    let code_seg = self.get_source_code(it.span).to_string();
-    if let Some(_) = it.super_class {
+  fn visit_meta_property(&mut self, it: &oxc_ast::ast::MetaProperty<'a>) {
+    if it.meta.name == "new" && it.property.name == "target" {
+      let code_seg = self.get_source_code(it.span).to_string();
       self.cache.push(CompatBox {
         start: it.span.start,
         end: it.span.end,
-        code_seg: code_seg.clone(),
+        code_seg: code_seg,
         compat: self.compat.clone(),
       });
     }
-    oxc_ast::visit::walk::walk_class(self, it);
+    oxc_ast::visit::walk::walk_meta_property(self, it);
   }
 }
 
@@ -71,12 +70,15 @@ mod tests {
   use super::*;
 
   #[test]
-  fn should_exits_classes_extends() {
+  fn should_test() {
     let source_code = r##"
-class Rectangle extends A {
-}    
-"##;
+function Foo() {
+  if (!new.target) {
+    throw new TypeError('calling Foo constructor without new is invalid');
+  }
+}
+    "##;
     let allocator = Allocator::default();
-    t_any("extends", source_code, &allocator, ClassesVisitor::new);
+    t_any("new_target", source_code, &allocator, NewTargetVisitor::new);
   }
 }

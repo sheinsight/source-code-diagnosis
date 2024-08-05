@@ -1,16 +1,12 @@
 use std::marker::PhantomData;
 
-use oxc_ast::{
-  ast::{BindingPattern, BindingPatternKind, Expression},
-  AstKind, Visit,
-};
+use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
-use serde::Deserialize;
 use serde_json::from_str;
 
 use crate::syntax::{
   compat::{Compat, CompatBox},
-  operators_n::common_trait::CommonTrait,
+  operators::common_trait::CommonTrait,
 };
 
 pub struct FunctionsVisitor<'a> {
@@ -85,7 +81,7 @@ impl<'a> Visit<'a> for FunctionsVisitor<'a> {
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+  use crate::syntax::operators::t::t_any;
   use oxc_allocator::Allocator;
 
   use super::*;

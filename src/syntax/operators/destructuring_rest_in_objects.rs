@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use oxc_ast::{AstKind, Visit};
+use oxc_ast::{visit::walk, AstKind, Visit};
 use oxc_span::Span;
 use serde_json::from_str;
 
@@ -8,7 +8,7 @@ use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct FunctionVisitor<'a> {
+pub struct DestructuringVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -16,16 +16,16 @@ pub struct FunctionVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for FunctionVisitor<'_> {
+impl CommonTrait for DestructuringVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> FunctionVisitor<'a> {
+impl<'a> DestructuringVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
     let compat: Compat =
-      from_str(include_str!("./function_trailing_comma.json")).unwrap();
+      from_str(include_str!("./destructuring_rest_in_objects.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -40,7 +40,7 @@ impl<'a> FunctionVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for FunctionVisitor<'a> {
+impl<'a> Visit<'a> for DestructuringVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -49,46 +49,64 @@ impl<'a> Visit<'a> for FunctionVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_function(
-    &mut self,
-    it: &oxc_ast::ast::Function<'a>,
-    flags: oxc_syntax::scope::ScopeFlags,
-  ) {
-    let params_span = it.params.span;
-    let code_seg = self.get_source_code(params_span);
-    if code_seg.ends_with(",)") {
+  fn visit_object_pattern(&mut self, pat: &oxc_ast::ast::ObjectPattern<'a>) {
+    if let Some(_) = pat.rest {
       self.cache.push(CompatBox {
-        start: it.span.start,
-        end: it.span.end,
-        code_seg: code_seg.to_string(),
+        start: pat.span.start,
+        end: pat.span.end,
+        code_seg: self.get_source_code(pat.span).to_string(),
         compat: self.compat.clone(),
       });
     }
 
-    oxc_ast::visit::walk::walk_function(self, it, flags);
+    walk::walk_object_pattern(self, pat);
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
   use oxc_allocator::Allocator;
+
+  use crate::syntax::operators::t::{t, t_any};
 
   use super::*;
 
   #[test]
-  fn should_exits_function_trailing_comma_of_function_declaration() {
+  fn should_exist_rest_in_objects_of_rest_in_objects() {
     let source_code = r##"
-const getRectArea = function (width, height,) {
+  const {a, ...b} = object;
+        "##;
 
-};
-    "##;
     let allocator = Allocator::default();
+
     t_any(
-      "function_trailing_comma",
+      "rest_in_objects",
       source_code,
       &allocator,
-      FunctionVisitor::new,
+      DestructuringVisitor::new,
+    );
+  }
+
+  #[test]
+  fn should_exist_rest_in_objects_of_for_of() {
+    let source_code = r##"
+const people = [];
+for (const {
+  name: n,
+  family: { father: f,...rest },
+
+} of people) {
+  console.log(`Name: ${n}, Father: ${f}`);
+}
+"##;
+
+    let allocator = Allocator::default();
+
+    t_any(
+      "rest_in_objects",
+      source_code,
+      &allocator,
+      DestructuringVisitor::new,
     );
   }
 }

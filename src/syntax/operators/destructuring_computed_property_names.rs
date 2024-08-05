@@ -1,15 +1,14 @@
 use std::marker::PhantomData;
 
-use oxc_ast::{AstKind, Visit};
+use oxc_ast::{visit::walk, AstKind, Visit};
 use oxc_span::Span;
-use oxc_syntax::operator::AssignmentOperator;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct LogicalOrAssignmentVisitor<'a> {
+pub struct DestructuringVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -17,22 +16,23 @@ pub struct LogicalOrAssignmentVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for LogicalOrAssignmentVisitor<'_> {
+impl CommonTrait for DestructuringVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> LogicalOrAssignmentVisitor<'a> {
+impl<'a> DestructuringVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
     let compat: Compat =
-      from_str(include_str!("./logical_or_assignment.json")).unwrap();
+      from_str(include_str!("./destructuring_computed_property_names.json"))
+        .unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      compat: compat,
+      compat,
     }
   }
 
@@ -41,7 +41,7 @@ impl<'a> LogicalOrAssignmentVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for LogicalOrAssignmentVisitor<'a> {
+impl<'a> Visit<'a> for DestructuringVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -50,44 +50,44 @@ impl<'a> Visit<'a> for LogicalOrAssignmentVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_assignment_expression(
-    &mut self,
-    it: &oxc_ast::ast::AssignmentExpression<'a>,
-  ) {
-    if it.operator == AssignmentOperator::LogicalOr {
-      let code_seg = self.get_source_code(it.span).to_string();
-      self.cache.push(CompatBox {
-        start: it.span.start,
-        end: it.span.end,
-        code_seg,
-        compat: self.compat.clone(),
-      });
+  fn visit_object_pattern(&mut self, pat: &oxc_ast::ast::ObjectPattern<'a>) {
+    for prop in pat.properties.iter() {
+      if prop.computed {
+        self.cache.push(CompatBox {
+          start: prop.span.start,
+          end: prop.span.end,
+          code_seg: self.get_source_code(prop.span).to_string(),
+          compat: self.compat.clone(),
+        });
+      }
     }
-    oxc_ast::visit::walk::walk_assignment_expression(self, it);
+
+    walk::walk_object_pattern(self, pat);
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
   use oxc_allocator::Allocator;
+
+  use crate::syntax::operators::t::t_any;
 
   use super::*;
 
   #[test]
-  fn should_exits_logical_or_assignment() {
+  fn should_not_exist_destructuring_of_computed_property_names() {
     let source_code = r##"
-const a = { duration: 50, title: '' };
-
-a.duration ||= 10;
-console.log(a.duration);
+const key = "z";
+const { [key]: a } = obj;
 "##;
+
     let allocator = Allocator::default();
+
     t_any(
-      "logical_or_assignment",
+      "computed_property_names",
       source_code,
       &allocator,
-      LogicalOrAssignmentVisitor::new,
+      DestructuringVisitor::new,
     );
   }
 }

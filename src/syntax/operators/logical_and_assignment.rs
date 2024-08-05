@@ -2,13 +2,14 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
+use oxc_syntax::operator::AssignmentOperator;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct AsyncFunctionVisitor<'a> {
+pub struct LogicalAndAssignmentVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -16,16 +17,16 @@ pub struct AsyncFunctionVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for AsyncFunctionVisitor<'_> {
+impl CommonTrait for LogicalAndAssignmentVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> AsyncFunctionVisitor<'a> {
+impl<'a> LogicalAndAssignmentVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
     let compat: Compat =
-      from_str(include_str!("./async_function.json")).unwrap();
+      from_str(include_str!("./logical_and_assignment.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -40,7 +41,7 @@ impl<'a> AsyncFunctionVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for AsyncFunctionVisitor<'a> {
+impl<'a> Visit<'a> for LogicalAndAssignmentVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -49,75 +50,43 @@ impl<'a> Visit<'a> for AsyncFunctionVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_function(
+  fn visit_assignment_expression(
     &mut self,
-    it: &oxc_ast::ast::Function<'a>,
-    flags: oxc_syntax::scope::ScopeFlags,
+    it: &oxc_ast::ast::AssignmentExpression<'a>,
   ) {
-    if it.r#async && !it.generator {
+    let code_seg = self.get_source_code(it.span).to_string();
+    if it.operator == AssignmentOperator::LogicalAnd {
       self.cache.push(CompatBox {
         start: it.span.start,
         end: it.span.end,
+        code_seg: code_seg,
         compat: self.compat.clone(),
-        code_seg: self.get_source_code(it.span).to_string(),
       });
     }
-    oxc_ast::visit::walk::walk_function(self, it, flags);
+    oxc_ast::visit::walk::walk_assignment_expression(self, it);
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::{t_any, t_any_not};
+  use crate::syntax::operators::t::t_any;
   use oxc_allocator::Allocator;
 
   use super::*;
 
   #[test]
-  fn should_exist_async_of_function() {
+  fn should_test() {
     let source_code = r##"
-function (param0) {
-
-}
-    "##;
-    let allocator = Allocator::default();
-    t_any_not(
-      "async_function",
-      source_code,
-      &allocator,
-      AsyncFunctionVisitor::new,
-    );
-  }
-
-  #[test]
-  fn should_exist_async_of_async_function() {
-    let source_code = r##"
-async function (param0) {
-
-}
-    "##;
+let a = 1;
+let b = 0;
+a &&= 2;
+"##;
     let allocator = Allocator::default();
     t_any(
-      "async_function",
+      "logical_and_assignment",
       source_code,
       &allocator,
-      AsyncFunctionVisitor::new,
-    );
-  }
-
-  #[test]
-  fn should_exist_async_of_async_generate_function() {
-    let source_code = r##"
-async function* (param0) {
-
-}
-    "##;
-    let allocator = Allocator::default();
-    t_any_not(
-      "async_function",
-      source_code,
-      &allocator,
-      AsyncFunctionVisitor::new,
+      LogicalAndAssignmentVisitor::new,
     );
   }
 }

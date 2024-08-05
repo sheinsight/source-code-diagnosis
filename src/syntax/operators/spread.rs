@@ -8,7 +8,7 @@ use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct ClassVisitor<'a> {
+pub struct SpreadVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -16,15 +16,15 @@ pub struct ClassVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for ClassVisitor<'_> {
+impl CommonTrait for SpreadVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> ClassVisitor<'a> {
+impl<'a> SpreadVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./class.json")).unwrap();
+    let compat: Compat = from_str(include_str!("./spread.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -39,7 +39,7 @@ impl<'a> ClassVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for ClassVisitor<'a> {
+impl<'a> Visit<'a> for SpreadVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -48,54 +48,39 @@ impl<'a> Visit<'a> for ClassVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_class(&mut self, it: &oxc_ast::ast::Class<'a>) {
-    let code_seg = self.get_source_code(it.span).to_string();
+  fn visit_spread_element(&mut self, it: &oxc_ast::ast::SpreadElement<'a>) {
     self.cache.push(CompatBox {
       start: it.span.start,
       end: it.span.end,
-      code_seg: code_seg,
+      code_seg: self.get_source_code(it.span).to_string(),
       compat: self.compat.clone(),
     });
-    oxc_ast::visit::walk::walk_class(self, it);
+    oxc_ast::visit::walk::walk_spread_element(self, it);
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+  use crate::syntax::operators::t::t_any;
   use oxc_allocator::Allocator;
 
   use super::*;
 
   #[test]
-  fn should_exits_class_when_assignment_expression() {
+  fn should_exits_spread_1() {
     let source_code = r##"
-const Rectangle = class {
-  constructor(height, width) {
-    this.height = height;
-    this.width = width;
-  }
-  area() {
-    return this.height * this.width;
-  }
-};
-console.log(new Rectangle(5, 8).area());    
+console.log(sum(...numbers));
 "##;
     let allocator = Allocator::default();
-    t_any("class", source_code, &allocator, ClassVisitor::new);
+    t_any("spread", source_code, &allocator, SpreadVisitor::new);
   }
 
   #[test]
-  fn should_exits_class_when_declaration() {
+  fn should_exits_spread_2() {
     let source_code = r##"
-class Rectangle {
-  constructor(height, width) {
-    this.height = height;
-    this.width = width;
-  }
-}
+const obj = { ...true, ..."test", ...10 };
 "##;
     let allocator = Allocator::default();
-    t_any("class", source_code, &allocator, ClassVisitor::new);
+    t_any("spread", source_code, &allocator, SpreadVisitor::new);
   }
 }

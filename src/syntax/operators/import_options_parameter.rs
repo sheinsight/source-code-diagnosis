@@ -1,6 +1,6 @@
-use std::marker::PhantomData;
+use std::{marker::PhantomData, ops::Not};
 
-use oxc_ast::{ast::ArrayExpressionElement, AstKind, Visit};
+use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
 use serde_json::from_str;
 
@@ -8,7 +8,7 @@ use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct SpreadVisitor<'a> {
+pub struct ImportVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -16,16 +16,16 @@ pub struct SpreadVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for SpreadVisitor<'_> {
+impl CommonTrait for ImportVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> SpreadVisitor<'a> {
+impl<'a> ImportVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
     let compat: Compat =
-      from_str(include_str!("./spread_in_arrays.json")).unwrap();
+      from_str(include_str!("./import_options_parameter.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -40,7 +40,7 @@ impl<'a> SpreadVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for SpreadVisitor<'a> {
+impl<'a> Visit<'a> for ImportVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -49,41 +49,47 @@ impl<'a> Visit<'a> for SpreadVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_array_expression_element(
+  fn visit_import_expression(
     &mut self,
-    it: &oxc_ast::ast::ArrayExpressionElement<'a>,
+    expr: &oxc_ast::ast::ImportExpression<'a>,
   ) {
-    if let ArrayExpressionElement::SpreadElement(arg) = it {
+    if expr.arguments.is_empty().not() {
       self.cache.push(CompatBox {
-        start: arg.span.start,
-        end: arg.span.end,
-        code_seg: self.get_source_code(arg.span).to_string(),
+        start: expr.span.start,
+        end: expr.span.end,
+        code_seg: self.get_source_code(expr.span).to_string(),
         compat: self.compat.clone(),
       });
     }
-    oxc_ast::visit::walk::walk_array_expression_element(self, it);
+    oxc_ast::visit::walk::walk_import_expression(self, expr);
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+  use crate::syntax::operators::t::t_any;
   use oxc_allocator::Allocator;
 
   use super::*;
 
   #[test]
-  fn should_exits_spread_in_arrays() {
-    let source_code = r##"
-const parts = ["shoulders", "knees"];
-const lyrics = ["head", ...parts, "and", "toes"];    
-"##;
+  fn should_exist_import_options_parameter() {
+    let source_code = r#"
+import("./module.js", { a: 1 })
+	.then((module) => {
+		console.log(module.default);
+	})
+	.catch((error) => {
+		console.error("Error importing module:", error);
+	});
+"#;
+
     let allocator = Allocator::default();
     t_any(
-      "spread_in_arrays",
+      "import_options_parameter",
       source_code,
       &allocator,
-      SpreadVisitor::new,
+      ImportVisitor::new,
     );
   }
 }

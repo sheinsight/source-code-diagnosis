@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use oxc_ast::{ast::ObjectPropertyKind, AstKind, Visit};
+use oxc_ast::{ast::ArrayExpressionElement, AstKind, Visit};
 use oxc_span::Span;
 use serde_json::from_str;
 
@@ -25,13 +25,13 @@ impl CommonTrait for SpreadVisitor<'_> {
 impl<'a> SpreadVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
     let compat: Compat =
-      from_str(include_str!("./spread_in_object_literals.json")).unwrap();
+      from_str(include_str!("./spread_in_arrays.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      compat: compat,
+      compat,
     }
   }
 
@@ -49,43 +49,38 @@ impl<'a> Visit<'a> for SpreadVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_object_expression(
+  fn visit_array_expression_element(
     &mut self,
-    expr: &oxc_ast::ast::ObjectExpression<'a>,
+    it: &oxc_ast::ast::ArrayExpressionElement<'a>,
   ) {
-    for prop in expr.properties.iter() {
-      if let ObjectPropertyKind::SpreadProperty(p) = prop {
-        self.cache.push(CompatBox {
-          start: p.span.start,
-          end: p.span.end,
-          code_seg: self.get_source_code(p.span).to_string(),
-          compat: self.compat.clone(),
-        });
-      }
+    if let ArrayExpressionElement::SpreadElement(arg) = it {
+      self.cache.push(CompatBox {
+        start: arg.span.start,
+        end: arg.span.end,
+        code_seg: self.get_source_code(arg.span).to_string(),
+        compat: self.compat.clone(),
+      });
     }
-
-    oxc_ast::visit::walk::walk_object_expression(self, expr);
+    oxc_ast::visit::walk::walk_array_expression_element(self, it);
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+  use crate::syntax::operators::t::t_any;
   use oxc_allocator::Allocator;
 
   use super::*;
 
   #[test]
-  fn should_exits_spread_in_object_literals() {
+  fn should_exits_spread_in_arrays() {
     let source_code = r##"
-const obj1 = { foo: "bar", x: 42 };
-const obj2 = { bar: "baz", y: 13 };
-
-const mergedObj = { ...obj1, ...obj2 };
-        "##;
+const parts = ["shoulders", "knees"];
+const lyrics = ["head", ...parts, "and", "toes"];    
+"##;
     let allocator = Allocator::default();
     t_any(
-      "spread_in_object_literals",
+      "spread_in_arrays",
       source_code,
       &allocator,
       SpreadVisitor::new,

@@ -2,14 +2,13 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
-use serde::Deserialize;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct GeneratorFunctionVisitor<'a> {
+pub struct FunctionVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -17,16 +16,16 @@ pub struct GeneratorFunctionVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for GeneratorFunctionVisitor<'_> {
+impl CommonTrait for FunctionVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> GeneratorFunctionVisitor<'a> {
+impl<'a> FunctionVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
     let compat: Compat =
-      from_str(include_str!("./generator_function.json")).unwrap();
+      from_str(include_str!("./function_trailing_comma.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -41,7 +40,7 @@ impl<'a> GeneratorFunctionVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for GeneratorFunctionVisitor<'a> {
+impl<'a> Visit<'a> for FunctionVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -55,13 +54,13 @@ impl<'a> Visit<'a> for GeneratorFunctionVisitor<'a> {
     it: &oxc_ast::ast::Function<'a>,
     flags: oxc_syntax::scope::ScopeFlags,
   ) {
-    let code_seg = self.get_source_code(it.span).to_string();
-
-    if it.generator && !it.r#async {
+    let params_span = it.params.span;
+    let code_seg = self.get_source_code(params_span);
+    if code_seg.ends_with(",)") {
       self.cache.push(CompatBox {
         start: it.span.start,
         end: it.span.end,
-        code_seg: code_seg.clone(),
+        code_seg: code_seg.to_string(),
         compat: self.compat.clone(),
       });
     }
@@ -72,44 +71,24 @@ impl<'a> Visit<'a> for GeneratorFunctionVisitor<'a> {
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::{t_any, t_any_not};
+  use crate::syntax::operators::t::t_any;
   use oxc_allocator::Allocator;
 
   use super::*;
 
   #[test]
-  fn should_exits_generator_function_of_generator_function() {
+  fn should_exits_function_trailing_comma_of_function_declaration() {
     let source_code = r##"
-const foo = function* () {
-  yield 'a';
-  yield 'b';
-  yield 'c';
+const getRectArea = function (width, height,) {
+
 };
     "##;
     let allocator = Allocator::default();
     t_any(
-      "generator_function",
+      "function_trailing_comma",
       source_code,
       &allocator,
-      GeneratorFunctionVisitor::new,
-    );
-  }
-
-  #[test]
-  fn should_not_exits_generator_function_of_async_generator_function() {
-    let source_code = r##"
-const foo = async function* () {
-  yield 'a';
-  yield 'b';
-  yield 'c';
-};
-    "##;
-    let allocator = Allocator::default();
-    t_any_not(
-      "generator_function",
-      source_code,
-      &allocator,
-      GeneratorFunctionVisitor::new,
+      FunctionVisitor::new,
     );
   }
 }

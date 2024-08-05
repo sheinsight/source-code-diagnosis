@@ -8,7 +8,7 @@ use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct FunctionVisitor<'a> {
+pub struct GeneratorFunctionVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -16,15 +16,16 @@ pub struct FunctionVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for FunctionVisitor<'_> {
+impl CommonTrait for GeneratorFunctionVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> FunctionVisitor<'a> {
+impl<'a> GeneratorFunctionVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./function.json")).unwrap();
+    let compat: Compat =
+      from_str(include_str!("./generator_function.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -39,7 +40,7 @@ impl<'a> FunctionVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for FunctionVisitor<'a> {
+impl<'a> Visit<'a> for GeneratorFunctionVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -53,11 +54,13 @@ impl<'a> Visit<'a> for FunctionVisitor<'a> {
     it: &oxc_ast::ast::Function<'a>,
     flags: oxc_syntax::scope::ScopeFlags,
   ) {
-    if !it.r#async && !it.generator {
+    let code_seg = self.get_source_code(it.span).to_string();
+
+    if it.generator && !it.r#async {
       self.cache.push(CompatBox {
         start: it.span.start,
         end: it.span.end,
-        code_seg: self.get_source_code(it.span).to_string(),
+        code_seg: code_seg.clone(),
         compat: self.compat.clone(),
       });
     }
@@ -68,19 +71,44 @@ impl<'a> Visit<'a> for FunctionVisitor<'a> {
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+  use crate::syntax::operators::t::{t_any, t_any_not};
   use oxc_allocator::Allocator;
 
   use super::*;
 
   #[test]
-  fn should_exits_function_of_function_declaration() {
+  fn should_exits_generator_function_of_generator_function() {
     let source_code = r##"
-const getRectArea = function (width, height) {
-
+const foo = function* () {
+  yield 'a';
+  yield 'b';
+  yield 'c';
 };
     "##;
     let allocator = Allocator::default();
-    t_any("function", source_code, &allocator, FunctionVisitor::new);
+    t_any(
+      "generator_function",
+      source_code,
+      &allocator,
+      GeneratorFunctionVisitor::new,
+    );
+  }
+
+  #[test]
+  fn should_not_exits_generator_function_of_async_generator_function() {
+    let source_code = r##"
+const foo = async function* () {
+  yield 'a';
+  yield 'b';
+  yield 'c';
+};
+    "##;
+    let allocator = Allocator::default();
+    t_any_not(
+      "generator_function",
+      source_code,
+      &allocator,
+      GeneratorFunctionVisitor::new,
+    );
   }
 }

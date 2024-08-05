@@ -155,27 +155,27 @@ builtins 1182
   - [x] **static** 49
   - [x] **static_class_fields** 72
   - [x] **static_initialization_blocks** 94
-- [ ] functions 1
-  - [ ] arguments 1
-    - [ ] callee 1
-    - [ ] length 1
-    - [ ] **@@iterator** 52
-  - [ ] **arrow_functions** 45
-    - [ ] **trailing_comma** 58
+- [x] functions 1
+  - [x] arguments 1
+    - [x] callee 1
+    - [x] length 1
+    - [x] **@@iterator** 52
+  - [x] **arrow_functions** 45
+    - [x] **trailing_comma** 58
   - [ ] **block_level_functions** 49
-  - [ ] **default_parameters** 49
-    - [ ] **destructured_parameter_with_default_value_assignment** 49
-    - [ ] **parameters_without_defaults_after_default_parameters** 49
-  - [ ] get 1
-    - [ ] **computed_property_names** 46
-  - [ ] method_definitions 39
-    - [ ] **async_generator_methods** 63
-    - [ ] **async_methods** 55
-    - [ ] **generator_methods_not_constructable** 42
-  - [ ] **rest_parameters** 47
-    - [ ] **destructuring** 49
-  - [ ] set 1
-    - [ ] **computed_property_names** 46
+  - [x] **default_parameters** 49
+    - [x] **destructured_parameter_with_default_value_assignment** 49
+    - [x] **parameters_without_defaults_after_default_parameters** 49
+  - [x] get 1
+    - [x] **computed_property_names** 46
+  - [x] method_definitions 39
+    - [x] **async_generator_methods** 63
+    - [x] **async_methods** 55
+    - [x] **generator_methods_not_constructable** 42
+  - [x] **rest_parameters** 47
+    - [x] **destructuring** 49
+  - [x] set 1
+    - [x] **computed_property_names** 46
 - [ ] grammar 1
   - [ ] array_literals 1
   - [ ] **binary_numeric_literals** 41

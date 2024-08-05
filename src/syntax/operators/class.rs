@@ -8,7 +8,7 @@ use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct AwaitVisitor<'a> {
+pub struct ClassVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -16,15 +16,15 @@ pub struct AwaitVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for AwaitVisitor<'_> {
+impl CommonTrait for ClassVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> AwaitVisitor<'a> {
+impl<'a> ClassVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./await.json")).unwrap();
+    let compat: Compat = from_str(include_str!("./class.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -37,22 +37,9 @@ impl<'a> AwaitVisitor<'a> {
   fn get_source_code(&self, span: Span) -> &str {
     &self.source_code[span.start as usize..span.end as usize]
   }
-
-  fn is_top_level_await(&self) -> bool {
-    match self.parent_stack.last() {
-      Some(AstKind::Program(_))
-      | Some(AstKind::ExportDefaultDeclaration(_))
-      | Some(AstKind::ImportDeclaration(_))
-      | Some(AstKind::ExpressionStatement(_))
-      | Some(AstKind::VariableDeclarator(_))
-      | Some(AstKind::ReturnStatement(_))
-      | Some(AstKind::IfStatement(_)) => true,
-      _ => false,
-    }
-  }
 }
 
-impl<'a> Visit<'a> for AwaitVisitor<'a> {
+impl<'a> Visit<'a> for ClassVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -61,37 +48,54 @@ impl<'a> Visit<'a> for AwaitVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_await_expression(&mut self, it: &oxc_ast::ast::AwaitExpression<'a>) {
+  fn visit_class(&mut self, it: &oxc_ast::ast::Class<'a>) {
+    let code_seg = self.get_source_code(it.span).to_string();
     self.cache.push(CompatBox {
       start: it.span.start,
       end: it.span.end,
-      code_seg: self.get_source_code(it.span).to_string(),
+      code_seg: code_seg,
       compat: self.compat.clone(),
     });
-    oxc_ast::visit::walk::walk_await_expression(self, it);
+    oxc_ast::visit::walk::walk_class(self, it);
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+  use crate::syntax::operators::t::t_any;
   use oxc_allocator::Allocator;
 
   use super::*;
 
   #[test]
-  fn should_exist_await() {
+  fn should_exits_class_when_assignment_expression() {
     let source_code = r##"
-async function f3() {
-  const y = await 20;
-  console.log(y); // 20
-
-  const obj = {};
-  console.log((await obj) === obj); // true
-}
-f3();
+const Rectangle = class {
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+  area() {
+    return this.height * this.width;
+  }
+};
+console.log(new Rectangle(5, 8).area());    
 "##;
     let allocator = Allocator::default();
-    t_any("await", source_code, &allocator, AwaitVisitor::new);
+    t_any("class", source_code, &allocator, ClassVisitor::new);
+  }
+
+  #[test]
+  fn should_exits_class_when_declaration() {
+    let source_code = r##"
+class Rectangle {
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+}
+"##;
+    let allocator = Allocator::default();
+    t_any("class", source_code, &allocator, ClassVisitor::new);
   }
 }

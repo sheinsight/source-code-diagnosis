@@ -80,7 +80,7 @@ impl<'a> Visit<'a> for SuperKeywordVisitor<'a> {
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+  use crate::syntax::operators::t::t_any;
   use oxc_allocator::Allocator;
 
   use super::*;

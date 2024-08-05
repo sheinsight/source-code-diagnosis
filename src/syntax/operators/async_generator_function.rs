@@ -2,14 +2,13 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
-use oxc_syntax::operator::AssignmentOperator;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct ExponentiationAssignmentVisitor<'a> {
+pub struct AsyncGeneratorFunctionVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -17,16 +16,16 @@ pub struct ExponentiationAssignmentVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for ExponentiationAssignmentVisitor<'_> {
+impl CommonTrait for AsyncGeneratorFunctionVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> ExponentiationAssignmentVisitor<'a> {
+impl<'a> AsyncGeneratorFunctionVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
     let compat: Compat =
-      from_str(include_str!("./exponentiation_assignment.json")).unwrap();
+      from_str(include_str!("./async_generator_function.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -41,50 +40,52 @@ impl<'a> ExponentiationAssignmentVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for ExponentiationAssignmentVisitor<'a> {
+impl<'a> Visit<'a> for AsyncGeneratorFunctionVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
 
-  fn leave_node(&mut self, kind: oxc_ast::AstKind<'a>) {
+  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.pop();
   }
 
-  fn visit_assignment_expression(
+  fn visit_function(
     &mut self,
-    expr: &oxc_ast::ast::AssignmentExpression<'a>,
+    it: &oxc_ast::ast::Function<'a>,
+    flags: oxc_syntax::scope::ScopeFlags,
   ) {
-    if expr.operator == AssignmentOperator::Exponential {
+    if it.generator && it.r#async {
       self.cache.push(CompatBox {
-        start: expr.span.start,
-        end: expr.span.end,
-        code_seg: self.get_source_code(expr.span).to_string(),
+        start: it.span.start,
+        end: it.span.end,
+        code_seg: self.get_source_code(it.span).to_string(),
         compat: self.compat.clone(),
       });
     }
-    oxc_ast::visit::walk::walk_assignment_expression(self, expr);
+    oxc_ast::visit::walk::walk_function(self, it, flags);
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+  use crate::syntax::operators::t::t_any;
   use oxc_allocator::Allocator;
 
   use super::*;
 
   #[test]
-  fn should_exist_exponentiation_assignment() {
+  fn should_test() {
     let source_code = r##"
-let a = 2;
-a **= 2;
-"##;
+async function* (param0) {
+
+}
+    "##;
     let allocator = Allocator::default();
     t_any(
-      "exponentiation_assignment",
+      "async_generator_function",
       source_code,
       &allocator,
-      ExponentiationAssignmentVisitor::new,
+      AsyncGeneratorFunctionVisitor::new,
     );
   }
 }

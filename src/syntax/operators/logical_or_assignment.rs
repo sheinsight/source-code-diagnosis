@@ -2,13 +2,14 @@ use std::marker::PhantomData;
 
 use oxc_ast::{AstKind, Visit};
 use oxc_span::Span;
+use oxc_syntax::operator::AssignmentOperator;
 use serde_json::from_str;
 
 use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-pub struct NewTargetVisitor<'a> {
+pub struct LogicalOrAssignmentVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -16,15 +17,16 @@ pub struct NewTargetVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for NewTargetVisitor<'_> {
+impl CommonTrait for LogicalOrAssignmentVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> NewTargetVisitor<'a> {
+impl<'a> LogicalOrAssignmentVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./new_target.json")).unwrap();
+    let compat: Compat =
+      from_str(include_str!("./logical_or_assignment.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -39,7 +41,7 @@ impl<'a> NewTargetVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for NewTargetVisitor<'a> {
+impl<'a> Visit<'a> for LogicalOrAssignmentVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -48,37 +50,44 @@ impl<'a> Visit<'a> for NewTargetVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_meta_property(&mut self, it: &oxc_ast::ast::MetaProperty<'a>) {
-    if it.meta.name == "new" && it.property.name == "target" {
+  fn visit_assignment_expression(
+    &mut self,
+    it: &oxc_ast::ast::AssignmentExpression<'a>,
+  ) {
+    if it.operator == AssignmentOperator::LogicalOr {
       let code_seg = self.get_source_code(it.span).to_string();
       self.cache.push(CompatBox {
         start: it.span.start,
         end: it.span.end,
-        code_seg: code_seg,
+        code_seg,
         compat: self.compat.clone(),
       });
     }
-    oxc_ast::visit::walk::walk_meta_property(self, it);
+    oxc_ast::visit::walk::walk_assignment_expression(self, it);
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+  use crate::syntax::operators::t::t_any;
   use oxc_allocator::Allocator;
 
   use super::*;
 
   #[test]
-  fn should_test() {
+  fn should_exits_logical_or_assignment() {
     let source_code = r##"
-function Foo() {
-  if (!new.target) {
-    throw new TypeError('calling Foo constructor without new is invalid');
-  }
-}
-    "##;
+const a = { duration: 50, title: '' };
+
+a.duration ||= 10;
+console.log(a.duration);
+"##;
     let allocator = Allocator::default();
-    t_any("new_target", source_code, &allocator, NewTargetVisitor::new);
+    t_any(
+      "logical_or_assignment",
+      source_code,
+      &allocator,
+      LogicalOrAssignmentVisitor::new,
+    );
   }
 }

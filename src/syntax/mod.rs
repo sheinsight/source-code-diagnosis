@@ -2,7 +2,6 @@ mod classes;
 mod compat;
 mod functions;
 mod operators;
-mod operators_n;
 mod utils;
 mod visitor;
 use std::{
@@ -13,7 +12,7 @@ use std::{
 
 use compat::CompatBox;
 use napi::{Error, Result};
-use operators_n::{
+use operators::{
   async_function::AsyncFunctionVisitor,
   async_generator_function::AsyncGeneratorFunctionVisitor, class::ClassVisitor,
   destructuring::DestructuringVisitor, exponentiation::ExponentiationVisitor,
