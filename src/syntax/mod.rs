@@ -1,7 +1,6 @@
 mod classes;
 mod compat;
 mod functions;
-mod functions_n;
 mod operators;
 mod operators_n;
 mod utils;
