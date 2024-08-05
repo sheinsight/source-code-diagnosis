@@ -24,8 +24,7 @@ impl CommonTrait for SuperKeywordVisitor<'_> {
 
 impl<'a> SuperKeywordVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat =
-      from_str(include_str!("./super_keyword.json")).unwrap();
+    let compat: Compat = from_str(include_str!("./r_super.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
