@@ -1,0 +1,29 @@
+{
+	"name": "hashbang_comments",
+	"description": "Hashbang (#!) 注释语法",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Lexical_grammar#Hashbang_comments",
+	"spec_url": ["https://tc39.es/ecma262/multipage/ecmascript-language-lexical-grammar.html#sec-hashbang"],
+	"tags": ["web-features:snapshot:ecmascript-2023"],
+	"support": {
+		"chrome": "74",
+		"chrome_android": "74",
+		"deno": "1.0",
+		"edge": "74",
+		"firefox": "67",
+		"firefox_android": "67",
+		"ie": "-1",
+		"nodejs": "0.10.0",
+		"oculus": "74",
+		"opera": "74",
+		"opera_android": "74",
+		"safari": "13.1",
+		"safari_ios": "13.1",
+		"samsunginternet_android": "74",
+		"webview_android": "74"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
