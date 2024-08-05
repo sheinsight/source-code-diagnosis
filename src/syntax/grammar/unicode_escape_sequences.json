@@ -1,0 +1,29 @@
+{
+	"name": "unicode_escape_sequences",
+	"description": "Unicode转义序列 ('\\u00A9')",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Lexical_grammar#Unicode_escape_sequences",
+	"spec_url": ["https://tc39.es/ecma262/multipage/structured-data.html#sec-unicodeescape"],
+	"tags": ["web-features:snapshot:ecmascript-1"],
+	"support": {
+		"chrome": "1",
+		"chrome_android": "1",
+		"deno": "1.0",
+		"edge": "12",
+		"firefox": "1",
+		"firefox_android": "1",
+		"ie": "4",
+		"nodejs": "0.10.0",
+		"oculus": "1",
+		"opera": "4",
+		"opera_android": "10.1",
+		"safari": "1",
+		"safari_ios": "1",
+		"samsunginternet_android": "1",
+		"webview_android": "1"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
