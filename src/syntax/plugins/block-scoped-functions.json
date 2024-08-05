@@ -1,0 +1,14 @@
+{
+  "chrome": "41",
+  "opera": "28",
+  "edge": "12",
+  "firefox": "46",
+  "safari": "10",
+  "node": "4",
+  "deno": "1",
+  "ie": "11",
+  "ios": "10",
+  "samsung": "3.4",
+  "opera_mobile": "28",
+  "electron": "0.21"
+}
