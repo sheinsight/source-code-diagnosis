@@ -26,12 +26,12 @@ create name:
     echo "cp template {{name}}"
 
     for ext in rs json; do
-        cp "./src/syntax/tmp/tmp.$ext" "./src/syntax/functions_n/{{name}}.$ext"
+        cp "./src/syntax/tmp/tmp.$ext" "./src/syntax/grammar/{{name}}.$ext"
     done
 
     sed -i '' -e 's/TmpBrowserCompatMetadata/{{name}}BrowserCompatMetadata/g' \
             -e 's/TmpVisitor/{{name}}Visitor/g' \
             -e 's/tmp\.json/{{name}}\.json/g' \
-            "./src/syntax/functions_n/{{name}}.rs"
+            "./src/syntax/grammar/{{name}}.rs"
 
     

@@ -1,6 +1,7 @@
 mod classes;
 mod compat;
 mod functions;
+mod grammar;
 mod operators;
 mod utils;
 mod visitor;
