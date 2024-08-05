@@ -9,15 +9,12 @@ use crate::syntax::compat::{Compat, CompatBox};
 
 use super::common_trait::CommonTrait;
 
-#[derive(Debug, Deserialize)]
-pub struct TmpBrowserCompatMetadata {}
-
 pub struct TmpVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
   _phantom: PhantomData<&'a ()>,
-  browser_compat_meta_data: TmpBrowserCompatMetadata,
+  compat: Compat,
 }
 
 impl CommonTrait for TmpVisitor<'_> {
@@ -28,14 +25,13 @@ impl CommonTrait for TmpVisitor<'_> {
 
 impl<'a> TmpVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let browser_compat_meta_data: TmpBrowserCompatMetadata =
-      from_str(include_str!("./tmp.json")).unwrap();
+    let compat: Compat = from_str(include_str!("./tmp.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
       source_code,
       _phantom: PhantomData {},
-      browser_compat_meta_data: browser_compat_meta_data,
+      compat: compat,
     }
   }
 
