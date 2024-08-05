@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use oxc_ast::{AstKind, Visit};
+use oxc_ast::{visit::walk, AstKind, Visit};
 use oxc_span::Span;
 use serde_json::from_str;
 
@@ -9,7 +9,7 @@ use crate::syntax::{
   operators::common_trait::CommonTrait,
 };
 
-pub struct TmpVisitor<'a> {
+pub struct UnicodePointEscapesVisitor<'a> {
   pub cache: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   source_code: &'a str,
@@ -17,15 +17,16 @@ pub struct TmpVisitor<'a> {
   compat: Compat,
 }
 
-impl CommonTrait for TmpVisitor<'_> {
+impl CommonTrait for UnicodePointEscapesVisitor<'_> {
   fn get_cache(&self) -> Vec<CompatBox> {
     self.cache.clone()
   }
 }
 
-impl<'a> TmpVisitor<'a> {
+impl<'a> UnicodePointEscapesVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./tmp.json")).unwrap();
+    let compat: Compat =
+      from_str(include_str!("./unicode_point_escapes.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -40,7 +41,7 @@ impl<'a> TmpVisitor<'a> {
   }
 }
 
-impl<'a> Visit<'a> for TmpVisitor<'a> {
+impl<'a> Visit<'a> for UnicodePointEscapesVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -48,19 +49,40 @@ impl<'a> Visit<'a> for TmpVisitor<'a> {
   fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.pop();
   }
+
+  fn visit_directive(&mut self, it: &oxc_ast::ast::Directive<'a>) {
+    if it.directive.contains("\\u") {
+      self.cache.push(CompatBox {
+        start: it.span.start,
+        end: it.span.end,
+        code_seg: self.get_source_code(it.span).to_string(),
+        compat: self.compat.clone(),
+      });
+    }
+    walk::walk_directive(self, it);
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::syntax::operators_n::t::t_any;
+
   use oxc_allocator::Allocator;
+
+  use crate::syntax::operators::t::t_any;
 
   use super::*;
 
   #[test]
   fn should_test() {
-    let source_code = r##""##;
+    let source_code = r##"
+"\uD87E\uDC04";    
+"##;
     let allocator = Allocator::default();
-    t_any("tmp", source_code, &allocator, TmpVisitor::new);
+    t_any(
+      "unicode_point_escapes",
+      source_code,
+      &allocator,
+      UnicodePointEscapesVisitor::new,
+    );
   }
 }
