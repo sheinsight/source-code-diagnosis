@@ -1,7 +1,7 @@
 {
-	"name": "arguments",
-	"description": "arguments 对象",
-	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments",
+	"name": "arguments_callee",
+	"description": "arguments.callee",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments/callee",
 	"spec_url": [
 		"https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-arguments-exotic-objects"
 	],
@@ -13,10 +13,10 @@
 		"edge": "12",
 		"firefox": "1",
 		"firefox_android": "1",
-		"ie": "3",
+		"ie": "6",
 		"nodejs": "0.10.0",
 		"oculus": "1",
-		"opera": "3",
+		"opera": "4",
 		"opera_android": "10.1",
 		"safari": "1",
 		"safari_ios": "1",
@@ -26,6 +26,6 @@
 	"status": {
 		"experimental": false,
 		"standard_track": true,
-		"deprecated": false
+		"deprecated": true
 	}
 }
