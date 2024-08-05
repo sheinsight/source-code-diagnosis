@@ -8,3 +8,4 @@ pub mod hexadecimal_numeric_literals;
 pub mod null_literal;
 pub mod numeric_separators;
 pub mod octal_numeric_literals;
+pub mod regular_expression_literals;
