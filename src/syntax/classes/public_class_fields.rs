@@ -25,7 +25,8 @@ impl CommonTrait for ClassesVisitor<'_> {
 
 impl<'a> ClassesVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./classes.json")).unwrap();
+    let compat: Compat =
+      from_str(include_str!("./public_class_fields.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -49,15 +50,19 @@ impl<'a> Visit<'a> for ClassesVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_class(&mut self, it: &oxc_ast::ast::Class<'a>) {
-    let code_seg = self.get_source_code(it.span).to_string();
+  fn visit_property_definition(
+    &mut self,
+    it: &oxc_ast::ast::PropertyDefinition<'a>,
+  ) {
+    let code_seq = self.get_source_code(it.span).to_string();
+
     self.cache.push(CompatBox {
       start: it.span.start,
       end: it.span.end,
-      code_seg: code_seg.clone(),
+      code_seg: code_seq.clone(),
       compat: self.compat.clone(),
     });
-    oxc_ast::visit::walk::walk_class(self, it);
+    oxc_ast::visit::walk::walk_property_definition(self, it);
   }
 }
 
@@ -69,11 +74,34 @@ mod tests {
   use super::*;
 
   #[test]
-  fn should_exits_classes() {
+  fn should_exits_classes_public_class_fields() {
     let source_code = r##"
-class Rectangle {}    
+class C {
+  age=12;
+}
 "##;
     let allocator = Allocator::default();
-    t_any("classes", source_code, &allocator, ClassesVisitor::new);
+    t_any(
+      "public_class_fields",
+      source_code,
+      &allocator,
+      ClassesVisitor::new,
+    );
+  }
+
+  #[test]
+  fn should_exits_static() {
+    let source_code = r##"
+class ClassWithStaticMethod {
+  staticProperty = 'someValue';
+}
+"##;
+    let allocator = Allocator::default();
+    t_any(
+      "public_class_fields",
+      source_code,
+      &allocator,
+      ClassesVisitor::new,
+    );
   }
 }

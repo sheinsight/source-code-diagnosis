@@ -1,7 +1,11 @@
 use std::marker::PhantomData;
 
-use oxc_ast::{AstKind, Visit};
+use oxc_ast::{
+  ast::{ClassElement, MethodDefinitionKind, PropertyKey},
+  AstKind, Visit,
+};
 use oxc_span::Span;
+use serde::Deserialize;
 use serde_json::from_str;
 
 use crate::syntax::{
@@ -25,7 +29,8 @@ impl CommonTrait for ClassesVisitor<'_> {
 
 impl<'a> ClassesVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let compat: Compat = from_str(include_str!("./classes.json")).unwrap();
+    let compat: Compat =
+      from_str(include_str!("./private_class_fields_in.json")).unwrap();
     Self {
       cache: Vec::new(),
       parent_stack: Vec::new(),
@@ -49,15 +54,18 @@ impl<'a> Visit<'a> for ClassesVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_class(&mut self, it: &oxc_ast::ast::Class<'a>) {
-    let code_seg = self.get_source_code(it.span).to_string();
+  fn visit_private_in_expression(
+    &mut self,
+    it: &oxc_ast::ast::PrivateInExpression<'a>,
+  ) {
+    let code_seq = self.get_source_code(it.span).to_string();
     self.cache.push(CompatBox {
       start: it.span.start,
       end: it.span.end,
-      code_seg: code_seg.clone(),
+      code_seg: code_seq,
       compat: self.compat.clone(),
     });
-    oxc_ast::visit::walk::walk_class(self, it);
+    oxc_ast::visit::walk::walk_private_in_expression(self, it);
   }
 }
 
@@ -69,11 +77,26 @@ mod tests {
   use super::*;
 
   #[test]
-  fn should_exits_classes() {
+  fn should_exits_classes_private_class_fields_in() {
     let source_code = r##"
-class Rectangle {}    
+class C {
+  #x;
+  constructor(x) {
+    this.#x = x;
+  }
+  static getX(obj) {
+    if (#x in obj) return obj.#x;
+
+    return "obj must be an instance of C";
+  }
+}    
 "##;
     let allocator = Allocator::default();
-    t_any("classes", source_code, &allocator, ClassesVisitor::new);
+    t_any(
+      "private_class_fields_in",
+      source_code,
+      &allocator,
+      ClassesVisitor::new,
+    );
   }
 }
