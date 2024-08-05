@@ -53,7 +53,6 @@ impl<'a> Visit<'a> for BinaryNumericLiteralsVisitor<'a> {
 
   fn visit_numeric_literal(&mut self, it: &oxc_ast::ast::NumericLiteral<'a>) {
     let code_seg = self.get_source_code(it.span).to_string();
-    println!("it.raw: {:?}", it.raw);
     if vec!["0b", "0B"]
       .iter()
       .any(|item| it.raw.starts_with(*item))
