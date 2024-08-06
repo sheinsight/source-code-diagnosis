@@ -7,11 +7,11 @@ use serde::{Deserialize, Serialize};
 pub struct Compat {
   pub name: String,
   pub description: String,
-  pub mdn_url: String,
-  pub spec_url: Vec<String>,
+  // pub mdn_url: String,
+  // pub spec_url: Vec<String>,
   pub tags: Vec<String>,
   pub support: Support,
-  pub status: Status,
+  // pub status: Status,
 }
 
 #[napi(object)]
@@ -30,17 +30,17 @@ pub struct Status {
 )]
 pub struct Support {
   pub chrome: String,
-  pub chrome_android: String,
-  pub firefox: String,
-  pub firefox_android: String,
-  pub safari: String,
-  pub safari_ios: String,
   pub opera: String,
-  pub opera_android: String,
-  pub ie: String,
   pub edge: String,
+  pub firefox: String,
+  pub safari: String,
+  pub node: String,
   pub deno: String,
-  pub nodejs: String,
+  pub ios: String,
+  pub samsung: String,
+  pub rhino: String,
+  pub opera_mobile: String,
+  pub electron: String,
 }
 
 #[napi(object)]
@@ -48,8 +48,36 @@ pub struct Support {
   Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
 )]
 pub struct CompatBox {
+  pub name: String,
+  pub span: Span,
+  // pub code_seg: String,
+  pub compat: Compat,
+}
+
+impl CompatBox {
+  pub fn new(span: &oxc_span::Span, compat: &Compat) -> Self {
+    Self {
+      name: compat.name.clone(),
+      span: Span::from_oxc_span(span.clone()),
+      compat: compat.clone(),
+    }
+  }
+}
+
+#[napi(object)]
+#[derive(
+  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
+)]
+pub struct Span {
   pub start: u32,
   pub end: u32,
-  pub code_seg: String,
-  pub compat: Compat,
+}
+
+impl Span {
+  pub fn from_oxc_span(span: oxc_span::Span) -> Self {
+    Self {
+      start: span.start,
+      end: span.end,
+    }
+  }
 }

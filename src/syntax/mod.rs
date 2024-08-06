@@ -1,5 +1,6 @@
+mod common;
 mod compat;
-
+mod plugins;
 mod utils;
 mod visitor;
 use std::{
@@ -8,14 +9,17 @@ use std::{
   sync::{Arc, Mutex},
 };
 
+use common::CommonTrait;
 use compat::CompatBox;
 use napi::{Error, Result};
 
 use oxc_allocator::Allocator;
-use oxc_ast::{ast::Program, Visit};
+use oxc_ast::Visit;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
 
+use plugins::arrow_functions::ArrowFunctionsVisitor;
+use serde::de::Visitor;
 use visitor::SyntaxRecordVisitor;
 
 use crate::oxc_visitor_processor::{oxc_visit_process, Options};
@@ -49,7 +53,7 @@ pub fn check_browser_supported(
   options: Option<Options>,
 ) -> Result<Vec<CompatBox>> {
   let used: Arc<Mutex<Vec<CompatBox>>> = Arc::new(Mutex::new(Vec::new()));
-  let x = {
+  let handler = {
     let used = Arc::clone(&used);
     move |path: PathBuf| {
       let source_text = read(&path)
@@ -60,17 +64,21 @@ pub fn check_browser_supported(
           )
         })
         .unwrap();
+
       let source_text = String::from_utf8(source_text).unwrap();
+
       let source_type = SourceType::from_path(&path)
         .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
         .unwrap();
+
       let allocator = Allocator::default();
+
       let ret = Parser::new(&allocator, &source_text, source_type).parse();
 
       // let mut x = SyntaxRecordVisitor::new(source_text.as_str());
     }
   };
-  oxc_visit_process(x, options)?;
+  oxc_visit_process(handler, options)?;
 
   let used = Arc::try_unwrap(used)
     .ok()

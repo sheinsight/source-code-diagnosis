@@ -1,5 +1,5 @@
 {
-	"cSpell.words": ["antd", "bootcdn", "bootcss", "Builtins", "deno", "napi", "threadpool"],
+	"cSpell.words": ["antd", "bootcdn", "bootcss", "Builtins", "deno", "napi", "newable", "threadpool"],
 	"[javascript]": {
 		"editor.defaultFormatter": "biomejs.biome"
 	},
