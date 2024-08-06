@@ -18,6 +18,6 @@ where
   let parser = Parser::new(&allocator, source_code, source_type);
   let ret = parser.parse();
   visitor.visit_program(&ret.program);
-  let cache = visitor.get_cache();
+  let cache = visitor.get_usage();
   cache
 }

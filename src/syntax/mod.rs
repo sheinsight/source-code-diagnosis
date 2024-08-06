@@ -1,6 +1,9 @@
 mod common;
 mod compat;
-mod plugins;
+mod statements;
+
+mod semantic_checker;
+mod semantic_tester;
 mod utils;
 mod visitor;
 use std::{
@@ -18,8 +21,6 @@ use oxc_ast::Visit;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
 
-use plugins::arrow_functions::ArrowFunctionsVisitor;
-use serde::de::Visitor;
 use visitor::SyntaxRecordVisitor;
 
 use crate::oxc_visitor_processor::{oxc_visit_process, Options};

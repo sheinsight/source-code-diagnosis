@@ -1,0 +1,28 @@
+{
+	"name": "class",
+	"description": "The class declaration creates a binding of a new class to a given name.",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/class",
+	"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-class-definitions",
+	"tags": ["web-features:class-syntax", "web-features:snapshot:ecmascript-2015"],
+	"support": {
+		"chrome": "49",
+		"deno": "1.0",
+		"edge": "13",
+		"firefox": "45",
+		"firefox_android": "45",
+		"ie": "-1",
+		"node": "6.0.0",
+		"oculus": "49",
+		"opera": "49",
+		"opera_android": "49",
+		"safari": "10.1",
+		"safari_ios": "10.1",
+		"samsunginternet_android": "49",
+		"webview_android": "49"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}

@@ -30,17 +30,12 @@ pub struct Status {
 )]
 pub struct Support {
   pub chrome: String,
+  pub firefox: String,
   pub opera: String,
   pub edge: String,
-  pub firefox: String,
   pub safari: String,
   pub node: String,
   pub deno: String,
-  pub ios: String,
-  pub samsung: String,
-  pub rhino: String,
-  pub opera_mobile: String,
-  pub electron: String,
 }
 
 #[napi(object)]
