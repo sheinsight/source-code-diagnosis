@@ -1,0 +1,31 @@
+{
+	"name": "javascript_statements_generator_function_not_constructable_with_new",
+	"description": "生成器函数不能用 new 关键字构造（ES2016）",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function*",
+	"spec_url": [
+		"https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-generator-function-definitions"
+	],
+	"tags": ["web-features:snapshot:ecmascript-2016"],
+	"support": {
+		"chrome": "50",
+		"chrome_android": "50",
+		"deno": "1.0",
+		"edge": "13",
+		"firefox": "43",
+		"firefox_android": "43",
+		"ie": "-1",
+		"nodejs": "6.0.0",
+		"oculus": "50",
+		"opera": "50",
+		"opera_android": "50",
+		"safari": "10",
+		"safari_ios": "10",
+		"samsunginternet_android": "50",
+		"webview_android": "50"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}

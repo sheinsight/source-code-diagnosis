@@ -1,0 +1,31 @@
+{
+	"name": "empty",
+	"description": "空语句 (;)",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/Empty",
+	"spec_url": [
+		"https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-empty-statement"
+	],
+	"tags": ["web-features:snapshot:ecmascript-1"],
+	"support": {
+		"chrome": "3",
+		"chrome_android": "3",
+		"deno": "1.0",
+		"edge": "12",
+		"firefox": "1",
+		"firefox_android": "1",
+		"ie": "3",
+		"node": "0.10.0",
+		"oculus": "3",
+		"opera": "3",
+		"opera_android": "10.1",
+		"safari": "5",
+		"safari_ios": "5",
+		"samsunginternet_android": "3",
+		"webview_android": "3"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}

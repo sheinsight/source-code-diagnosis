@@ -1,0 +1,29 @@
+{
+	"name": "export_namespace",
+	"description": "export * as namespace",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/export",
+	"spec_url": ["https://tc39.es/ecma262/multipage/ecmascript-language-scripts-and-modules.html#sec-exports"],
+	"tags": [],
+	"support": {
+		"chrome": "72",
+		"chrome_android": "72",
+		"deno": "1.0",
+		"edge": "72",
+		"firefox": "80",
+		"firefox_android": "80",
+		"ie": "-1",
+		"node": "13.2.0",
+		"oculus": "72",
+		"opera": "72",
+		"opera_android": "72",
+		"safari": "14.1",
+		"safari_ios": "14.1",
+		"samsunginternet_android": "72",
+		"webview_android": "72"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}

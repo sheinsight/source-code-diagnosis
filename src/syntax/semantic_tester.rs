@@ -13,6 +13,7 @@ where
 {
   allocator: Allocator,
   visitor: V,
+  usage: Vec<CompatBox>,
   _marker: PhantomData<&'a ()>, // 使用 PhantomData 标记生命周期 'a
 }
 
@@ -20,19 +21,16 @@ impl<'a, V> SemanticTester<'a, V>
 where
   V: Visit<'a> + CommonTrait,
 {
-  fn new(visitor: V) -> Self {
+  pub fn from_visitor(visitor: V) -> Self {
     Self {
       allocator: Allocator::default(),
       visitor,
+      usage: Vec::new(),
       _marker: PhantomData,
     }
   }
 
-  pub fn with_visitor(visitor: V) -> Self {
-    Self::new(visitor)
-  }
-
-  pub fn check(&'a mut self, source_code: &'a str) -> Vec<CompatBox> {
+  pub fn analyze(&'a mut self, source_code: &'a str) -> Vec<CompatBox> {
     let parser =
       Parser::new(&self.allocator, source_code, SourceType::default());
     let parse_return = parser.parse();

@@ -6,6 +6,7 @@
 	"tags": ["web-features:class-syntax", "web-features:snapshot:ecmascript-2015"],
 	"support": {
 		"chrome": "49",
+		"chrome_android": "49",
 		"deno": "1.0",
 		"edge": "13",
 		"firefox": "45",

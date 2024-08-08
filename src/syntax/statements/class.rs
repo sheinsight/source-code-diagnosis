@@ -1,5 +1,5 @@
 use oxc_ast::{visit::walk, Visit};
-use serde_json::from_str;
+use serde_json5::from_str;
 
 use crate::syntax::{
   common::CommonTrait,
@@ -27,7 +27,9 @@ impl CommonTrait for ClassVisitor {
 
 impl<'a> Visit<'a> for ClassVisitor {
   fn visit_class(&mut self, it: &oxc_ast::ast::Class<'a>) {
-    self.usage.push(CompatBox::new(&it.span, &self.compat));
+    self
+      .usage
+      .push(CompatBox::new(it.span.clone(), self.compat.clone()));
     walk::walk_class(self, it);
   }
 }
@@ -41,8 +43,8 @@ mod tests {
 
   #[test]
   fn should_ok_when_class_declaration() {
-    let res =
-      SemanticTester::with_visitor(ClassVisitor::default()).check("class A {}");
+    let res = SemanticTester::from_visitor(ClassVisitor::default())
+      .analyze("class A {}");
 
     let has_class = res.iter().any(|item| item.name == "class");
 
@@ -51,8 +53,8 @@ mod tests {
 
   #[test]
   fn should_ok_when_class_expression() {
-    let res = SemanticTester::with_visitor(ClassVisitor::default())
-      .check("const a = class {}");
+    let res = SemanticTester::from_visitor(ClassVisitor::default())
+      .analyze("const a = class {}");
 
     let has_class = res.iter().any(|item| item.name == "class");
 

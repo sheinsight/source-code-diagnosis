@@ -1,0 +1,26 @@
+{
+	"name": "for_of_closing_iterators",
+	"description": "关闭迭代器",
+	"support": {
+		"chrome": "51",
+		"chrome_android": "51",
+		"deno": "1.0",
+		"edge": "14",
+		"firefox": "53",
+		"firefox_android": "53",
+		"ie": "-1",
+		"nodejs": "6.5.0",
+		"oculus": "51",
+		"opera": "51",
+		"opera_android": "51",
+		"safari": "7",
+		"safari_ios": "7",
+		"samsunginternet_android": "51",
+		"webview_android": "51"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}

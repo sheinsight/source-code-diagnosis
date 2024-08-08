@@ -1,0 +1,29 @@
+{
+	"name": "for_of_async_iterators",
+	"description": "异步迭代器",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for...of",
+	"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-statements-and-declarations.html#sec-for-in-and-for-of-statements",
+	"tags": ["web-features:snapshot:ecmascript-2018"],
+	"support": {
+		"chrome": "63",
+		"chrome_android": "63",
+		"deno": "1.0",
+		"edge": "12",
+		"firefox": "57",
+		"firefox_android": "57",
+		"ie": "-1",
+		"node": "10.0.0",
+		"oculus": "63",
+		"opera": "63",
+		"opera_android": "63",
+		"safari": "7",
+		"safari_ios": "7",
+		"samsunginternet_android": "63",
+		"webview_android": "63"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}

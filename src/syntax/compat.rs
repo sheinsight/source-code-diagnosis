@@ -30,10 +30,15 @@ pub struct Status {
 )]
 pub struct Support {
   pub chrome: String,
+  pub chrome_android: String,
   pub firefox: String,
+  pub firefox_android: String,
   pub opera: String,
-  pub edge: String,
+  pub opera_android: String,
   pub safari: String,
+  pub safari_ios: String,
+  pub edge: String,
+  pub oculus: String,
   pub node: String,
   pub deno: String,
 }
@@ -50,11 +55,11 @@ pub struct CompatBox {
 }
 
 impl CompatBox {
-  pub fn new(span: &oxc_span::Span, compat: &Compat) -> Self {
+  pub fn new(span: oxc_span::Span, compat: Compat) -> Self {
     Self {
       name: compat.name.clone(),
       span: Span::from_oxc_span(span.clone()),
-      compat: compat.clone(),
+      compat: compat,
     }
   }
 }
