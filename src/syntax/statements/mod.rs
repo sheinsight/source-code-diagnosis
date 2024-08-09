@@ -26,3 +26,4 @@ pub mod generator_function_trailing_comma_in_parameters;
 pub mod if_else;
 pub mod import;
 pub mod import_import_assertions;
+pub mod import_import_assertions_type_css;
