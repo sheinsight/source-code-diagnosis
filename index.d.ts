@@ -28,11 +28,8 @@ export interface Options {
 export interface Compat {
   name: string
   description: string
-  mdnUrl: string
-  specUrl: Array<string>
   tags: Array<string>
   support: Support
-  status: Status
 }
 export interface Status {
   experimental: boolean
@@ -44,20 +41,23 @@ export interface Support {
   chromeAndroid: string
   firefox: string
   firefoxAndroid: string
-  safari: string
-  safariIos: string
   opera: string
   operaAndroid: string
-  ie: string
+  safari: string
+  safariIos: string
   edge: string
+  oculus: string
+  node: string
   deno: string
-  nodejs: string
 }
 export interface CompatBox {
+  name: string
+  span: Span
+  compat: Compat
+}
+export interface Span {
   start: number
   end: number
-  codeSeg: string
-  compat: Compat
 }
 export declare function checkBrowserSupportedByFilePath(target: string, filePath: string): Array<CompatBox>
 export declare function checkBrowserSupported(target: string, options?: Options | undefined | null): Array<CompatBox>

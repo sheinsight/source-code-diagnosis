@@ -2,9 +2,7 @@ mod common;
 mod compat;
 mod statements;
 
-mod semantic_checker;
 mod semantic_tester;
-mod utils;
 mod visitor;
 use std::{
   fs::{self, read},
@@ -21,6 +19,7 @@ use oxc_ast::Visit;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
 
+use statements::{async_function::AsyncFunctionVisitor, r#const::ConstVisitor};
 use visitor::SyntaxRecordVisitor;
 
 use crate::oxc_visitor_processor::{oxc_visit_process, Options};
@@ -74,7 +73,18 @@ pub fn check_browser_supported(
 
       let allocator = Allocator::default();
 
-      let ret = Parser::new(&allocator, &source_text, source_type).parse();
+      let parser_return =
+        Parser::new(&allocator, &source_text, source_type).parse();
+
+      // let mut x = SyntaxRecordVisitor::new(source_text.as_str());
+
+      let mut v = ConstVisitor::default();
+
+      v.visit_program(&parser_return.program);
+
+      let mut used = used.lock().unwrap();
+
+      used.extend(v.get_usage());
 
       // let mut x = SyntaxRecordVisitor::new(source_text.as_str());
     }
