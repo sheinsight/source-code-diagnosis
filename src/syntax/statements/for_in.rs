@@ -1,4 +1,4 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
+use oxc_ast::{visit::walk, Visit};
 use serde_json5::from_str;
 
 use crate::syntax::{

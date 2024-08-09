@@ -1,8 +1,4 @@
-use oxc_ast::{
-  ast::{FunctionType, ImportAttributeKey},
-  visit::walk,
-  Visit,
-};
+use oxc_ast::{ast::ImportAttributeKey, visit::walk, Visit};
 use serde_json5::from_str;
 
 use crate::syntax::{
