@@ -36,3 +36,4 @@ pub mod r#let;
 pub mod r#return;
 pub mod switch;
 pub mod throw;
+pub mod try_catch;
