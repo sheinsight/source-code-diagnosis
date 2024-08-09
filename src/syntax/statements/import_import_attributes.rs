@@ -1,4 +1,4 @@
-use oxc_ast::{visit::walk, Visit};
+use oxc_ast::{ast::FunctionType, visit::walk, Visit};
 use serde_json5::from_str;
 
 use crate::syntax::{
@@ -6,29 +6,29 @@ use crate::syntax::{
   compat::{Compat, CompatBox},
 };
 
-pub struct ImportImportAssertionsVisitor {
+pub struct ImportImportAttributesVisitor {
   usage: Vec<CompatBox>,
   compat: Compat,
 }
 
-impl Default for ImportImportAssertionsVisitor {
+impl Default for ImportImportAttributesVisitor {
   fn default() -> Self {
     let usage: Vec<CompatBox> = Vec::new();
     let compat: Compat =
-      from_str(include_str!("./import_import_assertions.json")).unwrap();
+      from_str(include_str!("./import_import_attributes.json")).unwrap();
     Self { usage, compat }
   }
 }
 
-impl CommonTrait for ImportImportAssertionsVisitor {
+impl CommonTrait for ImportImportAttributesVisitor {
   fn get_usage(&self) -> Vec<CompatBox> {
     self.usage.clone()
   }
 }
 
-impl<'a> Visit<'a> for ImportImportAssertionsVisitor {
+impl<'a> Visit<'a> for ImportImportAttributesVisitor {
   fn visit_with_clause(&mut self, it: &oxc_ast::ast::WithClause<'a>) {
-    if it.attributes_keyword.name == "assert" {
+    if it.attributes_keyword.name == "with" {
       self
         .usage
         .push(CompatBox::new(it.span.clone(), self.compat.clone()));
@@ -47,16 +47,16 @@ mod tests {
   fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
     usage
       .iter()
-      .filter(|item| item.name == "import_import_assertions")
+      .filter(|item| item.name == "import_import_attributes")
       .count()
   }
 
   #[test]
   fn should_ok_when_async_generator_function_declaration() {
     let mut tester =
-      SemanticTester::from_visitor(ImportImportAssertionsVisitor::default());
+      SemanticTester::from_visitor(ImportImportAttributesVisitor::default());
     let usage =
-      tester.analyze("import json from './data.json' assert { type: 'json' };");
+      tester.analyze("import json from './data.json' with { type: 'json' };");
 
     let count = get_async_function_count(&usage);
 

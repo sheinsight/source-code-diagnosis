@@ -28,3 +28,4 @@ pub mod import;
 pub mod import_import_assertions;
 pub mod import_import_assertions_type_css;
 pub mod import_import_assertions_type_json;
+pub mod import_import_attributes;
