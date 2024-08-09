@@ -34,9 +34,11 @@ impl<'a> Visit<'a> for LetVisitor {
     &mut self,
     it: &oxc_ast::ast::VariableDeclaration<'a>,
   ) {
-    self
-      .usage
-      .push(CompatBox::new(it.span.clone(), self.compat.clone()));
+    if matches!(it.kind, oxc_ast::ast::VariableDeclarationKind::Let) {
+      self
+        .usage
+        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
+    }
 
     walk::walk_variable_declaration(self, it);
   }
@@ -54,7 +56,7 @@ mod tests {
   }
 
   #[test]
-  fn should_ok_when_async_generator_function_declaration() {
+  fn should_ok_when_let_declaration() {
     let mut tester = SemanticTester::from_visitor(LetVisitor::default());
     let usage = tester.analyze(
       "
@@ -78,5 +80,29 @@ console.log(x);
     assert_eq!(usage.len(), 2);
 
     assert_eq!(count, 2);
+  }
+
+  #[test]
+  fn should_fail_when_var_declaration() {
+    let mut tester = SemanticTester::from_visitor(LetVisitor::default());
+    let usage = tester.analyze(
+      "
+var x = 1;
+
+if (x === 1) {
+  var x = 2;
+
+  console.log(x);
+}
+
+console.log(x);
+",
+    );
+
+    let count = get_async_function_count(&usage);
+
+    assert_eq!(usage.len(), 0);
+
+    assert_eq!(count, 0);
   }
 }
