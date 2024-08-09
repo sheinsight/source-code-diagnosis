@@ -25,3 +25,4 @@ pub mod generator_function_not_constructable_with_new;
 pub mod generator_function_trailing_comma_in_parameters;
 pub mod if_else;
 pub mod import;
+pub mod import_import_assertions;
