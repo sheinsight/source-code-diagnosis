@@ -34,3 +34,5 @@ pub mod import_import_attributes_type_json;
 pub mod label;
 pub mod r#let;
 pub mod r#return;
+pub mod switch;
+pub mod throw;
