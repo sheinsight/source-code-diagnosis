@@ -40,3 +40,4 @@ pub mod try_catch;
 pub mod try_catch_optional_catch_binding;
 pub mod var;
 pub mod r#while;
+pub mod with;
