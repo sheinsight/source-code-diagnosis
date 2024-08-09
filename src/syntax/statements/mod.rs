@@ -30,3 +30,4 @@ pub mod import_import_assertions_type_css;
 pub mod import_import_assertions_type_json;
 pub mod import_import_attributes;
 pub mod import_import_attributes_type_css;
+pub mod import_import_attributes_type_json;
