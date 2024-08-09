@@ -37,3 +37,4 @@ pub mod r#return;
 pub mod switch;
 pub mod throw;
 pub mod try_catch;
+pub mod try_catch_optional_catch_binding;
