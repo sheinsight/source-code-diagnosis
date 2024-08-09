@@ -10,12 +10,12 @@ use crate::syntax::{
   compat::{Compat, CompatBox},
 };
 
-pub struct letVisitor {
+pub struct LetVisitor {
   usage: Vec<CompatBox>,
   compat: Compat,
 }
 
-impl Default for letVisitor {
+impl Default for LetVisitor {
   fn default() -> Self {
     let usage: Vec<CompatBox> = Vec::new();
     let compat: Compat = from_str(include_str!("./let.json")).unwrap();
@@ -23,13 +23,13 @@ impl Default for letVisitor {
   }
 }
 
-impl CommonTrait for letVisitor {
+impl CommonTrait for LetVisitor {
   fn get_usage(&self) -> Vec<CompatBox> {
     self.usage.clone()
   }
 }
 
-impl<'a> Visit<'a> for letVisitor {
+impl<'a> Visit<'a> for LetVisitor {
   fn visit_variable_declaration(
     &mut self,
     it: &oxc_ast::ast::VariableDeclaration<'a>,
@@ -55,7 +55,7 @@ mod tests {
 
   #[test]
   fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(letVisitor::default());
+    let mut tester = SemanticTester::from_visitor(LetVisitor::default());
     let usage = tester.analyze(
       "
 let x = 1;
