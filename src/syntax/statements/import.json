@@ -1,0 +1,29 @@
+{
+	"name": "import",
+	"description": "import 语句",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/import",
+	"spec_url": ["https://tc39.es/ecma262/multipage/ecmascript-language-scripts-and-modules.html#sec-imports"],
+	"tags": ["web-features:js-modules"],
+	"support": {
+		"chrome": "61",
+		"chrome_android": "61",
+		"deno": "1.0",
+		"edge": "16",
+		"firefox": "60",
+		"firefox_android": "60",
+		"ie": "-1",
+		"node": "13.2.0",
+		"oculus": "61",
+		"opera": "61",
+		"opera_android": "61",
+		"safari": "10.1",
+		"safari_ios": "10.1",
+		"samsunginternet_android": "61",
+		"webview_android": "61"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
