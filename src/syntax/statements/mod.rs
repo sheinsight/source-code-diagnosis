@@ -33,3 +33,4 @@ pub mod import_import_attributes_type_css;
 pub mod import_import_attributes_type_json;
 pub mod label;
 pub mod r#let;
+pub mod r#return;
