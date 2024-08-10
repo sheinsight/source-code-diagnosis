@@ -1,0 +1,928 @@
+[
+	{
+		"javascript_functions": {
+			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions",
+			"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions",
+			"tags": ["web-features:snapshot:ecmascript-1"],
+			"support": {
+				"chrome": {
+					"version_added": "1"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "1"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": "3"
+				},
+				"nodejs": {
+					"version_added": "0.10.0"
+				},
+				"oculus": "mirror",
+				"opera": {
+					"version_added": "3"
+				},
+				"opera_android": {
+					"version_added": "10.1"
+				},
+				"safari": {
+					"version_added": "1"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_arguments": {
+			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments",
+			"spec_url": "https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-arguments-exotic-objects",
+			"tags": ["web-features:snapshot:ecmascript-1"],
+			"support": {
+				"chrome": {
+					"version_added": "1"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "1"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": "3"
+				},
+				"nodejs": {
+					"version_added": "0.10.0"
+				},
+				"oculus": "mirror",
+				"opera": {
+					"version_added": "3"
+				},
+				"opera_android": {
+					"version_added": "10.1"
+				},
+				"safari": {
+					"version_added": "1"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_arguments_callee": {
+			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments/callee",
+			"spec_url": "https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-arguments-exotic-objects",
+			"tags": ["web-features:snapshot:ecmascript-1"],
+			"support": {
+				"chrome": {
+					"version_added": "1"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "1"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": "6"
+				},
+				"nodejs": {
+					"version_added": "0.10.0"
+				},
+				"oculus": "mirror",
+				"opera": {
+					"version_added": "4"
+				},
+				"opera_android": {
+					"version_added": "10.1"
+				},
+				"safari": {
+					"version_added": "1"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": true
+			}
+		}
+	},
+	{
+		"javascript_functions_arguments_length": {
+			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments/length",
+			"spec_url": "https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-arguments-exotic-objects",
+			"tags": ["web-features:snapshot:ecmascript-1"],
+			"support": {
+				"chrome": {
+					"version_added": "1"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "1"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": "4"
+				},
+				"nodejs": {
+					"version_added": "0.10.0"
+				},
+				"oculus": "mirror",
+				"opera": {
+					"version_added": "4"
+				},
+				"opera_android": {
+					"version_added": "10.1"
+				},
+				"safari": {
+					"version_added": "1"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_arguments_@@iterator": {
+			"description": "[Symbol.iterator]",
+			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments/Symbol.iterator",
+			"spec_url": [
+				"https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-createunmappedargumentsobject",
+				"https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-createmappedargumentsobject"
+			],
+			"tags": ["web-features:snapshot:ecmascript-2015"],
+			"support": {
+				"chrome": {
+					"version_added": "52"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "46"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "4.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "9"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_arrow_functions": {
+			"description": "Arrow functions",
+			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Arrow_functions",
+			"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-arrow-function-definitions",
+			"tags": ["web-features:snapshot:ecmascript-2015"],
+			"support": {
+				"chrome": {
+					"version_added": "45"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "22",
+					"notes": [
+						"The initial implementation of arrow functions in Firefox made them automatically strict. This has been changed as of Firefox 24. The use of <code>'use strict';</code> is now required.",
+						"Before Firefox 39, a line terminator (<code>\\n</code>) was incorrectly allowed after arrow function arguments. This has been fixed to conform to the ES2015 specification and code like <code>() \\n =&gt; {}</code> will now throw a <code>SyntaxError</code> in this and later versions."
+					]
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "4.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "10"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_arrow_functions_trailing_comma": {
+			"description": "Trailing comma in parameters",
+			"tags": ["web-features:snapshot:ecmascript-2017"],
+			"support": {
+				"chrome": {
+					"version_added": "58"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "52"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "8.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "10"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_block_level_functions": {
+			"description": "Block-level functions",
+			"tags": ["web-features:snapshot:ecmascript-2015"],
+			"support": {
+				"chrome": {
+					"version_added": "49"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "46"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": "11"
+				},
+				"nodejs": {
+					"version_added": "4.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "10"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_default_parameters": {
+			"description": "Default parameters",
+			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Default_parameters",
+			"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions",
+			"tags": ["web-features:snapshot:ecmascript-2015"],
+			"support": {
+				"chrome": {
+					"version_added": "49"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "14"
+				},
+				"firefox": {
+					"version_added": "15"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "6.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "10"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_default_parameters_destructured_parameter_with_default_value_assignment": {
+			"description": "Destructured parameter with default value assignment",
+			"tags": ["web-features:snapshot:ecmascript-2015"],
+			"support": {
+				"chrome": {
+					"version_added": "49"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "14"
+				},
+				"firefox": {
+					"version_added": "41"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "6.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "10"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_default_parameters_parameters_without_defaults_after_default_parameters": {
+			"description": "Parameters without defaults after default parameters",
+			"tags": ["web-features:snapshot:ecmascript-2015"],
+			"support": {
+				"chrome": {
+					"version_added": "49"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "14"
+				},
+				"firefox": {
+					"version_added": "26"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "6.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "10"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_get": {
+			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get",
+			"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions",
+			"tags": ["web-features:snapshot:ecmascript-5"],
+			"support": {
+				"chrome": {
+					"version_added": "1"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "1.5"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": "9"
+				},
+				"nodejs": {
+					"version_added": "0.10.0"
+				},
+				"oculus": "mirror",
+				"opera": {
+					"version_added": "9.5"
+				},
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "3"
+				},
+				"safari_ios": {
+					"version_added": "1"
+				},
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_get_computed_property_names": {
+			"description": "Computed property names",
+			"tags": ["web-features:snapshot:ecmascript-2015"],
+			"support": {
+				"chrome": {
+					"version_added": "46"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "34"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "4.0.0"
+				},
+				"oculus": "mirror",
+				"opera": {
+					"version_added": "47"
+				},
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "9.1"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_method_definitions": {
+			"description": "Method definitions",
+			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions",
+			"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions",
+			"tags": ["web-features:snapshot:ecmascript-2015"],
+			"support": {
+				"chrome": {
+					"version_added": "39"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "34"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "4.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "9"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_method_definitions_async_generator_methods": {
+			"description": "Async generator methods",
+			"support": {
+				"chrome": {
+					"version_added": "63"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": "mirror",
+				"firefox": {
+					"version_added": "55"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "10.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "12"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_method_definitions_async_methods": {
+			"description": "Async methods",
+			"support": {
+				"chrome": {
+					"version_added": "55"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "15"
+				},
+				"firefox": {
+					"version_added": "52"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "7.6.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "10.1"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_method_definitions_generator_methods_not_constructable": {
+			"description": "Generator methods are not constructable (ES2016)",
+			"support": {
+				"chrome": {
+					"version_added": "42"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "13"
+				},
+				"firefox": {
+					"version_added": "43"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "6.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "9.1"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_rest_parameters": {
+			"description": "Rest parameters",
+			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/rest_parameters",
+			"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-function-definitions",
+			"tags": ["web-features:snapshot:ecmascript-2015"],
+			"support": {
+				"chrome": {
+					"version_added": "47"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "15"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "6.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "10"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_rest_parameters_destructuring": {
+			"description": "Destructuring rest parameters",
+			"tags": ["web-features:snapshot:ecmascript-2015"],
+			"support": {
+				"chrome": {
+					"version_added": "49"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": "mirror",
+				"firefox": {
+					"version_added": "52"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "6.0.0"
+				},
+				"oculus": "mirror",
+				"opera": "mirror",
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "10"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_set": {
+			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/set",
+			"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions",
+			"tags": ["web-features:snapshot:ecmascript-5"],
+			"support": {
+				"chrome": {
+					"version_added": "1"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "1.5"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": "9"
+				},
+				"nodejs": {
+					"version_added": "0.10.0"
+				},
+				"oculus": "mirror",
+				"opera": {
+					"version_added": "9.5"
+				},
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "3"
+				},
+				"safari_ios": {
+					"version_added": "1"
+				},
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	},
+	{
+		"javascript_functions_set_computed_property_names": {
+			"description": "Computed property names",
+			"tags": ["web-features:snapshot:ecmascript-2015"],
+			"support": {
+				"chrome": {
+					"version_added": "46"
+				},
+				"chrome_android": "mirror",
+				"deno": {
+					"version_added": "1.0"
+				},
+				"edge": {
+					"version_added": "12"
+				},
+				"firefox": {
+					"version_added": "34"
+				},
+				"firefox_android": "mirror",
+				"ie": {
+					"version_added": false
+				},
+				"nodejs": {
+					"version_added": "4.0.0"
+				},
+				"oculus": "mirror",
+				"opera": {
+					"version_added": "47"
+				},
+				"opera_android": "mirror",
+				"safari": {
+					"version_added": "9.1"
+				},
+				"safari_ios": "mirror",
+				"samsunginternet_android": "mirror",
+				"webview_android": "mirror"
+			},
+			"status": {
+				"experimental": false,
+				"standard_track": true,
+				"deprecated": false
+			}
+		}
+	}
+]
