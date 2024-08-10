@@ -1,0 +1,32 @@
+{
+	"name": "functions_arguments_iterator",
+	"description": "arguments[Symbol.iterator] 方法",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments/Symbol.iterator",
+	"spec_url": [
+		"https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-createunmappedargumentsobject",
+		"https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-createmappedargumentsobject"
+	],
+	"tags": ["web-features:snapshot:ecmascript-2015"],
+	"support": {
+		"chrome": "52",
+		"chrome_android": "52",
+		"deno": "1.0",
+		"edge": "12",
+		"firefox": "46",
+		"firefox_android": "46",
+		"ie": "-1",
+		"node": "4.0.0",
+		"oculus": "52",
+		"opera": "52",
+		"opera_android": "52",
+		"safari": "9",
+		"safari_ios": "9",
+		"samsunginternet_android": "52",
+		"webview_android": "52"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
