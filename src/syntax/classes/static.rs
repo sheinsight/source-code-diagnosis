@@ -51,6 +51,14 @@ impl<'a> Visit<'a> for StaticVisitor {
 
     walk::walk_property_definition(self, it);
   }
+
+  fn visit_static_block(&mut self, it: &oxc_ast::ast::StaticBlock<'a>) {
+    self
+      .usage
+      .push(CompatBox::new(it.span.clone(), self.compat.clone()));
+
+    walk::walk_static_block(self, it);
+  }
 }
 
 #[cfg(test)]
@@ -77,6 +85,10 @@ class MathOperations {
     return x + y;
   }
 
+  static {
+   
+  }
+
   static PI = 3.14159;
 }
     
@@ -85,8 +97,8 @@ class MathOperations {
 
     let count = get_async_function_count(&usage);
 
-    assert_eq!(usage.len(), 2);
+    assert_eq!(usage.len(), 3);
 
-    assert_eq!(count, 2);
+    assert_eq!(count, 3);
   }
 }
