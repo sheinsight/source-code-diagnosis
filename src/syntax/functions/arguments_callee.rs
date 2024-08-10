@@ -1,4 +1,8 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
+use oxc_ast::{
+  ast::{Expression, FunctionType},
+  visit::walk,
+  Visit,
+};
 use serde_json5::from_str;
 
 use crate::syntax::{
@@ -27,17 +31,19 @@ impl CommonTrait for ArgumentsCalleeVisitor {
 }
 
 impl<'a> Visit<'a> for ArgumentsCalleeVisitor {
-  fn visit_identifier_reference(
+  fn visit_static_member_expression(
     &mut self,
-    it: &oxc_ast::ast::IdentifierReference<'a>,
+    it: &oxc_ast::ast::StaticMemberExpression<'a>,
   ) {
-    if it.name == "arguments" {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
+    if let Expression::Identifier(o) = &it.object {
+      if o.name == "arguments" && it.property.name == "callee" {
+        self
+          .usage
+          .push(CompatBox::new(it.span.clone(), self.compat.clone()));
+      }
     }
 
-    walk::walk_identifier_reference(self, it);
+    walk::walk_static_member_expression(self, it);
   }
 }
 
@@ -51,7 +57,7 @@ mod tests {
   fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
     usage
       .iter()
-      .filter(|item| item.name == "functions_arguments")
+      .filter(|item| item.name == "functions_arguments_callee")
       .count()
   }
 
@@ -61,23 +67,16 @@ mod tests {
       SemanticTester::from_visitor(ArgumentsCalleeVisitor::default());
     let usage = tester.analyze(
       "
-function func1(a, b, c) {
-  console.log(arguments[0]);
-  // Expected output: 1
-
-  console.log(arguments[1]);
-  // Expected output: 2
-
-  console.log(arguments[2]);
-  // Expected output: 3
+function factorial(n) {
+    return n <= 1 ? 1 : n * arguments.callee(n - 1);
 }    
 ",
     );
 
     let count = get_async_function_count(&usage);
 
-    assert_eq!(usage.len(), 3);
+    assert_eq!(usage.len(), 1);
 
-    assert_eq!(count, 3);
+    assert_eq!(count, 1);
   }
 }
