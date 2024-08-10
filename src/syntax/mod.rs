@@ -1,3 +1,4 @@
+mod classes;
 mod common;
 mod compat;
 mod statements;
@@ -19,7 +20,11 @@ use oxc_ast::Visit;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
 
-use statements::{async_function::AsyncFunctionVisitor, r#const::ConstVisitor};
+use semantic_tester::SemanticTester;
+use statements::{
+  async_function::AsyncFunctionVisitor, class::ClassVisitor,
+  r#const::ConstVisitor,
+};
 use visitor::SyntaxRecordVisitor;
 
 use crate::oxc_visitor_processor::{oxc_visit_process, Options};
@@ -67,26 +72,21 @@ pub fn check_browser_supported(
 
       let source_text = String::from_utf8(source_text).unwrap();
 
-      let source_type = SourceType::from_path(&path)
-        .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
-        .unwrap();
+      let const_usage = SemanticTester::from_visitor(ConstVisitor::default())
+        .analyze(source_text.as_str());
 
-      let allocator = Allocator::default();
+      let async_function_usage =
+        SemanticTester::from_visitor(AsyncFunctionVisitor::default())
+          .analyze(source_text.as_str());
 
-      let parser_return =
-        Parser::new(&allocator, &source_text, source_type).parse();
-
-      // let mut x = SyntaxRecordVisitor::new(source_text.as_str());
-
-      let mut v = ConstVisitor::default();
-
-      v.visit_program(&parser_return.program);
+      let class_usage = SemanticTester::from_visitor(ClassVisitor::default())
+        .analyze(source_text.as_str());
 
       let mut used = used.lock().unwrap();
 
-      used.extend(v.get_usage());
-
-      // let mut x = SyntaxRecordVisitor::new(source_text.as_str());
+      used.extend(const_usage);
+      used.extend(async_function_usage);
+      used.extend(class_usage);
     }
   };
   oxc_visit_process(handler, options)?;

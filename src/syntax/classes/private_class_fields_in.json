@@ -1,0 +1,29 @@
+{
+	"name": "classes_private_class_fields_in",
+	"description": "私有类字段的 'in' 操作符",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/Private_properties",
+	"spec_url": ["https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-00OK517S"],
+	"tags": [],
+	"support": {
+		"chrome": "91",
+		"chrome_android": "91",
+		"deno": "1.9",
+		"edge": "91",
+		"firefox": "90",
+		"firefox_android": "90",
+		"ie": "-1",
+		"node": "16.4.0",
+		"oculus": "91",
+		"opera": "91",
+		"opera_android": "91",
+		"safari": "15",
+		"safari_ios": "15",
+		"samsunginternet_android": "91",
+		"webview_android": "91"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
