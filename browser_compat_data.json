@@ -1,53 +1,5 @@
 [
 	{
-		"javascript_functions_arrow_functions": {
-			"description": "Arrow functions",
-			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Arrow_functions",
-			"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-arrow-function-definitions",
-			"tags": ["web-features:snapshot:ecmascript-2015"],
-			"support": {
-				"chrome": {
-					"version_added": "45"
-				},
-				"chrome_android": "mirror",
-				"deno": {
-					"version_added": "1.0"
-				},
-				"edge": {
-					"version_added": "12"
-				},
-				"firefox": {
-					"version_added": "22",
-					"notes": [
-						"The initial implementation of arrow functions in Firefox made them automatically strict. This has been changed as of Firefox 24. The use of <code>'use strict';</code> is now required.",
-						"Before Firefox 39, a line terminator (<code>\\n</code>) was incorrectly allowed after arrow function arguments. This has been fixed to conform to the ES2015 specification and code like <code>() \\n =&gt; {}</code> will now throw a <code>SyntaxError</code> in this and later versions."
-					]
-				},
-				"firefox_android": "mirror",
-				"ie": {
-					"version_added": false
-				},
-				"nodejs": {
-					"version_added": "4.0.0"
-				},
-				"oculus": "mirror",
-				"opera": "mirror",
-				"opera_android": "mirror",
-				"safari": {
-					"version_added": "10"
-				},
-				"safari_ios": "mirror",
-				"samsunginternet_android": "mirror",
-				"webview_android": "mirror"
-			},
-			"status": {
-				"experimental": false,
-				"standard_track": true,
-				"deprecated": false
-			}
-		}
-	},
-	{
 		"javascript_functions_arrow_functions_trailing_comma": {
 			"description": "Trailing comma in parameters",
 			"tags": ["web-features:snapshot:ecmascript-2017"],
