@@ -1,46 +1,5 @@
 [
 	{
-		"javascript_functions_method_definitions_generator_methods_not_constructable": {
-			"description": "Generator methods are not constructable (ES2016)",
-			"support": {
-				"chrome": {
-					"version_added": "42"
-				},
-				"chrome_android": "mirror",
-				"deno": {
-					"version_added": "1.0"
-				},
-				"edge": {
-					"version_added": "13"
-				},
-				"firefox": {
-					"version_added": "43"
-				},
-				"firefox_android": "mirror",
-				"ie": {
-					"version_added": false
-				},
-				"nodejs": {
-					"version_added": "6.0.0"
-				},
-				"oculus": "mirror",
-				"opera": "mirror",
-				"opera_android": "mirror",
-				"safari": {
-					"version_added": "9.1"
-				},
-				"safari_ios": "mirror",
-				"samsunginternet_android": "mirror",
-				"webview_android": "mirror"
-			},
-			"status": {
-				"experimental": false,
-				"standard_track": true,
-				"deprecated": false
-			}
-		}
-	},
-	{
 		"javascript_functions_rest_parameters": {
 			"description": "Rest parameters",
 			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/rest_parameters",

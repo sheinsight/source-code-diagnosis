@@ -1,0 +1,31 @@
+{
+	"name": "generator_methods_not_constructable",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions",
+	"spec_url": [
+		"https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"
+	],
+	"description": "生成器方法不可构造（ES2016）",
+	"tags": [],
+	"support": {
+		"chrome": "42",
+		"chrome_android": "42",
+		"deno": "1.0",
+		"edge": "13",
+		"firefox": "43",
+		"firefox_android": "43",
+		"ie": "-1",
+		"node": "6.0.0",
+		"oculus": "42",
+		"opera": "42",
+		"opera_android": "42",
+		"safari": "9.1",
+		"safari_ios": "9.1",
+		"samsunginternet_android": "42",
+		"webview_android": "42"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
