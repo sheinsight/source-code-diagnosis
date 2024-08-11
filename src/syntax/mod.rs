@@ -2,6 +2,7 @@ mod classes;
 mod common;
 mod compat;
 mod functions;
+mod grammar;
 mod statements;
 
 mod semantic_tester;

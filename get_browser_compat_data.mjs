@@ -2,8 +2,8 @@ import fs from "node:fs";
 
 const URL = [
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/classes.json",
-	"https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/functions.json",
-	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/grammar.json",
+	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/functions.json",
+	"https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/grammar.json",
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/regular_expressions.json",
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/statements.json",
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/addition.json",
