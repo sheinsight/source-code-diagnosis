@@ -1,45 +1,5 @@
 [
 	{
-		"javascript_functions_rest_parameters_destructuring": {
-			"description": "Destructuring rest parameters",
-			"tags": ["web-features:snapshot:ecmascript-2015"],
-			"support": {
-				"chrome": {
-					"version_added": "49"
-				},
-				"chrome_android": "mirror",
-				"deno": {
-					"version_added": "1.0"
-				},
-				"edge": "mirror",
-				"firefox": {
-					"version_added": "52"
-				},
-				"firefox_android": "mirror",
-				"ie": {
-					"version_added": false
-				},
-				"nodejs": {
-					"version_added": "6.0.0"
-				},
-				"oculus": "mirror",
-				"opera": "mirror",
-				"opera_android": "mirror",
-				"safari": {
-					"version_added": "10"
-				},
-				"safari_ios": "mirror",
-				"samsunginternet_android": "mirror",
-				"webview_android": "mirror"
-			},
-			"status": {
-				"experimental": false,
-				"standard_track": true,
-				"deprecated": false
-			}
-		}
-	},
-	{
 		"javascript_functions_set": {
 			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/set",
 			"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions",

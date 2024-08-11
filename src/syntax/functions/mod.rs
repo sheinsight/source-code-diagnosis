@@ -15,3 +15,4 @@ pub mod method_definitions_async_generator_methods;
 pub mod method_definitions_async_methods;
 pub mod method_definitions_generator_methods_not_constructable;
 pub mod rest_parameters;
+pub mod rest_parameters_destructuring;
