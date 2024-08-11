@@ -1,0 +1,31 @@
+{
+	"name": "get_computed_property_names",
+	"description": "getter 方法的计算属性名",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get",
+	"spec_url": [
+		"https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"
+	],
+	"tags": ["web-features:snapshot:ecmascript-2015"],
+	"support": {
+		"chrome": "46",
+		"chrome_android": "46",
+		"deno": "1.0",
+		"edge": "12",
+		"firefox": "34",
+		"firefox_android": "34",
+		"ie": "-1",
+		"node": "4.0.0",
+		"oculus": "46",
+		"opera": "47",
+		"opera_android": "47",
+		"safari": "9.1",
+		"safari_ios": "9.1",
+		"samsunginternet_android": "46",
+		"webview_android": "46"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
