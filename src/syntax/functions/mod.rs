@@ -17,3 +17,4 @@ pub mod method_definitions_generator_methods_not_constructable;
 pub mod rest_parameters;
 pub mod rest_parameters_destructuring;
 pub mod set;
+pub mod set_computed_property_names;
