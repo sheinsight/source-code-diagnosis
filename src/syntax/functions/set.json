@@ -1,0 +1,31 @@
+{
+	"name": "set",
+	"description": "setter 方法",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/set",
+	"spec_url": [
+		"https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-method-definitions"
+	],
+	"tags": ["web-features:snapshot:ecmascript-5"],
+	"support": {
+		"chrome": "1",
+		"chrome_android": "1",
+		"deno": "1.0",
+		"edge": "12",
+		"firefox": "1.5",
+		"firefox_android": "1.5",
+		"ie": "9",
+		"node": "0.10.0",
+		"oculus": "1",
+		"opera": "9.5",
+		"opera_android": "9.5",
+		"safari": "3",
+		"safari_ios": "1",
+		"samsunginternet_android": "1",
+		"webview_android": "1"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
