@@ -15,3 +15,4 @@ pub mod bitwise_xor_assignment;
 pub mod class;
 pub mod comma;
 pub mod conditional;
+pub mod decrement;
