@@ -7,3 +7,4 @@ pub mod r#await;
 pub mod await_top_level;
 pub mod bitwise_and;
 pub mod bitwise_and_assignment;
+pub mod bitwise_not;
