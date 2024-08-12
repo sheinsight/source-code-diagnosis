@@ -24,3 +24,4 @@ pub mod destructuring_rest_in_objects;
 pub mod division;
 pub mod division_assignment;
 pub mod equality;
+pub mod exponentiation;
