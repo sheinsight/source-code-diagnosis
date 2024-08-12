@@ -1,8 +1,4 @@
-use oxc_ast::{
-  ast::{FunctionType, ImportDeclarationSpecifier},
-  visit::walk,
-  AstKind, Visit,
-};
+use oxc_ast::{visit::walk, AstKind, Visit};
 use oxc_span::Span;
 use regex::Regex;
 use serde_json5::from_str;

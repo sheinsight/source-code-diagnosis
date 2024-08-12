@@ -41,47 +41,6 @@
 	},
 
 	{
-		"javascript_grammar_trailing_commas_trailing_commas_in_functions": {
-			"description": "Trailing comma in function parameters",
-			"support": {
-				"chrome": {
-					"version_added": "58"
-				},
-				"chrome_android": "mirror",
-				"deno": {
-					"version_added": "1.0"
-				},
-				"edge": {
-					"version_added": "14"
-				},
-				"firefox": {
-					"version_added": "52"
-				},
-				"firefox_android": "mirror",
-				"ie": {
-					"version_added": false
-				},
-				"nodejs": {
-					"version_added": "8.0.0"
-				},
-				"oculus": "mirror",
-				"opera": "mirror",
-				"opera_android": "mirror",
-				"safari": {
-					"version_added": "10"
-				},
-				"safari_ios": "mirror",
-				"samsunginternet_android": "mirror",
-				"webview_android": "mirror"
-			},
-			"status": {
-				"experimental": false,
-				"standard_track": true,
-				"deprecated": false
-			}
-		}
-	},
-	{
 		"javascript_grammar_trailing_commas_trailing_commas_in_object_literals": {
 			"description": "Trailing comma in object literals",
 			"support": {
