@@ -34,4 +34,6 @@ pub mod greater_than;
 pub mod greater_than_or_equal;
 pub mod grouping;
 pub mod import;
+pub mod import_meta;
+pub mod import_meta_resolve;
 pub mod import_options_parameter;

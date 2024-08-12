@@ -1,5 +1,4 @@
 [
-  "javascript_operators_import",
-  "javascript_operators_import_worker_support",
-  "javascript_operators_import_options_parameter"
+  "javascript_operators_import_meta",
+  "javascript_operators_import_meta_resolve"
 ]
