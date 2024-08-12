@@ -6,13 +6,13 @@ use crate::syntax::{
   compat::{Compat, CompatBox},
 };
 
-pub struct awaitVisitor<'a> {
+pub struct AwaitVisitor<'a> {
   usage: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   compat: Compat,
 }
 
-impl<'a> Default for awaitVisitor<'a> {
+impl<'a> Default for AwaitVisitor<'a> {
   fn default() -> Self {
     let usage: Vec<CompatBox> = Vec::new();
     let compat: Compat = from_str(include_str!("./await.json")).unwrap();
@@ -24,13 +24,13 @@ impl<'a> Default for awaitVisitor<'a> {
   }
 }
 
-impl<'a> CommonTrait for awaitVisitor<'a> {
+impl<'a> CommonTrait for AwaitVisitor<'a> {
   fn get_usage(&self) -> Vec<CompatBox> {
     self.usage.clone()
   }
 }
 
-impl<'a> Visit<'a> for awaitVisitor<'a> {
+impl<'a> Visit<'a> for AwaitVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -63,7 +63,7 @@ mod tests {
 
   #[test]
   fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(awaitVisitor::default());
+    let mut tester = SemanticTester::from_visitor(AwaitVisitor::default());
     let usage = tester.analyze(
       "
 async function fetchData() {
