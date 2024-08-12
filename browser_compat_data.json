@@ -1,15 +1,15 @@
 [
   {
-    "javascript_operators_increment": {
-      "description": "Increment (<code>++</code>)",
-      "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Increment",
-      "spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-postfix-increment-operator",
+    "javascript_operators_inequality": {
+      "description": "Inequality (<code>a != b</code>)",
+      "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Inequality",
+      "spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-equality-operators",
       "tags": [
         "web-features:snapshot:ecmascript-1"
       ],
       "support": {
         "chrome": {
-          "version_added": "2"
+          "version_added": "1"
         },
         "chrome_android": "mirror",
         "deno": {
@@ -36,7 +36,7 @@
           "version_added": "10.1"
         },
         "safari": {
-          "version_added": "4"
+          "version_added": "1"
         },
         "safari_ios": "mirror",
         "samsunginternet_android": "mirror",
