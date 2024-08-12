@@ -3,6 +3,7 @@ mod common;
 mod compat;
 mod functions;
 mod grammar;
+mod operators;
 mod statements;
 
 mod semantic_tester;

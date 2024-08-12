@@ -1,4 +1,5 @@
 use oxc_ast::{ast::FunctionType, visit::walk, AstKind, Visit};
+use oxc_syntax::operator::AssignmentOperator;
 use serde_json5::from_str;
 
 use crate::syntax::{
@@ -6,16 +7,17 @@ use crate::syntax::{
   compat::{Compat, CompatBox},
 };
 
-pub struct TmpVisitor<'a> {
+pub struct AdditionAssignmentVisitor<'a> {
   usage: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   compat: Compat,
 }
 
-impl<'a> Default for TmpVisitor<'a> {
+impl<'a> Default for AdditionAssignmentVisitor<'a> {
   fn default() -> Self {
     let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./tmp.json")).unwrap();
+    let compat: Compat =
+      from_str(include_str!("./addition_assignment.json")).unwrap();
     Self {
       usage,
       compat,
@@ -24,19 +26,30 @@ impl<'a> Default for TmpVisitor<'a> {
   }
 }
 
-impl<'a> CommonTrait for TmpVisitor<'a> {
+impl<'a> CommonTrait for AdditionAssignmentVisitor<'a> {
   fn get_usage(&self) -> Vec<CompatBox> {
     self.usage.clone()
   }
 }
 
-impl<'a> Visit<'a> for TmpVisitor<'a> {
+impl<'a> Visit<'a> for AdditionAssignmentVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
 
   fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.pop();
+  }
+
+  fn visit_assignment_expression(
+    &mut self,
+    it: &oxc_ast::ast::AssignmentExpression<'a>,
+  ) {
+    if matches!(it.operator, AssignmentOperator::Addition) {
+      self
+        .usage
+        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
+    }
   }
 }
 
@@ -48,13 +61,23 @@ mod tests {
   use super::*;
 
   fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage.iter().filter(|item| item.name == "__tmp__").count()
+    usage
+      .iter()
+      .filter(|item| item.name == "operators_addition_assignment")
+      .count()
   }
 
   #[test]
   fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(TmpVisitor::default());
-    let usage = tester.analyze("");
+    let mut tester =
+      SemanticTester::from_visitor(AdditionAssignmentVisitor::default());
+    let usage = tester.analyze(
+      "
+let a = 2;
+let b = 'hello';
+console.log((a += 3));    
+",
+    );
 
     let count = get_async_function_count(&usage);
 
