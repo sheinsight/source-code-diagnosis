@@ -25,3 +25,4 @@ pub mod division;
 pub mod division_assignment;
 pub mod equality;
 pub mod exponentiation;
+pub mod exponentiation_assignment;
