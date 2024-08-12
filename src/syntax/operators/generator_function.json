@@ -1,0 +1,31 @@
+{
+	"name": "operators_generator_function",
+	"description": "<code>function*</code> 表达式",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/function*",
+	"spec_url": [
+		"https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#sec-generator-function-definitions"
+	],
+	"tags": ["web-features:snapshot:ecmascript-2015"],
+	"support": {
+		"chrome": "49",
+		"chrome_android": "49",
+		"deno": "1.0",
+		"edge": "12",
+		"firefox": "26",
+		"firefox_android": "26",
+		"ie": "-1",
+		"node": "4.0.0",
+		"oculus": "49",
+		"opera": "49",
+		"opera_android": "49",
+		"safari": "10",
+		"safari_ios": "10",
+		"samsunginternet_android": "49",
+		"webview_android": "49"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
