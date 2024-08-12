@@ -41,3 +41,4 @@ pub mod r#in;
 pub mod increment;
 pub mod inequality;
 pub mod instanceof;
+pub mod left_shift;

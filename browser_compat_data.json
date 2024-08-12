@@ -1,8 +1,12 @@
 [
   {
-    "javascript_operators_instanceof": {
-      "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/instanceof",
-      "spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-relational-operators",
+    "javascript_operators_left_shift": {
+      "description": "Bitwise left shift (<code>a &lt;&lt; b</code>)",
+      "mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Left_shift",
+      "spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-left-shift-operator",
+      "tags": [
+        "web-features:snapshot:ecmascript-1"
+      ],
       "support": {
         "chrome": {
           "version_added": "1"
@@ -19,14 +23,14 @@
         },
         "firefox_android": "mirror",
         "ie": {
-          "version_added": "5"
+          "version_added": "3"
         },
         "nodejs": {
           "version_added": "0.10.0"
         },
         "oculus": "mirror",
         "opera": {
-          "version_added": "4"
+          "version_added": "3"
         },
         "opera_android": {
           "version_added": "10.1"
