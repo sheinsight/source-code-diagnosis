@@ -31,9 +31,11 @@ impl<'a> Visit<'a> for FunctionsVisitor {
     it: &oxc_ast::ast::Function<'a>,
     flags: oxc_semantic::ScopeFlags,
   ) {
-    self
-      .usage
-      .push(CompatBox::new(it.span.clone(), self.compat.clone()));
+    if it.is_declaration() {
+      self
+        .usage
+        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
+    }
 
     walk::walk_function(self, it, flags);
   }

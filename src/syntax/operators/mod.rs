@@ -26,3 +26,5 @@ pub mod division_assignment;
 pub mod equality;
 pub mod exponentiation;
 pub mod exponentiation_assignment;
+pub mod function;
+pub mod function_trailing_comma;
