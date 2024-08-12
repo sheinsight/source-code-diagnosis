@@ -50,3 +50,4 @@ pub mod logical_and_assignment;
 pub mod logical_not;
 pub mod logical_or;
 pub mod logical_or_assignment;
+pub mod multiplication;
