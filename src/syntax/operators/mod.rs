@@ -17,3 +17,4 @@ pub mod comma;
 pub mod conditional;
 pub mod decrement;
 pub mod delete;
+pub mod destructuring;

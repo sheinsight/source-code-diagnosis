@@ -1,3 +1,6 @@
 [
-  "javascript_operators_delete"
+  "javascript_operators_destructuring",
+  "javascript_operators_destructuring_computed_property_names",
+  "javascript_operators_destructuring_rest_in_arrays",
+  "javascript_operators_destructuring_rest_in_objects"
 ]
