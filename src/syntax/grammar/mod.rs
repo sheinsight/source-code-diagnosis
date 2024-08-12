@@ -16,5 +16,6 @@ pub mod template_literals_template_literal_revision;
 pub mod trailing_commas;
 pub mod trailing_commas_trailing_commas_in_dynamic_import;
 pub mod trailing_commas_trailing_commas_in_functions;
+pub mod trailing_commas_trailing_commas_in_object_literals;
 pub mod unicode_escape_sequences;
 pub mod unicode_point_escapes;

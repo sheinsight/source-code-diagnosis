@@ -1,6 +1,5 @@
 use oxc_ast::{ast::FunctionType, visit::walk, AstKind, Visit};
 use oxc_span::Span;
-use regex::Regex;
 use serde_json5::from_str;
 
 use crate::syntax::{
@@ -8,18 +7,18 @@ use crate::syntax::{
   compat::{Compat, CompatBox},
 };
 
-pub struct TrailingCommasTrailingCommasInFunctionsVisitor<'a> {
+pub struct TrailingCommasTrailingCommasInObjectLiteralsVisitor<'a> {
   usage: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
-  source_code: String,
   compat: Compat,
+  source_code: String,
 }
 
-impl<'a> TrailingCommasTrailingCommasInFunctionsVisitor<'a> {
+impl<'a> TrailingCommasTrailingCommasInObjectLiteralsVisitor<'a> {
   fn from_source_code(source_code: String) -> Self {
     let usage: Vec<CompatBox> = Vec::new();
     let compat: Compat = from_str(include_str!(
-      "./trailing_commas_trailing_commas_in_functions.json"
+      "./trailing_commas_trailing_commas_in_object_literals.json"
     ))
     .unwrap();
     Self {
@@ -35,13 +34,15 @@ impl<'a> TrailingCommasTrailingCommasInFunctionsVisitor<'a> {
   }
 }
 
-impl<'a> CommonTrait for TrailingCommasTrailingCommasInFunctionsVisitor<'a> {
+impl<'a> CommonTrait
+  for TrailingCommasTrailingCommasInObjectLiteralsVisitor<'a>
+{
   fn get_usage(&self) -> Vec<CompatBox> {
     self.usage.clone()
   }
 }
 
-impl<'a> Visit<'a> for TrailingCommasTrailingCommasInFunctionsVisitor<'a> {
+impl<'a> Visit<'a> for TrailingCommasTrailingCommasInObjectLiteralsVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -50,20 +51,17 @@ impl<'a> Visit<'a> for TrailingCommasTrailingCommasInFunctionsVisitor<'a> {
     self.parent_stack.pop();
   }
 
-  fn visit_function(
+  fn visit_object_expression(
     &mut self,
-    it: &oxc_ast::ast::Function<'a>,
-    flags: oxc_semantic::ScopeFlags,
+    it: &oxc_ast::ast::ObjectExpression<'a>,
   ) {
-    let source_code = self.get_source_code(it.params.span);
-    if let Ok(regex) = Regex::new(r",\s*\)$") {
-      if regex.is_match(source_code) {
-        self
-          .usage
-          .push(CompatBox::new(it.params.span.clone(), self.compat.clone()));
-      }
+    if it.trailing_comma.is_some() {
+      self
+        .usage
+        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
     }
-    walk::walk_function(self, it, flags);
+
+    walk::walk_object_expression(self, it);
   }
 }
 
@@ -78,7 +76,7 @@ mod tests {
     usage
       .iter()
       .filter(|item| {
-        item.name == "trailing_commas_trailing_commas_in_functions"
+        item.name == "trailing_commas_trailing_commas_in_object_literals"
       })
       .count()
   }
@@ -86,20 +84,18 @@ mod tests {
   #[test]
   fn should_ok_when_async_generator_function_declaration() {
     let source_code = r##"
-function myFunction(
-  param1,
-  param2,
-) {
-
-}    
+const obj = {
+  prop1: 'value1',
+  prop2: 'value2',
+  prop3: 'value3',  
+};    
 "##;
 
     let mut tester = SemanticTester::from_visitor(
-      TrailingCommasTrailingCommasInFunctionsVisitor::from_source_code(
+      TrailingCommasTrailingCommasInObjectLiteralsVisitor::from_source_code(
         source_code.to_string(),
       ),
     );
-
     let usage = tester.analyze(source_code);
 
     let count = get_async_function_count(&usage);
