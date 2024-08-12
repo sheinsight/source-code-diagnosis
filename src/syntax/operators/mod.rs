@@ -11,3 +11,4 @@ pub mod bitwise_not;
 pub mod bitwise_or;
 pub mod bitwise_or_assignment;
 pub mod bitwise_xor;
+pub mod bitwise_xor_assignment;
