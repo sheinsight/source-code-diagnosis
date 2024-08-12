@@ -22,3 +22,4 @@ pub mod destructuring_computed_property_names;
 pub mod destructuring_rest_in_arrays;
 pub mod destructuring_rest_in_objects;
 pub mod division;
+pub mod division_assignment;
