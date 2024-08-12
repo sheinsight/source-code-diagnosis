@@ -7,16 +7,16 @@ use crate::syntax::{
   compat::{Compat, CompatBox},
 };
 
-pub struct DecrementVisitor<'a> {
+pub struct IncrementVisitor<'a> {
   usage: Vec<CompatBox>,
   parent_stack: Vec<AstKind<'a>>,
   compat: Compat,
 }
 
-impl<'a> Default for DecrementVisitor<'a> {
+impl<'a> Default for IncrementVisitor<'a> {
   fn default() -> Self {
     let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./decrement.json")).unwrap();
+    let compat: Compat = from_str(include_str!("./increment.json")).unwrap();
     Self {
       usage,
       compat,
@@ -25,13 +25,13 @@ impl<'a> Default for DecrementVisitor<'a> {
   }
 }
 
-impl<'a> CommonTrait for DecrementVisitor<'a> {
+impl<'a> CommonTrait for IncrementVisitor<'a> {
   fn get_usage(&self) -> Vec<CompatBox> {
     self.usage.clone()
   }
 }
 
-impl<'a> Visit<'a> for DecrementVisitor<'a> {
+impl<'a> Visit<'a> for IncrementVisitor<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
@@ -44,7 +44,7 @@ impl<'a> Visit<'a> for DecrementVisitor<'a> {
     &mut self,
     it: &oxc_ast::ast::UpdateExpression<'a>,
   ) {
-    if matches!(it.operator, UpdateOperator::Decrement) {
+    if matches!(it.operator, UpdateOperator::Increment) {
       self
         .usage
         .push(CompatBox::new(it.span.clone(), self.compat.clone()));
@@ -64,37 +64,24 @@ mod tests {
   fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
     usage
       .iter()
-      .filter(|item| item.name == "operators_decrement")
+      .filter(|item| item.name == "operators_increment")
       .count()
   }
 
   #[test]
   fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(DecrementVisitor::default());
+    let mut tester = SemanticTester::from_visitor(IncrementVisitor::default());
     let usage = tester.analyze(
       "
 let x = 3;
-let y = x--;
-console.log(x);
-console.log(y);
-
-let a = 3;
-let b = --a;
-console.log(a);
-console.log(b);
-
-
-for (let i = 5; i > 0; i--) {
-  console.log(i);
-}    
-    
+const y = x++;
 ",
     );
 
     let count = get_async_function_count(&usage);
 
-    assert_eq!(usage.len(), 3);
+    assert_eq!(usage.len(), 1);
 
-    assert_eq!(count, 3);
+    assert_eq!(count, 1);
   }
 }
