@@ -1,0 +1,29 @@
+{
+	"name": "operators_import",
+	"description": "",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/import",
+	"spec_url": ["https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-import-calls"],
+	"tags": [],
+	"support": {
+		"chrome": "63",
+		"chrome_android": "63",
+		"deno": "1.0",
+		"edge": "63",
+		"firefox": "67",
+		"firefox_android": "67",
+		"ie": "-1",
+		"node": "13.2.0",
+		"oculus": "63",
+		"opera": "63",
+		"opera_android": "63",
+		"safari": "11.1",
+		"safari_ios": "11.1",
+		"samsunginternet_android": "63",
+		"webview_android": "63"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}

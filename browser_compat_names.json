@@ -1,3 +1,5 @@
 [
-  "javascript_operators_grouping"
+  "javascript_operators_import",
+  "javascript_operators_import_worker_support",
+  "javascript_operators_import_options_parameter"
 ]
