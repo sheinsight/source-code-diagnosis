@@ -32,3 +32,4 @@ pub mod generator_function;
 pub mod generator_function_trailing_comma;
 pub mod greater_than;
 pub mod greater_than_or_equal;
+pub mod grouping;
