@@ -1,49 +1,5 @@
 [
 	{
-		"javascript_grammar_octal_numeric_literals": {
-			"description": "Octal numeric literals (<code>0o</code>)",
-			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Lexical_grammar#Octal",
-			"spec_url": "https://tc39.es/ecma262/multipage/ecmascript-language-lexical-grammar.html#prod-OctalIntegerLiteral",
-			"tags": ["web-features:snapshot:ecmascript-2015"],
-			"support": {
-				"chrome": {
-					"version_added": "41"
-				},
-				"chrome_android": "mirror",
-				"deno": {
-					"version_added": "1.0"
-				},
-				"edge": {
-					"version_added": "12"
-				},
-				"firefox": {
-					"version_added": "25"
-				},
-				"firefox_android": "mirror",
-				"ie": {
-					"version_added": false
-				},
-				"nodejs": {
-					"version_added": "4.0.0"
-				},
-				"oculus": "mirror",
-				"opera": "mirror",
-				"opera_android": "mirror",
-				"safari": {
-					"version_added": "9"
-				},
-				"safari_ios": "mirror",
-				"samsunginternet_android": "mirror",
-				"webview_android": "mirror"
-			},
-			"status": {
-				"experimental": false,
-				"standard_track": true,
-				"deprecated": false
-			}
-		}
-	},
-	{
 		"javascript_grammar_regular_expression_literals": {
 			"description": "Regular expression literals (<code>/ab+c/g</code>)",
 			"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Lexical_grammar#Regular_expression_literals",
