@@ -11,5 +11,6 @@ pub mod octal_numeric_literals;
 pub mod regular_expression_literals;
 pub mod shorthand_object_literals;
 pub mod string_literals;
+pub mod template_literals;
 pub mod unicode_escape_sequences;
 pub mod unicode_point_escapes;
