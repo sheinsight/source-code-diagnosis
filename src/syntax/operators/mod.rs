@@ -42,3 +42,4 @@ pub mod increment;
 pub mod inequality;
 pub mod instanceof;
 pub mod left_shift;
+pub mod left_shift_assignment;
