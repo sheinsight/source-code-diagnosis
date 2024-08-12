@@ -37,3 +37,4 @@ pub mod import;
 pub mod import_meta;
 pub mod import_meta_resolve;
 pub mod import_options_parameter;
+pub mod r#in;
