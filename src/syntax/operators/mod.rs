@@ -16,3 +16,4 @@ pub mod class;
 pub mod comma;
 pub mod conditional;
 pub mod decrement;
+pub mod delete;
