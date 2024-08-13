@@ -65,3 +65,4 @@ pub mod object_initializer_spread_properties;
 pub mod optional_chaining;
 pub mod property_accessors;
 pub mod remainder;
+pub mod remainder_assignment;
