@@ -80,3 +80,4 @@ pub mod subtraction_assignment;
 pub mod this;
 pub mod r#typeof;
 pub mod unary_negation;
+pub mod unary_plus;
