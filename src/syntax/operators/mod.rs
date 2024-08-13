@@ -61,3 +61,4 @@ pub mod object_initializer;
 pub mod object_initializer_computed_property_names;
 pub mod object_initializer_shorthand_method_names;
 pub mod object_initializer_shorthand_property_names;
+pub mod object_initializer_spread_properties;
