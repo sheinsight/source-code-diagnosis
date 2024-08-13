@@ -59,3 +59,4 @@ pub mod nullish_coalescing;
 pub mod nullish_coalescing_assignment;
 pub mod object_initializer;
 pub mod object_initializer_computed_property_names;
+pub mod object_initializer_shorthand_method_names;
