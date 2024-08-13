@@ -1,3 +1,6 @@
 [
-  "javascript_operators_right_shift_assignment"
+  "javascript_operators_spread",
+  "javascript_operators_spread_spread_in_arrays",
+  "javascript_operators_spread_spread_in_function_calls",
+  "javascript_operators_spread_spread_in_object_literals"
 ]

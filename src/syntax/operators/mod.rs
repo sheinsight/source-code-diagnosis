@@ -68,3 +68,7 @@ pub mod remainder;
 pub mod remainder_assignment;
 pub mod right_shift;
 pub mod right_shift_assignment;
+pub mod spread;
+pub mod spread_spread_in_arrays;
+pub mod spread_spread_in_function_calls;
+pub mod spread_spread_in_object_literals;
