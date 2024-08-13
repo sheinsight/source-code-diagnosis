@@ -77,3 +77,4 @@ pub mod strict_equality;
 pub mod strict_inequality;
 pub mod subtraction;
 pub mod subtraction_assignment;
+pub mod this;
