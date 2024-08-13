@@ -73,10 +73,10 @@ const URL = [
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/this.json",
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/typeof.json",
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/unary_negation.json",
-	"https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/unary_plus.json",
+	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/unary_plus.json",
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/unsigned_right_shift.json",
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/unsigned_right_shift_assignment.json",
-	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/void.json",
+	"https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/void.json",
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/yield.json",
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/yield_star.json",
 ];

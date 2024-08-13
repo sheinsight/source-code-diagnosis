@@ -81,3 +81,6 @@ pub mod this;
 pub mod r#typeof;
 pub mod unary_negation;
 pub mod unary_plus;
+pub mod unsigned_right_shift;
+pub mod unsigned_right_shift_assignment;
+pub mod void;
