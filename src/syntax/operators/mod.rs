@@ -74,3 +74,4 @@ pub mod spread_spread_in_function_calls;
 pub mod spread_spread_in_object_literals;
 pub mod strict_equality;
 pub mod strict_inequality;
+pub mod subtraction;
