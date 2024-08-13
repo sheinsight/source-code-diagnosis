@@ -54,3 +54,4 @@ pub mod multiplication;
 pub mod multiplication_assignment;
 pub mod new;
 pub mod new_target;
+pub mod null;
