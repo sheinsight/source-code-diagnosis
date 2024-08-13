@@ -67,3 +67,4 @@ pub mod property_accessors;
 pub mod remainder;
 pub mod remainder_assignment;
 pub mod right_shift;
+pub mod right_shift_assignment;
