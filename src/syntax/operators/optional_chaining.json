@@ -1,0 +1,29 @@
+{
+	"name": "operators_optional_chaining",
+	"description": "Optional chaining operator (<code>?.</code>)",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Optional_chaining",
+	"spec_url": ["https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-OptionalExpression"],
+	"tags": ["web-features:snapshot:ecmascript-2020"],
+	"support": {
+		"chrome": "80",
+		"chrome_android": "80",
+		"deno": "1.0",
+		"edge": "80",
+		"firefox": "74",
+		"firefox_android": "74",
+		"ie": "-1",
+		"node": "14.0.0",
+		"oculus": "80",
+		"opera": "80",
+		"opera_android": "80",
+		"safari": "13.1",
+		"safari_ios": "13.1",
+		"samsunginternet_android": "80",
+		"webview_android": "80"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
