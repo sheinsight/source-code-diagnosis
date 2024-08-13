@@ -66,3 +66,4 @@ pub mod optional_chaining;
 pub mod property_accessors;
 pub mod remainder;
 pub mod remainder_assignment;
+pub mod right_shift;
