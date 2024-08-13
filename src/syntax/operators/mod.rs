@@ -56,3 +56,4 @@ pub mod new;
 pub mod new_target;
 pub mod null;
 pub mod nullish_coalescing;
+pub mod nullish_coalescing_assignment;
