@@ -52,3 +52,4 @@ pub mod logical_or;
 pub mod logical_or_assignment;
 pub mod multiplication;
 pub mod multiplication_assignment;
+pub mod new;
