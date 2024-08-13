@@ -1,0 +1,29 @@
+{
+	"name": "operators_super",
+	"description": "The `super` keyword is used to call corresponding methods of super class. This is one of the key features of ES6 class syntax.",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/super",
+	"spec_url": ["https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-super-keyword"],
+	"tags": ["web-features:class-syntax", "web-features:snapshot:ecmascript-2015"],
+	"support": {
+		"chrome": "42",
+		"chrome_android": "42",
+		"deno": "1.0",
+		"edge": "13",
+		"firefox": "45",
+		"firefox_android": "45",
+		"ie": false,
+		"node": "6.0.0",
+		"oculus": "42",
+		"opera": "42",
+		"opera_android": "42",
+		"safari": "7",
+		"safari_ios": "7",
+		"samsunginternet_android": "42",
+		"webview_android": "42"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
