@@ -77,8 +77,8 @@ const URL = [
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/unsigned_right_shift.json",
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/unsigned_right_shift_assignment.json",
 	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/void.json",
-	"https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/yield.json",
-	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/yield_star.json",
+	// "https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/yield.json",
+	"https://raw.githubusercontent.com/mdn/browser-compat-data/main/javascript/operators/yield_star.json",
 ];
 
 const res = [];
