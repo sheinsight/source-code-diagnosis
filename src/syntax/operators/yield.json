@@ -1,0 +1,29 @@
+{
+	"name": "operators_yield",
+	"description": "yield operator",
+	"mdn_url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/yield",
+	"spec_url": ["https://tc39.es/ecma262/multipage/ecmascript-language-functions-and-classes.html#prod-YieldExpression"],
+	"tags": ["web-features:snapshot:ecmascript-2015"],
+	"support": {
+		"chrome": "39",
+		"chrome_android": "39",
+		"deno": "1.0",
+		"edge": "12",
+		"firefox": "26",
+		"firefox_android": "26",
+		"ie": "-1",
+		"node": "4.0.0",
+		"oculus": "39",
+		"opera": "39",
+		"opera_android": "39",
+		"safari": "10",
+		"safari_ios": "10",
+		"samsunginternet_android": "39",
+		"webview_android": "39"
+	},
+	"status": {
+		"experimental": false,
+		"standard_track": true,
+		"deprecated": false
+	}
+}
