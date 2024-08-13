@@ -79,3 +79,4 @@ pub mod subtraction;
 pub mod subtraction_assignment;
 pub mod this;
 pub mod r#typeof;
+pub mod unary_negation;
