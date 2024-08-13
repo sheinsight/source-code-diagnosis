@@ -1,3 +1,7 @@
 [
-  "javascript_operators_nullish_coalescing_assignment"
+  "javascript_operators_object_initializer",
+  "javascript_operators_object_initializer_computed_property_names",
+  "javascript_operators_object_initializer_shorthand_method_names",
+  "javascript_operators_object_initializer_shorthand_property_names",
+  "javascript_operators_object_initializer_spread_properties"
 ]
