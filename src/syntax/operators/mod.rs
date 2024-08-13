@@ -72,3 +72,4 @@ pub mod spread;
 pub mod spread_spread_in_arrays;
 pub mod spread_spread_in_function_calls;
 pub mod spread_spread_in_object_literals;
+pub mod strict_equality;
