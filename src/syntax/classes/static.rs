@@ -1,104 +1,132 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
+use std::sync::OnceLock;
+
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct StaticVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for StaticVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./static.json")).unwrap();
-    Self { usage, compat }
-  }
-}
+pub fn walk_property_definition(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::PropertyDefinition,
+) {
+  let compat = CONSTRUCTOR_COMPAT
+    .get_or_init(|| from_str(include_str!("./static.json")).unwrap());
 
-impl CommonTrait for StaticVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for StaticVisitor {
-  fn visit_method_definition(
-    &mut self,
-    it: &oxc_ast::ast::MethodDefinition<'a>,
-  ) {
-    if it.r#static {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-
-    walk::walk_method_definition(self, it);
-  }
-
-  fn visit_property_definition(
-    &mut self,
-    it: &oxc_ast::ast::PropertyDefinition<'a>,
-  ) {
-    if it.r#static {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-
-    walk::walk_property_definition(self, it);
-  }
-
-  fn visit_static_block(&mut self, it: &oxc_ast::ast::StaticBlock<'a>) {
-    self
+  if it.r#static {
+    ctx
       .usage
-      .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-
-    walk::walk_static_block(self, it);
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
   }
+}
+
+pub fn walk_method_definition(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::MethodDefinition,
+) {
+  let compat = CONSTRUCTOR_COMPAT
+    .get_or_init(|| from_str(include_str!("./static.json")).unwrap());
+
+  if it.r#static {
+    ctx
+      .usage
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
+  }
+}
+
+pub fn walk_static_block(ctx: &mut Context, it: &oxc_ast::ast::StaticBlock) {
+  let compat = CONSTRUCTOR_COMPAT
+    .get_or_init(|| from_str(include_str!("./static.json")).unwrap());
+
+  ctx
+    .usage
+    .push(CompatBox::new(it.span.clone(), compat.clone()));
+}
+
+pub fn setup_static(visit: &mut SyntaxVisitor) {
+  visit.walk_method_definition.push(walk_method_definition);
+  visit
+    .walk_property_definition
+    .push(walk_property_definition);
+  visit.walk_static_block.push(walk_static_block);
 }
 
 #[cfg(test)]
 mod tests {
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  use crate::{assert_ok_count, syntax::classes::r#static::setup_static};
 
-  use super::*;
+  assert_ok_count! {
+    "classes_static",
+    setup_static,
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "classes_static")
-      .count()
-  }
+    should_ok_when_use_static_method,
+    r#"
+      class A { static a() { } }
+    "#,
+    1,
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(StaticVisitor::default());
-    let usage = tester.analyze(
-      "
-class MathOperations {
-  static add(x, y) {
-    return x + y;
-  }
+    should_ok_when_use_static_property,
+    r#"
+      class A { static a = 1; }
+    "#,
+    1,
 
-  static {
-   
-  }
+    should_ok_when_use_static_block,
+    r#"
+      class A { static { } }
+    "#,
+    1,
 
-  static PI = 3.14159;
-}
-    
-",
-    );
+    should_ok_when_use_all_static,
+    r#"
+      class A {
+        static a() { }
+        static b = 1;
+        static { }
+      }
+    "#,
+    3,
 
-    let count = get_async_function_count(&usage);
+    should_ok_when_use_two_static_method,
+    r#"
+      class A { static a() { } static b() { } }
+    "#,
+    2,
 
-    assert_eq!(usage.len(), 3);
+    should_ok_when_use_two_static_property,
+    r#"
+      class A { static a = 1; static b = 2; }
+    "#,
+    2,
 
-    assert_eq!(count, 3);
+    should_ok_when_use_two_static_block,
+    r#"
+      class A { static { } static { } }
+    "#,
+    2,
+
+
+    should_ok_when_not_use_static,
+    r#"
+      class A { }
+    "#,
+    0,
+
+    should_ok_when_use_static_and_not_use_static,
+    r#"
+      class A {
+        static a() { }
+        static b = 1;
+        static { }
+      }
+      class B { }
+    "#,
+    3,
+
   }
 }

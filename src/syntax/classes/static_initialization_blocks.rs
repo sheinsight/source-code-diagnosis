@@ -6,6 +6,7 @@ use serde_json5::from_str;
 use crate::syntax::{
   common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
 static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
@@ -19,17 +20,17 @@ pub fn walk_static_block(ctx: &mut Context, it: &StaticBlock) {
     .push(CompatBox::new(it.span.clone(), compat.clone()));
 }
 
+pub fn setup_static_initialization_block(v: &mut SyntaxVisitor) {
+  v.walk_static_block.push(walk_static_block);
+}
+
 #[cfg(test)]
 mod tests {
-  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
-
-  fn setup_walk_static_block(v: &mut SyntaxVisitor) {
-    v.walk_static_block.push(super::walk_static_block);
-  }
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "classes_static_initialization_blocks",
-    setup_walk_static_block,
+    super::setup_static_initialization_block,
 
     should_ok_when_use_static_initialization_blocks,
     r#"

@@ -6,6 +6,7 @@ use serde_json5::from_str;
 use crate::syntax::{
   common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
 static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
@@ -25,20 +26,20 @@ pub fn walk_property_definition(
   }
 }
 
+pub fn setup_private_fields(v: &mut SyntaxVisitor) {
+  v.walk_property_definition.push(walk_property_definition);
+}
+
 #[cfg(test)]
 mod tests {
 
-  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
+  use crate::assert_ok_count;
 
-  use super::walk_property_definition;
-
-  fn setup_property_definition(v: &mut SyntaxVisitor) {
-    v.walk_property_definition.push(walk_property_definition);
-  }
+  use super::setup_private_fields;
 
   assert_ok_count! {
     "classes_private_class_fields",
-    setup_property_definition,
+    setup_private_fields,
 
     should_ok_when_use_class_fields,
     r#"

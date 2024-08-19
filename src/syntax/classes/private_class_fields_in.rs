@@ -1,6 +1,7 @@
 use crate::syntax::{
   common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 use serde_json5::from_str;
 use std::sync::OnceLock;
@@ -19,21 +20,21 @@ pub fn walk_private_in_expression<'a>(
     .push(CompatBox::new(it.span.clone(), compat.clone()));
 }
 
+pub fn setup_private_fields_in(v: &mut SyntaxVisitor) {
+  v.walk_private_in_expression
+    .push(walk_private_in_expression);
+}
+
 #[cfg(test)]
 mod tests {
 
-  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
+  use crate::assert_ok_count;
 
-  use super::walk_private_in_expression;
-
-  fn setup_private_class_fields_in(v: &mut SyntaxVisitor) {
-    v.walk_private_in_expression
-      .push(walk_private_in_expression);
-  }
+  use super::setup_private_fields_in;
 
   assert_ok_count! {
     "classes_private_class_fields_in",
-    setup_private_class_fields_in,
+    setup_private_fields_in,
 
     should_ok_when_not_use_private_in_expression,
     r#""#,

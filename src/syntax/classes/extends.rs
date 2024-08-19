@@ -5,6 +5,7 @@ use serde_json5::from_str;
 use crate::syntax::{
   common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
 static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
@@ -19,16 +20,16 @@ pub fn walk_class(ctx: &mut Context, it: &oxc_ast::ast::Class) {
   }
 }
 
+pub fn setup_class_extends(v: &mut SyntaxVisitor) {
+  v.walk_class.push(walk_class);
+}
+
 #[cfg(test)]
 mod tests {
 
-  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
+  use crate::assert_ok_count;
 
-  use super::walk_class;
-
-  fn setup_class_extends(v: &mut SyntaxVisitor) {
-    v.walk_class.push(walk_class);
-  }
+  use super::setup_class_extends;
 
   assert_ok_count! {
     "classes_extends",

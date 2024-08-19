@@ -6,6 +6,7 @@ use serde_json5::from_str;
 use crate::syntax::{
   common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
 static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
@@ -28,16 +29,16 @@ pub fn walk_class_body(ctx: &mut Context, it: &oxc_ast::ast::ClassBody) {
   });
 }
 
+pub fn setup_class_constructor(v: &mut SyntaxVisitor) {
+  v.walk_class_body.push(walk_class_body);
+}
+
 #[cfg(test)]
 mod tests {
 
-  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
+  use crate::assert_ok_count;
 
-  use super::walk_class_body;
-
-  fn setup_class_constructor(v: &mut SyntaxVisitor) {
-    v.walk_class_body.push(walk_class_body);
-  }
+  use super::setup_class_constructor;
 
   assert_ok_count! {
     "classes_constructor",

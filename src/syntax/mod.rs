@@ -14,11 +14,6 @@ use std::{
   sync::{Arc, Mutex},
 };
 
-use classes::{
-  constructor, extends, private_class_fields, private_class_fields_in,
-  private_class_methods, public_class_fields, static_class_fields,
-  static_initialization_blocks,
-};
 use compat::CompatBox;
 use napi::{Error, Result};
 
@@ -85,27 +80,7 @@ pub fn check_browser_supported(
 
       let mut v = SyntaxVisitor::new(source_code.as_str());
 
-      v.walk_class_body.push(constructor::walk_class_body);
-
-      v.walk_private_in_expression
-        .push(private_class_fields_in::walk_private_in_expression);
-
-      v.walk_class.push(extends::walk_class);
-
-      v.walk_property_definition.extend([
-        private_class_fields::walk_property_definition,
-        public_class_fields::walk_property_definition,
-        static_class_fields::walk_property_definition,
-      ]);
-
-      v.walk_method_definition
-        .push(private_class_methods::walk_method_definition);
-
-      v.walk_static_block
-        .push(static_initialization_blocks::walk_static_block);
-
-      // v.walk_static_block
-      //   .extend([static_initialization_blocks::walk_static_block]);
+      classes::setup_classes(&mut v);
 
       v.visit_program(&ret.program);
 
