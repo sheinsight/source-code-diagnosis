@@ -1,89 +1,49 @@
-use oxc_ast::{ast::PropertyKey, visit::walk, Visit};
+use std::sync::OnceLock;
+
+use oxc_ast::ast::PropertyKey;
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
 };
 
-pub struct PrivateClassFieldsVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for PrivateClassFieldsVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./private_class_fields.json")).unwrap();
-    Self { usage, compat }
-  }
-}
+pub fn walk_property_definition(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::PropertyDefinition,
+) {
+  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
+    from_str(include_str!("./private_class_fields.json")).unwrap()
+  });
 
-impl CommonTrait for PrivateClassFieldsVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for PrivateClassFieldsVisitor {
-  fn visit_property_definition(
-    &mut self,
-    it: &oxc_ast::ast::PropertyDefinition<'a>,
-  ) {
-    if matches!(it.key, PropertyKey::PrivateIdentifier(_)) {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-
-    walk::walk_property_definition(self, it);
+  if matches!(it.key, PropertyKey::PrivateIdentifier(_)) {
+    ctx
+      .usage
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
   }
 }
 
 #[cfg(test)]
 mod tests {
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
 
-  use super::*;
+  use super::walk_property_definition;
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "classes_private_class_fields")
-      .count()
+  fn setup_property_definition(v: &mut SyntaxVisitor) {
+    v.walk_property_definition.push(walk_property_definition);
   }
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(PrivateClassFieldsVisitor::default());
-    let usage = tester.analyze(
-      "
-class ClassWithPrivate {
-  #privateField;
-  #privateFieldWithInitializer = 42;
+  assert_ok_count! {
+    "classes_private_class_fields",
+    setup_property_definition,
 
-  #privateMethod() {
-    // …
-  }
-
-  static #privateStaticField;
-  static #privateStaticFieldWithInitializer = 42;
-
-  static #privateStaticMethod() {
-    // …
-  }
-}
-    
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 4);
-
-    assert_eq!(count, 4);
+    should_ok_when_use_class_fields,
+    r#"
+      class A{ #hello = 12 }
+    "#,
+    1,
   }
 }

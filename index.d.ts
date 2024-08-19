@@ -59,5 +59,4 @@ export interface Span {
   start: number
   end: number
 }
-export declare function checkBrowserSupportedByFilePath(target: string, filePath: string): Array<CompatBox>
 export declare function checkBrowserSupported(target: string, options?: Options | undefined | null): Array<CompatBox>

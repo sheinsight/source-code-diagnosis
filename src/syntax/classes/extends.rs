@@ -1,123 +1,56 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
+use std::sync::OnceLock;
+
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
 };
 
-pub struct ExtendsVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for ExtendsVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./extends.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for ExtendsVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ExtendsVisitor {
-  fn visit_class(&mut self, it: &oxc_ast::ast::Class<'a>) {
-    if it.super_class.is_some() {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-
-    walk::walk_class(self, it);
+pub fn walk_class(ctx: &mut Context, it: &oxc_ast::ast::Class) {
+  let compat = CONSTRUCTOR_COMPAT
+    .get_or_init(|| from_str(include_str!("./extends.json")).unwrap());
+  if it.super_class.is_some() {
+    ctx
+      .usage
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
   }
 }
 
 #[cfg(test)]
 mod tests {
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
 
-  use super::*;
+  use super::walk_class;
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "classes_extends")
-      .count()
+  fn setup_class_extends(v: &mut SyntaxVisitor) {
+    v.walk_class.push(walk_class);
   }
 
-  #[test]
-  fn should_ok_when_class_declaration() {
-    let mut tester = SemanticTester::from_visitor(ExtendsVisitor::default());
-    let usage = tester.analyze(
-      "
-class DateFormatter extends Date {
-  getFormattedDate() {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return `${this.getDate()}-${months[this.getMonth()]}-${this.getFullYear()}`;
-  }
-}
-     
-",
-    );
+  assert_ok_count! {
+    "classes_extends",
+    setup_class_extends,
 
-    let count = get_async_function_count(&usage);
+    should_ok_when_use_class_extends,
+    r#"
+      class A extends B { }
+    "#,
+    1,
 
-    assert_eq!(usage.len(), 1);
+    should_ok_when_use_two_class_extends,
+    r#"
+      class A extends B { }
+      class C extends D { }
+    "#,
+    2,
 
-    assert_eq!(count, 1);
-  }
-
-  #[test]
-  fn should_ok_when_class_expression() {
-    let mut tester = SemanticTester::from_visitor(ExtendsVisitor::default());
-    let usage = tester.analyze(
-      "
-const A = class extends Date {
-  getFormattedDate() {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return `${this.getDate()}-${months[this.getMonth()]}-${this.getFullYear()}`;
-  }
-}
-     
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_ok_when_not_use_extends,
+    r#"
+      class H{ }
+    "#,
+    0
   }
 }

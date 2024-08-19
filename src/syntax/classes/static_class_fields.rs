@@ -1,79 +1,61 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
+use std::sync::OnceLock;
+
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
 };
 
-pub struct StaticClassFieldsVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for StaticClassFieldsVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./static_class_fields.json")).unwrap();
-    Self { usage, compat }
-  }
-}
+pub fn walk_property_definition(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::PropertyDefinition,
+) {
+  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
+    from_str(include_str!("./static_class_fields.json")).unwrap()
+  });
 
-impl CommonTrait for StaticClassFieldsVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for StaticClassFieldsVisitor {
-  fn visit_property_definition(
-    &mut self,
-    it: &oxc_ast::ast::PropertyDefinition<'a>,
-  ) {
-    if it.r#static {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-
-    walk::walk_property_definition(self, it);
+  if it.r#static {
+    ctx
+      .usage
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
   }
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  use super::walk_property_definition;
 
-  use super::*;
-
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "classes_static_class_fields")
-      .count()
+  fn setup_property_definition(v: &mut SyntaxVisitor) {
+    v.walk_property_definition.push(walk_property_definition);
   }
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(StaticClassFieldsVisitor::default());
-    let usage = tester.analyze(
-      r##"
-class ClassWithField {
-  instanceField;
-  instanceFieldWithInitializer = "instance field";
-  static staticField;
-  static staticFieldWithInitializer = "static field";
-}    
-"##,
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 2);
-
-    assert_eq!(count, 2);
-  }
+  assert_ok_count!(
+    "classes_static_class_fields",
+    setup_property_definition,
+    should_ok_when_use_class_static_fields,
+    r#"
+      class A{ static hello = 12 }
+    "#,
+    1,
+    should_ok_when_use_class_static_fields_and_instance_static_fields,
+    r#"
+      class A{ static hello = 12; hello = 12 }
+    "#,
+    1,
+    should_ok_when_use_class_instance_fields,
+    r#"
+      class A{ hello = 12 }
+    "#,
+    0,
+    should_ok_when_use_class_instance_fields_and_instance_static_fields,
+    r#"
+      class A{ hello = 12; static hello = 12 }
+    "#,
+    1,
+  );
 }

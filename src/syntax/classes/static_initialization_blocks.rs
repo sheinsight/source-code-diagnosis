@@ -1,79 +1,63 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
+use std::sync::OnceLock;
+
+use oxc_ast::ast::StaticBlock;
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
 };
 
-pub struct StaticInitializationBlocksVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for StaticInitializationBlocksVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./static_initialization_blocks.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for StaticInitializationBlocksVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for StaticInitializationBlocksVisitor {
-  fn visit_static_block(&mut self, it: &oxc_ast::ast::StaticBlock<'a>) {
-    self
-      .usage
-      .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-
-    walk::walk_static_block(self, it);
-  }
+pub fn walk_static_block(ctx: &mut Context, it: &StaticBlock) {
+  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
+    from_str(include_str!("./static_initialization_blocks.json")).unwrap()
+  });
+  ctx
+    .usage
+    .push(CompatBox::new(it.span.clone(), compat.clone()));
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
 
-  use crate::syntax::semantic_tester::SemanticTester;
-
-  use super::*;
-
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "classes_static_initialization_blocks")
-      .count()
+  fn setup_walk_static_block(v: &mut SyntaxVisitor) {
+    v.walk_static_block.push(super::walk_static_block);
   }
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(
-      StaticInitializationBlocksVisitor::default(),
-    );
-    let usage = tester.analyze(
-      "
-class MyClass {
-  static staticField1;
-  static staticField2;
+  assert_ok_count! {
+    "classes_static_initialization_blocks",
+    setup_walk_static_block,
 
-  static {
-    this.staticField1 = 'Initialized in static block';
-    console.log('Static initialization block called');
-  }
- 
-}     
-",
-    );
+    should_ok_when_use_static_initialization_blocks,
+    r#"
+      class A {
+        static {
+          console.log('Static initialization block called');
+        }
+      }
+    "#,
+    1,
 
-    let count = get_async_function_count(&usage);
+    should_ok_when_use_two_static_initialization_blocks,
+    r#"
+      class A {
+        static {
+          console.log('Static initialization block called');
+        }
+        static {
+          console.log('Static initialization block called');
+        }
+      }
+    "#,
+    2,
 
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_ok_when_not_use_static_initialization_blocks,
+    r#"
+      class H{ }
+    "#,
+    0
   }
 }

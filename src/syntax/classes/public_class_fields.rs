@@ -1,81 +1,76 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
+use std::sync::OnceLock;
+
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
 };
 
-pub struct PublicClassFieldsVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for PublicClassFieldsVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./public_class_fields.json")).unwrap();
-    Self { usage, compat }
-  }
-}
+pub fn walk_property_definition(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::PropertyDefinition,
+) {
+  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
+    from_str(include_str!("./public_class_fields.json")).unwrap()
+  });
 
-impl CommonTrait for PublicClassFieldsVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for PublicClassFieldsVisitor {
-  fn visit_property_definition(
-    &mut self,
-    it: &oxc_ast::ast::PropertyDefinition<'a>,
-  ) {
-    if !matches!(it.key, oxc_ast::ast::PropertyKey::PrivateIdentifier(_)) {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-
-    walk::walk_property_definition(self, it);
+  if !matches!(it.key, oxc_ast::ast::PropertyKey::PrivateIdentifier(_)) {
+    ctx
+      .usage
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
   }
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
 
-  use crate::syntax::semantic_tester::SemanticTester;
-
-  use super::*;
-
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "classes_public_class_fields")
-      .count()
+  fn setup_walk_property_definition(v: &mut SyntaxVisitor) {
+    v.walk_property_definition
+      .push(super::walk_property_definition);
   }
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(PublicClassFieldsVisitor::default());
-    let usage = tester.analyze(
-      "
-class MyClass {
-  publicField = 'This is a public field';
-  static staticPublicField = 'This is a static public field';
+  assert_ok_count! {
+    "classes_public_class_fields",
+    setup_walk_property_definition,
 
-  constructor() {
-    console.log(this.publicField);
-  }
-}     
-",
-    );
+    should_ok_when_use_class_public_fields,
+    r#"
+      class A{ hello = 12 }
+    "#,
+    1,
 
-    let count = get_async_function_count(&usage);
+    should_ok_when_use_class_static_public_fields,
+    r#"
+      class A{ static hello = 12 }
+    "#,
+    1,
 
-    assert_eq!(usage.len(), 2);
+    should_ok_when_use_class_public_fields_and_static_public_fields,
+    r#"
+      class A{ hello = 12; static hello = 12 }
+    "#,
+    2,
 
-    assert_eq!(count, 2);
+    should_ok_when_use_class_private_fields,
+    r#"
+      class A{ #hello = 12 }
+    "#,
+    0,
+
+    should_ok_when_use_class_private_fields_and_static_private_fields,
+    r#"
+      class A{ #hello = 12; static #hello = 12 }
+    "#,
+    0,
+
+    should_ok_when_use_class_public_fields_and_private_fields,
+    r#"
+      class A{ hello = 12; #hello = 12 }
+    "#,
+    1,
   }
 }

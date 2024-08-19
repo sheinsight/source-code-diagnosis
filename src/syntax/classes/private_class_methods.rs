@@ -1,91 +1,54 @@
-use oxc_ast::{
-  ast::{FunctionType, PropertyKey},
-  visit::walk,
-  Visit,
-};
+use std::sync::OnceLock;
+
+use oxc_ast::ast::PropertyKey;
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
 };
 
-pub struct PrivateClassMethodsVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for PrivateClassMethodsVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./private_class_methods.json")).unwrap();
-    Self { usage, compat }
-  }
-}
+pub fn walk_method_definition(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::MethodDefinition,
+) {
+  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
+    from_str(include_str!("./private_class_methods.json")).unwrap()
+  });
 
-impl CommonTrait for PrivateClassMethodsVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for PrivateClassMethodsVisitor {
-  fn visit_method_definition(
-    &mut self,
-    it: &oxc_ast::ast::MethodDefinition<'a>,
-  ) {
-    if matches!(it.key, PropertyKey::PrivateIdentifier(_)) {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-    walk::walk_method_definition(self, it);
+  if matches!(it.key, PropertyKey::PrivateIdentifier(_)) {
+    ctx
+      .usage
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
   }
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
 
-  use crate::syntax::semantic_tester::SemanticTester;
-
-  use super::*;
-
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "classes_private_class_methods")
-      .count()
+  fn setup_method_definition(v: &mut SyntaxVisitor) {
+    v.walk_method_definition.push(super::walk_method_definition);
   }
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(PrivateClassMethodsVisitor::default());
-    let usage = tester.analyze(
-      "
-class ClassWithPrivate {
-  #privateField;
-  #privateFieldWithInitializer = 42;
-
-  #privateMethod() {
-    // …
-  }
-
-  static #privateStaticField;
-  static #privateStaticFieldWithInitializer = 42;
-
-  static #privateStaticMethod() {
-    // …
-  }
-}    
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 2);
-
-    assert_eq!(count, 2);
-  }
+  assert_ok_count!(
+    "classes_private_class_methods",
+    setup_method_definition,
+    should_ok_when_use_private_class_methods,
+    r#"
+      class A {
+        #private_method(){}
+      }
+    "#,
+    1,
+    should_ok_when_not_use_private_class_methods,
+    r#"
+    class A {
+      private_method(){}
+    }
+  "#,
+    0
+  );
 }

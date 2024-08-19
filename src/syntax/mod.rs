@@ -14,46 +14,49 @@ use std::{
   sync::{Arc, Mutex},
 };
 
-use common::CommonTrait;
+use classes::{
+  constructor, extends, private_class_fields, private_class_fields_in,
+  private_class_methods, public_class_fields, static_class_fields,
+  static_initialization_blocks,
+};
 use compat::CompatBox;
 use napi::{Error, Result};
 
 use oxc_allocator::Allocator;
-use oxc_ast::Visit;
+use oxc_ast::Visit as _;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
-
 use semantic_tester::SemanticTester;
 use statements::{
   async_function::AsyncFunctionVisitor, class::ClassVisitor,
   r#const::ConstVisitor,
 };
-use visitor::SyntaxRecordVisitor;
+use visitor::SyntaxVisitor;
 
 use crate::oxc_visitor_processor::{oxc_visit_process, Options};
 
-#[napi]
-pub fn check_browser_supported_by_file_path(
-  target: String,
-  file_path: String,
-) -> Result<Vec<CompatBox>> {
-  let f = Path::new(&file_path);
+// #[napi]
+// pub fn check_browser_supported_by_file_path(
+//   target: String,
+//   file_path: String,
+// ) -> Result<Vec<CompatBox>> {
+//   let f = Path::new(&file_path);
 
-  let source_text = fs::read_to_string(f)?;
+//   let source_text = fs::read_to_string(f)?;
 
-  let mut x = SyntaxRecordVisitor::new(source_text.as_str());
+//   let mut x = SyntaxRecordVisitor::new(source_text.as_str());
 
-  // let source_text = String::from_utf8(source_text).unwrap();
-  let source_type = SourceType::from_path(&f)
-    .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
-    .unwrap();
-  let allocator = Allocator::default();
-  let ret = Parser::new(&allocator, &source_text, source_type).parse();
+//   // let source_text = String::from_utf8(source_text).unwrap();
+//   let source_type = SourceType::from_path(&f)
+//     .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
+//     .unwrap();
+//   let allocator = Allocator::default();
+//   let ret = Parser::new(&allocator, &source_text, source_type).parse();
 
-  x.visit_program(&ret.program);
+//   x.visit_program(&ret.program);
 
-  Ok(x.cache)
-}
+//   // Ok(x.cache)
+// }
 
 #[napi]
 pub fn check_browser_supported(
@@ -73,23 +76,42 @@ pub fn check_browser_supported(
         })
         .unwrap();
 
-      let source_text = String::from_utf8(source_text).unwrap();
+      let source_code = String::from_utf8(source_text).unwrap();
+      let source_type = SourceType::from_path(&path)
+        .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
+        .unwrap();
+      let allocator = Allocator::default();
+      let ret = Parser::new(&allocator, &source_code, source_type).parse();
 
-      let const_usage = SemanticTester::from_visitor(ConstVisitor::default())
-        .analyze(source_text.as_str());
+      let mut v = SyntaxVisitor::new(source_code.as_str());
 
-      let async_function_usage =
-        SemanticTester::from_visitor(AsyncFunctionVisitor::default())
-          .analyze(source_text.as_str());
+      v.walk_class_body.push(constructor::walk_class_body);
 
-      let class_usage = SemanticTester::from_visitor(ClassVisitor::default())
-        .analyze(source_text.as_str());
+      v.walk_private_in_expression
+        .push(private_class_fields_in::walk_private_in_expression);
+
+      v.walk_class.push(extends::walk_class);
+
+      v.walk_property_definition.extend([
+        private_class_fields::walk_property_definition,
+        public_class_fields::walk_property_definition,
+        static_class_fields::walk_property_definition,
+      ]);
+
+      v.walk_method_definition
+        .push(private_class_methods::walk_method_definition);
+
+      v.walk_static_block
+        .push(static_initialization_blocks::walk_static_block);
+
+      // v.walk_static_block
+      //   .extend([static_initialization_blocks::walk_static_block]);
+
+      v.visit_program(&ret.program);
 
       let mut used = used.lock().unwrap();
 
-      used.extend(const_usage);
-      used.extend(async_function_usage);
-      used.extend(class_usage);
+      used.extend(v.context.usage);
     }
   };
   oxc_visit_process(handler, options)?;
@@ -100,8 +122,5 @@ pub fn check_browser_supported(
     .into_inner()
     .expect("Mutex cannot be locked");
 
-  // println!("used: {:?}", used);
-
-  // Ok(used)
   Ok(used)
 }

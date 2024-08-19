@@ -1,85 +1,65 @@
-use oxc_ast::{ast::ClassElement, visit::walk, Visit};
+use std::sync::OnceLock;
+
+use oxc_ast::ast::ClassElement;
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
 };
 
-pub struct ConstructorVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for ConstructorVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./constructor.json")).unwrap();
-    Self { usage, compat }
-  }
-}
+pub fn walk_class_body(ctx: &mut Context, it: &oxc_ast::ast::ClassBody) {
+  let compat = CONSTRUCTOR_COMPAT
+    .get_or_init(|| from_str(include_str!("./constructor.json")).unwrap());
 
-impl CommonTrait for ConstructorVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ConstructorVisitor {
-  fn visit_class_body(&mut self, it: &oxc_ast::ast::ClassBody<'a>) {
-    it.body.iter().for_each(|item| {
-      if let ClassElement::MethodDefinition(method_definition) = item {
-        if let Some(name) = method_definition.key.name() {
-          if name == "constructor" {
-            self.usage.push(CompatBox::new(
-              method_definition.span.clone(),
-              self.compat.clone(),
-            ));
-          }
+  it.body.iter().for_each(|item| {
+    if let ClassElement::MethodDefinition(method_definition) = item {
+      if let Some(name) = method_definition.key.name() {
+        if name == "constructor" {
+          ctx.usage.push(CompatBox::new(
+            method_definition.span.clone(),
+            compat.clone(),
+          ));
         }
       }
-    });
-
-    walk::walk_class_body(self, it);
-  }
+    }
+  });
 }
 
 #[cfg(test)]
 mod tests {
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  use crate::{assert_ok_count, syntax::visitor::SyntaxVisitor};
 
-  use super::*;
+  use super::walk_class_body;
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "classes_constructor")
-      .count()
+  fn setup_class_constructor(v: &mut SyntaxVisitor) {
+    v.walk_class_body.push(walk_class_body);
   }
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(ConstructorVisitor::default());
-    let usage = tester.analyze(
-      "
-class Polygon {
-  constructor() {
-    this.name = 'Polygon';
-  }
-}
+  assert_ok_count! {
+    "classes_constructor",
+    setup_class_constructor,
 
-const poly1 = new Polygon();
+    should_ok_when_use_class_constructor,
+    r#"
+      class A { constructor() { } }
+    "#,
+    1,
 
-console.log(poly1.name);     
-",
-    );
+    should_ok_when_use_two_class_constructor,
+    r#"
+      class A { constructor() { } }
+      class B { constructor() { } }
+    "#,
+    2,
 
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_ok_when_not_use_constructor,
+    r#"
+      class H{ }
+    "#,
+    0
   }
 }
