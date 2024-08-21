@@ -24,8 +24,6 @@ pub fn walk_function(
     .get_or_init(|| from_str(include_str!("./get.json")).unwrap());
 
   if let Some(parent) = ctx.stack.last() {
-    println!("parent--> {:?}", parent);
-
     let is_get = match parent {
       AstKind::ObjectProperty(parent) => PropertyKind::Get == parent.kind,
       AstKind::MethodDefinition(parent) => {
