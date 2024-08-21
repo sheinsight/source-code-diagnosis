@@ -1,94 +1,55 @@
-use oxc_ast::{ast::FunctionType, visit::walk, AstKind, Visit};
+use std::sync::OnceLock;
+
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct ShorthandObjectLiteralsVisitor<'a> {
-  usage: Vec<CompatBox>,
-  parent_stack: Vec<AstKind<'a>>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl<'a> Default for ShorthandObjectLiteralsVisitor<'a> {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./shorthand_object_literals.json")).unwrap();
-    Self {
-      usage,
-      compat,
-      parent_stack: Vec::new(),
-    }
+fn walk_object_property(ctx: &mut Context, it: &oxc_ast::ast::ObjectProperty) {
+  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
+    from_str(include_str!("./shorthand_object_literals.json")).unwrap()
+  });
+  if it.shorthand {
+    ctx
+      .usage
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
   }
 }
 
-impl<'a> CommonTrait for ShorthandObjectLiteralsVisitor<'a> {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ShorthandObjectLiteralsVisitor<'a> {
-  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.push(kind);
-  }
-
-  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.pop();
-  }
-
-  fn visit_object_property(&mut self, it: &oxc_ast::ast::ObjectProperty<'a>) {
-    if it.shorthand {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-
-    walk::walk_object_property(self, it);
-  }
+pub fn setup_shorthand_object_literals(v: &mut SyntaxVisitor) {
+  v.walk_object_property.push(walk_object_property);
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::{
+    assert_ok_count,
+    syntax::grammar::shorthand_object_literals::setup_shorthand_object_literals,
+  };
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "shorthand_object_literals",
+    setup_shorthand_object_literals,
 
-  use super::*;
+    should_ok_when_use_shorthand_object_literals,
+    r#"
+      const name = "Alice";
+      const age = 30;
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "shorthand_object_literals")
-      .count()
-  }
-
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(ShorthandObjectLiteralsVisitor::default());
-    let usage = tester.analyze(
-      r##"
-const name = "Alice";
-const age = 30;
-
-const person = {
-  name,
-  age,
-  sayHello() {
-    console.log(`Hello, I'm ${this.name}`);
-  },
-  [`status_${Date.now()}`]: "active"
-};    
-"##,
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 2);
-
-    assert_eq!(count, 2);
+      const person = {
+        name,
+        age,
+        sayHello() {
+          console.log(`Hello, I'm ${this.name}`);
+        },
+        [`status_${Date.now()}`]: "active"
+      };
+    "#,
+    2,
   }
 }

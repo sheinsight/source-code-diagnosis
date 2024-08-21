@@ -1,84 +1,45 @@
-use oxc_ast::{ast::FunctionType, visit::walk, AstKind, Visit};
+use std::sync::OnceLock;
+
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct NumericSeparatorsVisitor<'a> {
-  usage: Vec<CompatBox>,
-  parent_stack: Vec<AstKind<'a>>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl<'a> Default for NumericSeparatorsVisitor<'a> {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./numeric_separators.json")).unwrap();
-    Self {
-      usage,
-      compat,
-      parent_stack: Vec::new(),
-    }
+fn walk_numeric_literal(ctx: &mut Context, it: &oxc_ast::ast::NumericLiteral) {
+  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
+    from_str(include_str!("./numeric_separators.json")).unwrap()
+  });
+  if it.raw.contains("_") {
+    ctx
+      .usage
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
   }
 }
 
-impl<'a> CommonTrait for NumericSeparatorsVisitor<'a> {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for NumericSeparatorsVisitor<'a> {
-  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.push(kind);
-  }
-
-  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.pop();
-  }
-
-  fn visit_numeric_literal(&mut self, it: &oxc_ast::ast::NumericLiteral<'a>) {
-    if it.raw.contains("_") {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-
-    walk::walk_numeric_literal(self, it);
-  }
+pub fn setup_numeric_separators(v: &mut SyntaxVisitor) {
+  v.walk_numeric_literal.push(walk_numeric_literal);
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::{
+    assert_ok_count,
+    syntax::grammar::numeric_separators::setup_numeric_separators,
+  };
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "numeric_separators",
+    setup_numeric_separators,
 
-  use super::*;
-
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "numeric_separators")
-      .count()
-  }
-
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(NumericSeparatorsVisitor::default());
-    let usage = tester.analyze(
-      "
-1_000_000_000_000;    
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_ok_when_use_numeric_separators,
+    r#"
+      1_000_000_000_000;
+    "#,
+    1,
   }
 }

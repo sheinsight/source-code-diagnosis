@@ -1,83 +1,47 @@
-use oxc_ast::{ast::FunctionType, visit::walk, AstKind, Visit};
+use std::sync::OnceLock;
+
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct UnicodePointEscapesVisitor<'a> {
-  usage: Vec<CompatBox>,
-  parent_stack: Vec<AstKind<'a>>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl<'a> Default for UnicodePointEscapesVisitor<'a> {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./unicode_point_escapes.json")).unwrap();
-    Self {
-      usage,
-      compat,
-      parent_stack: Vec::new(),
-    }
+fn walk_directive(ctx: &mut Context, it: &oxc_ast::ast::Directive) {
+  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
+    from_str(include_str!("./unicode_point_escapes.json")).unwrap()
+  });
+  if it.directive.contains("\\u") {
+    ctx
+      .usage
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
   }
 }
 
-impl<'a> CommonTrait for UnicodePointEscapesVisitor<'a> {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for UnicodePointEscapesVisitor<'a> {
-  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.push(kind);
-  }
-
-  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.pop();
-  }
-
-  fn visit_directive(&mut self, it: &oxc_ast::ast::Directive<'a>) {
-    if it.directive.contains("\\u") {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-    walk::walk_directive(self, it);
-  }
+pub fn setup_unicode_point_escapes(v: &mut SyntaxVisitor) {
+  v.walk_directive.push(walk_directive);
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::{
+    assert_ok_count,
+    syntax::grammar::unicode_point_escapes::setup_unicode_point_escapes,
+  };
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  // TODO fix this test
 
-  use super::*;
+  assert_ok_count! {
+    "unicode_point_escapes",
+    setup_unicode_point_escapes,
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "unicode_point_escapes")
-      .count()
-  }
-
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(UnicodePointEscapesVisitor::default());
-    let usage = tester.analyze(
-      r##"
-"\uD87E\uDC04";    
-"##,
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_ok_when_use_unicode_point_escapes,
+    r#"
+      "\uD87E\uDC04";
+    "#,
+    1,
   }
 }

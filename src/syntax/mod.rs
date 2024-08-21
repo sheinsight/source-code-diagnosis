@@ -81,6 +81,7 @@ pub fn check_browser_supported(
 
       classes::setup_classes(&mut v);
       functions::setup_functions(&mut v);
+      grammar::setup_grammar(&mut v);
 
       v.visit_program(&ret.program);
 

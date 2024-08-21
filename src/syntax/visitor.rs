@@ -1,9 +1,12 @@
 use oxc_ast::{
   ast::{
-    ArrowFunctionExpression, Class, ClassBody, FormalParameter,
-    FormalParameters, Function, IdentifierReference, MethodDefinition,
-    PrivateInExpression, PropertyDefinition, StaticBlock,
-    StaticMemberExpression,
+    ArrayExpression, ArrowFunctionExpression, BooleanLiteral, CallExpression,
+    Class, ClassBody, Directive, ExportNamedDeclaration, FormalParameter,
+    FormalParameters, Function, IdentifierReference, ImportDeclaration,
+    ImportExpression, MethodDefinition, NullLiteral, NumericLiteral,
+    ObjectExpression, ObjectProperty, PrivateInExpression, Program,
+    PropertyDefinition, RegExpLiteral, StaticBlock, StaticMemberExpression,
+    StringLiteral, TemplateLiteral,
   },
   visit::walk,
   Visit,
@@ -29,6 +32,22 @@ pub struct SyntaxVisitor<'a> {
   pub walk_function: Vec<fn(&mut Context, &Function, &ScopeFlags, bool)>,
   pub walk_formal_parameter: Vec<fn(&mut Context, &FormalParameter)>,
   pub walk_formal_parameters: Vec<fn(&mut Context, &FormalParameters)>,
+  pub walk_array_expression: Vec<fn(&mut Context, &ArrayExpression)>,
+  pub walk_numeric_literal: Vec<fn(&mut Context, &NumericLiteral)>,
+  pub walk_boolean_literal: Vec<fn(&mut Context, &BooleanLiteral)>,
+  pub walk_program: Vec<fn(&mut Context, &Program)>,
+  pub walk_directive: Vec<fn(&mut Context, &Directive)>,
+  pub walk_null_literal: Vec<fn(&mut Context, &NullLiteral)>,
+  pub walk_reg_exp_literal: Vec<fn(&mut Context, &RegExpLiteral)>,
+  pub walk_object_property: Vec<fn(&mut Context, &ObjectProperty)>,
+  pub walk_string_literal: Vec<fn(&mut Context, &StringLiteral)>,
+  pub walk_call_expression: Vec<fn(&mut Context, &CallExpression)>,
+  pub walk_template_literal: Vec<fn(&mut Context, &TemplateLiteral)>,
+  pub walk_import_expression: Vec<fn(&mut Context, &ImportExpression)>,
+  pub walk_object_expression: Vec<fn(&mut Context, &ObjectExpression)>,
+  pub walk_import_declaration: Vec<fn(&mut Context, &ImportDeclaration)>,
+  pub walk_export_named_declaration:
+    Vec<fn(&mut Context, &ExportNamedDeclaration)>,
   pub context: Context<'a>,
   is_strict_mode: bool,
 }
@@ -43,15 +62,30 @@ impl<'a> SyntaxVisitor<'a> {
     Self {
       context: context,
       walk_class: Vec::new(),
+      walk_program: Vec::new(),
       walk_function: Vec::new(),
+      walk_directive: Vec::new(),
       walk_class_body: Vec::new(),
       walk_static_block: Vec::new(),
+      walk_null_literal: Vec::new(),
+      walk_string_literal: Vec::new(),
+      walk_call_expression: Vec::new(),
+      walk_object_property: Vec::new(),
+      walk_reg_exp_literal: Vec::new(),
+      walk_numeric_literal: Vec::new(),
+      walk_boolean_literal: Vec::new(),
       walk_formal_parameter: Vec::new(),
+      walk_template_literal: Vec::new(),
+      walk_array_expression: Vec::new(),
       walk_formal_parameters: Vec::new(),
       walk_method_definition: Vec::new(),
+      walk_object_expression: Vec::new(),
+      walk_import_expression: Vec::new(),
+      walk_import_declaration: Vec::new(),
       walk_property_definition: Vec::new(),
       walk_identifier_reference: Vec::new(),
       walk_private_in_expression: Vec::new(),
+      walk_export_named_declaration: Vec::new(),
       walk_static_member_expression: Vec::new(),
       walk_arrow_function_expression: Vec::new(),
       is_strict_mode: false,
@@ -68,10 +102,87 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
     self.context.stack.pop();
   }
 
+  fn visit_reg_exp_literal(&mut self, it: &RegExpLiteral<'a>) {
+    for walk in &self.walk_reg_exp_literal {
+      walk(&mut self.context, it);
+    }
+    walk::walk_reg_exp_literal(self, it);
+  }
+
+  fn visit_program(&mut self, it: &Program<'a>) {
+    for walk in &self.walk_program {
+      walk(&mut self.context, it);
+    }
+    walk::walk_program(self, it);
+  }
+
   fn visit_directive(&mut self, it: &oxc_ast::ast::Directive<'a>) {
     if it.directive == "use strict" {
       self.is_strict_mode = true;
     }
+    for walk in &self.walk_directive {
+      walk(&mut self.context, it);
+    }
+    walk::walk_directive(self, it);
+  }
+
+  fn visit_template_literal(&mut self, it: &oxc_ast::ast::TemplateLiteral<'a>) {
+    for walk in &self.walk_template_literal {
+      walk(&mut self.context, it);
+    }
+    walk::walk_template_literal(self, it);
+  }
+
+  fn visit_import_expression(&mut self, it: &ImportExpression<'a>) {
+    for walk in &self.walk_import_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_import_expression(self, it);
+  }
+
+  fn visit_string_literal(&mut self, it: &StringLiteral<'a>) {
+    for walk in &self.walk_string_literal {
+      walk(&mut self.context, it);
+    }
+    walk::walk_string_literal(self, it);
+  }
+
+  fn visit_call_expression(&mut self, it: &CallExpression<'a>) {
+    for walk in &self.walk_call_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_call_expression(self, it);
+  }
+
+  fn visit_import_declaration(&mut self, it: &ImportDeclaration<'a>) {
+    for walk in &self.walk_import_declaration {
+      walk(&mut self.context, it);
+    }
+    walk::walk_import_declaration(self, it);
+  }
+
+  fn visit_export_named_declaration(
+    &mut self,
+    it: &ExportNamedDeclaration<'a>,
+  ) {
+    for walk in &self.walk_export_named_declaration {
+      walk(&mut self.context, it);
+    }
+    walk::walk_export_named_declaration(self, it);
+  }
+
+  fn visit_object_expression(&mut self, it: &ObjectExpression<'a>) {
+    for walk in &self.walk_object_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_object_expression(self, it);
+  }
+
+  fn visit_object_property(&mut self, it: &ObjectProperty<'a>) {
+    for walk in &self.walk_object_property {
+      walk(&mut self.context, it);
+    }
+    walk::walk_object_property(self, it);
   }
 
   fn visit_method_definition(&mut self, it: &MethodDefinition<'a>) {
@@ -175,6 +286,34 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
       walk(&mut self.context, it);
     }
     walk::walk_formal_parameters(self, it);
+  }
+
+  fn visit_array_expression(&mut self, it: &ArrayExpression<'a>) {
+    for walk in &self.walk_array_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_array_expression(self, it);
+  }
+
+  fn visit_numeric_literal(&mut self, it: &NumericLiteral<'a>) {
+    for walk in &self.walk_numeric_literal {
+      walk(&mut self.context, it);
+    }
+    walk::walk_numeric_literal(self, it);
+  }
+
+  fn visit_boolean_literal(&mut self, it: &BooleanLiteral) {
+    for walk in &self.walk_boolean_literal {
+      walk(&mut self.context, it);
+    }
+    walk::walk_boolean_literal(self, it);
+  }
+
+  fn visit_null_literal(&mut self, it: &NullLiteral) {
+    for walk in &self.walk_null_literal {
+      walk(&mut self.context, it);
+    }
+    walk::walk_null_literal(self, it);
   }
 }
 

@@ -1,83 +1,48 @@
-use oxc_ast::{ast::FunctionType, visit::walk, AstKind, Visit};
+use std::sync::OnceLock;
+
+use oxc_ast::ast::Program;
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct HashbangCommentsVisitor<'a> {
-  usage: Vec<CompatBox>,
-  parent_stack: Vec<AstKind<'a>>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl<'a> Default for HashbangCommentsVisitor<'a> {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./hashbang_comments.json")).unwrap();
-    Self {
-      usage,
-      compat,
-      parent_stack: Vec::new(),
-    }
+fn walk_program(ctx: &mut Context, it: &Program) {
+  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
+    from_str(include_str!("./hashbang_comments.json")).unwrap()
+  });
+  if it.hashbang.is_some() {
+    ctx
+      .usage
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
   }
 }
 
-impl<'a> CommonTrait for HashbangCommentsVisitor<'a> {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for HashbangCommentsVisitor<'a> {
-  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.push(kind);
-  }
-
-  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.pop();
-  }
-
-  fn visit_program(&mut self, it: &oxc_ast::ast::Program<'a>) {
-    if it.hashbang.is_some() {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-    walk::walk_program(self, it);
-  }
+pub fn setup_hashbang_comments(v: &mut SyntaxVisitor) {
+  v.walk_program.push(walk_program);
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::assert_ok_count;
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "hashbang_comments",
+    crate::syntax::grammar::hashbang_comments::setup_hashbang_comments,
 
-  use super::*;
+    should_ok_when_use_hashbang_comments,
+    r#"#!/usr/bin/env node
+  console.log("Hello world");"#,
+    1,
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "hashbang_comments")
-      .count()
-  }
-
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(HashbangCommentsVisitor::default());
-    let usage = tester.analyze(
-      r##"#!/usr/bin/env node
-console.log("Hello world");    
-"##,
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_fail_when_hashbang_comments,
+    r#"
+      console.log("Hello world");
+    "#,
+    0,
   }
 }
