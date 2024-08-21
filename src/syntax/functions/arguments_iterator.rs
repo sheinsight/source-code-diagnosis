@@ -1,96 +1,92 @@
-use oxc_ast::{ast::FunctionType, visit::walk, AstKind, Visit};
+use std::sync::OnceLock;
+
+use oxc_ast::AstKind;
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct ArgumentsIteratorVisitor<'a> {
-  usage: Vec<CompatBox>,
-  parent_stack: Vec<AstKind<'a>>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl<'a> Default for ArgumentsIteratorVisitor<'a> {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./arguments_iterator.json")).unwrap();
-    let parent_stack: Vec<AstKind<'_>> = Vec::new();
-    Self {
-      usage,
-      compat,
-      parent_stack,
-    }
-  }
-}
+pub fn walk_identifier_reference(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::IdentifierReference,
+) {
+  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
+    from_str(include_str!("./arguments_iterator.json")).unwrap()
+  });
 
-impl<'a> CommonTrait for ArgumentsIteratorVisitor<'a> {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ArgumentsIteratorVisitor<'a> {
-  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.push(kind);
-  }
-
-  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.pop();
-  }
-
-  fn visit_identifier_reference(
-    &mut self,
-    it: &oxc_ast::ast::IdentifierReference<'a>,
-  ) {
-    if it.name == "arguments" {
-      if let Some(p) = self.parent_stack.last() {
-        if let AstKind::ForOfStatement(_) = p {
-          self
-            .usage
-            .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-        }
+  if it.name == "arguments" {
+    if let Some(p) = ctx.stack.last() {
+      if let AstKind::ForOfStatement(_) = p {
+        ctx
+          .usage
+          .push(CompatBox::new(it.span.clone(), compat.clone()));
       }
     }
-    walk::walk_identifier_reference(self, it);
   }
+}
+
+pub fn setup_arguments_iterator(v: &mut SyntaxVisitor) {
+  v.walk_identifier_reference.push(walk_identifier_reference);
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::{
+    assert_ok_count,
+    syntax::functions::arguments_iterator::setup_arguments_iterator,
+  };
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "functions_arguments_iterator",
+    setup_arguments_iterator,
 
-  use super::*;
+    should_ok_when_use_arguments_iterator,
+    r#"
+      function f() {
+        for (const letter of arguments) {
+          console.log(letter);
+        }
+      }
+      f("w", "y", "k", "o", "p");
+    "#,
+    1,
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "functions_arguments_iterator")
-      .count()
-  }
+    should_ok_when_not_use_arguments_iterator,
+    r#"
+      function f() {
+        for (const letter of []) {
+          console.log(letter);
+        }
+      }
+      f("w", "y", "k", "o", "p");
+    "#,
+    0,
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(ArgumentsIteratorVisitor::default());
-    let usage = tester.analyze(
-      r##"
-function f() {
-  for (const letter of arguments) {
-    console.log(letter);
-  }
-}
-f("w", "y", "k", "o", "p");    
-"##,
-    );
+    should_ok_when_use_arguments_iterator_in_arrow_function,
+    r#"
+      const f = () => {
+        for (const letter of arguments) {
+          console.log(letter);
+        }
+      }
+      f("w", "y", "k", "o", "p");
+    "#,
+    1,
 
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_ok_when_use_arguments_iterator_in_arrow_function_with_arguments,
+    r#"
+      const f = (arguments) => {
+        for (const letter of arguments) {
+          console.log(letter);
+        }
+      }
+      f("w", "y", "k", "o", "p");
+    "#,
+    1,
   }
 }

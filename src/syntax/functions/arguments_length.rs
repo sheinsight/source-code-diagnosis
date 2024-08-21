@@ -1,85 +1,77 @@
-use oxc_ast::{
-  ast::{Expression, FunctionType},
-  visit::walk,
-  Visit,
-};
+use std::sync::OnceLock;
+
+use oxc_ast::ast::Expression;
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct ArgumentsLengthVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for ArgumentsLengthVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./arguments_length.json")).unwrap();
-    Self { usage, compat }
-  }
-}
+pub fn walk_static_member_expression(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::StaticMemberExpression,
+) {
+  let compat = CONSTRUCTOR_COMPAT
+    .get_or_init(|| from_str(include_str!("./arguments_length.json")).unwrap());
 
-impl CommonTrait for ArgumentsLengthVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ArgumentsLengthVisitor {
-  fn visit_static_member_expression(
-    &mut self,
-    it: &oxc_ast::ast::StaticMemberExpression<'a>,
-  ) {
-    if let Expression::Identifier(o) = &it.object {
-      if o.name == "arguments" && it.property.name == "length" {
-        self
-          .usage
-          .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-      }
+  if let Expression::Identifier(o) = &it.object {
+    if o.name == "arguments" && it.property.name == "length" {
+      ctx
+        .usage
+        .push(CompatBox::new(it.span.clone(), compat.clone()));
     }
-
-    walk::walk_static_member_expression(self, it);
   }
+}
+
+pub fn setup_arguments_length(v: &mut SyntaxVisitor) {
+  v.walk_static_member_expression
+    .push(walk_static_member_expression);
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::{
+    assert_ok_count,
+    syntax::functions::arguments_length::setup_arguments_length,
+  };
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "functions_arguments_length",
+    setup_arguments_length,
 
-  use super::*;
+    should_ok_when_use_arguments_length,
+    r#"
+      function logArguments() {
+          console.log(` ${arguments.length} `);
+          for (let i = 0; i < arguments.length; i++) {
+              console.log(`${i + 1}: ${arguments[i]}`);
+          }
+      }
+    "#,
+    2,
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "functions_arguments_length")
-      .count()
-  }
+    should_ok_when_not_use_arguments_length,
+    r#"
+      function logArguments() {
+          
+      }
+    "#,
+    0,
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(ArgumentsLengthVisitor::default());
-    let usage = tester.analyze(
-      "
-function logArguments() {
-    console.log(` ${arguments.length} `);
-    for (let i = 0; i < arguments.length; i++) {
-        console.log(`${i + 1}: ${arguments[i]}`);
-    }
-}    
-",
-    );
+    should_ok_when_use_arguments_length_in_arrow_function,
+    r#"
+      const logArguments = () => {
+          console.log(` ${arguments.length} `);
+          for (let i = 0; i < arguments.length; i++) {
+              console.log(`${i + 1}: ${arguments[i]}`);
+          }
+      }
+    "#,
+    2,
 
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 2);
-
-    assert_eq!(count, 2);
   }
 }

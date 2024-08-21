@@ -1,73 +1,70 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
+use std::sync::OnceLock;
+
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct FunctionsVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for FunctionsVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./functions.json")).unwrap();
-    Self { usage, compat }
+pub fn walk_function(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::Function,
+  _flags: &oxc_semantic::ScopeFlags,
+  _is_strict_mode: bool,
+) {
+  let compat = CONSTRUCTOR_COMPAT
+    .get_or_init(|| from_str(include_str!("./functions.json")).unwrap());
+
+  if it.is_declaration() {
+    ctx
+      .usage
+      .push(CompatBox::new(it.span.clone(), compat.clone()));
   }
 }
 
-impl CommonTrait for FunctionsVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for FunctionsVisitor {
-  fn visit_function(
-    &mut self,
-    it: &oxc_ast::ast::Function<'a>,
-    flags: oxc_semantic::ScopeFlags,
-  ) {
-    if it.is_declaration() {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-
-    walk::walk_function(self, it, flags);
-  }
+pub fn setup_functions(v: &mut SyntaxVisitor) {
+  v.walk_function.push(walk_function);
 }
 
 #[cfg(test)]
 mod tests {
+  use super::setup_functions;
+  use crate::assert_ok_count;
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "functions",
+    setup_functions,
 
-  use super::*;
+    should_ok_when_use_function_declaration,
+    r#"
+      function formatNumber(num) {
+        return num.toFixed(2);
+      }
+    "#,
+    1,
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage.iter().filter(|item| item.name == "functions").count()
-  }
+    should_ok_when_use_two_function_declaration,
+    r#"
+      function formatNumber(num) {
+        return num.toFixed(2);
+      }
+      function formatString(str) {
+        return str.toUpperCase();
+      }
+    "#,
+    2,
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(FunctionsVisitor::default());
-    let usage = tester.analyze(
-      "
-function formatNumber(num) {
-  return num.toFixed(2);
-}
-     
-",
-    );
+    should_ok_when_not_use_function_declaration,
+    r#"
+      const formatNumber = function(num) {
+        return num.toFixed(2);
+      };
+    "#,
+    0
 
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
   }
 }

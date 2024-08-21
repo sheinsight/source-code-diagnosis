@@ -1,73 +1,71 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
+use std::sync::OnceLock;
+
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct ArrowFunctionsVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
+
+pub fn walk_arrow_function_expression(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::ArrowFunctionExpression,
+) {
+  let compat = CONSTRUCTOR_COMPAT
+    .get_or_init(|| from_str(include_str!("./arrow_functions.json")).unwrap());
+  ctx
+    .usage
+    .push(CompatBox::new(it.span.clone(), compat.clone()));
 }
 
-impl Default for ArrowFunctionsVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./arrow_functions.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for ArrowFunctionsVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ArrowFunctionsVisitor {
-  fn visit_arrow_function_expression(
-    &mut self,
-    it: &oxc_ast::ast::ArrowFunctionExpression<'a>,
-  ) {
-    self
-      .usage
-      .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    walk::walk_arrow_function_expression(self, it);
-  }
+pub fn setup_arrow_functions(v: &mut SyntaxVisitor) {
+  v.walk_arrow_function_expression
+    .push(walk_arrow_function_expression);
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::{
+    assert_ok_count, syntax::functions::arrow_functions::setup_arrow_functions,
+  };
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "functions_arrow_functions",
+    setup_arrow_functions,
 
-  use super::*;
+    should_ok_when_use_arrow_functions,
+    r#"
+      const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "functions_arrow_functions")
-      .count()
-  }
+      console.log(materials.map((material) => material.length));
+    "#,
+    1,
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(ArrowFunctionsVisitor::default());
-    let usage = tester.analyze(
-      "
-const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
+    should_ok_when_not_use_arrow_functions,
+    r#"
+      const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
 
-console.log(materials.map((material) => material.length));     
-",
-    );
+      console.log(materials.map(function(material) { return material.length; }));
+    "#,
+    0,
 
-    let count = get_async_function_count(&usage);
+    should_ok_when_use_arrow_functions_with_no_space,
+    r#"
+      const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
 
-    assert_eq!(usage.len(), 1);
+      console.log(materials.map((material)=>material.length));
+    "#,
+    1,
 
-    assert_eq!(count, 1);
+    should_ok_when_use_arrow_functions_with_no_parentheses,
+    r#"
+      const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
+
+      console.log(materials.map(material => material.length));
+    "#,
+    1,
   }
 }

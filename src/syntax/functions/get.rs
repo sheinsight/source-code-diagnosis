@@ -1,101 +1,89 @@
+use std::sync::OnceLock;
+
 use oxc_ast::{
   ast::{MethodDefinitionKind, PropertyKind},
-  visit::walk,
-  AstKind, Visit,
+  AstKind,
 };
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct GetVisitor<'a> {
-  usage: Vec<CompatBox>,
-  parent_stack: Vec<AstKind<'a>>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl<'a> Default for GetVisitor<'a> {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./get.json")).unwrap();
-    Self {
-      usage,
-      compat,
-      parent_stack: Vec::new(),
-    }
-  }
-}
+pub fn walk_function(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::Function,
+  _flags: &oxc_semantic::ScopeFlags,
+  _is_strict_mode: bool,
+) {
+  let compat = CONSTRUCTOR_COMPAT
+    .get_or_init(|| from_str(include_str!("./get.json")).unwrap());
 
-impl<'a> CommonTrait for GetVisitor<'a> {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
+  if let Some(parent) = ctx.stack.last() {
+    println!("parent--> {:?}", parent);
 
-impl<'a> Visit<'a> for GetVisitor<'a> {
-  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.push(kind);
-  }
-
-  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.pop();
-  }
-
-  fn visit_function(
-    &mut self,
-    it: &oxc_ast::ast::Function<'a>,
-    flags: oxc_syntax::scope::ScopeFlags,
-  ) {
-    if let Some(parent) = self.parent_stack.last() {
-      let is_get = match parent {
-        AstKind::ObjectProperty(parent) => PropertyKind::Get == parent.kind,
-        AstKind::MethodDefinition(parent) => {
-          MethodDefinitionKind::Get == parent.kind
-        }
-        _ => false,
-      };
-
-      if is_get {
-        self
-          .usage
-          .push(CompatBox::new(it.span.clone(), self.compat.clone()));
+    let is_get = match parent {
+      AstKind::ObjectProperty(parent) => PropertyKind::Get == parent.kind,
+      AstKind::MethodDefinition(parent) => {
+        MethodDefinitionKind::Get == parent.kind
       }
+      _ => false,
+    };
+
+    if is_get {
+      ctx
+        .usage
+        .push(CompatBox::new(it.span.clone(), compat.clone()));
     }
-    walk::walk_function(self, it, flags);
   }
+}
+
+pub fn setup_get(v: &mut SyntaxVisitor) {
+  v.walk_function.push(walk_function);
 }
 
 #[cfg(test)]
 mod tests {
+  use super::setup_get;
+  use crate::assert_ok_count;
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "get",
+    setup_get,
 
-  use super::*;
+    should_ok_when_use_get,
+    r#"
+      const obj = {
+        get latest() {
+          return this.log[this.log.length - 1];
+        },
+      };
+    "#,
+    1,
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage.iter().filter(|item| item.name == "get").count()
-  }
+    should_ok_when_not_use_get,
+    r#"
+      const obj = {
+        latest() {
+          return this.log[this.log.length - 1];
+        },
+      };
+    "#,
+    0,
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(GetVisitor::default());
-    let usage = tester.analyze(
-      "
-const obj = {
-  log: ['a', 'b', 'c'],
-  get latest() {
-    return this.log[this.log.length - 1];
-  },
-};    
-",
-    );
+    should_ok_when_use_get_with_computed_property,
+    r#"
+      const obj = {
+        get [expr]() {
+          return "bar";
+        },
+      };
+    "#,
+    1,
 
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
   }
 }

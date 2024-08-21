@@ -9,8 +9,8 @@ mod statements;
 mod semantic_tester;
 mod visitor;
 use std::{
-  fs::{self, read},
-  path::{Path, PathBuf},
+  fs::read,
+  path::PathBuf,
   sync::{Arc, Mutex},
 };
 
@@ -21,11 +21,6 @@ use oxc_allocator::Allocator;
 use oxc_ast::Visit as _;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
-use semantic_tester::SemanticTester;
-use statements::{
-  async_function::AsyncFunctionVisitor, class::ClassVisitor,
-  r#const::ConstVisitor,
-};
 use visitor::SyntaxVisitor;
 
 use crate::oxc_visitor_processor::{oxc_visit_process, Options};
@@ -78,9 +73,14 @@ pub fn check_browser_supported(
       let allocator = Allocator::default();
       let ret = Parser::new(&allocator, &source_code, source_type).parse();
 
+      if !ret.errors.is_empty() {
+        println!("Error: {:?}", ret.errors);
+      }
+
       let mut v = SyntaxVisitor::new(source_code.as_str());
 
       classes::setup_classes(&mut v);
+      functions::setup_functions(&mut v);
 
       v.visit_program(&ret.program);
 

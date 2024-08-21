@@ -1,82 +1,68 @@
-use oxc_ast::{
-  ast::{Expression, FunctionType},
-  visit::walk,
-  Visit,
-};
+use std::sync::OnceLock;
+
+use oxc_ast::ast::Expression;
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct ArgumentsCalleeVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for ArgumentsCalleeVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./arguments_callee.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for ArgumentsCalleeVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ArgumentsCalleeVisitor {
-  fn visit_static_member_expression(
-    &mut self,
-    it: &oxc_ast::ast::StaticMemberExpression<'a>,
-  ) {
-    if let Expression::Identifier(o) = &it.object {
-      if o.name == "arguments" && it.property.name == "callee" {
-        self
-          .usage
-          .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-      }
+pub fn walk_static_member_expression(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::StaticMemberExpression,
+) {
+  let compat = CONSTRUCTOR_COMPAT
+    .get_or_init(|| from_str(include_str!("./arguments_callee.json")).unwrap());
+  if let Expression::Identifier(o) = &it.object {
+    if o.name == "arguments" && it.property.name == "callee" {
+      ctx
+        .usage
+        .push(CompatBox::new(it.span.clone(), compat.clone()));
     }
-
-    walk::walk_static_member_expression(self, it);
   }
+}
+
+pub fn setup_arguments_callee(v: &mut SyntaxVisitor) {
+  v.walk_static_member_expression
+    .push(walk_static_member_expression);
 }
 
 #[cfg(test)]
 mod tests {
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  use crate::assert_ok_count;
 
-  use super::*;
+  assert_ok_count! {
+    "functions_arguments_callee",
+    super::setup_arguments_callee,
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "functions_arguments_callee")
-      .count()
-  }
+    should_ok_when_use_arguments_callee,
+    r#"
+      function factorial(n) {
+          return n <= 1 ? 1 : n * arguments.callee(n - 1);
+      }
+    "#,
+    1,
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(ArgumentsCalleeVisitor::default());
-    let usage = tester.analyze(
-      "
-function factorial(n) {
-    return n <= 1 ? 1 : n * arguments.callee(n - 1);
-}    
-",
-    );
+    should_ok_when_not_use_arguments_callee,
+    r#"
+      function factorial(n) {
+          return n <= 1 ? 1 : n * n;
+      }
+    "#,
+    0,
 
-    let count = get_async_function_count(&usage);
+    should_ok_when_use_arguments_callee_in_arrow_function,
+    r#"
+      const factorial = (n) => {
+          return n <= 1 ? 1 : n * arguments.callee(n - 1);
+      }
+    "#,
+    1,
 
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
   }
 }

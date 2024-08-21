@@ -1,83 +1,69 @@
-use oxc_ast::{
-  ast::{BindingPatternKind, FunctionType},
-  visit::walk,
-  Visit,
-};
+use std::sync::OnceLock;
+
+use oxc_ast::ast::BindingPatternKind;
 use serde_json5::from_str;
 
 use crate::syntax::{
-  common::CommonTrait,
+  common::Context,
   compat::{Compat, CompatBox},
+  visitor::SyntaxVisitor,
 };
 
-pub struct DefaultParametersVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
 
-impl Default for DefaultParametersVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./default_parameters.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for DefaultParametersVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for DefaultParametersVisitor {
-  fn visit_function(
-    &mut self,
-    it: &oxc_ast::ast::Function<'a>,
-    flags: oxc_semantic::ScopeFlags,
-  ) {
-    for item in &it.params.items {
-      if matches!(item.pattern.kind, BindingPatternKind::AssignmentPattern(_)) {
-        self
-          .usage
-          .push(CompatBox::new(item.span.clone(), self.compat.clone()));
-      }
+pub fn walk_function(
+  ctx: &mut Context,
+  it: &oxc_ast::ast::Function,
+  _flags: &oxc_semantic::ScopeFlags,
+  _is_strict_mode: bool,
+) {
+  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
+    from_str(include_str!("./default_parameters.json")).unwrap()
+  });
+  for item in &it.params.items {
+    if matches!(item.pattern.kind, BindingPatternKind::AssignmentPattern(_)) {
+      ctx
+        .usage
+        .push(CompatBox::new(item.span.clone(), compat.clone()));
     }
-
-    walk::walk_function(self, it, flags);
   }
+}
+
+pub fn setup_default_parameters(v: &mut SyntaxVisitor) {
+  v.walk_function.push(walk_function);
 }
 
 #[cfg(test)]
 mod tests {
+  use super::setup_default_parameters;
+  use crate::assert_ok_count;
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "functions_default_parameters",
+    setup_default_parameters,
 
-  use super::*;
+    should_ok_when_use_default_parameters,
+    r#"
+      function multiply(a, b = 1) {
+        return a * b;
+      }
+    "#,
+    1,
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "functions_default_parameters")
-      .count()
-  }
+    should_ok_when_use_two_default_parameters,
+    r#"
+      function multiply(a = 1, b = 1) {
+        return a * b;
+      }
+    "#,
+    2,
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(DefaultParametersVisitor::default());
-    let usage = tester.analyze(
-      "
-function multiply(a, b = 1) {
-  return a * b;
-}
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_ok_when_not_use_default_parameters,
+    r#"
+      function multiply(a, b) {
+        return a * b;
+      }
+    "#,
+    0
   }
 }
