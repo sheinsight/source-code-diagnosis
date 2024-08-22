@@ -1,3 +1,5 @@
+use super::visitor::SyntaxVisitor;
+
 pub mod async_function;
 pub mod async_generator_function;
 pub mod block;
@@ -41,3 +43,23 @@ pub mod try_catch_optional_catch_binding;
 pub mod var;
 pub mod r#while;
 pub mod with;
+
+pub fn setup_statements(v: &mut SyntaxVisitor) {
+  async_function::setup(v);
+  async_generator_function::setup(v);
+  block::setup(v);
+  r#break::setup(v);
+  class::setup(v);
+  r#const::setup(v);
+  r#continue::setup(v);
+  debugger::setup(v);
+  do_while::setup(v);
+  empty::setup(v);
+  export_default::setup(v);
+  export_namespace::setup(v);
+  export::setup(v);
+  for_await_of::setup(v);
+  for_in::setup(v);
+  for_of::setup(v);
+  r#for::setup(v);
+}

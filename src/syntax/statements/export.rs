@@ -1,74 +1,52 @@
-use oxc_ast::{visit::walk, Visit};
-use serde_json5::from_str;
+use crate::create_compat;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+create_compat! {
+  "./export.json",
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_export_named_declaration.push(walk_export_named_declaration);
+    v.walk_export_default_declaration.push(walk_export_default_declaration);
+    v.walk_export_all_declaration.push(walk_export_all_declaration);
+  },
+  walk_export_named_declaration,
+  |ctx: &mut Context, it: &oxc_ast::ast::ExportNamedDeclaration| {
+    true
+  },
 
-pub struct ExportVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+  walk_export_default_declaration,
+  |ctx: &mut Context, it: &oxc_ast::ast::ExportDefaultDeclaration| {
+    true
+  },
 
-impl Default for ExportVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./export.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for ExportVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ExportVisitor {
-  fn visit_export_named_declaration(
-    &mut self,
-    it: &oxc_ast::ast::ExportNamedDeclaration<'a>,
-  ) {
-    self
-      .usage
-      .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    walk::walk_export_named_declaration(self, it);
+  walk_export_all_declaration,
+  |ctx: &mut Context, it: &oxc_ast::ast::ExportAllDeclaration| {
+    true
   }
 }
 
 #[cfg(test)]
 mod tests {
-
-  use crate::syntax::semantic_tester::SemanticTester;
-
   use super::*;
+  use crate::assert_ok_count;
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage.iter().filter(|item| item.name == "export").count()
-  }
+  assert_ok_count! {
+    "export",
+    setup,
 
-  #[test]
-  fn should_ok_when_exported_const_variable() {
-    let mut tester = SemanticTester::from_visitor(ExportVisitor::default());
-    let usage = tester.analyze("export const myVariable = 1;");
+    should_ok_when_exported_const_variable,
+    r#"export const a = 1;"#,
+    1,
 
-    let count = get_async_function_count(&usage);
+    should_ok_when_export_named_declaration,
+    r#"export const a = 1;"#,
+    1,
 
-    assert_eq!(usage.len(), 1);
+    should_ok_when_export_default_declaration,
+    r#"export default 1;"#,
+    1,
 
-    assert_eq!(count, 1);
-  }
-
-  #[test]
-  fn should_ok_when_exported_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(ExportVisitor::default());
-    let usage = tester.analyze("export function myFunction() {}");
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_ok_when_export_all_declaration,
+    r#"export * from 'a';"#,
+    1,
   }
 }

@@ -1,10 +1,13 @@
 use oxc_ast::{
   ast::{
-    ArrayAssignmentTarget, ArrayExpression, ArrayExpressionElement,
-    ArrayPattern, ArrowFunctionExpression, AssignmentExpression,
-    AwaitExpression, BinaryExpression, BooleanLiteral, CallExpression,
-    ChainExpression, Class, ClassBody, ComputedMemberExpression,
-    ConditionalExpression, Directive, ExportNamedDeclaration, FormalParameter,
+    ArrayAssignmentTarget, ArrayExpression, ArrayPattern,
+    ArrowFunctionExpression, AssignmentExpression, AwaitExpression,
+    BinaryExpression, BlockStatement, BooleanLiteral, BreakStatement,
+    CallExpression, ChainExpression, Class, ClassBody,
+    ComputedMemberExpression, ConditionalExpression, ContinueStatement,
+    DebuggerStatement, Directive, DoWhileStatement, EmptyStatement,
+    ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration,
+    ForInStatement, ForOfStatement, ForStatement, FormalParameter,
     FormalParameters, Function, IdentifierReference, ImportDeclaration,
     ImportExpression, LogicalExpression, MetaProperty, MethodDefinition,
     NewExpression, NullLiteral, NumericLiteral, ObjectExpression,
@@ -79,6 +82,18 @@ pub struct SyntaxVisitor<'a> {
   pub walk_spread_element: Vec<fn(&mut Context, &SpreadElement)>,
   pub walk_this_expression: Vec<fn(&mut Context, &ThisExpression)>,
   pub walk_yield_expression: Vec<fn(&mut Context, &YieldExpression)>,
+  pub walk_block_statement: Vec<fn(&mut Context, &BlockStatement)>,
+  pub walk_break_statement: Vec<fn(&mut Context, &BreakStatement)>,
+  pub walk_continue_statement: Vec<fn(&mut Context, &ContinueStatement)>,
+  pub walk_do_while_statement: Vec<fn(&mut Context, &DoWhileStatement)>,
+  pub walk_debugger_statement: Vec<fn(&mut Context, &DebuggerStatement)>,
+  pub walk_empty_statement: Vec<fn(&mut Context, &EmptyStatement)>,
+  pub walk_export_default_declaration:
+    Vec<fn(&mut Context, &ExportDefaultDeclaration)>,
+  pub walk_export_all_declaration: Vec<fn(&mut Context, &ExportAllDeclaration)>,
+  pub walk_for_of_statement: Vec<fn(&mut Context, &ForOfStatement)>,
+  pub walk_for_in_statement: Vec<fn(&mut Context, &ForInStatement)>,
+  pub walk_for_statement: Vec<fn(&mut Context, &ForStatement)>,
   pub context: Context<'a>,
   is_strict_mode: bool,
 }
@@ -101,16 +116,21 @@ impl<'a> SyntaxVisitor<'a> {
       walk_null_literal: Vec::new(),
       walk_meta_property: Vec::new(),
       walk_array_pattern: Vec::new(),
+      walk_for_statement: Vec::new(),
       walk_string_literal: Vec::new(),
       walk_spread_element: Vec::new(),
       walk_object_pattern: Vec::new(),
       walk_new_expression: Vec::new(),
+      walk_block_statement: Vec::new(),
       walk_call_expression: Vec::new(),
       walk_object_property: Vec::new(),
       walk_this_expression: Vec::new(),
       walk_reg_exp_literal: Vec::new(),
       walk_numeric_literal: Vec::new(),
       walk_boolean_literal: Vec::new(),
+      walk_break_statement: Vec::new(),
+      walk_empty_statement: Vec::new(),
+      walk_for_of_statement: Vec::new(),
       walk_formal_parameter: Vec::new(),
       walk_chain_expression: Vec::new(),
       walk_yield_expression: Vec::new(),
@@ -118,6 +138,7 @@ impl<'a> SyntaxVisitor<'a> {
       walk_template_literal: Vec::new(),
       walk_array_expression: Vec::new(),
       walk_await_expression: Vec::new(),
+      walk_for_in_statement: Vec::new(),
       walk_binary_expression: Vec::new(),
       walk_formal_parameters: Vec::new(),
       walk_method_definition: Vec::new(),
@@ -125,7 +146,10 @@ impl<'a> SyntaxVisitor<'a> {
       walk_import_expression: Vec::new(),
       walk_update_expression: Vec::new(),
       walk_import_declaration: Vec::new(),
+      walk_debugger_statement: Vec::new(),
+      walk_continue_statement: Vec::new(),
       walk_logical_expression: Vec::new(),
+      walk_do_while_statement: Vec::new(),
       walk_variable_declarator: Vec::new(),
       walk_sequence_expression: Vec::new(),
       walk_property_definition: Vec::new(),
@@ -133,6 +157,7 @@ impl<'a> SyntaxVisitor<'a> {
       walk_variable_declaration: Vec::new(),
       walk_private_in_expression: Vec::new(),
       walk_assignment_expression: Vec::new(),
+      walk_export_all_declaration: Vec::new(),
       walk_conditional_expression: Vec::new(),
       walk_array_assignment_target: Vec::new(),
       walk_parenthesized_expression: Vec::new(),
@@ -140,6 +165,7 @@ impl<'a> SyntaxVisitor<'a> {
       walk_static_member_expression: Vec::new(),
       walk_arrow_function_expression: Vec::new(),
       walk_computed_member_expression: Vec::new(),
+      walk_export_default_declaration: Vec::new(),
       is_strict_mode: false,
     }
   }
@@ -161,6 +187,20 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
     walk::walk_reg_exp_literal(self, it);
   }
 
+  fn visit_for_of_statement(&mut self, it: &ForOfStatement<'a>) {
+    for walk in &self.walk_for_of_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_for_of_statement(self, it);
+  }
+
+  fn visit_for_statement(&mut self, it: &ForStatement<'a>) {
+    for walk in &self.walk_for_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_for_statement(self, it);
+  }
+
   fn visit_program(&mut self, it: &Program<'a>) {
     for walk in &self.walk_program {
       walk(&mut self.context, it);
@@ -173,6 +213,13 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
       walk(&mut self.context, it);
     }
     walk::walk_this_expression(self, it);
+  }
+
+  fn visit_for_in_statement(&mut self, it: &oxc_ast::ast::ForInStatement<'a>) {
+    for walk in &self.walk_for_in_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_for_in_statement(self, it);
   }
 
   fn visit_array_pattern(&mut self, it: &ArrayPattern<'a>) {
@@ -189,11 +236,83 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
     walk::walk_yield_expression(self, it);
   }
 
+  fn visit_do_while_statement(&mut self, it: &DoWhileStatement<'a>) {
+    for walk in &self.walk_do_while_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_do_while_statement(self, it);
+  }
+
+  fn visit_export_default_declaration(
+    &mut self,
+    it: &ExportDefaultDeclaration<'a>,
+  ) {
+    for walk in &self.walk_export_default_declaration {
+      walk(&mut self.context, it);
+    }
+    walk::walk_export_default_declaration(self, it);
+  }
+
+  fn visit_export_all_declaration(
+    &mut self,
+    it: &oxc_ast::ast::ExportAllDeclaration<'a>,
+  ) {
+    for walk in &self.walk_export_all_declaration {
+      walk(&mut self.context, it);
+    }
+    walk::walk_export_all_declaration(self, it);
+  }
+
+  fn visit_export_named_declaration(
+    &mut self,
+    it: &ExportNamedDeclaration<'a>,
+  ) {
+    for walk in &self.walk_export_named_declaration {
+      walk(&mut self.context, it);
+    }
+    walk::walk_export_named_declaration(self, it);
+  }
+
+  fn visit_empty_statement(&mut self, it: &EmptyStatement) {
+    for walk in &self.walk_empty_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_empty_statement(self, it);
+  }
+
+  fn visit_break_statement(&mut self, it: &BreakStatement<'a>) {
+    for walk in &self.walk_break_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_break_statement(self, it);
+  }
+
   fn visit_sequence_expression(&mut self, it: &SequenceExpression<'a>) {
     for walk in &self.walk_sequence_expression {
       walk(&mut self.context, it);
     }
     walk::walk_sequence_expression(self, it);
+  }
+
+  fn visit_continue_statement(&mut self, it: &ContinueStatement<'a>) {
+    for walk in &self.walk_continue_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_continue_statement(self, it);
+  }
+
+  fn visit_block_statement(&mut self, it: &BlockStatement<'a>) {
+    for walk in &self.walk_block_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_block_statement(self, it);
+  }
+
+  fn visit_debugger_statement(&mut self, it: &DebuggerStatement) {
+    for walk in &self.walk_debugger_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_debugger_statement(self, it);
   }
 
   fn visit_computed_member_expression(
@@ -360,16 +479,6 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
       walk(&mut self.context, it);
     }
     walk::walk_import_declaration(self, it);
-  }
-
-  fn visit_export_named_declaration(
-    &mut self,
-    it: &ExportNamedDeclaration<'a>,
-  ) {
-    for walk in &self.walk_export_named_declaration {
-      walk(&mut self.context, it);
-    }
-    walk::walk_export_named_declaration(self, it);
   }
 
   fn visit_await_expression(&mut self, it: &AwaitExpression<'a>) {

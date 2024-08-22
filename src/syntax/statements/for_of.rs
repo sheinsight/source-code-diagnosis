@@ -1,68 +1,31 @@
-use oxc_ast::{visit::walk, Visit};
-use serde_json5::from_str;
+use crate::create_compat;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
-
-pub struct ForOfVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
-
-impl Default for ForOfVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./for_of.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for ForOfVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ForOfVisitor {
-  fn visit_for_of_statement(&mut self, it: &oxc_ast::ast::ForOfStatement<'a>) {
-    if !it.r#await {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-    walk::walk_for_of_statement(self, it);
+create_compat! {
+  "./for_of.json",
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_for_of_statement.push(walk_for_of_statement);
+  },
+  walk_for_of_statement,
+  |ctx: &mut Context, it: &oxc_ast::ast::ForOfStatement| {
+    true
   }
 }
 
 #[cfg(test)]
 mod tests {
-
-  use crate::syntax::semantic_tester::SemanticTester;
-
   use super::*;
-
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage.iter().filter(|item| item.name == "for_of").count()
-  }
-
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(ForOfVisitor::default());
-    let usage = tester.analyze(
-      "
-const array1 = ['a', 'b', 'c'];
-for (const element of array1) {
-  console.log(element);
-}    
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+  use crate::assert_ok_count;
+  assert_ok_count! {
+    "for_of",
+    setup,
+    should_ok_when_for_of_statement,
+    r#"
+        const array1 = ['a', 'b', 'c'];
+        for (const element of array1) {
+          console.log(element);
+        }
+      "#,
+      1
   }
 }

@@ -1,116 +1,43 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
-use serde_json5::from_str;
+use oxc_semantic::ScopeFlags;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-pub struct AsyncFunctionVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
+create_compat! {
+  "./async_function.json",
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_function.push(walk_function);
+  },
 
-impl Default for AsyncFunctionVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./async_function.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for AsyncFunctionVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for AsyncFunctionVisitor {
-  fn visit_function(
-    &mut self,
-    it: &oxc_ast::ast::Function<'a>,
-    flags: oxc_semantic::ScopeFlags,
-  ) {
-    if matches!(it.r#type, FunctionType::FunctionDeclaration) {
-      if it.r#async && !it.generator {
-        self
-          .usage
-          .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-      }
-    }
-
-    walk::walk_function(self, it, flags);
+  walk_function,
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &ScopeFlags, is_strict_mode: bool| {
+    it.r#async && !it.generator
   }
 }
 
 #[cfg(test)]
 mod tests {
-
-  use crate::syntax::semantic_tester::SemanticTester;
-
   use super::*;
+  use crate::assert_ok_count;
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "async_function")
-      .count()
-  }
+  assert_ok_count! {
+    "async_function",
+    setup,
 
-  #[test]
-  fn should_ok_when_async_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(AsyncFunctionVisitor::default());
+    should_ok_when_async_function_declaration,
+    r#"async function hello(){}"#,
+    1,
 
-    let usage = tester.analyze("async function hello(){}");
+    should_fail_when_async_function_declaration,
+    r#"function hello(){}"#,
+    0,
 
-    let async_function_compat_count = get_async_function_count(&usage);
+    should_fail_when_async_generate_function_declaration,
+    r#"function* hello(){}"#,
+    0,
 
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(async_function_compat_count, 1)
-  }
-
-  #[test]
-  fn should_fail_when_async_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(AsyncFunctionVisitor::default());
-
-    let usage = tester.analyze("function hello(){}");
-
-    let async_function_compat_count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 0);
-
-    assert_eq!(async_function_compat_count, 0)
-  }
-
-  #[test]
-  fn should_fail_when_async_generate_function_declaration() {
-    let mut tester =
-      SemanticTester::from_visitor(AsyncFunctionVisitor::default());
-
-    let usage = tester.analyze("function* hello(){}");
-
-    let async_function_compat_count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 0);
-
-    assert_eq!(async_function_compat_count, 0)
-  }
-
-  #[test]
-  fn should_fail_when_async_generate_function_expression() {
-    let mut tester =
-      SemanticTester::from_visitor(AsyncFunctionVisitor::default());
-
-    let usage = tester.analyze("const hello = async function (){}");
-
-    let async_function_compat_count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 0);
-
-    assert_eq!(async_function_compat_count, 0)
+    should_fail_when_async_generate_function_expression,
+    r#"const hello = async function* (){}"#,
+    0,
   }
 }

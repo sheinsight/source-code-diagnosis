@@ -1,63 +1,31 @@
-use oxc_ast::{visit::walk, Visit};
-use serde_json5::from_str;
+use crate::create_compat;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+create_compat! {
+  "./class.json",
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_class.push(walk_class);
+  },
 
-pub struct ClassVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
-
-impl Default for ClassVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./class.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for ClassVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ClassVisitor {
-  fn visit_class(&mut self, it: &oxc_ast::ast::Class<'a>) {
-    self
-      .usage
-      .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    walk::walk_class(self, it);
+  walk_class,
+  |ctx: &mut Context, it: &oxc_ast::ast::Class| {
+    true
   }
 }
 
 #[cfg(test)]
 mod tests {
-
-  use crate::syntax::semantic_tester::SemanticTester;
-
   use super::*;
+  use crate::assert_ok_count;
 
-  #[test]
-  fn should_ok_when_class_declaration() {
-    let res = SemanticTester::from_visitor(ClassVisitor::default())
-      .analyze("class A {}");
+  assert_ok_count! {
+    "class",
+    setup,
 
-    let has_class = res.iter().any(|item| item.name == "class");
-
-    assert!(has_class);
-  }
-
-  #[test]
-  fn should_ok_when_class_expression() {
-    let res = SemanticTester::from_visitor(ClassVisitor::default())
-      .analyze("const a = class {}");
-
-    let has_class = res.iter().any(|item| item.name == "class");
-
-    assert!(has_class);
+    should_ok_when_class_declaration,
+    r#"
+    class A {}
+    "#,
+    1,
   }
 }
