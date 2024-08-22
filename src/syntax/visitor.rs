@@ -1,13 +1,16 @@
 use oxc_ast::{
   ast::{
-    ArrayExpression, ArrowFunctionExpression, AssignmentExpression,
-    AwaitExpression, BinaryExpression, BooleanLiteral, CallExpression, Class,
-    ClassBody, Directive, ExportNamedDeclaration, FormalParameter,
+    ArrayAssignmentTarget, ArrayExpression, ArrayPattern,
+    ArrowFunctionExpression, AssignmentExpression, AwaitExpression,
+    BinaryExpression, BooleanLiteral, CallExpression, Class, ClassBody,
+    ConditionalExpression, Directive, ExportNamedDeclaration, FormalParameter,
     FormalParameters, Function, IdentifierReference, ImportDeclaration,
-    ImportExpression, MethodDefinition, NullLiteral, NumericLiteral,
-    ObjectExpression, ObjectProperty, PrivateInExpression, Program,
-    PropertyDefinition, RegExpLiteral, StaticBlock, StaticMemberExpression,
-    StringLiteral, TemplateLiteral, VariableDeclarator,
+    ImportExpression, MetaProperty, MethodDefinition, NullLiteral,
+    NumericLiteral, ObjectExpression, ObjectPattern, ObjectProperty,
+    ParenthesizedExpression, PrivateInExpression, Program, PropertyDefinition,
+    RegExpLiteral, SequenceExpression, StaticBlock, StaticMemberExpression,
+    StringLiteral, TemplateLiteral, UnaryExpression, UpdateExpression,
+    VariableDeclarator,
   },
   visit::walk,
   Visit,
@@ -53,6 +56,18 @@ pub struct SyntaxVisitor<'a> {
   pub walk_binary_expression: Vec<fn(&mut Context, &BinaryExpression)>,
   pub walk_variable_declarator: Vec<fn(&mut Context, &VariableDeclarator)>,
   pub walk_await_expression: Vec<fn(&mut Context, &AwaitExpression)>,
+  pub walk_unary_expression: Vec<fn(&mut Context, &UnaryExpression)>,
+  pub walk_sequence_expression: Vec<fn(&mut Context, &SequenceExpression)>,
+  pub walk_update_expression: Vec<fn(&mut Context, &UpdateExpression)>,
+  pub walk_conditional_expression:
+    Vec<fn(&mut Context, &ConditionalExpression)>,
+  pub walk_object_pattern: Vec<fn(&mut Context, &ObjectPattern)>,
+  pub walk_array_pattern: Vec<fn(&mut Context, &ArrayPattern)>,
+  pub walk_array_assignment_target:
+    Vec<fn(&mut Context, &ArrayAssignmentTarget)>,
+  pub walk_parenthesized_expression:
+    Vec<fn(&mut Context, &ParenthesizedExpression)>,
+  pub walk_meta_property: Vec<fn(&mut Context, &MetaProperty)>,
   pub context: Context<'a>,
   is_strict_mode: bool,
 }
@@ -73,13 +88,17 @@ impl<'a> SyntaxVisitor<'a> {
       walk_class_body: Vec::new(),
       walk_static_block: Vec::new(),
       walk_null_literal: Vec::new(),
+      walk_meta_property: Vec::new(),
+      walk_array_pattern: Vec::new(),
       walk_string_literal: Vec::new(),
+      walk_object_pattern: Vec::new(),
       walk_call_expression: Vec::new(),
       walk_object_property: Vec::new(),
       walk_reg_exp_literal: Vec::new(),
       walk_numeric_literal: Vec::new(),
       walk_boolean_literal: Vec::new(),
       walk_formal_parameter: Vec::new(),
+      walk_unary_expression: Vec::new(),
       walk_template_literal: Vec::new(),
       walk_array_expression: Vec::new(),
       walk_await_expression: Vec::new(),
@@ -89,14 +108,19 @@ impl<'a> SyntaxVisitor<'a> {
       walk_object_expression: Vec::new(),
       walk_import_expression: Vec::new(),
       walk_import_declaration: Vec::new(),
+      walk_update_expression: Vec::new(),
       walk_variable_declarator: Vec::new(),
       walk_property_definition: Vec::new(),
       walk_identifier_reference: Vec::new(),
       walk_private_in_expression: Vec::new(),
       walk_assignment_expression: Vec::new(),
+      walk_conditional_expression: Vec::new(),
+      walk_array_assignment_target: Vec::new(),
+      walk_parenthesized_expression: Vec::new(),
       walk_export_named_declaration: Vec::new(),
       walk_static_member_expression: Vec::new(),
       walk_arrow_function_expression: Vec::new(),
+      walk_sequence_expression: Vec::new(),
       is_strict_mode: false,
     }
   }
@@ -125,6 +149,41 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
     walk::walk_program(self, it);
   }
 
+  fn visit_array_pattern(&mut self, it: &ArrayPattern<'a>) {
+    for walk in &self.walk_array_pattern {
+      walk(&mut self.context, it);
+    }
+    walk::walk_array_pattern(self, it);
+  }
+
+  fn visit_sequence_expression(&mut self, it: &SequenceExpression<'a>) {
+    for walk in &self.walk_sequence_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_sequence_expression(self, it);
+  }
+
+  fn visit_meta_property(&mut self, it: &MetaProperty<'a>) {
+    for walk in &self.walk_meta_property {
+      walk(&mut self.context, it);
+    }
+    walk::walk_meta_property(self, it);
+  }
+
+  fn visit_object_pattern(&mut self, it: &ObjectPattern<'a>) {
+    for walk in &self.walk_object_pattern {
+      walk(&mut self.context, it);
+    }
+    walk::walk_object_pattern(self, it);
+  }
+
+  fn visit_array_assignment_target(&mut self, it: &ArrayAssignmentTarget<'a>) {
+    for walk in &self.walk_array_assignment_target {
+      walk(&mut self.context, it);
+    }
+    walk::walk_array_assignment_target(self, it);
+  }
+
   fn visit_directive(&mut self, it: &oxc_ast::ast::Directive<'a>) {
     if it.directive == "use strict" {
       self.is_strict_mode = true;
@@ -135,11 +194,45 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
     walk::walk_directive(self, it);
   }
 
+  fn visit_parenthesized_expression(
+    &mut self,
+    it: &ParenthesizedExpression<'a>,
+  ) {
+    for walk in &self.walk_parenthesized_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_parenthesized_expression(self, it);
+  }
+
+  fn visit_unary_expression(&mut self, it: &oxc_ast::ast::UnaryExpression<'a>) {
+    for walk in &self.walk_unary_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_unary_expression(self, it);
+  }
+
+  fn visit_update_expression(
+    &mut self,
+    it: &oxc_ast::ast::UpdateExpression<'a>,
+  ) {
+    for walk in &self.walk_update_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_update_expression(self, it);
+  }
+
   fn visit_template_literal(&mut self, it: &oxc_ast::ast::TemplateLiteral<'a>) {
     for walk in &self.walk_template_literal {
       walk(&mut self.context, it);
     }
     walk::walk_template_literal(self, it);
+  }
+
+  fn visit_conditional_expression(&mut self, it: &ConditionalExpression<'a>) {
+    for walk in &self.walk_conditional_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_conditional_expression(self, it);
   }
 
   fn visit_variable_declarator(&mut self, it: &VariableDeclarator<'a>) {

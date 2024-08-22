@@ -1,82 +1,33 @@
-use oxc_ast::{ast::FunctionType, visit::walk, AstKind, Visit};
 use oxc_syntax::operator::BinaryOperator;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-pub struct DivisionVisitor<'a> {
-  usage: Vec<CompatBox>,
-  parent_stack: Vec<AstKind<'a>>,
-  compat: Compat,
-}
+create_compat! {
+  "./division.json",
+  setup,
+  |v: &mut SyntaxVisitor| {
+      v.walk_binary_expression.push(walk_binary_expression);
+  },
 
-impl<'a> Default for DivisionVisitor<'a> {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./division.json")).unwrap();
-    Self {
-      usage,
-      compat,
-      parent_stack: Vec::new(),
-    }
-  }
-}
-
-impl<'a> CommonTrait for DivisionVisitor<'a> {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for DivisionVisitor<'a> {
-  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.push(kind);
-  }
-
-  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.pop();
-  }
-
-  fn visit_binary_expression(
-    &mut self,
-    it: &oxc_ast::ast::BinaryExpression<'a>,
-  ) {
-    if matches!(it.operator, BinaryOperator::Division) {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-    walk::walk_binary_expression(self, it);
+  walk_binary_expression,
+  |ctx: &mut Context, it: &oxc_ast::ast::BinaryExpression| {
+    matches!(it.operator, BinaryOperator::Division)
   }
 }
 
 #[cfg(test)]
 mod tests {
+  use super::setup;
+  use crate::assert_ok_count;
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "division",
+    setup,
 
-  use super::*;
-
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage.iter().filter(|item| item.name == "division").count()
-  }
-
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(DivisionVisitor::default());
-    let usage = tester.analyze(
-      "
-console.log(6 / 2);    
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_ok_when_division,
+    r#"
+    console.log(6 / 2);
+    "#,
+    1
   }
 }

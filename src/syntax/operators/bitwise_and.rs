@@ -1,3 +1,6 @@
+use oxc_ast::ast::BinaryExpression;
+use oxc_syntax::operator::BinaryOperator;
+
 use crate::create_compat;
 
 create_compat! {
@@ -8,8 +11,8 @@ create_compat! {
   },
 
   walk_binary_expression,
-  |ctx: &mut Context, it: &oxc_ast::ast::BinaryExpression| {
-    matches!(it.operator, oxc_syntax::operator::BinaryOperator::BitwiseAnd)
+  |ctx: &mut Context, it: &BinaryExpression| {
+    matches!(it.operator,BinaryOperator::BitwiseAnd)
   }
 }
 
