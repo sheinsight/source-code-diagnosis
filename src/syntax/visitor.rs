@@ -1,12 +1,13 @@
 use oxc_ast::{
   ast::{
-    ArrayExpression, ArrowFunctionExpression, BooleanLiteral, CallExpression,
-    Class, ClassBody, Directive, ExportNamedDeclaration, FormalParameter,
+    ArrayExpression, ArrowFunctionExpression, AssignmentExpression,
+    AwaitExpression, BinaryExpression, BooleanLiteral, CallExpression, Class,
+    ClassBody, Directive, ExportNamedDeclaration, FormalParameter,
     FormalParameters, Function, IdentifierReference, ImportDeclaration,
     ImportExpression, MethodDefinition, NullLiteral, NumericLiteral,
     ObjectExpression, ObjectProperty, PrivateInExpression, Program,
     PropertyDefinition, RegExpLiteral, StaticBlock, StaticMemberExpression,
-    StringLiteral, TemplateLiteral,
+    StringLiteral, TemplateLiteral, VariableDeclarator,
   },
   visit::walk,
   Visit,
@@ -48,6 +49,10 @@ pub struct SyntaxVisitor<'a> {
   pub walk_import_declaration: Vec<fn(&mut Context, &ImportDeclaration)>,
   pub walk_export_named_declaration:
     Vec<fn(&mut Context, &ExportNamedDeclaration)>,
+  pub walk_assignment_expression: Vec<fn(&mut Context, &AssignmentExpression)>,
+  pub walk_binary_expression: Vec<fn(&mut Context, &BinaryExpression)>,
+  pub walk_variable_declarator: Vec<fn(&mut Context, &VariableDeclarator)>,
+  pub walk_await_expression: Vec<fn(&mut Context, &AwaitExpression)>,
   pub context: Context<'a>,
   is_strict_mode: bool,
 }
@@ -77,14 +82,18 @@ impl<'a> SyntaxVisitor<'a> {
       walk_formal_parameter: Vec::new(),
       walk_template_literal: Vec::new(),
       walk_array_expression: Vec::new(),
+      walk_await_expression: Vec::new(),
+      walk_binary_expression: Vec::new(),
       walk_formal_parameters: Vec::new(),
       walk_method_definition: Vec::new(),
       walk_object_expression: Vec::new(),
       walk_import_expression: Vec::new(),
       walk_import_declaration: Vec::new(),
+      walk_variable_declarator: Vec::new(),
       walk_property_definition: Vec::new(),
       walk_identifier_reference: Vec::new(),
       walk_private_in_expression: Vec::new(),
+      walk_assignment_expression: Vec::new(),
       walk_export_named_declaration: Vec::new(),
       walk_static_member_expression: Vec::new(),
       walk_arrow_function_expression: Vec::new(),
@@ -133,11 +142,32 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
     walk::walk_template_literal(self, it);
   }
 
+  fn visit_variable_declarator(&mut self, it: &VariableDeclarator<'a>) {
+    for walk in &self.walk_variable_declarator {
+      walk(&mut self.context, it);
+    }
+    walk::walk_variable_declarator(self, it);
+  }
+
   fn visit_import_expression(&mut self, it: &ImportExpression<'a>) {
     for walk in &self.walk_import_expression {
       walk(&mut self.context, it);
     }
     walk::walk_import_expression(self, it);
+  }
+
+  fn visit_assignment_expression(&mut self, it: &AssignmentExpression<'a>) {
+    for walk in &self.walk_assignment_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_assignment_expression(self, it);
+  }
+
+  fn visit_binary_expression(&mut self, it: &BinaryExpression<'a>) {
+    for walk in &self.walk_binary_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_binary_expression(self, it);
   }
 
   fn visit_string_literal(&mut self, it: &StringLiteral<'a>) {
@@ -169,6 +199,13 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
       walk(&mut self.context, it);
     }
     walk::walk_export_named_declaration(self, it);
+  }
+
+  fn visit_await_expression(&mut self, it: &AwaitExpression<'a>) {
+    for walk in &self.walk_await_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_await_expression(self, it);
   }
 
   fn visit_object_expression(&mut self, it: &ObjectExpression<'a>) {

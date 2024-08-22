@@ -1,3 +1,5 @@
+use super::visitor::SyntaxVisitor;
+
 pub mod addition;
 pub mod addition_assignment;
 pub mod assignment;
@@ -86,3 +88,15 @@ pub mod unsigned_right_shift_assignment;
 pub mod void;
 pub mod r#yield;
 pub mod yield_star;
+
+pub fn setup_operators(v: &mut SyntaxVisitor) {
+  addition_assignment::setup(v);
+  addition::setup(v);
+  assignment::setup(v);
+  async_function::setup(v);
+  async_generator_function::setup(v);
+  await_top_level::setup(v);
+  r#await::setup(v);
+  bitwise_and_assignment::setup(v);
+  bitwise_and::setup(v);
+}

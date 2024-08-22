@@ -3,6 +3,7 @@ mod common;
 mod compat;
 mod functions;
 mod grammar;
+mod macros;
 mod operators;
 mod statements;
 
@@ -82,6 +83,7 @@ pub fn check_browser_supported(
       classes::setup_classes(&mut v);
       functions::setup_functions(&mut v);
       grammar::setup_grammar(&mut v);
+      operators::setup_operators(&mut v);
 
       v.visit_program(&ret.program);
 

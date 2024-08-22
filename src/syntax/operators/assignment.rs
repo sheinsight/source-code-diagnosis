@@ -1,149 +1,68 @@
-use oxc_ast::{ast::FunctionType, visit::walk, AstKind, Visit};
+use oxc_ast::ast::{AssignmentExpression, VariableDeclarator};
 use oxc_syntax::operator::AssignmentOperator;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-pub struct AssignmentVisitor<'a> {
-  usage: Vec<CompatBox>,
-  parent_stack: Vec<AstKind<'a>>,
-  compat: Compat,
-}
+create_compat! {
+  "./assignment.json",
+  setup,
+  |v: &mut SyntaxVisitor| {
+      v.walk_variable_declarator.push(walk_variable_declarator);
+      v.walk_assignment_expression.push(walk_assignment_expression);
+  },
 
-impl<'a> Default for AssignmentVisitor<'a> {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./assignment.json")).unwrap();
-    Self {
-      usage,
-      compat,
-      parent_stack: Vec::new(),
-    }
-  }
-}
+  walk_variable_declarator,
+  |ctx: &mut Context, it: &VariableDeclarator| {
+    it.init.is_some()
+  },
 
-impl<'a> CommonTrait for AssignmentVisitor<'a> {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for AssignmentVisitor<'a> {
-  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.push(kind);
-  }
-
-  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.pop();
-  }
-
-  fn visit_variable_declarator(
-    &mut self,
-    it: &oxc_ast::ast::VariableDeclarator<'a>,
-  ) {
-    if it.init.is_some() {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-
-    walk::walk_variable_declarator(self, it);
-  }
-
-  fn visit_assignment_expression(
-    &mut self,
-    it: &oxc_ast::ast::AssignmentExpression<'a>,
-  ) {
-    if matches!(it.operator, AssignmentOperator::Assign) {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    }
-    walk::walk_assignment_expression(self, it);
+  walk_assignment_expression,
+  |ctx: &mut Context, it: &AssignmentExpression| {
+    matches!(it.operator, AssignmentOperator::Assign)
   }
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::{assert_ok_count, syntax::operators::assignment::setup};
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "operators_assignment",
+    setup,
 
-  use super::*;
+    should_ok_when_basic_assignment,
+    r#"
+      let x = 5;
+    "#,
+    1,
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "operators_assignment")
-      .count()
-  }
+    should_ok_when_continuous_assignment,
+    r#"
+      let a, b, c;
+      a = b = c = 2;
+    "#,
+    3,
 
-  #[test]
-  fn should_ok_when_basic_assignment() {
-    let mut tester = SemanticTester::from_visitor(AssignmentVisitor::default());
-    let usage = tester.analyze(
-      "
-let x = 5;    
-",
-    );
+    should_ok_when_deconstruct_assignment,
+    r#"
+      let [d, e] = [1, 2];
+      console.log(d, e);
+    "#,
+    1,
 
-    let count = get_async_function_count(&usage);
+    should_ok_when_object_deconstruct_assignment,
+    r#"
+      let {f, g} = {f: 3, g: 4};
+      console.log(f, g);
+    "#,
+    1,
 
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
-  }
-
-  #[test]
-  fn should_ok_when_continuous_assignment() {
-    let mut tester = SemanticTester::from_visitor(AssignmentVisitor::default());
-    let usage = tester.analyze(
-      "
-let a, b, c;
-a = b = c = 2;
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 3);
-
-    assert_eq!(count, 3);
-  }
-
-  #[test]
-  fn should_ok_when_deconstruct_assignment() {
-    let mut tester = SemanticTester::from_visitor(AssignmentVisitor::default());
-    let usage = tester.analyze(
-      "
-let [d, e] = [1, 2];
-console.log(d, e);
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
-  }
-
-  #[test]
-  fn should_ok_when_object_deconstruct_assignment() {
-    let mut tester = SemanticTester::from_visitor(AssignmentVisitor::default());
-    let usage = tester.analyze(
-      "
-let {f, g} = {f: 3, g: 4};
-console.log(f, g);
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_ok_when_assignment_with_expression,
+    r#"
+      let h = 5;
+      let i = 6;
+      console.log((h = i));
+    "#,
+    3,
   }
 }
