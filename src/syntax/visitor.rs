@@ -1,17 +1,18 @@
 use oxc_ast::{
   ast::{
-    ArrayAssignmentTarget, ArrayExpression, ArrayPattern,
-    ArrowFunctionExpression, AssignmentExpression, AwaitExpression,
-    BinaryExpression, BooleanLiteral, CallExpression, Class, ClassBody,
+    ArrayAssignmentTarget, ArrayExpression, ArrayExpressionElement,
+    ArrayPattern, ArrowFunctionExpression, AssignmentExpression,
+    AwaitExpression, BinaryExpression, BooleanLiteral, CallExpression,
+    ChainExpression, Class, ClassBody, ComputedMemberExpression,
     ConditionalExpression, Directive, ExportNamedDeclaration, FormalParameter,
     FormalParameters, Function, IdentifierReference, ImportDeclaration,
     ImportExpression, LogicalExpression, MetaProperty, MethodDefinition,
     NewExpression, NullLiteral, NumericLiteral, ObjectExpression,
     ObjectPattern, ObjectProperty, ParenthesizedExpression,
     PrivateInExpression, Program, PropertyDefinition, RegExpLiteral,
-    SequenceExpression, StaticBlock, StaticMemberExpression, StringLiteral,
-    TemplateLiteral, UnaryExpression, UpdateExpression, VariableDeclaration,
-    VariableDeclarator,
+    SequenceExpression, SpreadElement, StaticBlock, StaticMemberExpression,
+    StringLiteral, TemplateLiteral, ThisExpression, UnaryExpression,
+    UpdateExpression, VariableDeclaration, VariableDeclarator, YieldExpression,
   },
   visit::walk,
   Visit,
@@ -62,6 +63,8 @@ pub struct SyntaxVisitor<'a> {
   pub walk_update_expression: Vec<fn(&mut Context, &UpdateExpression)>,
   pub walk_conditional_expression:
     Vec<fn(&mut Context, &ConditionalExpression)>,
+  pub walk_computed_member_expression:
+    Vec<fn(&mut Context, &ComputedMemberExpression)>,
   pub walk_object_pattern: Vec<fn(&mut Context, &ObjectPattern)>,
   pub walk_array_pattern: Vec<fn(&mut Context, &ArrayPattern)>,
   pub walk_array_assignment_target:
@@ -72,6 +75,10 @@ pub struct SyntaxVisitor<'a> {
   pub walk_meta_property: Vec<fn(&mut Context, &MetaProperty)>,
   pub walk_logical_expression: Vec<fn(&mut Context, &LogicalExpression)>,
   pub walk_new_expression: Vec<fn(&mut Context, &NewExpression)>,
+  pub walk_chain_expression: Vec<fn(&mut Context, &ChainExpression)>,
+  pub walk_spread_element: Vec<fn(&mut Context, &SpreadElement)>,
+  pub walk_this_expression: Vec<fn(&mut Context, &ThisExpression)>,
+  pub walk_yield_expression: Vec<fn(&mut Context, &YieldExpression)>,
   pub context: Context<'a>,
   is_strict_mode: bool,
 }
@@ -95,14 +102,18 @@ impl<'a> SyntaxVisitor<'a> {
       walk_meta_property: Vec::new(),
       walk_array_pattern: Vec::new(),
       walk_string_literal: Vec::new(),
+      walk_spread_element: Vec::new(),
       walk_object_pattern: Vec::new(),
       walk_new_expression: Vec::new(),
       walk_call_expression: Vec::new(),
       walk_object_property: Vec::new(),
+      walk_this_expression: Vec::new(),
       walk_reg_exp_literal: Vec::new(),
       walk_numeric_literal: Vec::new(),
       walk_boolean_literal: Vec::new(),
       walk_formal_parameter: Vec::new(),
+      walk_chain_expression: Vec::new(),
+      walk_yield_expression: Vec::new(),
       walk_unary_expression: Vec::new(),
       walk_template_literal: Vec::new(),
       walk_array_expression: Vec::new(),
@@ -116,6 +127,7 @@ impl<'a> SyntaxVisitor<'a> {
       walk_import_declaration: Vec::new(),
       walk_logical_expression: Vec::new(),
       walk_variable_declarator: Vec::new(),
+      walk_sequence_expression: Vec::new(),
       walk_property_definition: Vec::new(),
       walk_identifier_reference: Vec::new(),
       walk_variable_declaration: Vec::new(),
@@ -127,7 +139,7 @@ impl<'a> SyntaxVisitor<'a> {
       walk_export_named_declaration: Vec::new(),
       walk_static_member_expression: Vec::new(),
       walk_arrow_function_expression: Vec::new(),
-      walk_sequence_expression: Vec::new(),
+      walk_computed_member_expression: Vec::new(),
       is_strict_mode: false,
     }
   }
@@ -156,6 +168,13 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
     walk::walk_program(self, it);
   }
 
+  fn visit_this_expression(&mut self, it: &ThisExpression) {
+    for walk in &self.walk_this_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_this_expression(self, it);
+  }
+
   fn visit_array_pattern(&mut self, it: &ArrayPattern<'a>) {
     for walk in &self.walk_array_pattern {
       walk(&mut self.context, it);
@@ -163,11 +182,35 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
     walk::walk_array_pattern(self, it);
   }
 
+  fn visit_yield_expression(&mut self, it: &YieldExpression<'a>) {
+    for walk in &self.walk_yield_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_yield_expression(self, it);
+  }
+
   fn visit_sequence_expression(&mut self, it: &SequenceExpression<'a>) {
     for walk in &self.walk_sequence_expression {
       walk(&mut self.context, it);
     }
     walk::walk_sequence_expression(self, it);
+  }
+
+  fn visit_computed_member_expression(
+    &mut self,
+    it: &ComputedMemberExpression<'a>,
+  ) {
+    for walk in &self.walk_computed_member_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_computed_member_expression(self, it);
+  }
+
+  fn visit_chain_expression(&mut self, it: &ChainExpression<'a>) {
+    for walk in &self.walk_chain_expression {
+      walk(&mut self.context, it);
+    }
+    walk::walk_chain_expression(self, it);
   }
 
   fn visit_new_expression(&mut self, it: &NewExpression<'a>) {
@@ -189,6 +232,13 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
       walk(&mut self.context, it);
     }
     walk::walk_logical_expression(self, it);
+  }
+
+  fn visit_spread_element(&mut self, it: &SpreadElement<'a>) {
+    for walk in &self.walk_spread_element {
+      walk(&mut self.context, it);
+    }
+    walk::walk_spread_element(self, it);
   }
 
   fn visit_object_pattern(&mut self, it: &ObjectPattern<'a>) {
