@@ -1,150 +1,127 @@
-use oxc_ast::{
-  ast::{Expression, FunctionType, ObjectPropertyKind},
-  visit::walk,
-  AstKind, Visit,
-};
-use serde_json5::from_str;
+use oxc_ast::ast::Expression;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-pub struct ObjectInitializerComputedPropertyNamesVisitor<'a> {
-  usage: Vec<CompatBox>,
-  parent_stack: Vec<AstKind<'a>>,
-  compat: Compat,
-}
+create_compat! {
+  "./object_initializer_computed_property_names.json",
+  setup,
+  |v: &mut SyntaxVisitor| {
+      v.walk_assignment_expression.push(walk_assignment_expression);
+      v.walk_variable_declaration.push(walk_variable_declaration);
+  },
 
-impl<'a> Default for ObjectInitializerComputedPropertyNamesVisitor<'a> {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!(
-      "./object_initializer_computed_property_names.json"
-    ))
-    .unwrap();
-    Self {
-      usage,
-      compat,
-      parent_stack: Vec::new(),
-    }
-  }
-}
-
-impl<'a> CommonTrait for ObjectInitializerComputedPropertyNamesVisitor<'a> {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ObjectInitializerComputedPropertyNamesVisitor<'a> {
-  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.push(kind);
-  }
-
-  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
-    self.parent_stack.pop();
-  }
-
-  fn visit_variable_declaration(
-    &mut self,
-    it: &oxc_ast::ast::VariableDeclaration<'a>,
-  ) {
-    for decl in &it.declarations {
-      if let Some(init) = &decl.init {
-        if let Expression::ObjectExpression(oe) = init {
-          for p in &oe.properties {
-            if let ObjectPropertyKind::ObjectProperty(op) = p {
-              if op.computed {
-                self
-                  .usage
-                  .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-              }
-            }
-          }
-        }
-      }
-    }
-    walk::walk_variable_declaration(self, it);
-  }
-
-  fn visit_assignment_expression(
-    &mut self,
-    it: &oxc_ast::ast::AssignmentExpression<'a>,
-  ) {
+  walk_assignment_expression,
+  |ctx: &mut Context, it: &oxc_ast::ast::AssignmentExpression| {
     if let Expression::ObjectExpression(oe) = &it.right {
-      for p in &oe.properties {
-        if let ObjectPropertyKind::ObjectProperty(op) = p {
-          if op.computed {
-            self
-              .usage
-              .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-          }
-        }
-      }
+      oe.properties.iter().any(|p| {
+        matches!(p, oxc_ast::ast::ObjectPropertyKind::ObjectProperty(op) if op.computed)
+      })
+    } else {
+      false
     }
-    walk::walk_assignment_expression(self, it);
+  },
+
+  walk_variable_declaration,
+  |ctx: &mut Context, it: &oxc_ast::ast::VariableDeclaration| {
+    it.declarations.iter().any(|d| {
+      if let Some(init) = &d.init {
+        if let Expression::ObjectExpression(oe) = init {
+          oe.properties.iter().any(|p| {
+            matches!(p, oxc_ast::ast::ObjectPropertyKind::ObjectProperty(op) if op.computed)
+          })
+        } else {
+          false
+        }
+      } else {
+        false
+      }
+    })
   }
 }
 
 #[cfg(test)]
 mod tests {
+  use super::setup;
+  use crate::assert_ok_count;
 
-  use crate::syntax::semantic_tester::SemanticTester;
+  assert_ok_count! {
+    "operators_object_initializer_computed_property_names",
+    setup,
 
-  use super::*;
+    should_detect_computed_property_in_object_initializer,
+    r#"
+    const propertyName = 'age';
+    const person = {
+      [propertyName]: 30
+    };
+    console.log(person.age);
+    "#,
+    1,
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| {
-        item.name == "operators_object_initializer_computed_property_names"
-      })
-      .count()
-  }
+    should_detect_computed_property_in_object_initializer2,
+    r#"
+    const propertyName = 'age';
+    let person;
+    person = {
+      [propertyName]: 30
+    };
+    console.log(person.age);
+    "#,
+    1,
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(
-      ObjectInitializerComputedPropertyNamesVisitor::default(),
-    );
-    let usage = tester.analyze(
-      "
-const propertyName = 'age';
-const person = {
-  [propertyName]: 30
-};
-console.log(person.age);
-",
-    );
+    should_detect_multiple_computed_properties,
+    r#"
+    const key1 = 'name';
+    const key2 = 'age';
+    const person = {
+      [key1]: 'John',
+      [key2]: 30
+    };
+    "#,
+    1,
 
-    let count = get_async_function_count(&usage);
+    should_detect_computed_property_with_expression,
+    r#"
+    const prefix = 'user';
+    const user = {
+      [prefix + 'Name']: 'John',
+      [prefix + 'Age']: 30
+    };
+    "#,
+    1,
 
-    assert_eq!(usage.len(), 1);
+    should_not_detect_regular_object_properties,
+    r#"
+    const person = {
+      name: 'John',
+      age: 30
+    };
+    "#,
+    0,
 
-    assert_eq!(count, 1);
-  }
+    should_detect_computed_property_in_nested_object,
+    r#"
+    const key = 'details';
+    const user = {
+      name: 'John',
+      [key]: {
+        age: 30,
+        city: 'New York'
+      }
+    };
+    "#,
+    1,
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration2() {
-    let mut tester = SemanticTester::from_visitor(
-      ObjectInitializerComputedPropertyNamesVisitor::default(),
-    );
-    let usage = tester.analyze(
-      "
-const propertyName = 'age';
-let person;
-person = {
-  [propertyName]: 30
-};
-console.log(person.age);
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_detect_computed_property_in_object_method,
+    r#"
+    const methodName = 'greet';
+    const person = {
+      name: 'John',
+      [methodName]() {
+        console.log('Hello!');
+      }
+    };
+    "#,
+    1,
   }
 }

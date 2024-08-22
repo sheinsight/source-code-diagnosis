@@ -137,4 +137,17 @@ pub fn setup_operators(v: &mut SyntaxVisitor) {
   left_shift::setup(v);
   less_than_or_equal::setup(v);
   less_than::setup(v);
+  logical_and_assignment::setup(v);
+  logical_and::setup(v);
+  logical_not::setup(v);
+  logical_or_assignment::setup(v);
+  logical_or::setup(v);
+  multiplication_assignment::setup(v);
+  multiplication::setup(v);
+  new_target::setup(v);
+  new::setup(v);
+  null::setup(v);
+  nullish_coalescing_assignment::setup(v);
+  nullish_coalescing::setup(v);
+  object_initializer_computed_property_names::setup(v);
 }
