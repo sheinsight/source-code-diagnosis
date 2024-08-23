@@ -1,68 +1,29 @@
-use oxc_ast::{visit::walk, Visit};
-use serde_json5::from_str;
+use crate::create_compat;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+create_compat! {
+  "./throw.json",
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_throw_statement.push(walk_throw_statement);
+  },
 
-pub struct ThrowVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
-
-impl Default for ThrowVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./throw.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for ThrowVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ThrowVisitor {
-  fn visit_throw_statement(&mut self, it: &oxc_ast::ast::ThrowStatement<'a>) {
-    self
-      .usage
-      .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-
-    walk::walk_throw_statement(self, it);
+  walk_throw_statement,
+  |ctx: &mut Context, it: &oxc_ast::ast::ThrowStatement| {
+    true
   }
 }
 
 #[cfg(test)]
 mod tests {
-
-  use crate::syntax::semantic_tester::SemanticTester;
-
   use super::*;
-
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage.iter().filter(|item| item.name == "throw").count()
-  }
-
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(ThrowVisitor::default());
-    let usage = tester.analyze(
-      "
-function getRectArea(width, height) {
-  if (isNaN(width) || isNaN(height)) {
+  use crate::assert_ok_count;
+  assert_ok_count! {
+    "throw",
+    setup,
+    should_ok_when_async_generator_function_declaration,
+    r#"
     throw new Error('Parameter is not a number!');
-  }
-}    
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    "#,
+    1,
   }
 }

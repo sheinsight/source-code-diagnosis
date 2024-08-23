@@ -3,19 +3,22 @@ use oxc_ast::{
     ArrayAssignmentTarget, ArrayExpression, ArrayPattern,
     ArrowFunctionExpression, AssignmentExpression, AwaitExpression,
     BinaryExpression, BlockStatement, BooleanLiteral, BreakStatement,
-    CallExpression, ChainExpression, Class, ClassBody,
+    CallExpression, CatchClause, ChainExpression, Class, ClassBody,
     ComputedMemberExpression, ConditionalExpression, ContinueStatement,
     DebuggerStatement, Directive, DoWhileStatement, EmptyStatement,
     ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration,
     ForInStatement, ForOfStatement, ForStatement, FormalParameter,
-    FormalParameters, Function, IdentifierReference, ImportDeclaration,
-    ImportExpression, LogicalExpression, MetaProperty, MethodDefinition,
-    NewExpression, NullLiteral, NumericLiteral, ObjectExpression,
-    ObjectPattern, ObjectProperty, ParenthesizedExpression,
-    PrivateInExpression, Program, PropertyDefinition, RegExpLiteral,
-    SequenceExpression, SpreadElement, StaticBlock, StaticMemberExpression,
-    StringLiteral, TemplateLiteral, ThisExpression, UnaryExpression,
-    UpdateExpression, VariableDeclaration, VariableDeclarator, YieldExpression,
+    FormalParameters, Function, IdentifierReference, IfStatement,
+    ImportAttribute, ImportDeclaration, ImportExpression, LabeledStatement,
+    LogicalExpression, MetaProperty, MethodDefinition, NewExpression,
+    NullLiteral, NumericLiteral, ObjectExpression, ObjectPattern,
+    ObjectProperty, ParenthesizedExpression, PrivateInExpression, Program,
+    PropertyDefinition, RegExpLiteral, ReturnStatement, SequenceExpression,
+    SpreadElement, StaticBlock, StaticMemberExpression, StringLiteral,
+    SwitchStatement, TemplateLiteral, ThisExpression, ThrowStatement,
+    TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration,
+    VariableDeclarator, WhileStatement, WithClause, WithStatement,
+    YieldExpression,
   },
   visit::walk,
   Visit,
@@ -74,7 +77,6 @@ pub struct SyntaxVisitor<'a> {
     Vec<fn(&mut Context, &ArrayAssignmentTarget)>,
   pub walk_parenthesized_expression:
     Vec<fn(&mut Context, &ParenthesizedExpression)>,
-  pub walk_variable_declaration: Vec<fn(&mut Context, &VariableDeclaration)>,
   pub walk_meta_property: Vec<fn(&mut Context, &MetaProperty)>,
   pub walk_logical_expression: Vec<fn(&mut Context, &LogicalExpression)>,
   pub walk_new_expression: Vec<fn(&mut Context, &NewExpression)>,
@@ -84,16 +86,28 @@ pub struct SyntaxVisitor<'a> {
   pub walk_yield_expression: Vec<fn(&mut Context, &YieldExpression)>,
   pub walk_block_statement: Vec<fn(&mut Context, &BlockStatement)>,
   pub walk_break_statement: Vec<fn(&mut Context, &BreakStatement)>,
-  pub walk_continue_statement: Vec<fn(&mut Context, &ContinueStatement)>,
+  pub walk_empty_statement: Vec<fn(&mut Context, &EmptyStatement)>,
   pub walk_do_while_statement: Vec<fn(&mut Context, &DoWhileStatement)>,
   pub walk_debugger_statement: Vec<fn(&mut Context, &DebuggerStatement)>,
-  pub walk_empty_statement: Vec<fn(&mut Context, &EmptyStatement)>,
+  pub walk_continue_statement: Vec<fn(&mut Context, &ContinueStatement)>,
+  pub walk_variable_declaration: Vec<fn(&mut Context, &VariableDeclaration)>,
   pub walk_export_default_declaration:
     Vec<fn(&mut Context, &ExportDefaultDeclaration)>,
   pub walk_export_all_declaration: Vec<fn(&mut Context, &ExportAllDeclaration)>,
   pub walk_for_of_statement: Vec<fn(&mut Context, &ForOfStatement)>,
   pub walk_for_in_statement: Vec<fn(&mut Context, &ForInStatement)>,
   pub walk_for_statement: Vec<fn(&mut Context, &ForStatement)>,
+  pub walk_if_statement: Vec<fn(&mut Context, &IfStatement)>,
+  pub walk_import_attribute: Vec<fn(&mut Context, &ImportAttribute)>,
+  pub walk_with_clause: Vec<fn(&mut Context, it: &WithClause)>,
+  pub walk_labeled_statement: Vec<fn(&mut Context, it: &LabeledStatement)>,
+  pub walk_return_statement: Vec<fn(&mut Context, it: &ReturnStatement)>,
+  pub walk_switch_statement: Vec<fn(&mut Context, it: &SwitchStatement)>,
+  pub walk_throw_statement: Vec<fn(&mut Context, it: &ThrowStatement)>,
+  pub walk_catch_clause: Vec<fn(&mut Context, it: &CatchClause)>,
+  pub walk_try_statement: Vec<fn(&mut Context, it: &TryStatement)>,
+  pub walk_while_statement: Vec<fn(&mut Context, it: &WhileStatement)>,
+  pub walk_with_statement: Vec<fn(&mut Context, it: &WithStatement)>,
   pub context: Context<'a>,
   is_strict_mode: bool,
 }
@@ -112,11 +126,16 @@ impl<'a> SyntaxVisitor<'a> {
       walk_function: Vec::new(),
       walk_directive: Vec::new(),
       walk_class_body: Vec::new(),
+      walk_with_clause: Vec::new(),
       walk_static_block: Vec::new(),
+      walk_if_statement: Vec::new(),
       walk_null_literal: Vec::new(),
+      walk_catch_clause: Vec::new(),
       walk_meta_property: Vec::new(),
       walk_array_pattern: Vec::new(),
       walk_for_statement: Vec::new(),
+      walk_with_statement: Vec::new(),
+      walk_try_statement: Vec::new(),
       walk_string_literal: Vec::new(),
       walk_spread_element: Vec::new(),
       walk_object_pattern: Vec::new(),
@@ -129,11 +148,16 @@ impl<'a> SyntaxVisitor<'a> {
       walk_numeric_literal: Vec::new(),
       walk_boolean_literal: Vec::new(),
       walk_break_statement: Vec::new(),
+      walk_while_statement: Vec::new(),
       walk_empty_statement: Vec::new(),
+      walk_throw_statement: Vec::new(),
+      walk_switch_statement: Vec::new(),
+      walk_return_statement: Vec::new(),
       walk_for_of_statement: Vec::new(),
       walk_formal_parameter: Vec::new(),
       walk_chain_expression: Vec::new(),
       walk_yield_expression: Vec::new(),
+      walk_import_attribute: Vec::new(),
       walk_unary_expression: Vec::new(),
       walk_template_literal: Vec::new(),
       walk_array_expression: Vec::new(),
@@ -142,6 +166,7 @@ impl<'a> SyntaxVisitor<'a> {
       walk_binary_expression: Vec::new(),
       walk_formal_parameters: Vec::new(),
       walk_method_definition: Vec::new(),
+      walk_labeled_statement: Vec::new(),
       walk_object_expression: Vec::new(),
       walk_import_expression: Vec::new(),
       walk_update_expression: Vec::new(),
@@ -208,6 +233,41 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
     walk::walk_program(self, it);
   }
 
+  fn visit_while_statement(&mut self, it: &WhileStatement<'a>) {
+    for walk in &self.walk_while_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_while_statement(self, it);
+  }
+
+  fn visit_with_statement(&mut self, it: &WithStatement<'a>) {
+    for walk in &self.walk_with_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_with_statement(self, it);
+  }
+
+  fn visit_try_statement(&mut self, it: &TryStatement<'a>) {
+    for walk in &self.walk_try_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_try_statement(self, it);
+  }
+
+  fn visit_labeled_statement(&mut self, it: &LabeledStatement<'a>) {
+    for walk in &self.walk_labeled_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_labeled_statement(self, it);
+  }
+
+  fn visit_return_statement(&mut self, it: &ReturnStatement<'a>) {
+    for walk in &self.walk_return_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_return_statement(self, it);
+  }
+
   fn visit_this_expression(&mut self, it: &ThisExpression) {
     for walk in &self.walk_this_expression {
       walk(&mut self.context, it);
@@ -220,6 +280,34 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
       walk(&mut self.context, it);
     }
     walk::walk_for_in_statement(self, it);
+  }
+
+  fn visit_switch_statement(&mut self, it: &SwitchStatement<'a>) {
+    for walk in &self.walk_switch_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_switch_statement(self, it);
+  }
+
+  fn visit_throw_statement(&mut self, it: &ThrowStatement<'a>) {
+    for walk in &self.walk_throw_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_throw_statement(self, it);
+  }
+
+  fn visit_catch_clause(&mut self, it: &CatchClause<'a>) {
+    for walk in &self.walk_catch_clause {
+      walk(&mut self.context, it);
+    }
+    walk::walk_catch_clause(self, it);
+  }
+
+  fn visit_with_clause(&mut self, it: &WithClause<'a>) {
+    for walk in &self.walk_with_clause {
+      walk(&mut self.context, it);
+    }
+    walk::walk_with_clause(self, it);
   }
 
   fn visit_array_pattern(&mut self, it: &ArrayPattern<'a>) {
@@ -251,6 +339,20 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
       walk(&mut self.context, it);
     }
     walk::walk_export_default_declaration(self, it);
+  }
+
+  fn visit_if_statement(&mut self, it: &IfStatement<'a>) {
+    for walk in &self.walk_if_statement {
+      walk(&mut self.context, it);
+    }
+    walk::walk_if_statement(self, it);
+  }
+
+  fn visit_import_attribute(&mut self, it: &ImportAttribute<'a>) {
+    for walk in &self.walk_import_attribute {
+      walk(&mut self.context, it);
+    }
+    walk::walk_import_attribute(self, it);
   }
 
   fn visit_export_all_declaration(

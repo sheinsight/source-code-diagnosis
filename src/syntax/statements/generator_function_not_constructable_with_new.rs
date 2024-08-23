@@ -22,6 +22,7 @@ impl Default for GeneratorFunctionNotConstructableWithNewVisitor {
   }
 }
 
+// TODO: implement
 impl CommonTrait for GeneratorFunctionNotConstructableWithNewVisitor {
   fn get_usage(&self) -> Vec<CompatBox> {
     self.usage.clone()

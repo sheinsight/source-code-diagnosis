@@ -62,4 +62,26 @@ pub fn setup_statements(v: &mut SyntaxVisitor) {
   for_in::setup(v);
   for_of::setup(v);
   r#for::setup(v);
+  function_trailing_comma_in_parameters::setup(v);
+  function::setup(v);
+  generator_function_trailing_comma_in_parameters::setup(v);
+  generator_function::setup(v);
+  if_else::setup(v);
+  import_import_assertions_type_css::setup(v);
+  import_import_assertions_type_json::setup(v);
+  import_import_assertions::setup(v);
+  import_import_attributes_type_css::setup(v);
+  import_import_attributes_type_json::setup(v);
+  import_import_attributes::setup(v);
+  import::setup(v);
+  label::setup(v);
+  r#let::setup(v);
+  r#return::setup(v);
+  switch::setup(v);
+  throw::setup(v);
+  try_catch_optional_catch_binding::setup(v);
+  try_catch::setup(v);
+  var::setup(v);
+  r#while::setup(v);
+  with::setup(v);
 }

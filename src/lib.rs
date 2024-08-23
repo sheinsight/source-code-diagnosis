@@ -10,3 +10,4 @@ mod syntax;
 
 pub use danger_string_usage::get_danger_strings_usage;
 pub use module_member_usage::get_module_member_usage;
+pub use syntax::check_browser_supported;

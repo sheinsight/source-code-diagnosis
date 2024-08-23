@@ -1,65 +1,34 @@
-use oxc_ast::{visit::walk, Visit};
-use serde_json5::from_str;
+use crate::create_compat;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+create_compat! {
+  "./with.json",
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_with_statement.push(walk_with_statement);
+  },
 
-pub struct WithVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
-
-impl Default for WithVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!("./with.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for WithVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for WithVisitor {
-  fn visit_with_statement(&mut self, it: &oxc_ast::ast::WithStatement<'a>) {
-    self
-      .usage
-      .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-    walk::walk_with_statement(self, it);
+  walk_with_statement,
+  |ctx: &mut Context, it: &oxc_ast::ast::WithStatement| {
+    true
   }
 }
 
 #[cfg(test)]
 mod tests {
 
-  use crate::syntax::semantic_tester::SemanticTester;
-
   use super::*;
+  use crate::assert_ok_count;
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage.iter().filter(|item| item.name == "with").count()
-  }
+  assert_ok_count! {
+    "with",
+    setup,
 
-  #[test]
-  fn should_ok_when_async_generator_function_declaration() {
-    let mut tester = SemanticTester::from_visitor(WithVisitor::default());
-    let usage = tester.analyze(
-      "
-with ([1, 2, 3]) {
-  console.log(toString()); // 1,2,3
-}    
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
+    should_ok_when_use_with_statement,
+    r#"
+    with ([1, 2, 3]) {
+      console.log(toString()); // 1,2,3
+    }    
+    "#,
+    1
   }
 }

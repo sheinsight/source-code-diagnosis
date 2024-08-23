@@ -1,99 +1,44 @@
-use oxc_ast::{visit::walk, Visit};
-use serde_json5::from_str;
+use crate::create_compat;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+create_compat! {
+  "./try_catch_optional_catch_binding.json",
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_catch_clause.push(walk_catch_clause);
+  },
 
-pub struct TryCatchOptionalCatchBindingVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
-
-impl Default for TryCatchOptionalCatchBindingVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./try_catch_optional_catch_binding.json"))
-        .unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for TryCatchOptionalCatchBindingVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for TryCatchOptionalCatchBindingVisitor {
-  fn visit_catch_clause(&mut self, it: &oxc_ast::ast::CatchClause<'a>) {
-    if it.param.is_none() {
-      self
-        .usage
-        .push(CompatBox::new(it.span.clone(), self.compat.clone()));
-
-      walk::walk_catch_clause(self, it);
-    }
+  walk_catch_clause,
+  |ctx: &mut Context, it: &oxc_ast::ast::CatchClause| {
+    it.param.is_none()
   }
 }
 
 #[cfg(test)]
 mod tests {
-
-  use crate::syntax::semantic_tester::SemanticTester;
-
   use super::*;
+  use crate::assert_ok_count;
 
-  fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-    usage
-      .iter()
-      .filter(|item| item.name == "try_catch_optional_catch_binding")
-      .count()
-  }
+  assert_ok_count! {
+    "try_catch_optional_catch_binding",
+    setup,
+    should_ok_when_use_optional_catch_binding,
+    r#"
+    try {
 
-  #[test]
-  fn should_ok_when_use_optional_catch_binding() {
-    let mut tester = SemanticTester::from_visitor(
-      TryCatchOptionalCatchBindingVisitor::default(),
-    );
-    let usage = tester.analyze(
-      "
-try {
+    } catch {
 
-} catch {
+    }
+    "#,
+    1,
 
-}    
-",
-    );
+    should_fail_when_no_use_optional_catch_binding,
+    r#"
+    try {
 
-    let count = get_async_function_count(&usage);
+    } catch(a) {
 
-    assert_eq!(usage.len(), 1);
-
-    assert_eq!(count, 1);
-  }
-
-  #[test]
-  fn should_fail_when_no_use_optional_catch_binding() {
-    let mut tester = SemanticTester::from_visitor(
-      TryCatchOptionalCatchBindingVisitor::default(),
-    );
-    let usage = tester.analyze(
-      "
-try {
-
-} catch(a) {
-
-}    
-",
-    );
-
-    let count = get_async_function_count(&usage);
-
-    assert_eq!(usage.len(), 0);
-
-    assert_eq!(count, 0);
+    }
+    "#,
+    0,
   }
 }

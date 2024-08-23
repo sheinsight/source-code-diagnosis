@@ -28,6 +28,8 @@ impl CommonTrait for GeneratorFunctionIteratorResultObjectVisitor {
   }
 }
 
+// TODO: implement
+
 impl<'a> Visit<'a> for GeneratorFunctionIteratorResultObjectVisitor {}
 
 #[cfg(test)]
