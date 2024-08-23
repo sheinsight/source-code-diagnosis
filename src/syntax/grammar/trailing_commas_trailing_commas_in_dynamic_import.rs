@@ -1,53 +1,50 @@
-use std::sync::OnceLock;
-
 use regex::Regex;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_import_expression(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::ImportExpression,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!(
-      "./trailing_commas_trailing_commas_in_dynamic_import.json"
-    ))
-    .unwrap()
-  });
-
-  let source_code =
-    &ctx.source_code[it.span.start as usize..it.span.end as usize];
-  if let Ok(regex) = Regex::new(r",\s*\)$") {
-    if regex.is_match(source_code) {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_import_expression.push(walk_import_expression);
+  },
+  compat {
+    name: "trailing_commas_trailing_commas_in_dynamic_import",
+    description: "动态导入中的尾随逗号",
+    tags: [],
+    support: {
+      chrome: "91",
+      chrome_android: "91",
+      firefox: "-1",
+      firefox_android: "-1",
+      opera: "-1",
+      opera_android: "-1",
+      safari: "15",
+      safari_ios: "15",
+      edge: "91",
+      oculus: "91",
+      node: "17.5.0",
+      deno: "1.17",
+    }
+  },
+  walk_import_expression,
+  |ctx: &mut Context, it: &oxc_ast::ast::ImportExpression| {
+    let source_code = &ctx.source_code[it.span.start as usize..it.span.end as usize];
+    if let Ok(regex) = Regex::new(r",\s*\)$") {
+      regex.is_match(source_code)
+    } else {
+      false
     }
   }
 }
 
-pub fn setup_trailing_commas_trailing_commas_in_dynamic_import(
-  v: &mut crate::syntax::visitor::SyntaxVisitor,
-) {
-  v.walk_import_expression.push(walk_import_expression);
-}
-
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::grammar::trailing_commas_trailing_commas_in_dynamic_import::setup_trailing_commas_trailing_commas_in_dynamic_import,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "trailing_commas_trailing_commas_in_dynamic_import",
-    setup_trailing_commas_trailing_commas_in_dynamic_import,
+    setup,
 
     should_ok_when_import_expression,
     r#"

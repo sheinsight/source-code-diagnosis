@@ -3,12 +3,29 @@ use oxc_ast::ast::Expression;
 use crate::create_compat;
 
 create_compat! {
-  "./import_meta_resolve.json",
   setup,
   |v: &mut SyntaxVisitor| {
       v.walk_static_member_expression.push(walk_static_member_expression);
   },
-
+  compat {
+    name: "operators_import_meta_resolve",
+    description: "<code>import.meta.resolve</code>",
+    tags: [],
+    support: {
+      chrome: "105",
+      chrome_android: "105",
+      firefox: "106",
+      firefox_android: "106",
+      opera: "105",
+      opera_android: "105",
+      safari: "16.4",
+      safari_ios: "16.4",
+      edge: "105",
+      oculus: "105",
+      node: "20.6.0",
+      deno: "1.24",
+    }
+  },
   walk_static_member_expression,
   |ctx: &mut Context, it: &oxc_ast::ast::StaticMemberExpression| {
     if let Expression::MetaProperty(meta) = &it.object {

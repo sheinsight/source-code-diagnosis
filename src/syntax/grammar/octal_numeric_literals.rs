@@ -1,40 +1,43 @@
-use std::sync::OnceLock;
+use crate::create_compat;
 
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_numeric_literal(ctx: &mut Context, it: &oxc_ast::ast::NumericLiteral) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./octal_numeric_literals.json")).unwrap()
-  });
-  if vec!["0O", "0o"].iter().any(|item| it.raw.starts_with(item)) {
-    ctx
-      .usage
-      .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_numeric_literal.push(walk_numeric_literal);
+  },
+  compat {
+    name: "octal_numeric_literals",
+    description: "八进制数字字面量 (0o)",
+    tags: ["web-features:snapshot:ecmascript-2015"],
+    support: {
+      chrome: "41",
+      chrome_android: "41",
+      firefox: "25",
+      firefox_android: "25",
+      opera: "41",
+      opera_android: "41",
+      safari: "9",
+      safari_ios: "9",
+      edge: "12",
+      oculus: "41",
+      node: "4.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_numeric_literal,
+  |ctx: &mut Context, it: &oxc_ast::ast::NumericLiteral| {
+    vec!["0O", "0o"].iter().any(|item| it.raw.starts_with(item))
   }
-}
-
-pub fn setup_octal_numeric_literals(v: &mut SyntaxVisitor) {
-  v.walk_numeric_literal.push(walk_numeric_literal);
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::grammar::octal_numeric_literals::setup_octal_numeric_literals,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "octal_numeric_literals",
-    setup_octal_numeric_literals,
+    setup,
 
     should_ok_when_use_octal_numeric_literals,
     r#"

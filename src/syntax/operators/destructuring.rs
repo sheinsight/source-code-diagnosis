@@ -11,14 +11,31 @@ fn is_destructuring(stack: &Vec<AstKind>) -> bool {
 }
 
 create_compat! {
-  "./destructuring.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_object_pattern.push(walk_object_pattern);
     v.walk_array_pattern.push(walk_array_pattern);
     v.walk_array_assignment_target.push(walk_array_assignment_target);
   },
-
+  compat {
+    name: "operators_destructuring",
+    description: "解构赋值",
+    tags: ["web-features:snapshot:ecmascript-2015"],
+    support: {
+      chrome: "49",
+      chrome_android: "49",
+      firefox: "41",
+      firefox_android: "41",
+      opera: "49",
+      opera_android: "49",
+      safari: "8",
+      safari_ios: "8",
+      edge: "14",
+      oculus: "49",
+      node: "6.0.0",
+      deno: "1.0",
+    }
+  },
   walk_object_pattern,
   |ctx: &mut Context, it: &oxc_ast::ast::ObjectPattern| {
     is_destructuring(&ctx.stack)

@@ -1,36 +1,45 @@
-use std::sync::OnceLock;
+use crate::create_compat;
 
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_null_literal(ctx: &mut Context, it: &oxc_ast::ast::NullLiteral) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./null_literal.json")).unwrap());
-  ctx
-    .usage
-    .push(CompatBox::new(it.span.clone(), compat.clone()));
-}
-
-pub fn setup_null_literal(v: &mut SyntaxVisitor) {
-  v.walk_null_literal.push(walk_null_literal);
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_null_literal.push(walk_null_literal);
+  },
+  compat {
+    name: "null_literal",
+    description: "空值字面量 (null)",
+    tags: [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    support: {
+      chrome: "1",
+      chrome_android: "1",
+      firefox: "1",
+      firefox_android: "1",
+      opera: "3",
+      opera_android: "10.1",
+      safari: "1",
+      safari_ios: "1",
+      edge: "12",
+      oculus: "1",
+      node: "0.10.0",
+      deno: "1.0",
+    }
+  },
+  walk_null_literal,
+  |ctx: &mut Context, it: &oxc_ast::ast::NullLiteral| {
+    true
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count, syntax::grammar::null_literal::setup_null_literal,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "null_literal",
-    setup_null_literal,
+    setup,
 
     should_ok_when_use_null_literal,
     r#"

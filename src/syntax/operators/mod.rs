@@ -169,6 +169,7 @@ pub fn setup_operators(v: &mut SyntaxVisitor) {
   strict_inequality::setup(v);
   subtraction_assignment::setup(v);
   subtraction::setup(v);
+  this::setup(v);
   r#typeof::setup(v);
   unary_negation::setup(v);
   unary_plus::setup(v);

@@ -1,12 +1,28 @@
-use oxc_ast::ast::Expression;
-
 use crate::create_compat;
 
 create_compat! {
-  "./optional_chaining.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_chain_expression.push(walk_chain_expression);
+  },
+  compat {
+    name: "operators_optional_chaining",
+    description: "Optional chaining operator (<code>?.</code>)",
+    tags: ["web-features:snapshot:ecmascript-2020"],
+    support: {
+      chrome: "80",
+      chrome_android: "80",
+      firefox: "74",
+      firefox_android: "74",
+      opera: "80",
+      opera_android: "80",
+      safari: "13.1",
+      safari_ios: "13.1",
+      edge: "80",
+      oculus: "80",
+      node: "14.0.0",
+      deno: "1.0",
+    }
   },
   walk_chain_expression,
   |ctx: &mut Context, it: &oxc_ast::ast::ChainExpression| {
@@ -36,39 +52,4 @@ mod tests {
     "#,
     2
   }
-
-  //   use crate::syntax::semantic_tester::SemanticTester;
-
-  //   use super::*;
-
-  //   fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-  //     usage
-  //       .iter()
-  //       .filter(|item| item.name == "operators_optional_chaining")
-  //       .count()
-  //   }
-
-  //   #[test]
-  //   fn should_ok_when_async_generator_function_declaration() {
-  //     let mut tester =
-  //       SemanticTester::from_visitor(OptionalChainingVisitor::default());
-  //     let usage = tester.analyze(
-  //       "
-  // const user = {
-  //   name: '1',
-  //   address: {
-  //     city: '2'
-  //   }
-  // };
-  // console.log(user?.address?.city);
-  // console.log(user?.contact?.email);
-  // ",
-  //     );
-
-  //     let count = get_async_function_count(&usage);
-
-  //     assert_eq!(usage.len(), 2);
-
-  //     assert_eq!(count, 2);
-  //   }
 }

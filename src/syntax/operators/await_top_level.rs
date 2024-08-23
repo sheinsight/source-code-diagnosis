@@ -16,12 +16,29 @@ fn is_top_level_await(stack: &Vec<AstKind>) -> bool {
 }
 
 create_compat! {
-  "./await_top_level.json",
   setup,
   |v: &mut SyntaxVisitor| {
       v.walk_await_expression.push(walk_await_expression);
   },
-
+  compat {
+    name: "await_top_level",
+    description: "Use at module top level",
+    tags: ["web-features:async-await"],
+    support: {
+      chrome: "89",
+      chrome_android: "89",
+      firefox: "89",
+      firefox_android: "89",
+      opera: "89",
+      opera_android: "89",
+      safari: "15",
+      safari_ios: "15",
+      edge: "89",
+      oculus: "89",
+      node: "14.8.0",
+      deno: "1.0",
+    }
+  },
   walk_await_expression,
   |ctx: &mut Context, it: &oxc_ast::ast::AwaitExpression| {
     is_top_level_await(&ctx.stack)

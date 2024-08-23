@@ -1,47 +1,43 @@
-use std::sync::OnceLock;
+use crate::create_compat;
 
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_object_expression(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::ObjectExpression,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!(
-      "./trailing_commas_trailing_commas_in_object_literals.json"
-    ))
-    .unwrap()
-  });
-  if it.trailing_comma.is_some() {
-    ctx
-      .usage
-      .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_object_expression.push(walk_object_expression);
+  },
+  compat {
+    name: "trailing_commas_trailing_commas_in_object_literals",
+    description: "对象字面量中的尾随逗号",
+    tags: [],
+    support: {
+      chrome: "1",
+      chrome_android: "1",
+      firefox: "1",
+      firefox_android: "1",
+      opera: "9.5",
+      opera_android: "10.1",
+      safari: "3",
+      safari_ios: "1",
+      edge: "12",
+      oculus: "1",
+      node: "0.10.0",
+      deno: "1.0",
+    }
+  },
+  walk_object_expression,
+  |ctx: &mut Context, it: &oxc_ast::ast::ObjectExpression| {
+    it.trailing_comma.is_some()
   }
-}
-
-pub fn setup_trailing_commas_trailing_commas_in_object_literals(
-  v: &mut crate::syntax::visitor::SyntaxVisitor,
-) {
-  v.walk_object_expression.push(walk_object_expression);
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::grammar::trailing_commas_trailing_commas_in_object_literals::setup_trailing_commas_trailing_commas_in_object_literals,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "trailing_commas_trailing_commas_in_object_literals",
-    setup_trailing_commas_trailing_commas_in_object_literals,
+    setup,
 
     should_ok_when_object_expression,
     r#"

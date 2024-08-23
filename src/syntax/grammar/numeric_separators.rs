@@ -1,40 +1,43 @@
-use std::sync::OnceLock;
+use crate::create_compat;
 
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_numeric_literal(ctx: &mut Context, it: &oxc_ast::ast::NumericLiteral) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./numeric_separators.json")).unwrap()
-  });
-  if it.raw.contains("_") {
-    ctx
-      .usage
-      .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_numeric_literal.push(walk_numeric_literal);
+  },
+  compat {
+    name: "numeric_separators",
+    description: "数值分隔符 (1_000_000_000_000)",
+    tags: [],
+    support: {
+      chrome: "75",
+      chrome_android: "75",
+      firefox: "70",
+      firefox_android: "70",
+      opera: "75",
+      opera_android: "-1",
+      safari: "13",
+      safari_ios: "13",
+      edge: "75",
+      oculus: "75",
+      node: "12.5.0",
+      deno: "1.2",
+    }
+  },
+  walk_numeric_literal,
+  |ctx: &mut Context, it: &oxc_ast::ast::NumericLiteral| {
+    it.raw.contains("_")
   }
-}
-
-pub fn setup_numeric_separators(v: &mut SyntaxVisitor) {
-  v.walk_numeric_literal.push(walk_numeric_literal);
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::grammar::numeric_separators::setup_numeric_separators,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "numeric_separators",
-    setup_numeric_separators,
+    setup,
 
     should_ok_when_use_numeric_separators,
     r#"

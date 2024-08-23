@@ -3,13 +3,30 @@ use oxc_ast::ast::Expression;
 use crate::create_compat;
 
 create_compat! {
-  "./object_initializer_computed_property_names.json",
   setup,
   |v: &mut SyntaxVisitor| {
       v.walk_assignment_expression.push(walk_assignment_expression);
       v.walk_variable_declaration.push(walk_variable_declaration);
   },
-
+  compat {
+    name: "operators_object_initializer_computed_property_names",
+    description: "Computed property names",
+    tags: ["web-features:snapshot:ecmascript-2015"],
+    support: {
+      chrome: "47",
+      chrome_android: "47",
+      firefox: "34",
+      firefox_android: "34",
+      opera: "47",
+      opera_android: "47",
+      safari: "8",
+      safari_ios: "8",
+      edge: "12",
+      oculus: "47",
+      node: "4.0.0",
+      deno: "1.0",
+    }
+  },
   walk_assignment_expression,
   |ctx: &mut Context, it: &oxc_ast::ast::AssignmentExpression| {
     if let Expression::ObjectExpression(oe) = &it.right {
@@ -20,7 +37,6 @@ create_compat! {
       false
     }
   },
-
   walk_variable_declaration,
   |ctx: &mut Context, it: &oxc_ast::ast::VariableDeclaration| {
     it.declarations.iter().any(|d| {

@@ -1,42 +1,49 @@
-use std::sync::OnceLock;
+use crate::create_compat;
 
-use oxc_ast::ast::Program;
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_program(ctx: &mut Context, it: &Program) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./hashbang_comments.json")).unwrap()
-  });
-  if it.hashbang.is_some() {
-    ctx
-      .usage
-      .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_program.push(walk_program);
+  },
+  compat {
+    name: "hashbang_comments",
+    description: "Hashbang (#!) 注释语法",
+    tags: [
+      "web-features:snapshot:ecmascript-2023"
+    ],
+    support: {
+      chrome: "74",
+      chrome_android: "74",
+      firefox: "67",
+      firefox_android: "67",
+      opera: "74",
+      opera_android: "74",
+      safari: "13.1",
+      safari_ios: "13.1",
+      edge: "74",
+      oculus: "74",
+      node: "0.10.0",
+      deno: "1.0",
+    }
+  },
+  walk_program,
+  |ctx: &mut Context, it: &oxc_ast::ast::Program| {
+    it.hashbang.is_some()
   }
-}
-
-pub fn setup_hashbang_comments(v: &mut SyntaxVisitor) {
-  v.walk_program.push(walk_program);
 }
 
 #[cfg(test)]
 mod tests {
+  use super::setup;
   use crate::assert_ok_count;
 
   assert_ok_count! {
     "hashbang_comments",
-    crate::syntax::grammar::hashbang_comments::setup_hashbang_comments,
+    setup,
 
     should_ok_when_use_hashbang_comments,
     r#"#!/usr/bin/env node
-  console.log("Hello world");"#,
+    console.log("Hello world");"#,
     1,
 
     should_fail_when_hashbang_comments,

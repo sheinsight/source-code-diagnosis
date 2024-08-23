@@ -3,12 +3,31 @@ use oxc_ast::ast::Argument;
 use crate::create_compat;
 
 create_compat! {
-  "./spread_spread_in_function_calls.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_call_expression.push(walk_call_expression);
   },
-
+  compat {
+    name: "spread_in_function_calls",
+    description: "Spread in function calls",
+    tags: [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "46",
+      chrome_android: "46",
+      firefox: "27",
+      firefox_android: "27",
+      opera: "37",
+      opera_android: "37",
+      safari: "8",
+      safari_ios: "8",
+      edge: "12",
+      oculus: "46",
+      node: "5.0.0",
+      deno: "1.0",
+    }
+  },
   walk_call_expression,
   |ctx: &mut Context, expr: &oxc_ast::ast::CallExpression| {
     expr.arguments.iter().any(|arg| matches!(arg, Argument::SpreadElement(_)))

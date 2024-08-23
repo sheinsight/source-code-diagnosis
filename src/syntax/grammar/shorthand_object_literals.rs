@@ -1,40 +1,45 @@
-use std::sync::OnceLock;
+use crate::create_compat;
 
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_object_property(ctx: &mut Context, it: &oxc_ast::ast::ObjectProperty) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./shorthand_object_literals.json")).unwrap()
-  });
-  if it.shorthand {
-    ctx
-      .usage
-      .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_object_property.push(walk_object_property);
+  },
+  compat {
+    name: "shorthand_object_literals",
+    description: "对象字面量的简写表示法",
+    tags: [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "43",
+      chrome_android: "43",
+      firefox: "33",
+      firefox_android: "33",
+      opera: "43",
+      opera_android: "43",
+      safari: "9",
+      safari_ios: "9",
+      edge: "12",
+      oculus: "43",
+      node: "4.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_object_property,
+  |ctx: &mut Context, it: &oxc_ast::ast::ObjectProperty| {
+    it.shorthand
   }
-}
-
-pub fn setup_shorthand_object_literals(v: &mut SyntaxVisitor) {
-  v.walk_object_property.push(walk_object_property);
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::grammar::shorthand_object_literals::setup_shorthand_object_literals,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "shorthand_object_literals",
-    setup_shorthand_object_literals,
+    setup,
 
     should_ok_when_use_shorthand_object_literals,
     r#"

@@ -1,12 +1,29 @@
 use crate::create_compat;
 
 create_compat! {
-  "./yield_star.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_yield_expression.push(walk_yield_expression);
   },
-
+  compat {
+    name: "operators_yield_star",
+    description: "yield*",
+    tags: ["web-features:snapshot:ecmascript-2015"],
+    support: {
+      chrome: "39",
+      chrome_android: "39",
+      firefox: "27",
+      firefox_android: "27",
+      opera: "39",
+      opera_android: "39",
+      safari: "10",
+      safari_ios: "10",
+      edge: "12",
+      oculus: "39",
+      node: "4.0.0",
+      deno: "1.0",
+    }
+  },
   walk_yield_expression,
   |ctx: &mut Context, it: &oxc_ast::ast::YieldExpression| {
     it.delegate

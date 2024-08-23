@@ -1,136 +1,104 @@
-use std::sync::OnceLock;
-
-use oxc_span::Span;
 use regex::Regex;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-fn get_source_code(source_code: &str, span: Span) -> &str {
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_array_expression.push(walk_array_expression);
+    v.walk_object_expression.push(walk_object_expression);
+    v.walk_function.push(walk_function);
+    v.walk_call_expression.push(walk_call_expression);
+    v.walk_import_declaration.push(walk_import_declaration);
+    v.walk_export_named_declaration.push(walk_export_named_declaration);
+  },
+  compat {
+    name: "trailing_commas",
+    description: "尾随逗号",
+    tags: [],
+    support: {
+      chrome: "1",
+      chrome_android: "1",
+      firefox: "1",
+      firefox_android: "1",
+      opera: "9.5",
+      opera_android: "10.1",
+      safari: "1",
+      safari_ios: "1",
+      edge: "12",
+      oculus: "1",
+      node: "0.10.0",
+      deno: "1.0",
+    }
+  },
+  walk_array_expression,
+  |ctx: &mut Context, it: &oxc_ast::ast::ArrayExpression| {
+    let source_code = get_source_code(&ctx.source_code.as_str(), it.span);
+    if let Ok(regex) = Regex::new(r",\s*\]$") {
+      regex.is_match(source_code)
+    } else {
+      false
+    }
+  },
+  walk_object_expression,
+  |ctx: &mut Context, it: &oxc_ast::ast::ObjectExpression| {
+    let source_code = get_source_code(&ctx.source_code.as_str(), it.span);
+    if let Ok(regex) = Regex::new(r",\s*\}$") {
+      regex.is_match(source_code)
+    } else {
+      false
+    }
+  },
+  walk_function,
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags, _is_strict_mode: bool| {
+    let source_code = get_source_code(&ctx.source_code.as_str(), it.params.span);
+    if let Ok(regex) = Regex::new(r",\s*\)$") {
+      regex.is_match(source_code)
+    } else {
+      false
+    }
+  },
+  walk_call_expression,
+  |ctx: &mut Context, it: &oxc_ast::ast::CallExpression| {
+    let source_code = get_source_code(&ctx.source_code.as_str(), it.span);
+    if let Ok(regex) = Regex::new(r",\s*\)$") {
+      regex.is_match(source_code)
+    } else {
+      false
+    }
+  },
+  walk_import_declaration,
+  |ctx: &mut Context, it: &oxc_ast::ast::ImportDeclaration| {
+    let source_code = get_source_code(&ctx.source_code.as_str(), it.span);
+    if let Ok(regex) = Regex::new(r##"\{\s*[^}]*,\s*}\s*from\s*['\"][^'\"]*['\"];?"##) {
+      regex.is_match(source_code)
+    } else {
+      false
+    }
+  },
+  walk_export_named_declaration,
+  |ctx: &mut Context, it: &oxc_ast::ast::ExportNamedDeclaration| {
+    let source_code = get_source_code(&ctx.source_code.as_str(), it.span);
+    if let Ok(regex) = Regex::new(r"export\s*\{\s*[^}]*,\s*}") {
+      regex.is_match(source_code)
+    } else {
+      false
+    }
+  }
+}
+
+fn get_source_code(source_code: &str, span: oxc_span::Span) -> &str {
   &source_code[span.start as usize..span.end as usize]
-}
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_array_expression(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::ArrayExpression,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./trailing_commas.json")).unwrap());
-  let source_code = get_source_code(&ctx.source_code.as_str(), it.span);
-  if let Ok(regex) = Regex::new(r",\s*\]$") {
-    if regex.is_match(source_code) {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
-    }
-  }
-}
-
-fn walk_object_expression(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::ObjectExpression,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./trailing_commas.json")).unwrap());
-  let source_code = get_source_code(&ctx.source_code.as_str(), it.span);
-  if let Ok(regex) = Regex::new(r",\s*\}$") {
-    if regex.is_match(source_code) {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
-    }
-  }
-}
-
-fn walk_function(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::Function,
-  flags: &oxc_semantic::ScopeFlags,
-  is_strict_mode: bool,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./trailing_commas.json")).unwrap());
-  let source_code = get_source_code(&ctx.source_code.as_str(), it.params.span);
-  if let Ok(regex) = Regex::new(r",\s*\)$") {
-    if regex.is_match(source_code) {
-      ctx
-        .usage
-        .push(CompatBox::new(it.params.span.clone(), compat.clone()));
-    }
-  }
-}
-
-fn walk_call_expression(ctx: &mut Context, it: &oxc_ast::ast::CallExpression) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./trailing_commas.json")).unwrap());
-  let source_code = get_source_code(&ctx.source_code.as_str(), it.span);
-  if let Ok(regex) = Regex::new(r",\s*\)$") {
-    if regex.is_match(source_code) {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
-    }
-  }
-}
-
-fn walk_import_declaration(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::ImportDeclaration,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./trailing_commas.json")).unwrap());
-  let source_code = get_source_code(&ctx.source_code.as_str(), it.span);
-  if let Ok(regex) =
-    Regex::new(r##"\{\s*[^}]*,\s*}\s*from\s*['\"][^'\"]*['\"];?"##)
-  {
-    if regex.is_match(source_code) {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
-    }
-  }
-}
-
-fn walk_export_named_declaration(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::ExportNamedDeclaration,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./trailing_commas.json")).unwrap());
-  let source_code = get_source_code(&ctx.source_code.as_str(), it.span);
-  if let Ok(regex) = Regex::new(r"export\s*\{\s*[^}]*,\s*}") {
-    if regex.is_match(source_code) {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
-    }
-  }
-}
-
-pub fn setup_trailing_commas(v: &mut crate::syntax::visitor::SyntaxVisitor) {
-  v.walk_array_expression.push(walk_array_expression);
-  v.walk_object_expression.push(walk_object_expression);
-  v.walk_function.push(walk_function);
-  v.walk_call_expression.push(walk_call_expression);
-  v.walk_import_declaration.push(walk_import_declaration);
-  v.walk_export_named_declaration
-    .push(walk_export_named_declaration);
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count, syntax::grammar::trailing_commas::setup_trailing_commas,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "trailing_commas",
-    setup_trailing_commas,
+    setup,
 
     should_ok_when_array_expression,
     r#"
@@ -205,6 +173,5 @@ mod tests {
       export { A as B, C as D, E as F, };
     "#,
     3,
-
   }
 }

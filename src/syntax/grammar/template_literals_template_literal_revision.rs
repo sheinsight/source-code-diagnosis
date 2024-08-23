@@ -1,48 +1,45 @@
-use std::sync::OnceLock;
+use crate::create_compat;
 
-use oxc_ast::ast::TemplateLiteral;
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_template_literal(ctx: &mut Context, it: &TemplateLiteral) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!(
-      "./template_literals_template_literal_revision.json"
-    ))
-    .unwrap()
-  });
-
-  ctx
-    .usage
-    .push(CompatBox::new(it.span.clone(), compat.clone()));
-}
-
-pub fn setup_template_literals_template_literal_revision(
-  v: &mut SyntaxVisitor,
-) {
-  v.walk_template_literal.push(walk_template_literal);
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_template_literal.push(walk_template_literal);
+  },
+  compat {
+    name: "template_literals_template_literal_revision",
+    description: "标签模板字面量中允许的转义序列",
+    tags: [
+      "web-features:snapshot:ecmascript-2018"
+    ],
+    support: {
+      chrome: "62",
+      chrome_android: "62",
+      firefox: "53",
+      firefox_android: "53",
+      opera: "62",
+      opera_android: "62",
+      safari: "11",
+      safari_ios: "11",
+      edge: "62",
+      oculus: "62",
+      node: "8.10.0",
+      deno: "1.0",
+    }
+  },
+  walk_template_literal,
+  |ctx: &mut Context, it: &oxc_ast::ast::TemplateLiteral| {
+    true
+  }
 }
 
 #[cfg(test)]
 mod tests {
-
-  //TODO test this
-
-  use crate::{
-    assert_ok_count,
-    syntax::grammar::template_literals_template_literal_revision::setup_template_literals_template_literal_revision,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "template_literals_template_literal_revision",
-    setup_template_literals_template_literal_revision,
+    setup,
 
     should_ok_when_use_template_literals_template_literal_revision,
     r#"

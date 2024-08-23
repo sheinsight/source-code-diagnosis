@@ -1,39 +1,45 @@
-use std::sync::OnceLock;
+use crate::create_compat;
 
-use oxc_ast::ast::TemplateLiteral;
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_template_literal(ctx: &mut Context, it: &TemplateLiteral) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./template_literals.json")).unwrap()
-  });
-  ctx
-    .usage
-    .push(CompatBox::new(it.span.clone(), compat.clone()));
-}
-
-pub fn setup_template_literals(v: &mut SyntaxVisitor) {
-  v.walk_template_literal.push(walk_template_literal);
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_template_literal.push(walk_template_literal);
+  },
+  compat {
+    name: "template_literals",
+    description: "模板字面量",
+    tags: [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "41",
+      chrome_android: "41",
+      firefox: "34",
+      firefox_android: "34",
+      opera: "41",
+      opera_android: "41",
+      safari: "9",
+      safari_ios: "9",
+      edge: "12",
+      oculus: "41",
+      node: "4.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_template_literal,
+  |ctx: &mut Context, it: &oxc_ast::ast::TemplateLiteral| {
+    true
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::grammar::template_literals::setup_template_literals,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "template_literals",
-    setup_template_literals,
+    setup,
 
     should_ok_when_use_template_literals,
     r#"

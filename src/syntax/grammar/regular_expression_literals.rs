@@ -1,38 +1,45 @@
-use std::sync::OnceLock;
+use crate::create_compat;
 
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_reg_exp_literal(ctx: &mut Context, it: &oxc_ast::ast::RegExpLiteral) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./regular_expression_literals.json")).unwrap()
-  });
-  ctx
-    .usage
-    .push(CompatBox::new(it.span.clone(), compat.clone()));
-}
-
-pub fn setup_regular_expression_literals(v: &mut SyntaxVisitor) {
-  v.walk_reg_exp_literal.push(walk_reg_exp_literal);
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_reg_exp_literal.push(walk_reg_exp_literal);
+  },
+  compat {
+    name: "regular_expression_literals",
+    description: "正则表达式字面量 (/ab+c/g)",
+    tags: [
+      "web-features:snapshot:ecmascript-3"
+    ],
+    support: {
+      chrome: "1",
+      chrome_android: "1",
+      firefox: "1",
+      firefox_android: "1",
+      opera: "5",
+      opera_android: "10.1",
+      safari: "1",
+      safari_ios: "1",
+      edge: "12",
+      oculus: "1",
+      node: "0.10.0",
+      deno: "1.0",
+    }
+  },
+  walk_reg_exp_literal,
+  |ctx: &mut Context, it: &oxc_ast::ast::RegExpLiteral| {
+    true
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::grammar::regular_expression_literals::setup_regular_expression_literals,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "regular_expression_literals",
-    setup_regular_expression_literals,
+    setup,
 
     should_ok_when_use_regular_expression_literals,
     r#"

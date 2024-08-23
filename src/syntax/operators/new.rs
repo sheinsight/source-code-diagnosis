@@ -1,12 +1,29 @@
 use crate::create_compat;
 
 create_compat! {
-  "./new.json",
   setup,
   |v: &mut SyntaxVisitor| {
       v.walk_new_expression.push(walk_new_expression);
   },
-
+  compat {
+    name: "operators_new",
+    description: "The new operator creates an instance of a user-defined object type or of one of the built-in object types that has a constructor function.",
+    tags: ["web-features:snapshot:ecmascript-1"],
+    support: {
+      chrome: "1",
+      chrome_android: "1",
+      firefox: "1",
+      firefox_android: "1",
+      opera: "3",
+      opera_android: "10.1",
+      safari: "1",
+      safari_ios: "1",
+      edge: "12",
+      oculus: "1",
+      node: "0.10.0",
+      deno: "1.0",
+    }
+  },
   walk_new_expression,
   |ctx: &mut Context, it: &oxc_ast::ast::NewExpression| {
     true
@@ -33,37 +50,4 @@ mod tests {
     "#,
     1,
   }
-
-  //   use crate::syntax::semantic_tester::SemanticTester;
-
-  //   use super::*;
-
-  //   fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-  //     usage
-  //       .iter()
-  //       .filter(|item| item.name == "operators_new")
-  //       .count()
-  //   }
-
-  //   #[test]
-  //   fn should_ok_when_async_generator_function_declaration() {
-  //     let mut tester = SemanticTester::from_visitor(NewVisitor::default());
-  //     let usage = tester.analyze(
-  //       r#"
-  // function Car(make, model, year) {
-  //   this.make = make;
-  //   this.model = model;
-  //   this.year = year;
-  // }
-
-  // const car1 = new Car('Eagle', 'Talon TSi', 1993);
-  // "#,
-  //     );
-
-  //     let count = get_async_function_count(&usage);
-
-  //     assert_eq!(usage.len(), 1);
-
-  //     assert_eq!(count, 1);
-  //   }
 }

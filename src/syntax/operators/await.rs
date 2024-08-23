@@ -1,12 +1,29 @@
 use crate::create_compat;
 
 create_compat! {
-  "./await.json",
   setup,
   |v: &mut SyntaxVisitor| {
       v.walk_await_expression.push(walk_await_expression);
   },
-
+  compat {
+    name: "operators_await",
+    description: "await 运算符",
+    tags: ["web-features:async-await"],
+    support: {
+      chrome: "55",
+      chrome_android: "55",
+      firefox: "52",
+      firefox_android: "52",
+      opera: "55",
+      opera_android: "55",
+      safari: "10.1",
+      safari_ios: "10.1",
+      edge: "14",
+      oculus: "55",
+      node: "7.6.0",
+      deno: "1.0",
+    }
+  },
   walk_await_expression,
   |ctx: &mut Context, it: &oxc_ast::ast::AwaitExpression| {
     true

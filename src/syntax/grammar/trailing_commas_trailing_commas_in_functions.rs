@@ -1,54 +1,50 @@
-use std::sync::OnceLock;
-
 use regex::Regex;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn walk_function(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::Function,
-  _flags: &oxc_semantic::ScopeFlags,
-  _is_strict_mode: bool,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!(
-      "./trailing_commas_trailing_commas_in_functions.json"
-    ))
-    .unwrap()
-  });
-  let source_code = &ctx.source_code
-    [it.params.span.start as usize..it.params.span.end as usize];
-  if let Ok(regex) = Regex::new(r",\s*\)$") {
-    if regex.is_match(source_code) {
-      ctx
-        .usage
-        .push(CompatBox::new(it.params.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_function.push(walk_function);
+  },
+  compat {
+    name: "trailing_commas_trailing_commas_in_functions",
+    description: "函数参数中的尾随逗号",
+    tags: [],
+    support: {
+      chrome: "58",
+      chrome_android: "58",
+      firefox: "52",
+      firefox_android: "52",
+      opera: "58",
+      opera_android: "58",
+      safari: "10",
+      safari_ios: "10",
+      edge: "14",
+      oculus: "58",
+      node: "8.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_function,
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags, _is_strict_mode: bool| {
+    let source_code = &ctx.source_code[it.params.span.start as usize..it.params.span.end as usize];
+    if let Ok(regex) = Regex::new(r",\s*\)$") {
+      regex.is_match(source_code)
+    } else {
+      false
     }
   }
 }
 
-pub fn setup_trailing_commas_trailing_commas_in_functions(
-  v: &mut crate::syntax::visitor::SyntaxVisitor,
-) {
-  v.walk_function.push(walk_function);
-}
-
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::grammar::trailing_commas_trailing_commas_in_functions::setup_trailing_commas_trailing_commas_in_functions,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "trailing_commas_trailing_commas_in_functions",
-    setup_trailing_commas_trailing_commas_in_functions,
+    setup,
 
     should_ok_when_function_declaration,
     r#"
