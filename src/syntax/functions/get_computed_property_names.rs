@@ -1,60 +1,65 @@
-use std::sync::OnceLock;
-
 use oxc_ast::{
-  ast::{MethodDefinitionKind, PropertyKind},
+  ast::{Function, MethodDefinitionKind, PropertyKind},
   AstKind,
 };
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_function(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::Function,
-  _flags: &oxc_semantic::ScopeFlags,
-  _is_strict_mode: bool,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./get_computed_property_names.json")).unwrap()
-  });
-
-  if let Some(parent) = ctx.stack.last() {
-    let is_get_in_computed = match parent {
-      AstKind::ObjectProperty(parent) => {
-        PropertyKind::Get == parent.kind && parent.computed
+create_compat! {
+    setup,
+    |v: &mut SyntaxVisitor| {
+        v.walk_function.push(walk_function);
+    },
+    compat {
+        name: "get_computed_property_names",
+        description: "generator functions",
+        tags: [
+            "web-features:generator-functions",
+            "web-features:snapshot:ecmascript-2015"
+        ],
+        support: {
+            chrome: "39",
+            chrome_android: "39",
+            firefox: "26",
+            firefox_android: "26",
+            opera: "26",
+            opera_android: "26",
+            safari: "10",
+            safari_ios: "10",
+            edge: "13",
+            oculus: "5.0",
+            node: "4.0.0",
+            deno: "1.0",
+        }
+    },
+    walk_function,
+    |ctx: &mut Context, it: &Function, _flags: &oxc_semantic::ScopeFlags,_is_strict_mode: bool| {
+      if let Some(parent) = ctx.stack.last() {
+        let is_get_in_computed = match parent {
+          AstKind::ObjectProperty(parent) => {
+            PropertyKind::Get == parent.kind && parent.computed
+          }
+          AstKind::MethodDefinition(parent) => {
+            MethodDefinitionKind::Get == parent.kind && parent.computed
+          }
+          _ => false,
+        };
+        is_get_in_computed
+      } else {
+        false
       }
-      AstKind::MethodDefinition(parent) => {
-        MethodDefinitionKind::Get == parent.kind && parent.computed
-      }
-      _ => false,
-    };
 
-    if is_get_in_computed {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
     }
-  }
-}
-
-pub fn setup_get_computed_property_names(v: &mut SyntaxVisitor) {
-  v.walk_function.push(walk_function);
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup_get_computed_property_names;
+  use super::setup;
   use crate::assert_ok_count;
 
   assert_ok_count! {
     "get_computed_property_names",
-    setup_get_computed_property_names,
+    setup,
 
     should_ok_when_use_get_computed_property_names,
     r#"

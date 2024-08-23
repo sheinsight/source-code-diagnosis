@@ -1,68 +1,58 @@
-use std::sync::OnceLock;
+use oxc_ast::ast::{MethodDefinition, PropertyDefinition};
 
-use serde_json5::from_str;
+use crate::create_compat;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_property_definition(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::PropertyDefinition,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./static.json")).unwrap());
-
-  if it.r#static {
-    ctx
-      .usage
-      .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_method_definition.push(walk_method_definition);
+    v.walk_property_definition.push(walk_property_definition);
+    v.walk_static_block.push(walk_static_block);
+  },
+  compat {
+    name: "classes_static",
+    description: "static class members",
+    tags: [
+      "web-features:class-syntax",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "41",
+      chrome_android: "41",
+      firefox: "45",
+      firefox_android: "45",
+      opera: "28",
+      opera_android: "28",
+      safari: "9",
+      safari_ios: "9",
+      edge: "13",
+      oculus: "41",
+      node: "4.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_method_definition,
+  |ctx: &mut Context, it: &MethodDefinition| {
+    it.r#static
+  },
+  walk_property_definition,
+  |ctx: &mut Context, it: &PropertyDefinition| {
+    it.r#static
+  },
+  walk_static_block,
+  |ctx: &mut Context, it: &oxc_ast::ast::StaticBlock| {
+    true
   }
-}
-
-pub fn walk_method_definition(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::MethodDefinition,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./static.json")).unwrap());
-
-  if it.r#static {
-    ctx
-      .usage
-      .push(CompatBox::new(it.span.clone(), compat.clone()));
-  }
-}
-
-pub fn walk_static_block(ctx: &mut Context, it: &oxc_ast::ast::StaticBlock) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./static.json")).unwrap());
-
-  ctx
-    .usage
-    .push(CompatBox::new(it.span.clone(), compat.clone()));
-}
-
-pub fn setup_static(visit: &mut SyntaxVisitor) {
-  visit.walk_method_definition.push(walk_method_definition);
-  visit
-    .walk_property_definition
-    .push(walk_property_definition);
-  visit.walk_static_block.push(walk_static_block);
 }
 
 #[cfg(test)]
 mod tests {
-
-  use crate::{assert_ok_count, syntax::classes::r#static::setup_static};
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
     "classes_static",
-    setup_static,
+    setup,
 
     should_ok_when_use_static_method,
     r#"
@@ -110,7 +100,6 @@ mod tests {
     "#,
     2,
 
-
     should_ok_when_not_use_static,
     r#"
       class A { }
@@ -127,6 +116,5 @@ mod tests {
       class B { }
     "#,
     3,
-
   }
 }

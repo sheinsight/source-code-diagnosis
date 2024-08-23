@@ -1,36 +1,48 @@
-use std::sync::OnceLock;
-
 use oxc_ast::ast::StaticBlock;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_static_block(ctx: &mut Context, it: &StaticBlock) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./static_initialization_blocks.json")).unwrap()
-  });
-  ctx
-    .usage
-    .push(CompatBox::new(it.span.clone(), compat.clone()));
-}
-
-pub fn setup_static_initialization_block(v: &mut SyntaxVisitor) {
-  v.walk_static_block.push(walk_static_block);
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_static_block.push(walk_static_block);
+  },
+  compat {
+    name: "classes_static_initialization_blocks",
+    description: "static initialization blocks",
+    tags: [
+      "web-features:class-syntax",
+      "web-features:snapshot:ecmascript-2022"
+    ],
+    support: {
+      chrome: "91",
+      chrome_android: "91",
+      firefox: "90",
+      firefox_android: "90",
+      opera: "78",
+      opera_android: "66",
+      safari: "15",
+      safari_ios: "15",
+      edge: "91",
+      oculus: "91",
+      node: "16.4.0",
+      deno: "1.11",
+    }
+  },
+  walk_static_block,
+  |ctx: &mut Context, it: &StaticBlock| {
+    true
+  }
 }
 
 #[cfg(test)]
 mod tests {
+  use super::setup;
   use crate::assert_ok_count;
 
   assert_ok_count! {
     "classes_static_initialization_blocks",
-    super::setup_static_initialization_block,
+    setup,
 
     should_ok_when_use_static_initialization_blocks,
     r#"

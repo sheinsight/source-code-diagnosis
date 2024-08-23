@@ -2,10 +2,10 @@ mod classes;
 mod common;
 mod compat;
 mod functions;
-mod grammar;
+// mod grammar;
 mod macros;
-mod operators;
-mod statements;
+// mod operators;
+// mod statements;
 
 mod semantic_tester;
 mod visitor;
@@ -82,9 +82,9 @@ pub fn check_browser_supported(
 
       classes::setup_classes(&mut v);
       functions::setup_functions(&mut v);
-      grammar::setup_grammar(&mut v);
-      operators::setup_operators(&mut v);
-      statements::setup_statements(&mut v);
+      // grammar::setup_grammar(&mut v);
+      // operators::setup_operators(&mut v);
+      // statements::setup_statements(&mut v);
 
       v.visit_program(&ret.program);
 

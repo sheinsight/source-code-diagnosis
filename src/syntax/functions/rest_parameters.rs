@@ -1,40 +1,45 @@
-use std::sync::OnceLock;
+use crate::create_compat;
 
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_formal_parameters(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::FormalParameters,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./rest_parameters.json")).unwrap());
-  if it.rest.is_some() {
-    ctx
-      .usage
-      .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_formal_parameters.push(walk_formal_parameters);
+  },
+  compat {
+    name: "rest_parameters",
+    description: "剩余参数",
+    tags: [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "47",
+      chrome_android: "47",
+      firefox: "15",
+      firefox_android: "15",
+      opera: "47",
+      opera_android: "47",
+      safari: "10",
+      safari_ios: "10",
+      edge: "12",
+      oculus: "47",
+      node: "6.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_formal_parameters,
+  |ctx: &mut Context, it: &oxc_ast::ast::FormalParameters| {
+    it.rest.is_some()
   }
-}
-
-pub fn setup_rest_parameters(v: &mut SyntaxVisitor) {
-  v.walk_formal_parameters.push(walk_formal_parameters);
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup_rest_parameters;
+  use super::setup;
   use crate::assert_ok_count;
 
   assert_ok_count! {
     "rest_parameters",
-    setup_rest_parameters,
+    setup,
 
     should_ok_when_use_rest_parameters,
     r#"

@@ -1,49 +1,48 @@
-use std::sync::OnceLock;
-
 use oxc_ast::AstKind;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_identifier_reference(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::IdentifierReference,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./arguments_iterator.json")).unwrap()
-  });
-
-  if it.name == "arguments" {
-    if let Some(p) = ctx.stack.last() {
-      if let AstKind::ForOfStatement(_) = p {
-        ctx
-          .usage
-          .push(CompatBox::new(it.span.clone(), compat.clone()));
-      }
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_identifier_reference.push(arguments_iterator);
+  },
+  compat {
+    name: "arguments_iterator",
+    description: "arguments is iterable",
+    tags: [
+      "web-features:arguments-iterator",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "47",
+      chrome_android: "47",
+      firefox: "46",
+      firefox_android: "46",
+      opera: "34",
+      opera_android: "34",
+      safari: "10",
+      safari_ios: "10",
+      edge: "14",
+      oculus: "5.0",
+      node: "6.0.0",
+      deno: "1.0",
     }
+  },
+  arguments_iterator,
+  |ctx: &mut Context, it: &oxc_ast::ast::IdentifierReference| {
+    it.name == "arguments" && ctx.stack.last().map_or(false, |p| matches!(p, AstKind::ForOfStatement(_)))
   }
-}
-
-pub fn setup_arguments_iterator(v: &mut SyntaxVisitor) {
-  v.walk_identifier_reference.push(walk_identifier_reference);
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::functions::arguments_iterator::setup_arguments_iterator,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
-    "functions_arguments_iterator",
-    setup_arguments_iterator,
+    "arguments_iterator",
+    setup,
 
     should_ok_when_use_arguments_iterator,
     r#"

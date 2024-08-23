@@ -1,59 +1,64 @@
-use std::sync::OnceLock;
-
 use oxc_ast::{
   ast::{MethodDefinitionKind, PropertyKind},
   AstKind,
 };
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_function.push(walk_function);
+  },
+  compat {
+    name: "set_computed_property_names",
+    description: "setter 方法的计算属性名",
+    tags: [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "46",
+      chrome_android: "46",
+      firefox: "34",
+      firefox_android: "34",
+      opera: "47",
+      opera_android: "47",
+      safari: "9.1",
+      safari_ios: "9.1",
+      edge: "12",
+      oculus: "46",
+      node: "4.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_function,
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags, _is_strict_mode: bool| {
+    if let Some(parent) = ctx.stack.last() {
+      let is_set_in_computed = match parent {
+        AstKind::ObjectProperty(parent) => {
+          PropertyKind::Set == parent.kind && parent.computed
+        }
+        AstKind::MethodDefinition(parent) => {
+          MethodDefinitionKind::Set == parent.kind && parent.computed
+        }
+        _ => false,
+      };
 
-pub fn walk_function(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::Function,
-  _flags: &oxc_semantic::ScopeFlags,
-  _is_strict_mode: bool,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./set_computed_property_names.json")).unwrap()
-  });
-  if let Some(parent) = ctx.stack.last() {
-    let is_get_in_computed = match parent {
-      AstKind::ObjectProperty(parent) => {
-        PropertyKind::Set == parent.kind && parent.computed
-      }
-      AstKind::MethodDefinition(parent) => {
-        MethodDefinitionKind::Set == parent.kind && parent.computed
-      }
-      _ => false,
-    };
-
-    if is_get_in_computed {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
+      is_set_in_computed
+    } else {
+      false
     }
   }
 }
 
-pub fn setup_set_computed_property_names(v: &mut SyntaxVisitor) {
-  v.walk_function.push(walk_function);
-}
-
 #[cfg(test)]
 mod tests {
-  use super::setup_set_computed_property_names;
+  use super::setup;
   use crate::assert_ok_count;
 
   assert_ok_count! {
     "set_computed_property_names",
-    setup_set_computed_property_names,
+    setup,
 
     should_ok_when_use_set_computed_property_names,
     r#"

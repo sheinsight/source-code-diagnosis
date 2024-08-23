@@ -1,40 +1,48 @@
-use std::sync::OnceLock;
+use oxc_ast::ast::ArrowFunctionExpression;
 
-use serde_json5::from_str;
+use crate::create_compat;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_arrow_function_expression(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::ArrowFunctionExpression,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./arrow_functions.json")).unwrap());
-  ctx
-    .usage
-    .push(CompatBox::new(it.span.clone(), compat.clone()));
-}
-
-pub fn setup_arrow_functions(v: &mut SyntaxVisitor) {
-  v.walk_arrow_function_expression
-    .push(walk_arrow_function_expression);
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_arrow_function_expression.push(arrow_functions);
+  },
+  compat {
+    name: "arrow_functions",
+    description: "arrow function expressions",
+    tags: [
+      "web-features:arrow-functions",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "45",
+      chrome_android: "45",
+      firefox: "22",
+      firefox_android: "22",
+      opera: "32",
+      opera_android: "32",
+      safari: "10",
+      safari_ios: "10",
+      edge: "12",
+      oculus: "5.0",
+      node: "4.0.0",
+      deno: "1.0",
+    }
+  },
+  arrow_functions,
+  |ctx: &mut Context, _it: &ArrowFunctionExpression| {
+    true
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count, syntax::functions::arrow_functions::setup_arrow_functions,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
-    "functions_arrow_functions",
-    setup_arrow_functions,
+    "arrow_functions",
+    setup,
 
     should_ok_when_use_arrow_functions,
     r#"

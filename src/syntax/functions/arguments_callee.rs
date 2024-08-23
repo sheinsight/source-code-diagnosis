@@ -1,68 +1,67 @@
-use std::sync::OnceLock;
+use oxc_ast::ast::{Expression, StaticMemberExpression};
 
-use oxc_ast::ast::Expression;
-use serde_json5::from_str;
+use crate::create_compat;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_static_member_expression(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::StaticMemberExpression,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./arguments_callee.json")).unwrap());
-  if let Expression::Identifier(o) = &it.object {
-    if o.name == "arguments" && it.property.name == "callee" {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_static_member_expression.push(arguments_callee);
+  },
+  compat {
+    name: "arguments_callee",
+    description: "arguments.callee",
+    tags: [
+      "web-features:arguments-callee",
+      "web-features:snapshot:ecmascript-5"
+    ],
+    support: {
+      chrome: "1",
+      chrome_android: "18",
+      firefox: "1",
+      firefox_android: "4",
+      opera: "7",
+      opera_android: "10.1",
+      safari: "3",
+      safari_ios: "1",
+      edge: "12",
+      oculus: "5.0",
+      node: "0.1.100",
+      deno: "1.0",
+    }
+  },
+  arguments_callee,
+  |ctx: &mut Context, node: &StaticMemberExpression| {
+    if let Expression::Identifier(o) = &node.object {
+      o.name == "arguments" && node.property.name == "callee"
+    } else {
+      false
     }
   }
 }
 
-pub fn setup_arguments_callee(v: &mut SyntaxVisitor) {
-  v.walk_static_member_expression
-    .push(walk_static_member_expression);
-}
-
 #[cfg(test)]
 mod tests {
-
+  use super::setup;
   use crate::assert_ok_count;
 
   assert_ok_count! {
-    "functions_arguments_callee",
-    super::setup_arguments_callee,
+    "arguments_callee",
+    setup,
 
     should_ok_when_use_arguments_callee,
     r#"
-      function factorial(n) {
-          return n <= 1 ? 1 : n * arguments.callee(n - 1);
+      function foo() {
+        arguments.callee;
       }
     "#,
     1,
 
-    should_ok_when_not_use_arguments_callee,
+    should_not_ok_when_not_use_arguments_callee,
     r#"
-      function factorial(n) {
-          return n <= 1 ? 1 : n * n;
+      function foo() {
+        arguments.length;
       }
     "#,
     0,
-
-    should_ok_when_use_arguments_callee_in_arrow_function,
-    r#"
-      const factorial = (n) => {
-          return n <= 1 ? 1 : n * arguments.callee(n - 1);
-      }
-    "#,
-    1,
-
   }
 }

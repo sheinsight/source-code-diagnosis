@@ -1,51 +1,49 @@
-use std::sync::OnceLock;
-
 use oxc_ast::AstKind;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_function(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::Function,
-  _flags: &oxc_semantic::ScopeFlags,
-  _is_strict_mode: bool,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./method_definitions.json")).unwrap()
-  });
-
-  if let Some(parent) = ctx.stack.last() {
-    let is_define = match parent {
-      AstKind::ObjectProperty(_) | AstKind::MethodDefinition(_) => true,
-      _ => false,
-    };
-    if is_define {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_function.push(walk_function);
+  },
+  compat {
+    name: "method_definitions",
+    description: "方法定义",
+    tags: ["web-features:snapshot:ecmascript-2015"],
+    support: {
+      chrome: "39",
+      chrome_android: "39",
+      firefox: "34",
+      firefox_android: "34",
+      opera: "39",
+      opera_android: "39",
+      safari: "9",
+      safari_ios: "9",
+      edge: "12",
+      oculus: "39",
+      node: "4.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_function,
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags, _is_strict_mode: bool| {
+    if let Some(parent) = ctx.stack.last() {
+      matches!(parent, AstKind::ObjectProperty(_) | AstKind::MethodDefinition(_))
+    } else {
+      false
     }
   }
 }
 
-pub fn setup_method_definitions(v: &mut SyntaxVisitor) {
-  v.walk_function.push(walk_function);
-}
-
 #[cfg(test)]
 mod tests {
-  use super::setup_method_definitions;
+  use super::setup;
   use crate::assert_ok_count;
 
   assert_ok_count! {
     "method_definitions",
-    setup_method_definitions,
+    setup,
 
     should_ok_when_use_method_definitions,
     r#"

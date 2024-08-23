@@ -1,54 +1,54 @@
-use std::sync::OnceLock;
-
-use oxc_span::Span;
+use oxc_ast::ast::ArrowFunctionExpression;
 use regex::Regex;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-fn get_source_code(source_code: &str, span: Span) -> &str {
-  &source_code[span.start as usize..span.end as usize]
-}
-
-pub fn walk_arrow_function_expression(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::ArrowFunctionExpression,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./arrow_functions_trailing_comma.json")).unwrap()
-  });
-
-  if let Ok(regex) = Regex::new(r",\s*\)$") {
-    let params_source_code = get_source_code(&ctx.source_code, it.params.span);
-    if regex.is_match(params_source_code) {
-      ctx
-        .usage
-        .push(CompatBox::new(it.params.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_arrow_function_expression.push(arrow_functions_trailing_comma);
+  },
+  compat {
+    name: "arrow_functions_trailing_comma",
+    description: "trailing commas in parameter lists of arrow functions",
+    tags: [
+      "web-features:arrow-functions-trailing-comma",
+      "web-features:snapshot:ecmascript-2017"
+    ],
+    support: {
+      chrome: "58",
+      chrome_android: "58",
+      firefox: "52",
+      firefox_android: "52",
+      opera: "45",
+      opera_android: "43",
+      safari: "10",
+      safari_ios: "10",
+      edge: "14",
+      oculus: "5.0",
+      node: "8.0.0",
+      deno: "1.0",
+    }
+  },
+  arrow_functions_trailing_comma,
+  |ctx: &mut Context, it: &ArrowFunctionExpression| {
+    let params_source_code = ctx.get_source_code(it.params.span);
+    if let Ok(regex) = Regex::new(r",\s*\)$") {
+      regex.is_match(params_source_code)
+    } else {
+      false
     }
   }
 }
 
-pub fn setup_arrow_functions_trailing_comma(v: &mut SyntaxVisitor) {
-  v.walk_arrow_function_expression
-    .push(walk_arrow_function_expression);
-}
-
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::functions::arrow_functions_trailing_comma::setup_arrow_functions_trailing_comma,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
-    "functions_arrow_functions_trailing_comma",
-    setup_arrow_functions_trailing_comma,
+    "arrow_functions_trailing_comma",
+    setup,
 
     should_ok_when_use_arrow_functions_trailing_comma,
     r#"

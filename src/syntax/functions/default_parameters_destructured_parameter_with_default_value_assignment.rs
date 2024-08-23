@@ -1,17 +1,9 @@
-use std::sync::OnceLock;
-
 use oxc_ast::{
   ast::{BindingPattern, BindingPatternKind},
   Visit,
 };
 
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
+use crate::create_compat;
 
 fn has_assignment_pattern(binding_pattern: &BindingPattern) -> bool {
   struct Checker {
@@ -30,50 +22,62 @@ fn has_assignment_pattern(binding_pattern: &BindingPattern) -> bool {
   checker.found
 }
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_formal_parameter(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::FormalParameter,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./default_parameters_destructured_parameter_with_default_value_assignment.json")).unwrap()
-  });
-
-  if let BindingPatternKind::AssignmentPattern(pattern) = &it.pattern.kind {
-    if has_assignment_pattern(&pattern.left) {
-      ctx.usage.push(CompatBox::new(it.span, compat.clone()));
-    }
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+      v.walk_formal_parameter.push(default_parameters_destructured_parameter_with_default_value_assignment);
+  },
+  compat {
+      name: "default_parameters_destructured_parameter_with_default_value_assignment",
+      description: "destructured parameter with default value assignment",
+      tags: [
+          "web-features:default-parameters-destructured-parameter-with-default-value-assignment",
+          "web-features:snapshot:ecmascript-2015"
+      ],
+      support: {
+          chrome: "49",
+          chrome_android: "49",
+          firefox: "41",
+          firefox_android: "41",
+          opera: "36",
+          opera_android: "36",
+          safari: "10",
+          safari_ios: "10",
+          edge: "14",
+          oculus: "5.0",
+          node: "6.0.0",
+          deno: "1.0",
+      }
+  },
+  default_parameters_destructured_parameter_with_default_value_assignment,
+  |ctx: &mut Context, it: &oxc_ast::ast::FormalParameter| {
+      if let BindingPatternKind::AssignmentPattern(pattern) = &it.pattern.kind {
+          has_assignment_pattern(&pattern.left)
+      } else {
+          false
+      }
   }
-}
-
-pub fn setup_default_parameters_destructured_parameter_with_default_value_assignment(
-  v: &mut SyntaxVisitor,
-) {
-  v.walk_formal_parameter.push(walk_formal_parameter);
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup_default_parameters_destructured_parameter_with_default_value_assignment;
+  use super::setup;
   use crate::assert_ok_count;
 
   assert_ok_count! {
-    "functions_default_parameters_destructured_parameter_with_default_value_assignment",
-    setup_default_parameters_destructured_parameter_with_default_value_assignment,
+      "default_parameters_destructured_parameter_with_default_value_assignment",
+      setup,
 
-    should_ok_when_use_default_parameters_destructured_parameter_with_default_value_assignment,
-    r#"
-      function f({ a = 1 } = {}) {}
-    "#,
-    1,
+      should_ok_when_use_default_parameters_destructured_parameter_with_default_value_assignment,
+      r#"
+        function f({ a = 1 } = {}) {}
+      "#,
+      1,
 
-    should_ok_when_not_use_default_parameters_destructured_parameter_with_default_value_assignment,
-    r#"
-      function f(a) {}
-    "#,
-    0,
-
-
+      should_ok_when_not_use_default_parameters_destructured_parameter_with_default_value_assignment,
+      r#"
+        function f(a) {}
+      "#,
+      0,
   }
 }

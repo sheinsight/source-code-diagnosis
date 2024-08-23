@@ -1,51 +1,56 @@
-use std::sync::OnceLock;
-
 use oxc_ast::AstKind;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_function(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::Function,
-  flags: &oxc_semantic::ScopeFlags,
-  is_strict_mode: bool,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./block_level_functions.json")).unwrap()
-  });
-
-  if is_strict_mode {
-    if let Some(parent) = ctx.stack.last() {
-      if matches!(parent, AstKind::BlockStatement(_)) {
-        ctx
-          .usage
-          .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_function.push(block_level_functions);
+  },
+  compat {
+    name: "block_level_functions",
+    description: "block-level function declarations in strict mode",
+    tags: [
+      "web-features:block-level-functions",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "49",
+      chrome_android: "49",
+      firefox: "46",
+      firefox_android: "46",
+      opera: "36",
+      opera_android: "36",
+      safari: "10",
+      safari_ios: "10",
+      edge: "14",
+      oculus: "5.0",
+      node: "6.0.0",
+      deno: "1.0",
+    }
+  },
+  block_level_functions,
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &oxc_semantic::ScopeFlags, is_strict_mode: bool| {
+    if is_strict_mode {
+      if let Some(parent) = ctx.stack.last() {
+        matches!(parent, AstKind::BlockStatement(_))
+      } else {
+        false
       }
+    } else {
+      false
     }
   }
 }
 
-pub fn setup_block_level_functions(v: &mut SyntaxVisitor) {
-  v.walk_function.push(walk_function);
-}
-
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::functions::block_level_functions::setup_block_level_functions,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
-    "functions_block_level_functions",
-    setup_block_level_functions,
+    "block_level_functions",
+    setup,
 
     should_ok_when_use_block_level_functions,
     r#"
@@ -65,6 +70,5 @@ mod tests {
       }
     "#,
     0,
-
   }
 }

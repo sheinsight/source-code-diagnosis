@@ -1,46 +1,48 @@
-use std::sync::OnceLock;
-
 use oxc_ast::ast::BindingPatternKind;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_function(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::Function,
-  _flags: &oxc_semantic::ScopeFlags,
-  _is_strict_mode: bool,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./default_parameters.json")).unwrap()
-  });
-  for item in &it.params.items {
-    if matches!(item.pattern.kind, BindingPatternKind::AssignmentPattern(_)) {
-      ctx
-        .usage
-        .push(CompatBox::new(item.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_formal_parameter.push(walk_formal_parameter);
+  },
+  compat {
+    name: "default_parameters",
+    description: "default function parameters",
+    tags: [
+      "web-features:default-parameters",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "49",
+      chrome_android: "49",
+      firefox: "15",
+      firefox_android: "15",
+      opera: "36",
+      opera_android: "36",
+      safari: "10",
+      safari_ios: "10",
+      edge: "14",
+      oculus: "5.0",
+      node: "6.0.0",
+      deno: "1.0",
     }
+  },
+  walk_formal_parameter,
+  |ctx: &mut Context, it: &oxc_ast::ast::FormalParameter| {
+    matches!(it.pattern.kind, BindingPatternKind::AssignmentPattern(_))
   }
-}
-
-pub fn setup_default_parameters(v: &mut SyntaxVisitor) {
-  v.walk_function.push(walk_function);
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup_default_parameters;
+  use super::setup;
   use crate::assert_ok_count;
 
   assert_ok_count! {
-    "functions_default_parameters",
-    setup_default_parameters,
+    "default_parameters",
+    setup,
 
     should_ok_when_use_default_parameters,
     r#"

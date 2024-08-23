@@ -1,45 +1,49 @@
-use std::sync::OnceLock;
-
 use oxc_ast::ast::BindingPatternKind;
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_formal_parameters(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::FormalParameters,
-) {
-  let compat = CONSTRUCTOR_COMPAT.get_or_init(|| {
-    from_str(include_str!("./rest_parameters_destructuring.json")).unwrap()
-  });
-  if let Some(rest) = &it.rest {
-    if matches!(rest.argument.kind, BindingPatternKind::ArrayPattern(_)) {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_formal_parameters.push(walk_formal_parameters);
+  },
+  compat {
+    name: "rest_parameters_destructuring",
+    description: "解构剩余参数",
+    tags: ["web-features:snapshot:ecmascript-2015"],
+    support: {
+      chrome: "49",
+      chrome_android: "49",
+      firefox: "52",
+      firefox_android: "52",
+      opera: "49",
+      opera_android: "49",
+      safari: "10",
+      safari_ios: "10",
+      edge: "49",
+      oculus: "49",
+      node: "6.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_formal_parameters,
+  |ctx: &mut Context, it: &oxc_ast::ast::FormalParameters| {
+    if let Some(rest) = &it.rest {
+      matches!(rest.argument.kind, BindingPatternKind::ArrayPattern(_))
+    } else {
+      false
     }
   }
 }
 
-pub fn setup_rest_parameters_destructuring(
-  v: &mut crate::syntax::visitor::SyntaxVisitor,
-) {
-  v.walk_formal_parameters.push(walk_formal_parameters);
-}
-
 #[cfg(test)]
 mod tests {
-  use super::setup_rest_parameters_destructuring;
+  use super::setup;
   use crate::assert_ok_count;
 
   assert_ok_count! {
     "rest_parameters_destructuring",
-    setup_rest_parameters_destructuring,
+    setup,
 
     should_ok_when_use_rest_parameters_destructuring,
     r#"

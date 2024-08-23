@@ -1,27 +1,36 @@
-use std::sync::OnceLock;
+use crate::create_compat;
 
-use serde_json5::from_str;
-
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_class(ctx: &mut Context, it: &oxc_ast::ast::Class) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./extends.json")).unwrap());
-  if it.super_class.is_some() {
-    ctx
-      .usage
-      .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_class.push(walk_class);
+  },
+  compat {
+    name: "classes_extends",
+    description: "extends",
+    tags: [
+      "web-features:class-syntax",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "49",
+      chrome_android: "49",
+      firefox: "45",
+      firefox_android: "45",
+      opera: "49",
+      opera_android: "49",
+      safari: "9",
+      safari_ios: "9",
+      edge: "13",
+      oculus: "49",
+      node: "6.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_class,
+  |ctx: &mut Context, it: &oxc_ast::ast::Class| {
+    it.super_class.is_some()
   }
-}
-
-pub fn setup_class_extends(v: &mut SyntaxVisitor) {
-  v.walk_class.push(walk_class);
 }
 
 #[cfg(test)]
@@ -29,11 +38,11 @@ mod tests {
 
   use crate::assert_ok_count;
 
-  use super::setup_class_extends;
+  use super::setup;
 
   assert_ok_count! {
     "classes_extends",
-    setup_class_extends,
+    setup,
 
     should_ok_when_use_class_extends,
     r#"

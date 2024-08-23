@@ -1,47 +1,52 @@
-use std::sync::OnceLock;
+use oxc_ast::ast::{Expression, StaticMemberExpression};
 
-use oxc_ast::ast::Expression;
-use serde_json5::from_str;
+use crate::create_compat;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
-
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_static_member_expression(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::StaticMemberExpression,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./arguments_length.json")).unwrap());
-
-  if let Expression::Identifier(o) = &it.object {
-    if o.name == "arguments" && it.property.name == "length" {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_static_member_expression.push(arguments_length);
+  },
+  compat {
+    name: "arguments_length",
+    description: "arguments.length",
+    tags: [
+      "web-features:arguments-length",
+      "web-features:snapshot:ecmascript-5"
+    ],
+    support: {
+      chrome: "1",
+      chrome_android: "18",
+      firefox: "1",
+      firefox_android: "4",
+      opera: "7",
+      opera_android: "10.1",
+      safari: "3",
+      safari_ios: "1",
+      edge: "12",
+      oculus: "5.0",
+      node: "0.1.100",
+      deno: "1.0",
+    }
+  },
+  arguments_length,
+  |ctx: &mut Context, node: &StaticMemberExpression| {
+    if let Expression::Identifier(o) = &node.object {
+      o.name == "arguments" && node.property.name == "length"
+    } else {
+      false
     }
   }
 }
 
-pub fn setup_arguments_length(v: &mut SyntaxVisitor) {
-  v.walk_static_member_expression
-    .push(walk_static_member_expression);
-}
-
 #[cfg(test)]
 mod tests {
-  use crate::{
-    assert_ok_count,
-    syntax::functions::arguments_length::setup_arguments_length,
-  };
+  use super::setup;
+  use crate::assert_ok_count;
 
   assert_ok_count! {
-    "functions_arguments_length",
-    setup_arguments_length,
+    "arguments_length",
+    setup,
 
     should_ok_when_use_arguments_length,
     r#"
@@ -72,6 +77,5 @@ mod tests {
       }
     "#,
     2,
-
   }
 }

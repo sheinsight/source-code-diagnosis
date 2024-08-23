@@ -1,55 +1,56 @@
-use std::sync::OnceLock;
-
 use oxc_ast::{
   ast::{MethodDefinitionKind, PropertyKind},
   AstKind,
 };
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::Context,
-  compat::{Compat, CompatBox},
-  visitor::SyntaxVisitor,
-};
+use crate::create_compat;
 
-static CONSTRUCTOR_COMPAT: OnceLock<Compat> = OnceLock::new();
-
-pub fn walk_function(
-  ctx: &mut Context,
-  it: &oxc_ast::ast::Function,
-  _flags: &oxc_semantic::ScopeFlags,
-  _is_strict_mode: bool,
-) {
-  let compat = CONSTRUCTOR_COMPAT
-    .get_or_init(|| from_str(include_str!("./set.json")).unwrap());
-  if let Some(parent) = ctx.stack.last() {
-    let is_set = match parent {
-      AstKind::ObjectProperty(parent) => PropertyKind::Set == parent.kind,
-      AstKind::MethodDefinition(parent) => {
-        MethodDefinitionKind::Set == parent.kind
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_function.push(walk_function);
+  },
+  compat {
+    name: "set",
+    description: "setter 方法",
+    tags: ["web-features:snapshot:ecmascript-5"],
+    support: {
+      chrome: "1",
+      chrome_android: "1",
+      firefox: "1.5",
+      firefox_android: "1.5",
+      opera: "9.5",
+      opera_android: "9.5",
+      safari: "3",
+      safari_ios: "1",
+      edge: "12",
+      oculus: "1",
+      node: "0.10.0",
+      deno: "1.0",
+    }
+  },
+  walk_function,
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags, _is_strict_mode: bool| {
+    if let Some(parent) = ctx.stack.last() {
+      match parent {
+        AstKind::ObjectProperty(parent) => PropertyKind::Set == parent.kind,
+        AstKind::MethodDefinition(parent) => MethodDefinitionKind::Set == parent.kind,
+        _ => false,
       }
-      _ => false,
-    };
-    if is_set {
-      ctx
-        .usage
-        .push(CompatBox::new(it.span.clone(), compat.clone()));
+    } else {
+      false
     }
   }
 }
 
-pub fn setup_set(v: &mut SyntaxVisitor) {
-  v.walk_function.push(walk_function);
-}
-
 #[cfg(test)]
 mod tests {
-  use super::setup_set;
+  use super::setup;
   use crate::assert_ok_count;
 
   assert_ok_count! {
     "set",
-    setup_set,
+    setup,
 
     should_ok_when_use_set,
     r#"
