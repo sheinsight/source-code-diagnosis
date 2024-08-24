@@ -1,43 +1,42 @@
 use oxc_ast::{ast::FunctionType, visit::walk, Visit};
-use serde_json5::from_str;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-pub struct GeneratorFunctionIteratorResultObjectVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
-
-impl Default for GeneratorFunctionIteratorResultObjectVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!(
-      "./generator_function_iterator_result_object.json"
-    ))
-    .unwrap();
-    Self { usage, compat }
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_function.push(walk_function);
+  },
+  compat {
+    name: "javascript_statements_generator_function_IteratorResult_object",
+    description: "返回 IteratorResult 对象而不是抛出异常",
+    tags: ["web-features:snapshot:ecmascript-2016"],
+    support: {
+      chrome: "49",
+      chrome_android: "49",
+      firefox: "29",
+      firefox_android: "29",
+      opera: "49",
+      opera_android: "49",
+      safari: "10",
+      safari_ios: "10",
+      edge: "13",
+      oculus: "49",
+      node: "6.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_function,
+  |ctx: &mut Context, it: &oxc_ast::ast::Function| {
+    // TODO: implement the actual check for IteratorResult object
+    it.r#type == FunctionType::Generator
   }
 }
-
-impl CommonTrait for GeneratorFunctionIteratorResultObjectVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-// TODO: implement
-
-impl<'a> Visit<'a> for GeneratorFunctionIteratorResultObjectVisitor {}
 
 #[cfg(test)]
 mod tests {
-
-  use crate::syntax::semantic_tester::SemanticTester;
-
   use super::*;
+  use crate::syntax::semantic_tester::SemanticTester;
 
   fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
     usage.iter().filter(|item| item.name == "__tmp__").count()

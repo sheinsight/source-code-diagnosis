@@ -1,10 +1,28 @@
 use crate::create_compat;
 
 create_compat! {
-  "./export_namespace.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_export_all_declaration.push(walk_export_all_declaration);
+  },
+  compat {
+    name: "export_namespace",
+    description: "export * as namespace",
+    tags: [],
+    support: {
+      chrome: "72",
+      chrome_android: "72",
+      firefox: "80",
+      firefox_android: "80",
+      opera: "72",
+      opera_android: "72",
+      safari: "14.1",
+      safari_ios: "14.1",
+      edge: "72",
+      oculus: "72",
+      node: "13.2.0",
+      deno: "1.0",
+    }
   },
   walk_export_all_declaration,
   |ctx: &mut Context, it: &oxc_ast::ast::ExportAllDeclaration| {

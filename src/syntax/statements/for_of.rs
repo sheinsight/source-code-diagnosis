@@ -1,10 +1,30 @@
 use crate::create_compat;
 
 create_compat! {
-  "./for_of.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_for_of_statement.push(walk_for_of_statement);
+  },
+  compat {
+    name: "for_of",
+    description: "for...of",
+    tags: [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "38",
+      chrome_android: "38",
+      firefox: "13",
+      firefox_android: "13",
+      opera: "38",
+      opera_android: "38",
+      safari: "7",
+      safari_ios: "7",
+      edge: "12",
+      oculus: "38",
+      node: "0.12.0",
+      deno: "1.0",
+    }
   },
   walk_for_of_statement,
   |ctx: &mut Context, it: &oxc_ast::ast::ForOfStatement| {

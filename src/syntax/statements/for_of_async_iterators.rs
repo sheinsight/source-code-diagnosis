@@ -1,37 +1,37 @@
-use oxc_ast::{visit::walk, Visit};
-use serde_json5::from_str;
+use oxc_ast::ast::ForOfStatement;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-pub struct ForOfAsyncIteratorsVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
-
-impl Default for ForOfAsyncIteratorsVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./for_of_async_iterators.json")).unwrap();
-    Self { usage, compat }
-  }
-}
-
-impl CommonTrait for ForOfAsyncIteratorsVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ForOfAsyncIteratorsVisitor {
-  fn visit_for_of_statement(&mut self, it: &oxc_ast::ast::ForOfStatement<'a>) {
-    if it.r#await {
-      // TODO
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_for_of_statement.push(walk_for_of_statement);
+  },
+  compat {
+    name: "for_of_async_iterators",
+    description: "异步迭代器",
+    tags: [
+      "web-features:snapshot:ecmascript-2018"
+    ],
+    support: {
+      chrome: "63",
+      chrome_android: "63",
+      firefox: "57",
+      firefox_android: "57",
+      opera: "63",
+      opera_android: "63",
+      safari: "7",
+      safari_ios: "7",
+      edge: "12",
+      oculus: "63",
+      node: "10.0.0",
+      deno: "1.0",
     }
-    walk::walk_for_of_statement(self, it);
+  },
+  walk_for_of_statement,
+  |ctx: &mut Context, it: &oxc_ast::ast::ForOfStatement| {
+    // TODO: no implement
+    it.r#await
   }
 }
 

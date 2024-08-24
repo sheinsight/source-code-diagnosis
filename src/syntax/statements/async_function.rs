@@ -3,12 +3,31 @@ use oxc_semantic::ScopeFlags;
 use crate::create_compat;
 
 create_compat! {
-  "./async_function.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_function.push(walk_function);
   },
-
+  compat {
+    name: "async_function",
+    description: "async function 语句",
+    tags: [
+      "web-features:async-await"
+    ],
+    support: {
+      chrome: "55",
+      chrome_android: "55",
+      firefox: "52",
+      firefox_android: "52",
+      opera: "55",
+      opera_android: "55",
+      safari: "10.1",
+      safari_ios: "10.1",
+      edge: "15",
+      oculus: "55",
+      node: "7.6.0",
+      deno: "1.0",
+    }
+  },
   walk_function,
   |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &ScopeFlags, is_strict_mode: bool| {
     it.r#async && !it.generator

@@ -4,10 +4,28 @@ use oxc_semantic::ScopeFlags;
 use crate::create_compat;
 
 create_compat! {
-  "./async_generator_function.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_function.push(walk_function);
+  },
+  compat {
+    name: "async_generator_function",
+    description: "async function* statement",
+    tags: [],
+    support: {
+      chrome: "63",
+      chrome_android: "63",
+      firefox: "55",
+      firefox_android: "55",
+      opera: "63",
+      opera_android: "63",
+      safari: "12",
+      safari_ios: "12",
+      edge: "63",
+      oculus: "63",
+      node: "10.0.0",
+      deno: "1.0",
+    }
   },
   walk_function,
   |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &ScopeFlags, is_strict_mode: bool| {

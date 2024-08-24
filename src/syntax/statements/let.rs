@@ -1,12 +1,29 @@
 use crate::create_compat;
 
 create_compat! {
-  "./let.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_variable_declaration.push(walk_variable_declaration);
   },
-
+  compat {
+    name: "let",
+    description: "let 声明",
+    tags: ["web-features:snapshot:ecmascript-2015"],
+    support: {
+      chrome: "49",
+      chrome_android: "49",
+      firefox: "44",
+      firefox_android: "44",
+      opera: "17",
+      opera_android: "18",
+      safari: "10",
+      safari_ios: "10",
+      edge: "14",
+      oculus: "49",
+      node: "6.0.0",
+      deno: "1.0",
+    }
+  },
   walk_variable_declaration,
   |ctx: &mut Context, it: &oxc_ast::ast::VariableDeclaration| {
     matches!(it.kind, oxc_ast::ast::VariableDeclarationKind::Let)

@@ -1,32 +1,37 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
-use serde_json5::from_str;
+use oxc_ast::ast::ForOfStatement;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-pub struct ForOfClosingIteratorsVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
-
-impl Default for ForOfClosingIteratorsVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat =
-      from_str(include_str!("./for_of_closing_iterators.json")).unwrap();
-    Self { usage, compat }
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_for_of_statement.push(walk_for_of_statement);
+  },
+  compat {
+    name: "for_of_closing_iterators",
+    description: "关闭迭代器",
+    tags: [],
+    support: {
+      chrome: "51",
+      chrome_android: "51",
+      firefox: "53",
+      firefox_android: "53",
+      opera: "51",
+      opera_android: "51",
+      safari: "7",
+      safari_ios: "7",
+      edge: "14",
+      oculus: "51",
+      node: "6.5.0",
+      deno: "1.0",
+    }
+  },
+  walk_for_of_statement,
+  |ctx: &mut Context, it: &oxc_ast::ast::ForOfStatement| {
+    // TODO: Implement the logic to detect closing iterators
+    true
   }
 }
-
-impl CommonTrait for ForOfClosingIteratorsVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for ForOfClosingIteratorsVisitor {}
 
 #[cfg(test)]
 mod tests {

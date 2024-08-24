@@ -1,12 +1,29 @@
 use crate::create_compat;
 
 create_compat! {
-  "./import_import_assertions.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_with_clause.push(walk_with_clause);
   },
-
+  compat {
+    name: "import_import_assertions",
+    description: "使用 assert 语法的导入属性（前身为导入断言）",
+    tags: ["web-features:js-modules"],
+    support: {
+      chrome: "91",
+      chrome_android: "91",
+      firefox: "-1",
+      firefox_android: "-1",
+      opera: "-1",
+      opera_android: "-1",
+      safari: "-1",
+      safari_ios: "-1",
+      edge: "91",
+      oculus: "91",
+      node: "16.14.0",
+      deno: "1.17",
+    }
+  },
   walk_with_clause,
   |ctx: &mut Context, it: &oxc_ast::ast::WithClause| {
     it.attributes_keyword.name == "assert"

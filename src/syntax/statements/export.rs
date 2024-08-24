@@ -1,12 +1,30 @@
 use crate::create_compat;
 
 create_compat! {
-  "./export.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_export_named_declaration.push(walk_export_named_declaration);
     v.walk_export_default_declaration.push(walk_export_default_declaration);
     v.walk_export_all_declaration.push(walk_export_all_declaration);
+  },
+  compat {
+    name: "export",
+    description: "The `export` statement is used when creating JavaScript modules to export functions, objects, or primitive values from the module so they can be used by other programs with the `import` statement.",
+    tags: ["web-features:js-modules"],
+    support: {
+      chrome: "61",
+      chrome_android: "61",
+      firefox: "60",
+      firefox_android: "60",
+      opera: "61",
+      opera_android: "61",
+      safari: "10.1",
+      safari_ios: "10.1",
+      edge: "16",
+      oculus: "61",
+      node: "13.2.0",
+      deno: "1.0",
+    }
   },
   walk_export_named_declaration,
   |ctx: &mut Context, it: &oxc_ast::ast::ExportNamedDeclaration| {

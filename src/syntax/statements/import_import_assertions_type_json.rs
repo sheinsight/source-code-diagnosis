@@ -3,12 +3,29 @@ use oxc_ast::ast::ImportAttributeKey;
 use crate::create_compat;
 
 create_compat! {
-  "./import_import_assertions_type_json.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_with_clause.push(walk_with_clause);
   },
-
+  compat {
+    name: "import_import_assertions_type_json",
+    description: "assert {type: 'json'} 语法",
+    tags: ["web-features:js-modules"],
+    support: {
+      chrome: "91",
+      chrome_android: "91",
+      firefox: "91",
+      firefox_android: "91",
+      opera: "-1",
+      opera_android: "-1",
+      safari: "-1",
+      safari_ios: "-1",
+      edge: "91",
+      oculus: "91",
+      node: "-1",
+      deno: "1.17",
+    }
+  },
   walk_with_clause,
   |ctx: &mut Context, it: &oxc_ast::ast::WithClause| {
     let mut result = false;

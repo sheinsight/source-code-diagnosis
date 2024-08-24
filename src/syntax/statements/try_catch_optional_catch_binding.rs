@@ -1,12 +1,29 @@
 use crate::create_compat;
 
 create_compat! {
-  "./try_catch_optional_catch_binding.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_catch_clause.push(walk_catch_clause);
   },
-
+  compat {
+    name: "try_catch_optional_catch_binding",
+    description: "Optional catch binding",
+    tags: [],
+    support: {
+      chrome: "66",
+      chrome_android: "66",
+      firefox: "58",
+      firefox_android: "58",
+      opera: "66",
+      opera_android: "66",
+      safari: "11.1",
+      safari_ios: "11.1",
+      edge: "66",
+      oculus: "66",
+      node: "10.0.0",
+      deno: "1.0",
+    }
+  },
   walk_catch_clause,
   |ctx: &mut Context, it: &oxc_ast::ast::CatchClause| {
     it.param.is_none()

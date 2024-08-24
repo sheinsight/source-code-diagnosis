@@ -1,12 +1,29 @@
 use crate::create_compat;
 
 create_compat! {
-  "./import_import_attributes.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_with_clause.push(walk_with_clause);
   },
-
+  compat {
+    name: "import_import_attributes",
+    description: "Import attributes (<code>with</code> syntax)",
+    tags: ["web-features:js-modules"],
+    support: {
+      chrome: "123",
+      chrome_android: "123",
+      firefox: "-1",
+      firefox_android: "-1",
+      opera: "123",
+      opera_android: "123",
+      safari: "17.2",
+      safari_ios: "17.2",
+      edge: "123",
+      oculus: "123",
+      node: "20.10.0",
+      deno: "1.37",
+    }
+  },
   walk_with_clause,
   |ctx: &mut Context, it: &oxc_ast::ast::WithClause| {
     it.attributes_keyword.name == "with"

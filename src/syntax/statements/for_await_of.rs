@@ -1,10 +1,28 @@
 use crate::create_compat;
 
 create_compat! {
-  "./for_await_of.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_for_of_statement.push(walk_for_of_statement);
+  },
+  compat {
+    name: "for_await_of",
+    description: "for await...of",
+    tags: ["web-features:snapshot:ecmascript-2018"],
+    support: {
+      chrome: "63",
+      chrome_android: "63",
+      firefox: "57",
+      firefox_android: "57",
+      opera: "63",
+      opera_android: "63",
+      safari: "12",
+      safari_ios: "12",
+      edge: "63",
+      oculus: "63",
+      node: "10.0.0",
+      deno: "1.0",
+    }
   },
   walk_for_of_statement,
   |ctx: &mut Context, it: &oxc_ast::ast::ForOfStatement| {

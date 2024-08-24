@@ -1,35 +1,38 @@
-use oxc_ast::{ast::FunctionType, visit::walk, Visit};
-use serde_json5::from_str;
+use oxc_ast::ast::FunctionType;
 
-use crate::syntax::{
-  common::CommonTrait,
-  compat::{Compat, CompatBox},
-};
+use crate::create_compat;
 
-pub struct GeneratorFunctionNotConstructableWithNewVisitor {
-  usage: Vec<CompatBox>,
-  compat: Compat,
-}
-
-impl Default for GeneratorFunctionNotConstructableWithNewVisitor {
-  fn default() -> Self {
-    let usage: Vec<CompatBox> = Vec::new();
-    let compat: Compat = from_str(include_str!(
-      "./generator_function_not_constructable_with_new.json"
-    ))
-    .unwrap();
-    Self { usage, compat }
+create_compat! {
+  setup,
+  |v: &mut SyntaxVisitor| {
+    v.walk_function.push(walk_function);
+  },
+  compat {
+    name: "javascript_statements_generator_function_not_constructable_with_new",
+    description: "生成器函数不能用 new 关键字构造（ES2016）",
+    tags: ["web-features:snapshot:ecmascript-2016"],
+    support: {
+      chrome: "50",
+      chrome_android: "50",
+      firefox: "43",
+      firefox_android: "43",
+      opera: "50",
+      opera_android: "50",
+      safari: "10",
+      safari_ios: "10",
+      edge: "13",
+      oculus: "50",
+      node: "6.0.0",
+      deno: "1.0",
+    }
+  },
+  walk_function,
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags, _is_strict_mode: bool| {
+    it.r#type == FunctionType::Generator && ctx.stack.last().map_or(false, |parent| {
+      matches!(parent, AstKind::NewExpression(_))
+    })
   }
 }
-
-// TODO: implement
-impl CommonTrait for GeneratorFunctionNotConstructableWithNewVisitor {
-  fn get_usage(&self) -> Vec<CompatBox> {
-    self.usage.clone()
-  }
-}
-
-impl<'a> Visit<'a> for GeneratorFunctionNotConstructableWithNewVisitor {}
 
 #[cfg(test)]
 mod tests {

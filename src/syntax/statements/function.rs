@@ -4,12 +4,29 @@ use oxc_semantic::ScopeFlags;
 use crate::create_compat;
 
 create_compat! {
-  "./function.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_function.push(walk_function);
   },
-
+  compat {
+    name: "function",
+    description: "function 语句",
+    tags: ["web-features:snapshot:ecmascript-1"],
+    support: {
+      chrome: "1",
+      chrome_android: "1",
+      firefox: "1",
+      firefox_android: "1",
+      opera: "3",
+      opera_android: "10.1",
+      safari: "1",
+      safari_ios: "1",
+      edge: "12",
+      oculus: "1",
+      node: "0.10.0",
+      deno: "1.0",
+    }
+  },
   walk_function,
   |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &ScopeFlags, is_strict_mode: bool| {
     matches!(it.r#type, FunctionType::FunctionDeclaration)

@@ -4,12 +4,31 @@ use oxc_semantic::ScopeFlags;
 use crate::create_compat;
 
 create_compat! {
-  "./generator_function_trailing_comma_in_parameters.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_function.push(walk_function);
   },
-
+  compat {
+    name: "generator_function_trailing_comma_in_parameters",
+    description: "生成器函数参数中的尾随逗号",
+    tags: [
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "58",
+      chrome_android: "58",
+      firefox: "52",
+      firefox_android: "52",
+      opera: "58",
+      opera_android: "58",
+      safari: "10",
+      safari_ios: "10",
+      edge: "14",
+      oculus: "58",
+      node: "8.0.0",
+      deno: "1.0",
+    }
+  },
   walk_function,
   |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &ScopeFlags, is_strict_mode: bool| {
     matches!(it.r#type, FunctionType::FunctionDeclaration) &&

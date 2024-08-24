@@ -1,12 +1,29 @@
 use crate::create_compat;
 
 create_compat! {
-  "./import.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_import_declaration.push(walk_import_declaration);
   },
-
+  compat {
+    name: "import",
+    description: "import 语句",
+    tags: ["web-features:js-modules"],
+    support: {
+      chrome: "61",
+      chrome_android: "61",
+      firefox: "60",
+      firefox_android: "60",
+      opera: "61",
+      opera_android: "61",
+      safari: "10.1",
+      safari_ios: "10.1",
+      edge: "16",
+      oculus: "61",
+      node: "13.2.0",
+      deno: "1.0",
+    }
+  },
   walk_import_declaration,
   |ctx: &mut Context, it: &oxc_ast::ast::ImportDeclaration| {
     true

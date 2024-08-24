@@ -1,12 +1,31 @@
 use crate::create_compat;
 
 create_compat! {
-  "./while.json",
   setup,
   |v: &mut SyntaxVisitor| {
     v.walk_while_statement.push(walk_while_statement);
   },
-
+  compat {
+    name: "while",
+    description: "while 循环",
+    tags: [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    support: {
+      chrome: "1",
+      chrome_android: "1",
+      firefox: "1",
+      firefox_android: "1",
+      opera: "3",
+      opera_android: "10.1",
+      safari: "1",
+      safari_ios: "1",
+      edge: "12",
+      oculus: "1",
+      node: "0.10.0",
+      deno: "1.0",
+    }
+  },
   walk_while_statement,
   |ctx: &mut Context, it: &oxc_ast::ast::WhileStatement| {
     true
@@ -29,36 +48,4 @@ mod tests {
     "#,
     1
   }
-
-  //   use crate::syntax::semantic_tester::SemanticTester;
-
-  //   use super::*;
-
-  //   fn get_async_function_count(usage: &Vec<CompatBox>) -> usize {
-  //     usage.iter().filter(|item| item.name == "while").count()
-  //   }
-
-  //   #[test]
-  //   fn should_ok_when_async_generator_function_declaration() {
-  //     let mut tester = SemanticTester::from_visitor(WhileVisitor::default());
-  //     let usage = tester.analyze(
-  //       "
-  // let n = 0;
-
-  // while (n < 3) {
-  //   n++;
-  // }
-
-  // console.log(n);
-  // // Expected output: 3
-
-  // ",
-  //     );
-
-  //     let count = get_async_function_count(&usage);
-
-  //     assert_eq!(usage.len(), 1);
-
-  //     assert_eq!(count, 1);
-  //   }
 }
