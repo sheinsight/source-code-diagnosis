@@ -30,8 +30,8 @@ create_compat! {
     }
   },
   block_level_functions,
-  |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &oxc_semantic::ScopeFlags, is_strict_mode: bool| {
-    if is_strict_mode {
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &oxc_semantic::ScopeFlags| {
+    if ctx.is_strict_mode {
       if let Some(parent) = ctx.stack.last() {
         matches!(parent, AstKind::BlockStatement(_))
       } else {

@@ -27,7 +27,7 @@ create_compat! {
     }
   },
   walk_function,
-  |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &ScopeFlags, is_strict_mode: bool| {
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &ScopeFlags| {
     it.is_expression()
   }
 }

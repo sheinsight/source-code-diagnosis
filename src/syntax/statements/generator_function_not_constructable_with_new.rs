@@ -27,7 +27,7 @@ create_compat! {
     }
   },
   walk_function,
-  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags, _is_strict_mode: bool| {
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags| {
     it.r#type == FunctionType::Generator && ctx.stack.last().map_or(false, |parent| {
       matches!(parent, AstKind::NewExpression(_))
     })

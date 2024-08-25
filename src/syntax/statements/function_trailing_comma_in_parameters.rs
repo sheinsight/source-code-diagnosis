@@ -30,7 +30,7 @@ create_compat! {
     }
   },
   walk_function,
-  |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &ScopeFlags, is_strict_mode: bool| {
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &ScopeFlags| {
     matches!(it.r#type, FunctionType::FunctionDeclaration) &&
     ctx.source_code[it.params.span.start as usize..it.params.span.end as usize].ends_with(",)")
   }

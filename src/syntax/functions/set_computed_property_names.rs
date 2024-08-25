@@ -32,7 +32,7 @@ create_compat! {
     }
   },
   walk_function,
-  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags, _is_strict_mode: bool| {
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags| {
     if let Some(parent) = ctx.stack.last() {
       let is_set_in_computed = match parent {
         AstKind::ObjectProperty(parent) => {

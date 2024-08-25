@@ -50,7 +50,7 @@ create_compat! {
     }
   },
   walk_function,
-  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags, _is_strict_mode: bool| {
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags| {
     let source_code = get_source_code(&ctx.source_code.as_str(), it.params.span);
     if let Ok(regex) = Regex::new(r",\s*\)$") {
       regex.is_match(source_code)

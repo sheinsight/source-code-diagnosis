@@ -31,7 +31,7 @@ create_compat! {
         }
     },
     walk_function,
-    |ctx: &mut Context, it: &Function, flags: &ScopeFlags, is_strict_mode: bool| {
+    |ctx: &mut Context, it: &Function, flags: &ScopeFlags| {
       it.is_declaration()
     }
 }

@@ -25,7 +25,7 @@ create_compat! {
     }
   },
   walk_function,
-  |ctx: &mut Context, it: &oxc_ast::ast::Function,flags: &oxc_semantic::ScopeFlags,is_strict_mode: bool| {
+  |ctx: &mut Context, it: &oxc_ast::ast::Function,flags: &oxc_semantic::ScopeFlags| {
     it.is_expression() && it.r#async && it.generator
   }
 }

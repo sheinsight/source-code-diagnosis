@@ -41,7 +41,7 @@ pub struct SyntaxVisitor<'a> {
   pub walk_arrow_function_expression:
     Vec<fn(&mut Context, &ArrowFunctionExpression)>,
   pub walk_identifier_reference: Vec<fn(&mut Context, &IdentifierReference)>,
-  pub walk_function: Vec<fn(&mut Context, &Function, &ScopeFlags, bool)>,
+  pub walk_function: Vec<fn(&mut Context, &Function, &ScopeFlags)>,
   pub walk_formal_parameter: Vec<fn(&mut Context, &FormalParameter)>,
   pub walk_formal_parameters: Vec<fn(&mut Context, &FormalParameters)>,
   pub walk_array_expression: Vec<fn(&mut Context, &ArrayExpression)>,
@@ -114,11 +114,7 @@ pub struct SyntaxVisitor<'a> {
 
 impl<'a> SyntaxVisitor<'a> {
   pub fn new(source_code: &'a str) -> Self {
-    let context = Context {
-      source_code: source_code.to_string(),
-      usage: Vec::new(),
-      stack: Vec::new(),
-    };
+    let context = Context::new(source_code);
     Self {
       context: context,
       walk_class: Vec::new(),
@@ -485,7 +481,7 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
 
   fn visit_directive(&mut self, it: &oxc_ast::ast::Directive<'a>) {
     if it.directive == "use strict" {
-      self.is_strict_mode = true;
+      self.context.is_strict_mode = true;
     }
     for walk in &self.walk_directive {
       walk(&mut self.context, it);
@@ -688,7 +684,7 @@ impl<'a> Visit<'a> for SyntaxVisitor<'a> {
     flags: oxc_semantic::ScopeFlags,
   ) {
     for walk in &self.walk_function {
-      walk(&mut self.context, it, &flags, self.is_strict_mode);
+      walk(&mut self.context, it, &flags);
     }
     walk::walk_function(self, it, flags);
   }

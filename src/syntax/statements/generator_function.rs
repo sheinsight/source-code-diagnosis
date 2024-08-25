@@ -28,7 +28,7 @@ create_compat! {
     }
   },
   walk_function,
-  |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &ScopeFlags, is_strict_mode: bool| {
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &ScopeFlags| {
     matches!(it.r#type, FunctionType::FunctionDeclaration) && !it.r#async && it.generator
   }
 }

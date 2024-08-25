@@ -28,7 +28,7 @@ create_compat! {
     }
   },
   walk_function,
-  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &ScopeFlags, _is_strict_mode: bool| {
+  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &ScopeFlags| {
     let source_code = &ctx.source_code[it.params.span.start as usize..it.params.span.end as usize];
     if let Ok(regex) = Regex::new(r",\s*\)$") {
       regex.is_match(source_code)
