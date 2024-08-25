@@ -109,7 +109,6 @@ pub struct SyntaxVisitor<'a> {
   pub walk_while_statement: Vec<fn(&mut Context, it: &WhileStatement)>,
   pub walk_with_statement: Vec<fn(&mut Context, it: &WithStatement)>,
   pub context: Context<'a>,
-  is_strict_mode: bool,
 }
 
 impl<'a> SyntaxVisitor<'a> {
@@ -187,7 +186,6 @@ impl<'a> SyntaxVisitor<'a> {
       walk_arrow_function_expression: Vec::new(),
       walk_computed_member_expression: Vec::new(),
       walk_export_default_declaration: Vec::new(),
-      is_strict_mode: false,
     }
   }
 }
