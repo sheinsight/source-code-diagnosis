@@ -56,5 +56,38 @@ mod tests {
       class A { constructor() { } }
     "#,
     1,
+
+    should_ok_when_use_class_constructor_with_parameters,
+    r#"
+      class B { constructor(x, y) { this.x = x; this.y = y; } }
+    "#,
+    1,
+
+    should_ok_when_use_multiple_classes_with_constructors,
+    r#"
+      class C { constructor() { } }
+      class D { constructor() { } }
+    "#,
+    2,
+
+    should_not_ok_when_class_has_no_constructor,
+    r#"
+      class E { method() { } }
+    "#,
+    0,
+
+    should_not_ok_when_using_object_literal,
+    r#"
+      const obj = {
+        constructor: function() { }
+      };
+    "#,
+    0,
+
+    should_ok_when_use_class_expression_with_constructor,
+    r#"
+      const F = class { constructor() { } };
+    "#,
+    1,
   }
 }
