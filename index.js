@@ -310,8 +310,8 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { getDangerStringsUsage, getModuleMemberUsage, checkBrowserSupported } = nativeBinding
+const { checkBrowserSupported, getDangerStringsUsage, getModuleMemberUsage } = nativeBinding
 
+module.exports.checkBrowserSupported = checkBrowserSupported
 module.exports.getDangerStringsUsage = getDangerStringsUsage
 module.exports.getModuleMemberUsage = getModuleMemberUsage
-module.exports.checkBrowserSupported = checkBrowserSupported
