@@ -38,6 +38,21 @@ export interface Span {
   start: number
   end: number
 }
+export const enum CompatType {
+  ClassConstructor = 0,
+  ClassExtends = 1,
+  ClassPrivateClassFieldsIn = 2,
+  ClassPrivateClassFields = 3,
+  ClassPrivateMethods = 4,
+  ClassPublicClassFields = 5,
+  ClassStaticClassFields = 6,
+  ClassStaticInitializationBlocks = 7,
+  ClassStatic = 8,
+  Function = 9,
+  Grammar = 10,
+  Operator = 11,
+  Statement = 12
+}
 export declare function checkBrowserSupported(target: string, options?: Options | undefined | null): Array<CompatBox>
 export interface DangerStringLocation {
   rawValue: string

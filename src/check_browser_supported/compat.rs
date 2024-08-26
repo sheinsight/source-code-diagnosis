@@ -71,6 +71,23 @@ pub struct Span {
   pub end: u32,
 }
 
+#[napi]
+pub enum CompatType {
+  ClassConstructor,
+  ClassExtends,
+  ClassPrivateClassFieldsIn,
+  ClassPrivateClassFields,
+  ClassPrivateMethods,
+  ClassPublicClassFields,
+  ClassStaticClassFields,
+  ClassStaticInitializationBlocks,
+  ClassStatic,
+  Function,
+  Grammar,
+  Operator,
+  Statement,
+}
+
 impl Span {
   pub fn from_oxc_span(span: oxc_span::Span) -> Self {
     Self {
