@@ -61,6 +61,50 @@ mod tests {
     r#"
       class H{ }
     "#,
-    0
+    0,
+
+    should_ok_when_use_class_expression_extends,
+    r#"
+      const MyClass = class extends BaseClass { };
+    "#,
+    1,
+
+    should_ok_when_use_extends_with_complex_expression,
+    r#"
+      class ComplexExtends extends (foo ? Bar : Baz) { }
+    "#,
+    1,
+
+    should_ok_when_use_extends_with_nested_classes,
+    r#"
+      class Outer extends OuterBase {
+        method() {
+          return class Inner extends InnerBase { };
+        }
+      }
+    "#,
+    2,
+
+    should_not_ok_when_use_object_literal,
+    r#"
+      const obj = {
+        __proto__: BaseObj,
+        method() { }
+      };
+    "#,
+    0,
+
+    should_ok_when_use_multiple_inheritance_simulation,
+    r#"
+      class Base1 { }
+      class Base2 { }
+      class Derived extends Base1 {
+        constructor() {
+          super();
+          Object.assign(this, new Base2());
+        }
+      }
+    "#,
+    1
   }
 }
