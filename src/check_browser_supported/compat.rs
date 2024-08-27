@@ -30,12 +30,9 @@ pub struct Support {
   pub chrome_android: String,
   pub firefox: String,
   pub firefox_android: String,
-  pub opera: String,
-  pub opera_android: String,
   pub safari: String,
   pub safari_ios: String,
   pub edge: String,
-  pub oculus: String,
   pub node: String,
   pub deno: String,
 }

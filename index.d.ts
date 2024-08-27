@@ -19,12 +19,9 @@ export interface Support {
   chromeAndroid: string
   firefox: string
   firefoxAndroid: string
-  opera: string
-  operaAndroid: string
   safari: string
   safariIos: string
   edge: string
-  oculus: string
   node: string
   deno: string
 }

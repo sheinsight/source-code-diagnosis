@@ -29,12 +29,9 @@ create_compat! {
       chrome_android: "89",
       firefox: "89",
       firefox_android: "89",
-      opera: "89",
-      opera_android: "89",
       safari: "15",
       safari_ios: "15",
       edge: "89",
-      oculus: "89",
       node: "14.8.0",
       deno: "1.0",
     }
