@@ -1,3 +1,5 @@
+use oxc_semantic::{AstNode, AstNodes};
+use oxc_span::GetSpan;
 use serde::{Deserialize, Serialize};
 
 #[napi(object)]
@@ -91,5 +93,22 @@ impl Span {
       start: span.start,
       end: span.end,
     }
+  }
+}
+
+pub trait CompatHandler {
+  fn handle<'a>(&self, node: &AstNode<'a>, nodes: &AstNodes<'a>) -> bool;
+
+  fn get_compat(&self) -> &Compat;
+}
+
+pub trait AstNodeHelper<'a> {
+  fn text(&self, source: &str) -> String;
+}
+
+impl<'a> AstNodeHelper<'a> for AstNode<'a> {
+  fn text(&self, source: &str) -> String {
+    let span = self.kind().span();
+    source[span.start as usize..span.end as usize].to_string()
   }
 }

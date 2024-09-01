@@ -1,11 +1,12 @@
-mod classes;
+// mod classes;
 mod common;
 mod compat;
-mod functions;
-mod grammar;
-mod macros;
-mod operators;
-mod statements;
+// mod functions;
+// mod grammar;
+// mod macros;
+// mod operators;
+// mod statements;
+mod classes_v2;
 mod visitor;
 use std::{
   fs::read,
@@ -16,36 +17,21 @@ use std::{
 use compat::CompatBox;
 use napi::{Error, Result};
 
+use compat::AstNodeHelper as _;
 use oxc_allocator::Allocator;
 use oxc_ast::Visit as _;
 use oxc_parser::Parser;
+use oxc_semantic::SemanticBuilder;
+use oxc_span::GetSpan;
 use oxc_span::SourceType;
 use visitor::SyntaxVisitor;
 
-use crate::oxc_visitor_processor::{oxc_visit_process, Options};
-
-// #[napi]
-// pub fn check_browser_supported_by_file_path(
-//   target: String,
-//   file_path: String,
-// ) -> Result<Vec<CompatBox>> {
-//   let f = Path::new(&file_path);
-
-//   let source_text = fs::read_to_string(f)?;
-
-//   let mut x = SyntaxRecordVisitor::new(source_text.as_str());
-
-//   // let source_text = String::from_utf8(source_text).unwrap();
-//   let source_type = SourceType::from_path(&f)
-//     .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
-//     .unwrap();
-//   let allocator = Allocator::default();
-//   let ret = Parser::new(&allocator, &source_text, source_type).parse();
-
-//   x.visit_program(&ret.program);
-
-//   // Ok(x.cache)
-// }
+use crate::{
+  check_browser_supported::{
+    classes_v2::constructor::ClassesConstructor, compat::CompatHandler,
+  },
+  oxc_visitor_processor::{oxc_visit_process, Options},
+};
 
 #[napi]
 pub fn check_browser_supported(
@@ -56,6 +42,8 @@ pub fn check_browser_supported(
   let handler = {
     let used = Arc::clone(&used);
     move |path: PathBuf| {
+      let compat_handlers: Vec<Box<dyn CompatHandler>> =
+        vec![Box::new(ClassesConstructor::default())];
       let source_text = read(&path)
         .map_err(|err| {
           Error::new(
@@ -71,25 +59,24 @@ pub fn check_browser_supported(
         .unwrap();
       let allocator = Allocator::default();
       let ret = Parser::new(&allocator, &source_code, source_type).parse();
+      let program = allocator.alloc(ret.program);
+      let semantic = SemanticBuilder::new(&source_code, source_type)
+        .build(program)
+        .semantic;
+      let nodes = semantic.nodes();
 
-      if !ret.errors.is_empty() {
-        println!("Error: {:?}", ret.errors);
+      for node in nodes.iter() {
+        for compat_handler in compat_handlers.iter() {
+          if compat_handler.handle(node, nodes) {
+            let mut used = used.lock().unwrap();
+            used.push(CompatBox::new(
+              node.kind().span(),
+              compat_handler.get_compat().clone(),
+              path.to_str().unwrap().to_string(),
+            ));
+          }
+        }
       }
-
-      let mut v =
-        SyntaxVisitor::new(source_code.as_str(), path.to_str().unwrap());
-
-      classes::setup_classes(&mut v);
-      functions::setup_functions(&mut v);
-      grammar::setup_grammar(&mut v);
-      operators::setup_operators(&mut v);
-      statements::setup_statements(&mut v);
-
-      v.visit_program(&ret.program);
-
-      let mut used = used.lock().unwrap();
-
-      used.extend(v.context.usage);
     }
   };
   oxc_visit_process(handler, options)?;
