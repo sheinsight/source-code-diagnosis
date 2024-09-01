@@ -1,39 +1,26 @@
-use oxc_ast::AstKind;
-use oxc_semantic::{AstNode, AstNodes};
+use crate::create_compat_2;
 
-use crate::check_browser_supported::compat::{Compat, CompatHandler, Support};
-
-pub struct ClassesConstructor {
-  pub compat: Compat,
-}
-
-impl Default for ClassesConstructor {
-  fn default() -> Self {
-    Self {
-          compat: Compat {
-              name: "default_parameters_destructured_parameter_with_default_value_assignment".to_string(),
-              description: "destructured parameter with default value assignment".to_string(),
-          tags: vec![
-              "web-features:default-parameters-destructured-parameter-with-default-value-assignment".to_string(),
-              "web-features:snapshot:ecmascript-2015".to_string()
-          ],
-          support: Support {
-              chrome: "49.0.0".to_string(),
-              chrome_android: "49".to_string(),
-                  firefox: "41".to_string(),
-                  firefox_android: "41".to_string(),
-                  safari: "10".to_string(),
-                  safari_ios: "10".to_string(),
-              edge: "14".to_string(),
-              node: "6.0.0".to_string(),
-              deno: "1.0".to_string(),
-          }
-          }
-      }
-  }
-}
-
-impl CompatHandler for ClassesConstructor {
+create_compat_2! {
+  ClassesConstructor,
+  compat {
+    name: "classes_constructor",
+    description: "constructor function",
+    tags: [
+      "web-features:class-syntax",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "49.0.0",
+      chrome_android: "49.0.0",
+      firefox: "45.0.0",
+      firefox_android: "45.0.0",
+      safari: "9.0.0",
+      safari_ios: "9.0.0",
+      edge: "13.0.0",
+      node: "6.0.0",
+      deno: "1.0.0",
+    }
+  },
   fn handle<'a>(&self, node: &AstNode<'a>, nodes: &AstNodes<'a>) -> bool {
     let node_kind = node.kind();
 
@@ -61,9 +48,5 @@ impl CompatHandler for ClassesConstructor {
     }
 
     false
-  }
-
-  fn get_compat(&self) -> &Compat {
-    &self.compat
   }
 }

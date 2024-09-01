@@ -96,7 +96,7 @@ impl Span {
   }
 }
 
-pub trait CompatHandler {
+pub trait CompatHandler: Send + Sync {
   fn handle<'a>(&self, node: &AstNode<'a>, nodes: &AstNodes<'a>) -> bool;
 
   fn get_compat(&self) -> &Compat;

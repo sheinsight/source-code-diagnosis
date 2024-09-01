@@ -98,3 +98,66 @@ macro_rules! create_compat {
         }
     };
 }
+
+#[macro_export]
+macro_rules! create_compat_2 {
+    (
+        $struct_name:ident,
+        compat {
+            name: $name:expr,
+            description: $description:expr,
+            tags: [$($tag:expr),* $(,)?],
+            support: {
+                chrome: $chrome:expr,
+                chrome_android: $chrome_android:expr,
+                firefox: $firefox:expr,
+                firefox_android: $firefox_android:expr,
+                safari: $safari:expr,
+                safari_ios: $safari_ios:expr,
+                edge: $edge:expr,
+                node: $node:expr,
+                deno: $deno:expr,
+            }
+        },
+        fn handle<'a>(&self, $ast_node:ident: &AstNode<'a>, $nodes:ident: &AstNodes<'a>) -> bool $body:block
+    ) => {
+        use oxc_ast::AstKind;
+        use oxc_semantic::{AstNode, AstNodes};
+        use crate::check_browser_supported::compat::{Compat, CompatHandler, Support};
+
+        pub struct $struct_name {
+            pub compat: Compat,
+        }
+
+        impl Default for $struct_name {
+            fn default() -> Self {
+                Self {
+                    compat: Compat {
+                        name: $name.to_string(),
+                        description: $description.to_string(),
+                        tags: vec![$($tag.to_string()),*],
+                        support: Support {
+                            chrome: $chrome.to_string(),
+                            chrome_android: $chrome_android.to_string(),
+                            firefox: $firefox.to_string(),
+                            firefox_android: $firefox_android.to_string(),
+                            safari: $safari.to_string(),
+                            safari_ios: $safari_ios.to_string(),
+                            edge: $edge.to_string(),
+                            node: $node.to_string(),
+                            deno: $deno.to_string(),
+                        }
+                    }
+                }
+            }
+        }
+
+        impl CompatHandler for $struct_name {
+            fn handle<'a>(&self, $ast_node: &AstNode<'a>, $nodes: &AstNodes<'a>) -> bool $body
+
+            fn get_compat(&self) -> &Compat {
+                &self.compat
+            }
+        }
+    };
+}

@@ -3,7 +3,7 @@ mod common;
 mod compat;
 // mod functions;
 // mod grammar;
-// mod macros;
+mod macros;
 // mod operators;
 // mod statements;
 mod classes_v2;
@@ -14,6 +14,7 @@ use std::{
   sync::{Arc, Mutex},
 };
 
+use classes_v2::extends::ClassesExtends;
 use compat::CompatBox;
 use napi::{Error, Result};
 
@@ -38,12 +39,16 @@ pub fn check_browser_supported(
   target: String,
   options: Option<Options>,
 ) -> Result<Vec<CompatBox>> {
+  let compat_handlers: Vec<Box<dyn CompatHandler>> = vec![
+    Box::new(ClassesConstructor::default()),
+    Box::new(ClassesExtends::default()),
+  ];
+  let share = Arc::new(compat_handlers);
   let used: Arc<Mutex<Vec<CompatBox>>> = Arc::new(Mutex::new(Vec::new()));
   let handler = {
     let used = Arc::clone(&used);
+    let clone = Arc::clone(&share);
     move |path: PathBuf| {
-      let compat_handlers: Vec<Box<dyn CompatHandler>> =
-        vec![Box::new(ClassesConstructor::default())];
       let source_text = read(&path)
         .map_err(|err| {
           Error::new(
@@ -60,13 +65,14 @@ pub fn check_browser_supported(
       let allocator = Allocator::default();
       let ret = Parser::new(&allocator, &source_code, source_type).parse();
       let program = allocator.alloc(ret.program);
+
       let semantic = SemanticBuilder::new(&source_code, source_type)
         .build(program)
         .semantic;
       let nodes = semantic.nodes();
 
       for node in nodes.iter() {
-        for compat_handler in compat_handlers.iter() {
+        for compat_handler in clone.iter() {
           if compat_handler.handle(node, nodes) {
             let mut used = used.lock().unwrap();
             used.push(CompatBox::new(
