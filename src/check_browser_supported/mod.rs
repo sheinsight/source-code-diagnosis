@@ -3,7 +3,7 @@ mod common;
 mod compat;
 // mod functions;
 // mod grammar;
-mod functions_v2;
+mod functions;
 mod macros;
 // mod operators;
 // mod statements;
@@ -38,7 +38,7 @@ pub fn check_browser_supported(
   let mut compat_handlers: Vec<Box<dyn CompatHandler>> = vec![];
 
   compat_handlers.extend(classes::setup());
-  compat_handlers.extend(functions_v2::setup());
+  compat_handlers.extend(functions::setup());
 
   let share = Arc::new(compat_handlers);
   let used: Arc<Mutex<Vec<CompatBox>>> = Arc::new(Mutex::new(Vec::new()));

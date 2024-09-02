@@ -1,80 +1,73 @@
-use oxc_ast::{
-  ast::{BindingPattern, BindingPatternKind},
-  Visit,
-};
+use oxc_ast::ast::BindingPatternKind;
 
-use crate::create_compat;
+use crate::create_compat_2;
 
-fn has_assignment_pattern(binding_pattern: &BindingPattern) -> bool {
-  struct Checker {
-    found: bool,
-  }
-  impl<'a> Visit<'a> for Checker {
-    fn visit_assignment_pattern(
-      &mut self,
-      _pattern: &oxc_ast::ast::AssignmentPattern<'a>,
-    ) {
-      self.found = true;
-    }
-  }
-  let mut checker = Checker { found: false };
-  checker.visit_binding_pattern(binding_pattern);
-  checker.found
-}
-
-create_compat! {
-  setup,
-  |v: &mut SyntaxVisitor| {
-      v.walk_formal_parameter.push(default_parameters_destructured_parameter_with_default_value_assignment);
-  },
+create_compat_2! {
+  DefaultParametersDestructuredParameterWithDefaultValueAssignment,
   compat {
-      name: "default_parameters_destructured_parameter_with_default_value_assignment",
-      description: "destructured parameter with default value assignment",
-      tags: [
-          "web-features:default-parameters-destructured-parameter-with-default-value-assignment",
-          "web-features:snapshot:ecmascript-2015"
-      ],
-      support: {
-          chrome: "49",
-          chrome_android: "49",
-          firefox: "41",
-          firefox_android: "41",
-          safari: "10",
-          safari_ios: "10",
-          edge: "14",
-          node: "6.0.0",
-          deno: "1.0",
-      }
+    name: "default_parameters_destructured_parameter_with_default_value_assignment",
+    description: "destructured parameter with default value assignment",
+    mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters#destructured_parameter_with_default_value_assignment",
+    tags: [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    support: {
+      chrome: "49.0.0",
+      chrome_android: "49.0.0",
+      firefox: "41.0.0",
+      firefox_android: "41.0.0",
+      safari: "10.0.0",
+      safari_ios: "10.0.0",
+      edge: "14.0.0",
+      node: "6.0.0",
+      deno: "1.0.0",
+    }
   },
-  default_parameters_destructured_parameter_with_default_value_assignment,
-  |ctx: &mut Context, it: &oxc_ast::ast::FormalParameter| {
-      if let BindingPatternKind::AssignmentPattern(pattern) = &it.pattern.kind {
-          has_assignment_pattern(&pattern.left)
-      } else {
-          false
+  fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+
+    if let AstKind::FormalParameter(param) = node.kind() {
+      if let BindingPatternKind::AssignmentPattern(_) = &param.pattern.kind {
+        return true;
       }
+    }
+
+    false
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup;
-  use crate::assert_ok_count;
 
-  assert_ok_count! {
-      "default_parameters_destructured_parameter_with_default_value_assignment",
-      setup,
+  use super::DefaultParametersDestructuredParameterWithDefaultValueAssignment;
+  use crate::assert_source_seg;
 
-      should_ok_when_use_default_parameters_destructured_parameter_with_default_value_assignment,
-      r#"
-        function f({ a = 1 } = {}) {}
+  assert_source_seg! {
+    should_ok_when_use_class_declaration:{
+      setup: DefaultParametersDestructuredParameterWithDefaultValueAssignment::default(),
+      source_code: r#"
+         function f({ a = 1 } = {}) {}
       "#,
-      1,
+      eq: [
+        r#"{ a = 1 } = {}"#,
+      ],
+      ne: [
+      ]
+    },
 
-      should_ok_when_not_use_default_parameters_destructured_parameter_with_default_value_assignment,
-      r#"
-        function f(a) {}
+    should_ok_when_use_class_declaration2:{
+      setup: DefaultParametersDestructuredParameterWithDefaultValueAssignment::default(),
+      source_code: r#"
+         function f(bb,{ a = 1 } = {}) {}
       "#,
-      0,
+      eq: [
+        r#"{ a = 1 } = {}"#,
+      ],
+      ne: [
+      ]
+    },
+
+
+
+
   }
 }

@@ -1,69 +1,56 @@
-use crate::create_compat;
+use crate::create_compat_2;
 
-create_compat! {
-  setup,
-  |v: &mut SyntaxVisitor| {
-    v.walk_formal_parameters.push(walk_formal_parameters);
-  },
+create_compat_2! {
+  RestParameters,
   compat {
     name: "rest_parameters",
-    description: "剩余参数",
+    description: "Rest parameters",
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/rest_parameters",
     tags: [
-      "web-features:snapshot:ecmascript-2015"
+      "web-features:snapshot:ecmascript-1"
     ],
     support: {
-      chrome: "47",
-      chrome_android: "47",
-      firefox: "15",
-      firefox_android: "15",
-      safari: "10",
-      safari_ios: "10",
-      edge: "12",
+      chrome: "47.0.0",
+      chrome_android: "47.0.0",
+      firefox: "15.0.0",
+      firefox_android: "15.0.0",
+      safari: "10.0.0",
+      safari_ios: "10.0.0",
+      edge: "12.0.0",
       node: "6.0.0",
-      deno: "1.0",
+      deno: "1.0.0",
     }
   },
-  walk_formal_parameters,
-  |ctx: &mut Context, it: &oxc_ast::ast::FormalParameters| {
-    it.rest.is_some()
+  fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+
+    matches!(node.kind(), AstKind::FormalParameters(params) if params.rest.is_some())
+
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup;
-  use crate::assert_ok_count;
 
-  assert_ok_count! {
-    "rest_parameters",
-    setup,
+  use super::RestParameters;
+  use crate::assert_source_seg;
 
-    should_ok_when_use_rest_parameters,
-    r#"
-      function sum(a,b,...theArgs) {
-        let total = 0;
-        for (const arg of theArgs) {
-          total += arg;
+  assert_source_seg! {
+    should_ok_when_use_class_declaration:{
+      setup: RestParameters::default(),
+      source_code: r#"
+        function sum(a,b,...theArgs) {
+          let total = 0;
+          for (const arg of theArgs) {
+            total += arg;
+          }
+          return total;
         }
-        return total;
-      }
-    "#,
-    1,
+      "#,
+      eq: [
+        r#"(a,b,...theArgs)"#,
+      ],
+      ne: []
+    },
 
-    should_ok_when_not_use_rest_parameters,
-    r#"
-      function sum(a,b) {
-        return a + b;
-      }
-    "#,
-    0,
-
-    should_ok_when_not_use_rest_parameters_with_no_parameters,
-    r#"
-      function sum() {
-        return 0;
-      }
-    "#,
-    0,
   }
 }

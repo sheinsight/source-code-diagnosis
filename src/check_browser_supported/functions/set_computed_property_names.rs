@@ -1,90 +1,87 @@
-use oxc_ast::{
-  ast::{MethodDefinitionKind, PropertyKind},
-  AstKind,
-};
+use oxc_ast::ast::{MethodDefinitionKind, PropertyKind};
 
-use crate::create_compat;
+use crate::create_compat_2;
 
-create_compat! {
-  setup,
-  |v: &mut SyntaxVisitor| {
-    v.walk_function.push(walk_function);
-  },
+create_compat_2! {
+  SetComputedPropertyNames,
   compat {
-    name: "set_computed_property_names",
-    description: "setter 方法的计算属性名",
+    name: "get_computed_property_names",
+    description: "Get computed property names",
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get",
     tags: [
-      "web-features:snapshot:ecmascript-2015"
+      "web-features:snapshot:ecmascript-1"
     ],
     support: {
-      chrome: "46",
-      chrome_android: "46",
-      firefox: "34",
-      firefox_android: "34",
-      safari: "9.1",
-      safari_ios: "9.1",
-      edge: "12",
+      chrome: "46.0.0",
+      chrome_android: "46.0.0",
+      firefox: "34.0.0",
+      firefox_android: "34.0.0",
+      safari: "9.1.0",
+      safari_ios: "9.1.0",
+      edge: "12.0.0",
       node: "4.0.0",
-      deno: "1.0",
+      deno: "1.0.0",
     }
   },
-  walk_function,
-  |ctx: &mut Context, it: &oxc_ast::ast::Function, _flags: &oxc_semantic::ScopeFlags| {
-    if let Some(parent) = ctx.stack.last() {
-      let is_set_in_computed = match parent {
-        AstKind::ObjectProperty(parent) => {
-          PropertyKind::Set == parent.kind && parent.computed
-        }
-        AstKind::MethodDefinition(parent) => {
-          MethodDefinitionKind::Set == parent.kind && parent.computed
-        }
-        _ => false,
-      };
+  fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
 
-      is_set_in_computed
-    } else {
-      false
+    if let AstKind::ObjectProperty(object_property) = node.kind() {
+      return matches!(object_property.kind, PropertyKind::Set) && object_property.computed;
     }
+
+    if let AstKind::MethodDefinition(method_definition) = node.kind() {
+      return matches!(method_definition.kind, MethodDefinitionKind::Set) && method_definition.computed;
+    }
+
+    false
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup;
-  use crate::assert_ok_count;
 
-  assert_ok_count! {
-    "set_computed_property_names",
-    setup,
+  use super::SetComputedPropertyNames;
+  use crate::assert_source_seg;
 
-    should_ok_when_use_set_computed_property_names,
-    r#"
-      const obj = {
-        set [expr]() {
-          return "bar";
-        },
+  assert_source_seg! {
+    should_ok_when_use_class_declaration:{
+      setup: SetComputedPropertyNames::default(),
+      source_code: r#"
+        const obj = {
+          set [expr]() { return "bar"; },
       };
-    "#,
-    1,
+      "#,
+      eq: [
+        r#"set [expr]() { return "bar"; }"#,
+      ],
+      ne: []
+    },
 
-    should_ok_when_not_use_set_computed_property_names,
-    r#"
-      const obj = {
-        set foo(value) {
-          return "bar";
-        },
-      };
-    "#,
-    0,
+    should_ng_when_not_use_get_computed_property_names: {
+      setup: SetComputedPropertyNames::default(),
+      source_code: r#"
+        const obj = {
+          set foo(value) { return "bar"; },
+        };
+      "#,
+      eq: [],
+      ne: [
+        r#"set foo(value) { return "bar"; }"#,
+      ]
+    },
 
-    should_ok_when_use_set_computed_property_names_with_async,
-    r#"
-      const obj = {
-        async set [expr]() {
-          return "bar";
-        },
-      };
-    "#,
-    0,
+    should_ok_when_use_set_computed_property_names_with_class_declaration: {
+      setup: SetComputedPropertyNames::default(),
+      source_code: r#"
+        class A {
+          set [expr]() { return "bar"; }
+        }
+      "#,
+      eq: [
+        r#"set [expr]() { return "bar"; }"#,
+      ],
+      ne: []
+    }
+
   }
 }

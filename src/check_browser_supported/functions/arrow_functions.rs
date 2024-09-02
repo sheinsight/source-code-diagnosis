@@ -1,76 +1,77 @@
-use oxc_ast::ast::ArrowFunctionExpression;
+use crate::create_compat_2;
 
-use crate::create_compat;
-
-create_compat! {
-  setup,
-  |v: &mut SyntaxVisitor| {
-    v.walk_arrow_function_expression.push(arrow_functions);
-  },
+create_compat_2! {
+  ArrowFunctions,
   compat {
-    name: "arrow_functions",
-    description: "arrow function expressions",
+    name: "functions_arrow",
+    description: "Arrow functions",
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Arrow_functions",
     tags: [
-      "web-features:arrow-functions",
-      "web-features:snapshot:ecmascript-2015"
+      "web-features:snapshot:ecmascript-1"
     ],
     support: {
-      chrome: "45",
-      chrome_android: "45",
-      firefox: "22",
-      firefox_android: "22",
-      safari: "10",
-      safari_ios: "10",
-      edge: "12",
+      chrome: "45.0.0",
+      chrome_android: "45.0.0",
+      firefox: "22.0.0",
+      firefox_android: "22.0.0",
+      safari: "10.0.0",
+      safari_ios: "10.0.0",
+      edge: "12.0.0",
       node: "4.0.0",
-      deno: "1.0",
+      deno: "1.0.0",
     }
   },
-  arrow_functions,
-  |ctx: &mut Context, _it: &ArrowFunctionExpression| {
-    true
+  fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+    matches!(node.kind(), AstKind::ArrowFunctionExpression(_))
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup;
-  use crate::assert_ok_count;
 
-  assert_ok_count! {
-    "arrow_functions",
-    setup,
+  use super::ArrowFunctions;
+  use crate::assert_source_seg;
 
-    should_ok_when_use_arrow_functions,
-    r#"
-      const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
+  assert_source_seg! {
+    should_ok_when_use_class_declaration:{
+      setup: ArrowFunctions::default(),
+      source_code: r#"
+        const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
 
-      console.log(materials.map((material) => material.length));
-    "#,
-    1,
+        console.log(materials.map((material) => material.length));
+      "#,
+      eq: [
+        r#"(material) => material.length"#,
+      ],
+      ne: [
+      ]
+    },
 
-    should_ok_when_not_use_arrow_functions,
-    r#"
-      const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
+    should_fail_when_not_arrow_function:{
+      setup: ArrowFunctions::default(),
+      source_code: r#"
+        function add(a, b) {
+          return a + b;
+        }
+      "#,
+      eq: [
+      ],
+      ne: [
+        r#"function add(a, b)"#,
+      ]
+    },
 
-      console.log(materials.map(function(material) { return material.length; }));
-    "#,
-    0,
-
-    should_ok_when_use_arrow_functions_with_no_space,
-    r#"
-      const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
-
-      console.log(materials.map((material)=>material.length));
-    "#,
-    1,
-
-    should_ok_when_use_arrow_functions_with_no_parentheses,
-    r#"
-      const materials = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium'];
-
-      console.log(materials.map(material => material.length));
-    "#,
-    1,
+    should_ok_with_nested_arrow_function:{
+      setup: ArrowFunctions::default(),
+      source_code: r#"
+        const add = (a, b) => { const sum = (x, y) => x + y; return sum(a, b); };
+      "#,
+      eq: [
+        r#"(a, b) => { const sum = (x, y) => x + y; return sum(a, b); }"#,
+        r#"(x, y) => x + y"#,
+      ],
+      ne: [
+      ]
+    }
   }
 }

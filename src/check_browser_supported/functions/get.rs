@@ -1,82 +1,88 @@
-use oxc_ast::{
-  ast::{MethodDefinitionKind, PropertyKind},
-  AstKind,
-};
+use oxc_ast::ast::{MethodDefinitionKind, PropertyKind};
 
-use crate::create_compat;
+use crate::create_compat_2;
 
-create_compat! {
-    setup,
-    |v: &mut SyntaxVisitor| {
-        v.walk_function.push(walk_function);
-    },
-    compat {
-        name: "get",
-        description: "getter 方法",
-        tags: ["web-features:snapshot:ecmascript-5"],
-        support: {
-            chrome: "1",
-            chrome_android: "1",
-            firefox: "1.5",
-            firefox_android: "1.5",
-            safari: "3",
-            safari_ios: "1",
-            edge: "12",
-            node: "0.10.0",
-            deno: "1.0",
-        }
-    },
-    walk_function,
-    |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &oxc_semantic::ScopeFlags| {
-        if let Some(parent) = ctx.stack.last() {
-            match parent {
-                AstKind::ObjectProperty(parent) => PropertyKind::Get == parent.kind,
-                AstKind::MethodDefinition(parent) => MethodDefinitionKind::Get == parent.kind,
-                _ => false,
-            }
-        } else {
-            false
-        }
+create_compat_2! {
+  Get,
+  compat {
+    name: "get",
+    description: "Get computed property names",
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get",
+    tags: [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    support: {
+      chrome: "1.0.0",
+      chrome_android: "1.0.0",
+      firefox: "1.5.0",
+      firefox_android: "1.5.0",
+      safari: "3.0.0",
+      safari_ios: "1.0.0",
+      edge: "12.0.0",
+      node: "0.10.0",
+      deno: "1.0.0",
     }
+  },
+  fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+
+    if let AstKind::ObjectProperty(object_property) = node.kind() {
+      return matches!(object_property.kind, PropertyKind::Get) ;
+    }
+
+    if let AstKind::MethodDefinition(method_definition) = node.kind() {
+      return matches!(method_definition.kind, MethodDefinitionKind::Get);
+    }
+
+    false
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup;
-  use crate::assert_ok_count;
 
-  assert_ok_count! {
-      "get",
-      setup,
+  use super::Get;
+  use crate::assert_source_seg;
 
-      should_ok_when_use_get,
-      r#"
-          const obj = {
-            get latest() {
-              return this.log[this.log.length - 1];
-            },
+  assert_source_seg! {
+    should_ok_when_use_class_declaration:{
+      setup: Get::default(),
+      source_code: r#"
+        const obj = {
+            get latest() { return this.log[this.log.length - 1]; }
           };
-        "#,
-      1,
+      "#,
+      eq: [
+        r#"get latest() { return this.log[this.log.length - 1]; }"#,
+      ],
+      ne: []
+    },
 
-      should_ok_when_not_use_get,
-      r#"
+    should_ng_when_not_use_get_computed_property_names1: {
+      setup: Get::default(),
+      source_code: r#"
           const obj = {
-            latest() {
-              return this.log[this.log.length - 1];
-            },
+            expr() { return "bar"; }
           };
-        "#,
-      0,
+      "#,
+      eq: [
 
-      should_ok_when_use_get_with_computed_property,
-      r#"
+      ],
+      ne: [
+
+      ]
+    },
+
+    should_ng_when_not_use_get_computed_property_names: {
+      setup: Get::default(),
+      source_code: r#"
           const obj = {
-            get [expr]() {
-              return "bar";
-            },
+            get [expr]() { return "bar"; }
           };
-        "#,
-      1,
+      "#,
+      eq: [
+        r#"get [expr]() { return "bar"; }"#,
+      ],
+      ne: []
+    }
   }
 }

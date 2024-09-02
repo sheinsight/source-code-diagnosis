@@ -1,66 +1,52 @@
-use oxc_ast::ast::Function;
-use oxc_semantic::ScopeFlags;
+use crate::create_compat_2;
 
-use crate::create_compat;
-
-create_compat! {
-    setup,
-    |v: &mut SyntaxVisitor| {
-        v.walk_function.push(walk_function);
-    },
-    compat {
-        name: "function_name",
-        description: "function.name property",
-        tags: [
-            "web-features:function-name",
-            "web-features:snapshot:ecmascript-2015"
-        ],
-        support: {
-            chrome: "1",
-            chrome_android: "1",
-            firefox: "1",
-            firefox_android: "1",
-            safari: "1",
-            safari_ios: "1",
-            edge: "12",
-            node: "0.10.0",
-            deno: "1.0",
-        }
-    },
-    walk_function,
-    |ctx: &mut Context, it: &Function, flags: &ScopeFlags| {
-      it.is_declaration()
+create_compat_2! {
+  FunctionsDeclarations,
+  compat {
+    name: "functions_declarations",
+    description: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions",
+    mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes#defining_classes",
+    tags: [
+      "web-features:class-syntax",
+      "web-features:snapshot:ecmascript-2015"
+    ],
+    support: {
+      chrome: "1.0.0",
+      chrome_android: "1.0.0",
+      firefox: "1.0.0",
+      firefox_android: "1.0.0",
+      safari: "1.0.0",
+      safari_ios: "1.0.0",
+      edge: "12.0.0",
+      node: "0.10.0",
+      deno: "1.0.0",
     }
+  },
+  fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+    matches!(node.kind(), AstKind::Function(functions) if functions.is_declaration())
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup;
-  use crate::assert_ok_count;
 
-  assert_ok_count! {
-      "function_name",
-      setup,
+  use super::FunctionsDeclarations;
+  use crate::assert_source_seg;
 
-      should_ok_when_use_function_name,
-      r#"
-          function foo() {}
-          console.log(foo.name);
-        "#,
-      1,
-
-      should_ok_when_not_use_function_name,
-      r#"
-          const foo = function() {};
-          console.log(foo.name);
-        "#,
-      0,
-
-      should_ok_when_use_function_name_in_assignment,
-      r#"
-          const bar = function foo() {};
-          console.log(bar.name);
-        "#,
-      0,
+  assert_source_seg! {
+    should_ok_when_use_class_declaration:{
+      setup: FunctionsDeclarations::default(),
+      source_code: r#"
+        function a() { }
+        const b = function() { }
+        const c = () => { }
+      "#,
+      eq: [
+        r#"function a() { }"#
+      ],
+      ne: [
+        r#"function() { }"#
+      ]
+    }
   }
 }

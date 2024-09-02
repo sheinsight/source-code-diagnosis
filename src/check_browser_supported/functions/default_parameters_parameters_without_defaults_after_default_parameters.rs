@@ -1,39 +1,37 @@
 use oxc_ast::ast::BindingPatternKind;
 
-use crate::create_compat;
+use crate::create_compat_2;
 
-create_compat! {
-    setup,
-    |v: &mut SyntaxVisitor| {
-        v.walk_formal_parameters.push(default_parameters_parameters_without_defaults_after_default_parameters);
-    },
-    compat {
-        name: "default_parameters_parameters_without_defaults_after_default_parameters",
-        description: "parameters without defaults after default parameters",
-        tags: [
-            "web-features:default-parameters-parameters-without-defaults-after-default-parameters",
-            "web-features:snapshot:ecmascript-2015"
-        ],
-        support: {
-            chrome: "49",
-            chrome_android: "49",
-            firefox: "26",
-            firefox_android: "26",
-            safari: "10",
-            safari_ios: "10",
-            edge: "14",
-            node: "6.0.0",
-            deno: "1.0",
-        }
-    },
-    default_parameters_parameters_without_defaults_after_default_parameters,
-    |ctx: &mut Context, it: &oxc_ast::ast::FormalParameters| {
+create_compat_2! {
+  DefaultParametersParametersWithoutDefaultsAfterDefaultParameters,
+  compat {
+    name: "default_parameters_parameters_without_defaults_after_default_parameters",
+    description: "destructured parameter with default value assignment",
+    mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters#destructured_parameter_with_default_value_assignment",
+    tags: [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    support: {
+      chrome: "49.0.0",
+      chrome_android: "49.0.0",
+      firefox: "26.0.0",
+      firefox_android: "26.0.0",
+      safari: "10.0.0",
+      safari_ios: "10.0.0",
+      edge: "14.0.0",
+      node: "6.0.0",
+      deno: "1.0.0",
+    }
+  },
+  fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+
+    if let AstKind::FormalParameters(params) = node.kind() {
       let mut flag: i32 = 0;
-      for item in &it.items {
+      for item in &params.items {
         match item.pattern.kind {
           BindingPatternKind::AssignmentPattern(_) => {
             flag = 1;
-          }
+          },
           BindingPatternKind::BindingIdentifier(_)
           | BindingPatternKind::ObjectPattern(_)
           | BindingPatternKind::ArrayPattern(_) => {
@@ -45,29 +43,38 @@ create_compat! {
           }
         }
       }
-      flag == -1
+      return flag == -1;
     }
+
+    false
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup;
-  use crate::assert_ok_count;
 
-  assert_ok_count! {
-      "default_parameters_parameters_without_defaults_after_default_parameters",
-      setup,
+  use super::DefaultParametersParametersWithoutDefaultsAfterDefaultParameters;
+  use crate::assert_source_seg;
 
-      should_ok_when_use_default_parameters_parameters_without_defaults_after_default_parameters,
-      r#"
-          function example(a = 1, b) {}
-        "#,
-      1,
+  assert_source_seg! {
+    should_ok_when_use_class_declaration:{
+      setup: DefaultParametersParametersWithoutDefaultsAfterDefaultParameters::default(),
+      source_code: r#"
+         function example(a = 1, b) {}
+      "#,
+      eq: [
+        r#"(a = 1, b)"#,
+      ],
+      ne: [ ]
+    },
 
-      should_ok_when_not_use_default_parameters_parameters_without_defaults_after_default_parameters,
-      r#"
-          function example(a, b) {}
-        "#,
-      0,
+    should_ok_when_use_class_declaration2:{
+      setup: DefaultParametersParametersWithoutDefaultsAfterDefaultParameters::default(),
+      source_code: r#"
+         function f(bb,{ a = 1 } = {}) {}
+      "#,
+      eq: [ ],
+      ne: [ ]
+    },
   }
 }

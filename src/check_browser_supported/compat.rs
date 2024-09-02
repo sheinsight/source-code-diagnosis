@@ -1,3 +1,4 @@
+use oxc_ast::AstKind;
 use oxc_semantic::{AstNode, AstNodes};
 use oxc_span::GetSpan;
 use serde::{Deserialize, Serialize};
@@ -117,4 +118,12 @@ impl<'a> AstNodeHelper<'a> for AstNode<'a> {
     let span = self.kind().span();
     source[span.start as usize..span.end as usize].to_string()
   }
+}
+
+pub fn get_source_code_segment<'a, N: GetSpan>(
+  source_code: &str,
+  node: &N,
+) -> String {
+  let span = node.span();
+  source_code[span.start as usize..span.end as usize].to_string()
 }

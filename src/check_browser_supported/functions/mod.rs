@@ -1,17 +1,35 @@
-use super::visitor::SyntaxVisitor;
+use arguments::Arguments;
+use arrow_functions::ArrowFunctions;
+use arrow_functions_trailing_comma::ArrowFunctionsTrailingComma;
+use callee::Callee;
+use default_parameters_destructured_parameter_with_default_value_assignment::DefaultParametersDestructuredParameterWithDefaultValueAssignment;
+use default_parameters_parameters_without_defaults_after_default_parameters::DefaultParametersParametersWithoutDefaultsAfterDefaultParameters;
+use functions::FunctionsDeclarations;
+use get::Get;
+use get_computed_property_names::GetComputedPropertyNames;
+use length::Length;
+use method_definitions::MethodDefinitions;
+use method_definitions_async_generator_methods::MethodDefinitionsAsyncGeneratorMethods;
+use method_definitions_async_methods::MethodDefinitionsAsyncMethods;
+use rest_parameters::RestParameters;
+use rest_parameters_destructuring::RestParametersDestructuring;
+use set::Set;
+use set_computed_property_names::SetComputedPropertyNames;
 
-pub mod arguments_callee;
-pub mod arguments_iterator;
-pub mod arguments_length;
+use super::compat::CompatHandler;
+
+pub mod arguments;
 pub mod arrow_functions;
 pub mod arrow_functions_trailing_comma;
-pub mod block_level_functions;
+pub mod callee;
 pub mod default_parameters;
 pub mod default_parameters_destructured_parameter_with_default_value_assignment;
 pub mod default_parameters_parameters_without_defaults_after_default_parameters;
 pub mod functions;
 pub mod get;
 pub mod get_computed_property_names;
+pub mod iterator;
+pub mod length;
 pub mod method_definitions;
 pub mod method_definitions_async_generator_methods;
 pub mod method_definitions_async_methods;
@@ -21,25 +39,31 @@ pub mod rest_parameters_destructuring;
 pub mod set;
 pub mod set_computed_property_names;
 
-pub fn setup_functions(v: &mut SyntaxVisitor) {
-  // arguments_callee::setup(v);
-  arguments_iterator::setup(v);
-  // arguments_length::setup(v);
-  arrow_functions_trailing_comma::setup(v);
-  arrow_functions::setup(v);
-  block_level_functions::setup(v);
-  default_parameters_destructured_parameter_with_default_value_assignment::setup(v);
-  default_parameters_parameters_without_defaults_after_default_parameters::setup(v);
-  default_parameters::setup(v);
-  // functions::setup(v);
-  get_computed_property_names::setup(v);
-  // get::setup(v);
-  method_definitions_async_generator_methods::setup(v);
-  method_definitions_async_methods::setup(v);
-  method_definitions_generator_methods_not_constructable::setup(v);
-  method_definitions::setup(v);
-  rest_parameters_destructuring::setup(v);
-  rest_parameters::setup(v);
-  set_computed_property_names::setup(v);
-  // set::setup(v);
+pub fn setup() -> Vec<Box<dyn CompatHandler>> {
+  vec![
+    Box::new(FunctionsDeclarations::default()),
+    Box::new(Arguments::default()),
+    Box::new(Callee::default()),
+    Box::new(Length::default()),
+    Box::new(iterator::Iterator::default()),
+    Box::new(ArrowFunctions::default()),
+    Box::new(ArrowFunctionsTrailingComma::default()),
+    Box::new(
+      DefaultParametersDestructuredParameterWithDefaultValueAssignment::default(
+      ),
+    ),
+    Box::new(
+      DefaultParametersParametersWithoutDefaultsAfterDefaultParameters::default(
+      ),
+    ),
+    Box::new(GetComputedPropertyNames::default()),
+    Box::new(Get::default()),
+    Box::new(Set::default()),
+    Box::new(SetComputedPropertyNames::default()),
+    Box::new(RestParameters::default()),
+    Box::new(RestParametersDestructuring::default()),
+    Box::new(MethodDefinitions::default()),
+    Box::new(MethodDefinitionsAsyncMethods::default()),
+    Box::new(MethodDefinitionsAsyncGeneratorMethods::default()),
+  ]
 }

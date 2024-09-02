@@ -1,83 +1,86 @@
-use oxc_ast::{
-  ast::{Function, MethodDefinitionKind, PropertyKind},
-  AstKind,
-};
+use oxc_ast::ast::{MethodDefinitionKind, PropertyKind};
 
-use crate::create_compat;
+use crate::create_compat_2;
 
-create_compat! {
-    setup,
-    |v: &mut SyntaxVisitor| {
-        v.walk_function.push(walk_function);
-    },
-    compat {
-        name: "get_computed_property_names",
-        description: "generator functions",
-        tags: [
-            "web-features:generator-functions",
-            "web-features:snapshot:ecmascript-2015"
-        ],
-        support: {
-            chrome: "46",
-            chrome_android: "46",
-            firefox: "34",
-            firefox_android: "34",
-            safari: "9.1",
-            safari_ios: "9.1",
-            edge: "12",
-            node: "4.0.0",
-            deno: "1.0",
-        }
-    },
-    walk_function,
-    |ctx: &mut Context, it: &Function, _flags: &oxc_semantic::ScopeFlags| {
-      if let Some(parent) = ctx.stack.last() {
-        let is_get_in_computed = match parent {
-          AstKind::ObjectProperty(parent) => {
-            PropertyKind::Get == parent.kind && parent.computed
-          }
-          AstKind::MethodDefinition(parent) => {
-            MethodDefinitionKind::Get == parent.kind && parent.computed
-          }
-          _ => false,
-        };
-        is_get_in_computed
-      } else {
-        false
-      }
-
+create_compat_2! {
+  GetComputedPropertyNames,
+  compat {
+    name: "get_computed_property_names",
+    description: "Get computed property names",
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get",
+    tags: [
+      "web-features:snapshot:ecmascript-1"
+    ],
+    support: {
+      chrome: "46.0.0",
+      chrome_android: "46.0.0",
+      firefox: "34.0.0",
+      firefox_android: "34.0.0",
+      safari: "9.1.0",
+      safari_ios: "9.1.0",
+      edge: "12.0.0",
+      node: "4.0.0",
+      deno: "1.0.0",
     }
+  },
+  fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+
+    if let AstKind::ObjectProperty(object_property) = node.kind() {
+      return matches!(object_property.kind, PropertyKind::Get) && object_property.computed;
+    }
+
+    if let AstKind::MethodDefinition(method_definition) = node.kind() {
+      return matches!(method_definition.kind, MethodDefinitionKind::Get) && method_definition.computed;
+    }
+
+    false
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup;
-  use crate::assert_ok_count;
 
-  assert_ok_count! {
-    "get_computed_property_names",
-    setup,
+  use super::GetComputedPropertyNames;
+  use crate::assert_source_seg;
 
-    should_ok_when_use_get_computed_property_names,
-    r#"
-      const obj = {
-        get [expr]() {
-          return "bar";
-        },
-      };
-    "#,
-    1,
+  assert_source_seg! {
+    should_ok_when_use_class_declaration:{
+      setup: GetComputedPropertyNames::default(),
+      source_code: r#"
+        const obj = {
+          get [expr]() { return "bar"; },
+        };
+      "#,
+      eq: [
+        r#"get [expr]() { return "bar"; }"#,
+      ],
+      ne: []
+    },
 
-    should_ok_when_not_use_get_computed_property_names,
-    r#"
-      const obj = {
-        get foo() {
-          return "bar";
-        },
-      };
-    "#,
-    0
+    should_ng_when_not_use_get_computed_property_names: {
+      setup: GetComputedPropertyNames::default(),
+      source_code: r#"
+        const obj = {
+          get foo() { return "bar"; },
+        };
+      "#,
+      eq: [],
+      ne: [
+        r#"get foo() { return "bar"; }"#,
+      ]
+    },
 
-
+    should_ok_when_use_get_computed_property_names_with_class_declaration: {
+      setup: GetComputedPropertyNames::default(),
+      source_code: r#"
+        class A {
+          get [expr]() { return "bar"; }
+        }
+      "#,
+      eq: [
+        r#"get [expr]() { return "bar"; }"#,
+      ],
+      ne: []
+    }
   }
 }
