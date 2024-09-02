@@ -1,56 +1,62 @@
-use oxc_ast::ast::{PropertyDefinition, PropertyKey};
+use crate::create_compat_2;
 
-use crate::create_compat;
-
-create_compat! {
-  setup,
-  |v: &mut SyntaxVisitor| {
-    v.walk_property_definition.push(walk_property_definition);
-  },
+create_compat_2! {
+  ClassesPrivateClassFields,
   compat {
-    name: "classes_private_class_fields",
-    description: "private class fields",
+    name: "private_class_fields",
+    description: "Private class fields",
+    mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_properties#browser_compatibility",
     tags: [
       "web-features:class-syntax",
-      "web-features:snapshot:ecmascript-2022"
+      "web-features:snapshot:ecmascript-2015"
     ],
     support: {
-      chrome: "74",
-      chrome_android: "74",
-      firefox: "90",
-      firefox_android: "90",
-      safari: "14.1",
-      safari_ios: "14.5",
-      edge: "79",
+      chrome: "74.0.0",
+      chrome_android: "74.0.0",
+      firefox: "90.0.0",
+      firefox_android: "90.0.0",
+      safari: "14.1.0",
+      safari_ios: "14.1.0",
+      edge: "74.0.0",
       node: "12.0.0",
-      deno: "1.0",
+      deno: "1.0.0",
     }
   },
-  walk_property_definition,
-  |ctx: &mut Context, it: &PropertyDefinition| {
-    matches!(it.key, PropertyKey::PrivateIdentifier(_))
+  fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+
+    if let AstKind::PropertyDefinition(property_definition) = node.kind() {
+        if property_definition.key.is_private_identifier() {
+            return true;
+        }
+    }
+
+    false
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup;
-  use crate::assert_ok_count;
 
-  assert_ok_count! {
-    "classes_private_class_fields",
-    setup,
+  use super::ClassesPrivateClassFields;
+  use crate::assert_source_seg;
 
-    should_ok_when_use_class_fields,
-    r#"
-      class A { #hello = 12 }
-    "#,
-    1,
-
-    should_ok_when_not_use_class_fields,
-    r#"
-      class A { hello = 12 }
-    "#,
-    0,
+  assert_source_seg! {
+    test_private_class_fields:{
+      setup: ClassesPrivateClassFields::default(),
+      source_code: r#"
+        class MyClass {
+            #privateField = 42;
+            #privateMethod() { return "Hello, world!"; }
+            #privateMethod1 = () => {}
+        }
+      "#,
+      eq: [
+        r#"#privateField = 42;"#,
+        r#"#privateMethod1 = () => {}"#,
+      ],
+      ne: [
+        r#"#privateMethod() { return "Hello, world!"; }"#,
+      ]
+    }
   }
 }

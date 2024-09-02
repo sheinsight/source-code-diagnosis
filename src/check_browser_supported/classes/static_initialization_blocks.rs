@@ -1,73 +1,55 @@
-use oxc_ast::ast::StaticBlock;
+use crate::create_compat_2;
 
-use crate::create_compat;
-
-create_compat! {
-  setup,
-  |v: &mut SyntaxVisitor| {
-    v.walk_static_block.push(walk_static_block);
-  },
+create_compat_2! {
+  ClassesStaticInitializationBlocks,
   compat {
     name: "classes_static_initialization_blocks",
     description: "static initialization blocks",
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/Static_initialization_blocks",
     tags: [
       "web-features:class-syntax",
-      "web-features:snapshot:ecmascript-2022"
+      "web-features:snapshot:ecmascript-2015"
     ],
     support: {
-      chrome: "94",
-      chrome_android: "94",
-      firefox: "93",
-      firefox_android: "93",
-      safari: "16.4",
-      safari_ios: "16.4",
-      edge: "94",
+      chrome: "94.0.0",
+      chrome_android: "94.0.0",
+      firefox: "93.0.0",
+      firefox_android: "93.0.0",
+      safari: "16.4.0",
+      safari_ios: "16.4.0",
+      edge: "94.0.0",
       node: "16.11.0",
-      deno: "1.14",
+      deno: "1.14.0",
     }
   },
-  walk_static_block,
-  |ctx: &mut Context, it: &StaticBlock| {
-    true
+  fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+    matches!(
+      node.kind(),
+      AstKind::StaticBlock(_)
+    )
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup;
-  use crate::assert_ok_count;
 
-  assert_ok_count! {
-    "classes_static_initialization_blocks",
-    setup,
+  use super::ClassesStaticInitializationBlocks;
+  use crate::assert_source_seg;
 
-    should_ok_when_use_static_initialization_blocks,
-    r#"
-      class A {
-        static {
-          console.log('Static initialization block called');
+  assert_source_seg! {
+    should_ok_when_use_static_initialization_blocks:{
+      setup: ClassesStaticInitializationBlocks::default(),
+      source_code: r#"
+        class A {
+          static { }
         }
-      }
-    "#,
-    1,
+      "#,
+      eq: [
+        r#"static { }"#,
+      ],
+      ne: [
 
-    should_ok_when_use_two_static_initialization_blocks,
-    r#"
-      class A {
-        static {
-          console.log('Static initialization block called');
-        }
-        static {
-          console.log('Static initialization block called');
-        }
-      }
-    "#,
-    2,
-
-    should_ok_when_not_use_static_initialization_blocks,
-    r#"
-      class H{ }
-    "#,
-    0
+      ]
+    },
   }
 }

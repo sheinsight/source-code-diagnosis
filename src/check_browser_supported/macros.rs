@@ -106,6 +106,7 @@ macro_rules! create_compat_2 {
         compat {
             name: $name:expr,
             description: $description:expr,
+            mdn_url: $mdn_url:expr,
             tags: [$($tag:expr),* $(,)?],
             support: {
                 chrome: $chrome:expr,
@@ -119,7 +120,7 @@ macro_rules! create_compat_2 {
                 deno: $deno:expr,
             }
         },
-        fn handle<'a>(&self, $ast_node:ident: &AstNode<'a>, $nodes:ident: &AstNodes<'a>) -> bool $body:block
+        fn handle<'a>(&self, $source_code:ident: &str,$ast_node:ident: &AstNode<'a>, $nodes:ident: &AstNodes<'a>) -> bool $body:block
     ) => {
         use oxc_ast::AstKind;
         use oxc_semantic::{AstNode, AstNodes};
@@ -135,6 +136,7 @@ macro_rules! create_compat_2 {
                     compat: Compat {
                         name: $name.to_string(),
                         description: $description.to_string(),
+                        mdn_url: $mdn_url.to_string(),
                         tags: vec![$($tag.to_string()),*],
                         support: Support {
                             chrome: $chrome.to_string(),
@@ -153,11 +155,89 @@ macro_rules! create_compat_2 {
         }
 
         impl CompatHandler for $struct_name {
-            fn handle<'a>(&self, $ast_node: &AstNode<'a>, $nodes: &AstNodes<'a>) -> bool $body
+            fn handle<'a>(&self, $source_code: &str,$ast_node: &AstNode<'a>, $nodes: &AstNodes<'a>) -> bool $body
 
             fn get_compat(&self) -> &Compat {
                 &self.compat
             }
         }
+    };
+}
+
+#[macro_export]
+macro_rules! assert_source_seg {
+    (
+        $(
+            $test_name:ident: {
+                setup: $compat_handler:expr,
+                source_code: $source_code:expr,
+                eq: [$($ok_expected:expr),* $(,)?],
+                ne: [$($fail_expected:expr),* $(,)?]
+            }
+        ),* $(,)?
+    ) => {
+        $(
+            #[test]
+            fn $test_name() {
+                let source_code = $source_code;
+
+                let allocator = oxc_allocator::Allocator::default();
+                let source_type = oxc_span::SourceType::default();
+
+                let ret = oxc_parser::Parser::new(&allocator, source_code, source_type).parse();
+                let program = allocator.alloc(ret.program);
+
+                let semantic = oxc_semantic::SemanticBuilder::new(&source_code, source_type)
+                    .build(program)
+                    .semantic;
+
+                let nodes = semantic.nodes();
+
+                let mut result: Vec<crate::check_browser_supported::compat::CompatBox> = Vec::new();
+                let compat_handler = $compat_handler;
+                let mut source_seg: Vec<String> = Vec::new();
+
+                for node in nodes.iter() {
+                    if crate::check_browser_supported::compat::CompatHandler::handle(
+                      &compat_handler,
+                      source_code,
+                      node,
+                      nodes,
+                    ) {
+                      result.push(crate::check_browser_supported::compat::CompatBox::new(
+                        oxc_span::GetSpan::span(&node.kind()),
+                        crate::check_browser_supported::compat::CompatHandler::get_compat(
+                          &compat_handler,
+                        )
+                        .clone(),
+                        "".to_string(),
+                      ));
+                      source_seg.push(
+                        crate::check_browser_supported::compat::AstNodeHelper::text(
+                          node,
+                          &source_code,
+                        ),
+                      )
+                    }
+                  }
+
+                let ok_expect_source_seg:Vec<&str> = vec![$($ok_expected),*];
+                let fail_expect_source_seg:Vec<&str> = vec![$($fail_expected),*];
+
+                assert_eq!(source_seg.len(), ok_expect_source_seg.len());
+
+                for (index, seg) in source_seg.iter().enumerate() {
+                    assert_eq!(ok_expect_source_seg.get(index).unwrap().trim(), seg.trim());
+                }
+
+                for fail_seg in fail_expect_source_seg.iter() {
+                    for seg in source_seg.iter() {
+                        assert_ne!(fail_seg.trim(), seg.trim());
+                    }
+                }
+
+                assert_eq!(result.len(), ok_expect_source_seg.len());
+            }
+        )*
     };
 }

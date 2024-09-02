@@ -1,11 +1,11 @@
 use crate::create_compat_2;
 
 create_compat_2! {
-  ClassesExtends,
+  ClassesDeclarations,
   compat {
-    name: "classes_extends",
-    description: "constructor function",
-    mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/extends",
+    name: "classes_declarations",
+    description: "function declarations",
+    mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes#defining_classes",
     tags: [
       "web-features:class-syntax",
       "web-features:snapshot:ecmascript-2015"
@@ -23,31 +23,29 @@ create_compat_2! {
     }
   },
   fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
-    if let AstKind::Class(class) = node.kind() {
-        if class.super_class.is_some() {
-            return true;
-        }
-    }
-    false
+    matches!(node.kind(), AstKind::Class(class) if class.is_declaration())
   }
 }
 
 #[cfg(test)]
 mod tests {
 
-  use super::ClassesExtends;
+  use super::ClassesDeclarations;
   use crate::assert_source_seg;
 
   assert_source_seg! {
-    should_ok_when_use_constructor:{
-      setup: ClassesExtends::default(),
+    should_ok_when_use_class_declaration:{
+      setup: ClassesDeclarations::default(),
       source_code: r#"
-        class A extends B { }
+        class A { constructor() { } }
+        const b = class { }
       "#,
       eq: [
-        r#"class A extends B { }"#
+        r#"class A { constructor() { } }"#
       ],
-      ne: []
+      ne: [
+        r#"class { }"#
+      ]
     }
   }
 }

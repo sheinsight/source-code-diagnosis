@@ -3,10 +3,11 @@ mod common;
 mod compat;
 // mod functions;
 // mod grammar;
+mod functions_v2;
 mod macros;
 // mod operators;
 // mod statements;
-mod classes_v2;
+mod classes;
 mod visitor;
 use std::{
   fs::read,
@@ -14,23 +15,18 @@ use std::{
   sync::{Arc, Mutex},
 };
 
-use classes_v2::extends::ClassesExtends;
 use compat::CompatBox;
 use napi::{Error, Result};
 
-use compat::AstNodeHelper as _;
 use oxc_allocator::Allocator;
-use oxc_ast::Visit as _;
+
 use oxc_parser::Parser;
 use oxc_semantic::SemanticBuilder;
 use oxc_span::GetSpan;
 use oxc_span::SourceType;
-use visitor::SyntaxVisitor;
 
 use crate::{
-  check_browser_supported::{
-    classes_v2::constructor::ClassesConstructor, compat::CompatHandler,
-  },
+  check_browser_supported::compat::CompatHandler,
   oxc_visitor_processor::{oxc_visit_process, Options},
 };
 
@@ -39,10 +35,11 @@ pub fn check_browser_supported(
   target: String,
   options: Option<Options>,
 ) -> Result<Vec<CompatBox>> {
-  let compat_handlers: Vec<Box<dyn CompatHandler>> = vec![
-    Box::new(ClassesConstructor::default()),
-    Box::new(ClassesExtends::default()),
-  ];
+  let mut compat_handlers: Vec<Box<dyn CompatHandler>> = vec![];
+
+  compat_handlers.extend(classes::setup());
+  compat_handlers.extend(functions_v2::setup());
+
   let share = Arc::new(compat_handlers);
   let used: Arc<Mutex<Vec<CompatBox>>> = Arc::new(Mutex::new(Vec::new()));
   let handler = {
@@ -73,7 +70,7 @@ pub fn check_browser_supported(
 
       for node in nodes.iter() {
         for compat_handler in clone.iter() {
-          if compat_handler.handle(node, nodes) {
+          if compat_handler.handle(source_code.as_str(), node, nodes) {
             let mut used = used.lock().unwrap();
             used.push(CompatBox::new(
               node.kind().span(),

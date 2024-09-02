@@ -1,68 +1,64 @@
-use oxc_ast::ast::PropertyDefinition;
+use crate::create_compat_2;
 
-use crate::create_compat;
-
-create_compat! {
-  setup,
-  |v: &mut SyntaxVisitor| {
-    v.walk_property_definition.push(walk_property_definition);
-  },
+create_compat_2! {
+  ClassesStaticClassFields,
   compat {
     name: "classes_static_class_fields",
     description: "static class fields",
+    mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static",
     tags: [
       "web-features:class-syntax",
-      "web-features:snapshot:ecmascript-2022"
+      "web-features:snapshot:ecmascript-2015"
     ],
     support: {
-      chrome: "72",
-      chrome_android: "72",
-      firefox: "75",
-      firefox_android: "79",
-      safari: "14.1",
-      safari_ios: "14.5",
-      edge: "79",
-      node: "12.0.0",
-      deno: "1.0",
+      chrome: "49.0.0",
+      chrome_android: "49.0.0",
+      firefox: "45.0.0",
+      firefox_android: "45.0.0",
+      safari: "9.0.0",
+      safari_ios: "9.0.0",
+      edge: "13.0.0",
+      node: "6.0.0",
+      deno: "1.0.0",
     }
   },
-  walk_property_definition,
-  |ctx: &mut Context, it: &PropertyDefinition| {
-    it.r#static
+  fn handle<'a>(&self, _source_code: &str,node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+    matches!(
+      node.kind(),
+      AstKind::PropertyDefinition(property_definition)
+      if property_definition.r#static
+    ) || matches!(
+      node.kind(),
+      AstKind::MethodDefinition(method_definition)
+      if method_definition.r#static
+    )
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::setup;
-  use crate::assert_ok_count;
 
-  assert_ok_count! {
-    "classes_static_class_fields",
-    setup,
+  use super::ClassesStaticClassFields;
+  use crate::assert_source_seg;
 
-    should_ok_when_use_class_static_fields,
-    r#"
-      class A { static hello = 12 }
-    "#,
-    1,
+  assert_source_seg! {
+    should_ok_when_use_class_static_fields:{
+      setup: ClassesStaticClassFields::default(),
+      source_code: r#"
+        class A { 
+          static hello = 12;
+          static staticMethod() { }
+          static h = () => { }
+        }
+      "#,
+      eq: [
+        r#"static hello = 12;"#,
+        r#"static staticMethod() { }"#,
+        r#"static h = () => { }"#
+      ],
+      ne: [
 
-    should_ok_when_use_class_static_fields_and_instance_static_fields,
-    r#"
-      class A { static hello = 12; hello = 12 }
-    "#,
-    1,
-
-    should_ok_when_use_class_instance_fields,
-    r#"
-      class A { hello = 12 }
-    "#,
-    0,
-
-    should_ok_when_use_class_instance_fields_and_instance_static_fields,
-    r#"
-      class A { hello = 12; static hello = 12 }
-    "#,
-    1,
+      ]
+    }
   }
 }

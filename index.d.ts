@@ -5,6 +5,7 @@
 
 export interface Compat {
   name: string
+  mdnUrl: string
   description: string
   tags: Array<string>
   support: Support

@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 )]
 pub struct Compat {
   pub name: String,
+  pub mdn_url: String,
   pub description: String,
   pub tags: Vec<String>,
   pub support: Support,
@@ -97,7 +98,12 @@ impl Span {
 }
 
 pub trait CompatHandler: Send + Sync {
-  fn handle<'a>(&self, node: &AstNode<'a>, nodes: &AstNodes<'a>) -> bool;
+  fn handle<'a>(
+    &self,
+    source_code: &str,
+    node: &AstNode<'a>,
+    nodes: &AstNodes<'a>,
+  ) -> bool;
 
   fn get_compat(&self) -> &Compat;
 }
