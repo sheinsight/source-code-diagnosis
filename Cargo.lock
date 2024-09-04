@@ -938,6 +938,7 @@ dependencies = [
  "oxc_syntax",
  "rayon",
  "regex",
+ "semver",
  "serde",
  "serde_json",
  "serde_json5",

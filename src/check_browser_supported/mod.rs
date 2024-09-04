@@ -3,16 +3,17 @@ mod common;
 mod compat;
 // mod functions;
 // mod grammar;
+mod classes;
 mod functions;
 mod grammar;
 mod macros;
-// mod operators;
-// mod statements;
-mod classes;
+mod operators;
+mod statements;
 mod visitor;
 use std::{
   fs::read,
   path::PathBuf,
+  str::FromStr as _,
   sync::{Arc, Mutex},
 };
 
@@ -25,6 +26,7 @@ use oxc_parser::Parser;
 use oxc_semantic::SemanticBuilder;
 use oxc_span::GetSpan;
 use oxc_span::SourceType;
+use semver::{Version, VersionReq};
 
 use crate::{
   check_browser_supported::compat::CompatHandler,
@@ -36,11 +38,24 @@ pub fn check_browser_supported(
   target: String,
   options: Option<Options>,
 ) -> Result<Vec<CompatBox>> {
+  // let req = VersionReq::parse(">=45").unwrap();
+
   let mut compat_handlers: Vec<Box<dyn CompatHandler>> = vec![];
 
   compat_handlers.extend(classes::setup());
   compat_handlers.extend(functions::setup());
   compat_handlers.extend(grammar::setup());
+  compat_handlers.extend(operators::setup());
+  compat_handlers.extend(statements::setup());
+
+  // let u = compat_handlers
+  //   .iter()
+  //   .filter(|item| {
+  //     let chrome = &item.get_compat().support.chrome;
+  //     let x = Version::from_str(&chrome).unwrap();
+  //     req.matches(&x)
+  //   })
+  //   .collect::<Vec<_>>();
 
   let share = Arc::new(compat_handlers);
   let used: Arc<Mutex<Vec<CompatBox>>> = Arc::new(Mutex::new(Vec::new()));
