@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   MultiplicationAssignment,
   compat {
-    name: "operators_multiplication_assignment",
+    name: "operators.multiplication_assignment",
     description: "乘法赋值运算符 (<code>x *= y</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Multiplication_assignment",
     tags: ["web-features:snapshot:ecmascript-1"],

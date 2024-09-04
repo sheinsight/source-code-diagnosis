@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   GeneratorFunctionNotConstructableWithNew,
   compat {
-    name: "generator_function_not_constructable_with_new",
+    name: "statements.generator_function.not_constructable_with_new",
     description: "生成器函数不能用 new 关键字构造（ES2016）",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*#Cannot_use_new_with_a_generator_function",
     tags: ["web-features:snapshot:ecmascript-2016"],

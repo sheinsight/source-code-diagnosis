@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsComma,
   compat {
-    name: "operators_comma",
+    name: "operators.comma",
     description: "逗号运算符",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Comma_Operator",
     tags: ["web-features:snapshot:ecmascript-1"],

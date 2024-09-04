@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ForIn,
   compat {
-    name: "for_in",
+    name: "statements.for_in",
     description: "for...in 语句",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/for...in",
     tags: ["web-features:snapshot:ecmascript-1"],

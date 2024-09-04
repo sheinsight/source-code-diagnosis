@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsVoid,
   compat {
-    name: "operators_void",
+    name: "operators.void",
     description: "void 运算符对给定的表达式进行求值，然后返回 undefined。",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/void",
     tags: [

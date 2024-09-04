@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   Length,
   compat {
-    name: "functions_arguments_length",
+    name: "functions.arguments.length",
     description: "function arguments length",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments/length",
     tags: [

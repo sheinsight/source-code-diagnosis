@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsOptionalChaining,
   compat {
-    name: "operators_optional_chaining",
+    name: "operators.optional_chaining",
     description: "可选链操作符 (<code>?.</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Optional_chaining",
     tags: ["web-features:snapshot:ecmascript-2020"],

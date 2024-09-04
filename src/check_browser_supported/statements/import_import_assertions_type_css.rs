@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
     ImportImportAssertionsTypeCSS,
     compat {
-        name: "import_import_assertions_type_css",
+        name: "statements.import.import_assertions.type_css",
         description: "assert {type: 'css'} 语法",
         mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#import_assertions",
         tags: ["web-features:js-modules"],

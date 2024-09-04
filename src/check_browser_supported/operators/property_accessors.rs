@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsPropertyAccessors,
   compat {
-    name: "operators_property_accessors",
+    name: "operators.property_accessors",
     description: "属性访问器",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Property_Accessors",
     tags: ["web-features:snapshot:ecmascript-1"],

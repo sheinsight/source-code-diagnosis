@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   Exponentiation,
   compat {
-    name: "operators_exponentiation",
+    name: "operators.exponentiation",
     description: "幂运算符 (**)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Exponentiation",
     tags: ["web-features:snapshot:ecmascript-2016"],

@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   DestructuringRestInArrays,
   compat {
-    name: "destructuring_rest_in_arrays",
+    name: "operators.destructuring.rest_in_arrays",
     description: "数组中的剩余元素解构",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Rest_in_Arrays",
     tags: [

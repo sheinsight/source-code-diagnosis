@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   GeneratorFunction,
   compat {
-    name: "generator_function",
+    name: "statements.generator_function",
     description: "function* 语句",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*",
     tags: ["web-features:snapshot:ecmascript-2015"],

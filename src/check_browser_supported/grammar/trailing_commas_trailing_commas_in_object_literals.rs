@@ -5,7 +5,7 @@ use crate::{
 create_compat_2! {
   TrailingCommasInObjectLiterals,
   compat {
-      name: "trailing_commas_trailing_commas_in_object_literals",
+      name: "trailing_commas.trailing_commas_in_object_literals",
       description: "Trailing commas in object literals",
       mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Trailing_commas",
       tags: [

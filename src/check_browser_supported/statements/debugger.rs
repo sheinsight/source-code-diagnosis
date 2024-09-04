@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   DebuggerStatement,
   compat {
-    name: "debugger",
+    name: "statements.debugger",
     description: "debugger 语句调用任何可用的调试功能，例如设置断点。如果没有可用的调试功能，该语句不会产生任何效果。",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/debugger",
     tags: [

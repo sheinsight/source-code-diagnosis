@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ExponentiationAssignment,
   compat {
-    name: "operators_exponentiation_assignment",
+    name: "operators.exponentiation_assignment",
     description: "幂赋值运算符 (<code>x **= y</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Exponentiation_assignment",
     tags: [

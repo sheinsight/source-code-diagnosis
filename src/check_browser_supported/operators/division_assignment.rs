@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   DivisionAssignment,
   compat {
-    name: "operators_division_assignment",
+    name: "operators.division_assignment",
     description: "除法赋值运算符 (<code>x /= y</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Division_assignment",
     tags: ["web-features:snapshot:ecmascript-1"],

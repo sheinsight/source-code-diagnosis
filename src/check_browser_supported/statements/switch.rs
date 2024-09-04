@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   Switch,
   compat {
-    name: "switch",
+    name: "statements.switch",
     description: "switch 语句",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/switch",
     tags: ["web-features:snapshot:ecmascript-1"],

@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
     ImportImportAssertionsTypeJson,
     compat {
-        name: "import_import_assertions_type_json",
+        name: "statements.import.import_assertions.type_json",
         description: "assert {type: 'json'} 语法",
         mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#import_assertions",
         tags: ["web-features:js-modules"],

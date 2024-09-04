@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
     ImportImportAssertions,
     compat {
-        name: "import_import_assertions",
+        name: "statements.import.import_assertions",
         description: "使用 assert 语法的导入属性（前身为导入断言）",
         mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#import_assertions",
         tags: ["web-features:js-modules"],

@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   DestructuringComputedPropertyNames,
   compat {
-    name: "destructuring_computed_property_names",
+    name: "operators.destructuring.computed_property_names",
     description: "解构赋值中的计算属性名",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Computed_property_names_and_destructuring",
     tags: [

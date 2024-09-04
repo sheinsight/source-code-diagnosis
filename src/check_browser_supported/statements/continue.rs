@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ContinueStatement,
   compat {
-    name: "continue",
+    name: "statements.continue",
     description: "continue 语句终止当前循环的当前迭代中的语句执行，并继续执行下一次迭代。",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/continue",
     tags: [

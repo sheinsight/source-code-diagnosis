@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   Multiplication,
   compat {
-    name: "operators_multiplication",
+    name: "operators.multiplication",
     description: "乘法运算符 (*)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Multiplication",
     tags: ["web-features:snapshot:ecmascript-1"],

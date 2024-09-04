@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ExportNamespace,
   compat {
-    name: "export_namespace",
+    name: "statements.export_namespace",
     description: "export * as namespace",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#namespace_export",
     tags: ["web-features:js-modules"],

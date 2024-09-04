@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   Throw,
   compat {
-    name: "throw",
+    name: "statements.throw",
     description: "throw 语句",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/throw",
     tags: [

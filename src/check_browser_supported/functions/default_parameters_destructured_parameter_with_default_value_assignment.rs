@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   DefaultParametersDestructuredParameterWithDefaultValueAssignment,
   compat {
-    name: "default_parameters_destructured_parameter_with_default_value_assignment",
+    name: "default_parameters.destructured_parameter_with_default_value_assignment",
     description: "destructured parameter with default value assignment",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters#destructured_parameter_with_default_value_assignment",
     tags: [

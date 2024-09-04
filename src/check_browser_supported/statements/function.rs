@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   FunctionsDeclarations,
   compat {
-    name: "functions_declarations",
+    name: "statements.functions",
     description: "function 语句",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function",
     tags: ["web-features:snapshot:ecmascript-1"],

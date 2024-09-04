@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsLessThan,
   compat {
-    name: "operators_less_than",
+    name: "operators.less_than",
     description: "小于运算符 (<)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Less_than",
     tags: ["web-features:snapshot:ecmascript-1"],

@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ObjectInitializerComputedPropertyNames,
   compat {
-    name: "object_initializer_computed_property_names",
+    name: "operators.object_initializer.computed_property_names",
     description: "计算属性名",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#Computed_property_names",
     tags: [

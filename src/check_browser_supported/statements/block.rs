@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   BlockStatement,
   compat {
-    name: "block",
+    name: "statements.block",
     description: "块语句（或在其他语言中称为复合语句）用于将零个或多个语句组合在一起。块由一对花括号界定。",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/block",
     tags: ["web-features:snapshot:ecmascript-1"],

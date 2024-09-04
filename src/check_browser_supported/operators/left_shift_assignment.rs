@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   LeftShiftAssignment,
   compat {
-    name: "operators_left_shift_assignment",
+    name: "operators.left_shift_assignment",
     description: "左移位赋值运算符 (<code>x &lt;&lt;= y</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Left_shift_assignment",
     tags: ["web-features:snapshot:ecmascript-1"],

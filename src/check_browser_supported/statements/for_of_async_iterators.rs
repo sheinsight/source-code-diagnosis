@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ForOfAsyncIterators,
   compat {
-    name: "for_of_async_iterators",
+    name: "statements.for_of.async_iterators",
     description: "for await...of 异步迭代器",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of",
     tags: [

@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   BitwiseNot,
   compat {
-    name: "operators_bitwise_not",
+    name: "operators.bitwise_not",
     description: "按位非运算符 (<code>~a</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Bitwise_NOT",
     tags: [

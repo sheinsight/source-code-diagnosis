@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ForAwaitOf,
   compat {
-    name: "for_await_of",
+    name: "statements.for_await_of",
     description: "for await...of 语句",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of",
     tags: ["web-features:snapshot:ecmascript-2018"],

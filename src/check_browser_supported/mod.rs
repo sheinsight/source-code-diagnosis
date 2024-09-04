@@ -1,12 +1,10 @@
 mod classes;
-mod common;
 mod compat;
 mod functions;
 mod grammar;
 mod macros;
 mod operators;
 mod statements;
-mod visitor;
 use std::{
   fs::read_to_string,
   path::PathBuf,

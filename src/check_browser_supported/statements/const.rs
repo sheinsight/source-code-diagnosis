@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   Const,
   compat {
-    name: "const",
+    name: "statements.const",
     description: "const 声明创建一个只读的常量。这不意味着常量指向的值是不可变的，只是变量标识符不能被重新赋值。",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/const",
     tags: ["web-features:snapshot:ecmascript-2015"],

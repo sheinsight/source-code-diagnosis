@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsEquality,
   compat {
-    name: "operators_equality",
+    name: "operators.equality",
     description: "相等运算符 (==)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Equality",
     tags: ["web-features:snapshot:ecmascript-1"],

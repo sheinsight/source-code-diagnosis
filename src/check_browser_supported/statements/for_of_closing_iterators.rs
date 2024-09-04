@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ForOfClosingIterators,
   compat {
-    name: "for_of_closing_iterators",
+    name: "statements.for_of.closing_iterators",
     description: "for...of 语句中的关闭迭代器",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of#Closing_iterators",
     tags: [

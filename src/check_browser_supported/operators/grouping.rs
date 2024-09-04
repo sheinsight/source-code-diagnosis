@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsGrouping,
   compat {
-    name: "operators_grouping",
+    name: "operators.grouping",
     description: "分组运算符 ()",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Grouping",
     tags: [

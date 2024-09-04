@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ObjectInitializer,
   compat {
-    name: "operators_object_initializer",
+    name: "operators.object_initializer",
     description: "对象初始化器",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer",
     tags: ["web-features:snapshot:ecmascript-1"],

@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   BreakStatement,
   compat {
-    name: "break",
+    name: "statements.break",
     description: "break 语句用于终止当前循环、switch 或标签语句,并将程序控制权转移到被终止语句后面的语句。",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/break",
     tags: [

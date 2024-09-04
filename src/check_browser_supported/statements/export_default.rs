@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ExportDefault,
   compat {
-    name: "export_default",
+    name: "statements.export_default",
     description: "export 语句中的 default 关键字",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/export",
     tags: ["web-features:js-modules"],

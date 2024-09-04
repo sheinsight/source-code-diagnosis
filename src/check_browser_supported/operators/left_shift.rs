@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsLeftShift,
   compat {
-    name: "operators_left_shift",
+    name: "operators.left_shift",
     description: "按位左移运算符 (<<)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Left_shift",
     tags: ["web-features:snapshot:ecmascript-1"],

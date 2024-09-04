@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   EmptyStatement,
   compat {
-    name: "empty",
+    name: "statements.empty",
     description: "空语句 (;)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/Empty",
     tags: ["web-features:snapshot:ecmascript-1"],

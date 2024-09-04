@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
     ImportImportAttributesTypeJson,
     compat {
-        name: "import_import_attributes_type_json",
+        name: "statements.import.import_attributes.type_json",
         description: "<code>with {type: 'json'}</code>",
         mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#import_attributes",
         tags: ["web-features:js-modules"],

@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   GeneratorFunctionTrailingComma,
   compat {
-    name: "generator_function_trailing_comma",
+    name: "operators.generator_function.trailing_comma",
     description: "生成器函数参数中的尾随逗号",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Trailing_commas#trailing_commas_in_functions",
     tags: ["web-features:snapshot:ecmascript-2015"],

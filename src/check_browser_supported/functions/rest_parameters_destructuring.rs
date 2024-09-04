@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   RestParametersDestructuring,
   compat {
-    name: "rest_parameters",
+    name: "rest_parameters.destructuring",
     description: "Rest parameters",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/rest_parameters",
     tags: [

@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ClassesStaticInitializationBlocks,
   compat {
-    name: "classes_static_initialization_blocks",
+    name: "classes.static_initialization_blocks",
     description: "static initialization blocks",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/Static_initialization_blocks",
     tags: [

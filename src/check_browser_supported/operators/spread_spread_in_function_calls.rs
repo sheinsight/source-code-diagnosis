@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   SpreadInFunctionCalls,
   compat {
-    name: "spread_in_function_calls",
+    name: "operators.spread.spread_in_function_calls",
     description: "函数调用中的展开语法",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#spread_in_function_calls",
     tags: [

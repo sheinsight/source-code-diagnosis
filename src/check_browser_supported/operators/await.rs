@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsAwait,
   compat {
-    name: "operators_await",
+    name: "operators.await",
     description: "await 运算符",
     mdn_url: "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/await",
     tags: ["web-features:async-await"],

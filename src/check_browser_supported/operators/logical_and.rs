@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsLogicalAnd,
   compat {
-    name: "operators_logical_and",
+    name: "operators.logical_and",
     description: "逻辑与运算符 (&&)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Logical_AND",
     tags: [

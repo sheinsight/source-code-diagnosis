@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   Callee,
   compat {
-    name: "functions_arguments_callee",
+    name: "functions.arguments.callee",
     description: "function arguments callee",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments/callee",
     tags: [

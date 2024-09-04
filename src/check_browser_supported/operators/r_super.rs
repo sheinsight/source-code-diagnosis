@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsSuper,
   compat {
-    name: "operators_super",
+    name: "operators.super",
     description: "super 关键字用于调用超类的对应方法。这是 ES6 类语法的关键特性之一。",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/super",
     tags: [

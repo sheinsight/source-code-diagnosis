@@ -5,7 +5,7 @@ use crate::{
 create_compat_2! {
   TrailingCommasInFunctions,
   compat {
-    name: "trailing_commas_trailing_commas_in_functions",
+    name: "trailing_commas.trailing_commas_in_functions",
     description: "Trailing commas in function parameters",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Trailing_commas#trailing_commas_in_functions",
     tags: [

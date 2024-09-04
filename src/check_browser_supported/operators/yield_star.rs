@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsYieldStar,
   compat {
-    name: "operators_yield_star",
+    name: "operators.yield_star",
     description: "yield* 表达式",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/yield*",
     tags: ["web-features:snapshot:ecmascript-2015"],

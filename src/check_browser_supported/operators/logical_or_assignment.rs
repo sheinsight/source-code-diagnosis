@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsLogicalOrAssignment,
   compat {
-    name: "operators_logical_or_assignment",
+    name: "operators.logical_or_assignment",
     description: "逻辑或赋值运算符 (x ||= y)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Logical_OR_assignment",
     tags: ["web-features:snapshot:ecmascript-2021"],

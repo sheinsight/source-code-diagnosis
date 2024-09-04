@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ClassesPrivateClassMethods,
   compat {
-    name: "classes_private_class_methods",
+    name: "classes.private_class_methods",
     description: "private class methods",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_properties#javascript.classes.private_class_methods",
     tags: [

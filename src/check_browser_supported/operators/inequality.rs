@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsInequality,
   compat {
-    name: "operators_inequality",
+    name: "operators.inequality",
     description: "不等运算符 (!=)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Inequality",
     tags: ["web-features:snapshot:ecmascript-1"],

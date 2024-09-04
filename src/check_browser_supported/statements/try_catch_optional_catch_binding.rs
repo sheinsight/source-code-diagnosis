@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   TryCatchOptionalCatchBinding,
   compat {
-    name: "try_catch_optional_catch_binding",
+    name: "statements.try_catch.optional_catch_binding",
     description: "可选的 catch 绑定",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch#Optional_catch_binding",
     tags: ["web-features:snapshot:ecmascript-2019"],

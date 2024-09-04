@@ -1,11 +1,11 @@
-use oxc_syntax::operator::{BinaryOperator, LogicalOperator};
+use oxc_syntax::operator::LogicalOperator;
 
 use crate::create_compat_2;
 
 create_compat_2! {
   OperatorsLogicalOr,
   compat {
-    name: "operators_logical_or",
+    name: "operators.logical_or",
     description: "逻辑或运算符 (||)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Logical_OR",
     tags: ["web-features:snapshot:ecmascript-1"],

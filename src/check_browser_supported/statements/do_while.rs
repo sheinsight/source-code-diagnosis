@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   DoWhileStatement,
   compat {
-    name: "do_while",
+    name: "statements.do_while",
     description: "do...while 语句",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/do...while",
     tags: ["web-features:snapshot:ecmascript-3"],

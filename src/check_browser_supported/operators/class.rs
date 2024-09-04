@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ClassesExpression,
   compat {
-    name: "class_expression",
+    name: "operators.class",
     description: "The class keyword can be used to define a class inside an expression.",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/class",
     tags: [

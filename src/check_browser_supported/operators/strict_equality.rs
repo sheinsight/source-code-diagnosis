@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsStrictEquality,
   compat {
-    name: "operators_strict_equality",
+    name: "operators.strict_equality",
     description: "严格相等运算符 (===)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Strict_equality",
     tags: ["web-features:snapshot:ecmascript-1"],

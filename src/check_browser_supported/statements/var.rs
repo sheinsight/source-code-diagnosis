@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   VarDeclaration,
   compat {
-    name: "var",
+    name: "statements.var",
     description: "var 声明",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/var",
     tags: ["web-features:snapshot:ecmascript-1"],

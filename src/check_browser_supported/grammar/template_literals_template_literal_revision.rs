@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   TemplateLiteralsTemplateLiteralRevision,
   compat {
-    name: "template_literals_template_literal_revision",
+    name: "template_literals.template_literal_revision",
     description: "Escape sequences allowed in tagged template literals",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates_and_escape_sequences",
     tags: [

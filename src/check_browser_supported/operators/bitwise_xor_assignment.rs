@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   BitwiseXorAssignment,
   compat {
-    name: "operators_bitwise_xor_assignment",
+    name: "operators.bitwise_xor_assignment",
     description: "按位异或赋值运算符 (<code>x ^= y</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Bitwise_XOR_assignment",
     tags: [

@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsNew,
   compat {
-    name: "operators_new",
+    name: "operators.new",
     description: "new 运算符创建一个用户定义的对象类型的实例或具有构造函数的内置对象的实例。",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/new",
     tags: ["web-features:snapshot:ecmascript-1"],

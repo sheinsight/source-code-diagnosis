@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsYield,
   compat {
-    name: "operators_yield",
+    name: "operators.yield",
     description: "yield 操作符",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/yield",
     tags: [

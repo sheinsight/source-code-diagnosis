@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   TryCatch,
   compat {
-    name: "try_catch",
+    name: "statements.try_catch",
     description: "try...catch 语句",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/try...catch",
     tags: ["web-features:snapshot:ecmascript-3"],

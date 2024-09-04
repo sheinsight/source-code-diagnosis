@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ObjectInitializerSpreadProperties,
   compat {
-    name: "object_initializer_spread_properties",
+    name: "operators.object_initializer.spread_properties",
     description: "对象初始化器中的展开属性",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#spread_in_object_literals",
     tags: ["web-features:snapshot:ecmascript-2018"],

@@ -5,7 +5,7 @@ use crate::{
 create_compat_2! {
   ArrowFunctionsTrailingComma,
   compat {
-    name: "functions_arrow_functions_trailing_comma",
+    name: "functions.arrow_functions.trailing_comma",
     description: "Arrow functions",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Arrow_functions",
     tags: [

@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsIncrement,
   compat {
-    name: "operators_increment",
+    name: "operators.increment",
     description: "递增运算符 (++)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Increment",
     tags: ["web-features:snapshot:ecmascript-1"],

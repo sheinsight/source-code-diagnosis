@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
     ImportOptionsParameter,
     compat {
-        name: "import_options_parameter",
+        name: "operators.import.options_parameter",
         description: "<code>options</code> 参数",
         mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#import_with_options",
         tags: ["web-features:js-modules"],

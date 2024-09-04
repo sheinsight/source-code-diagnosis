@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsNewTarget,
   compat {
-    name: "operators_new_target",
+    name: "operators.new_target",
     description: "<code>new.target</code>",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new.target",
     tags: ["web-features:snapshot:ecmascript-2015"],

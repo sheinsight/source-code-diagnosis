@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   FunctionTrailingComma,
   compat {
-    name: "functions_trailing_comma",
+    name: "operators.functions.trailing_comma",
     description: "函数参数中的尾随逗号",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Trailing_commas#trailing_commas_in_functions",
     tags: [

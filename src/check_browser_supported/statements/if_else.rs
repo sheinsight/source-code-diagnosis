@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   IfElse,
   compat {
-    name: "if_else",
+    name: "statements.if_else",
     description: "if...else 语句",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/if...else",
     tags: ["web-features:snapshot:ecmascript-1"],

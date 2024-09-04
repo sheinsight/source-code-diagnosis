@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
     Import,
     compat {
-        name: "import",
+        name: "statements.import",
         description: "import 语句",
         mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/import",
         tags: ["web-features:js-modules"],

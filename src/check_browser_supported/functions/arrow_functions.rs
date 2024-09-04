@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ArrowFunctions,
   compat {
-    name: "functions_arrow",
+    name: "functions.arrow_functions",
     description: "Arrow functions",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Arrow_functions",
     tags: [

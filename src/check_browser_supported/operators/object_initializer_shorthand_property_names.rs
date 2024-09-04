@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ObjectInitializerShorthandPropertyNames,
   compat {
-    name: "object_initializer_shorthand_property_names",
+    name: "operators.object_initializer.shorthand_property_names",
     description: "对象字面量的简写属性名",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#Property_definitions",
     tags: ["web-features:snapshot:ecmascript-2015"],

@@ -1,7 +1,7 @@
 use arguments::Arguments;
+use arguments_callee::Callee;
 use arrow_functions::ArrowFunctions;
 use arrow_functions_trailing_comma::ArrowFunctionsTrailingComma;
-use callee::Callee;
 use default_parameters_destructured_parameter_with_default_value_assignment::DefaultParametersDestructuredParameterWithDefaultValueAssignment;
 use default_parameters_parameters_without_defaults_after_default_parameters::DefaultParametersParametersWithoutDefaultsAfterDefaultParameters;
 use functions::FunctionsDeclarations;
@@ -19,9 +19,9 @@ use set_computed_property_names::SetComputedPropertyNames;
 use super::compat::CompatHandler;
 
 pub mod arguments;
+pub mod arguments_callee;
 pub mod arrow_functions;
 pub mod arrow_functions_trailing_comma;
-pub mod callee;
 pub mod default_parameters;
 pub mod default_parameters_destructured_parameter_with_default_value_assignment;
 pub mod default_parameters_parameters_without_defaults_after_default_parameters;

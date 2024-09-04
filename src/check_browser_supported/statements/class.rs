@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ClassesDeclarations,
   compat {
-    name: "classes_declarations",
+    name: "statements.classes",
     description: "The class declaration creates a binding of a new class to a given name.",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/class",
     tags: [

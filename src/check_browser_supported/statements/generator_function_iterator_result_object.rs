@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   GeneratorFunctionIteratorResultObject,
   compat {
-    name: "generator_function_IteratorResult_object",
+    name: "statements.generator_function.IteratorResult_object",
     description: "生成器函数返回 IteratorResult 对象而不是抛出异常",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator",
     tags: ["web-features:snapshot:ecmascript-2016"],

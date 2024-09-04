@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
     Export,
     compat {
-        name: "export",
+        name: "statements.export",
         description: "The `export` statement is used when creating JavaScript modules to export functions, objects, or primitive values from the module so they can be used by other programs with the `import` statement.",
         mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export",
         tags: ["web-features:js-modules"],

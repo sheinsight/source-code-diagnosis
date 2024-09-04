@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsUnaryNegation,
   compat {
-    name: "operators_unary_negation",
+    name: "operators.unary_negation",
     description: "一元负号运算符 (<code>-</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Unary_negation",
     tags: [

@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   GetComputedPropertyNames,
   compat {
-    name: "get_computed_property_names",
+    name: "get.computed_property_names",
     description: "Get computed property names",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get",
     tags: [

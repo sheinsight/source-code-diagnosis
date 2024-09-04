@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsIn,
   compat {
-    name: "operators_in",
+    name: "operators.in",
     description: "in 运算符",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/in",
     tags: ["web-features:snapshot:ecmascript-1"],

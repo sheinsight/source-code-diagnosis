@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   With,
   compat {
-    name: "with",
+    name: "statements.with",
     description: "with 语句",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/with",
     tags: ["web-features:snapshot:ecmascript-1"],

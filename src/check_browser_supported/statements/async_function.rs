@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   AsyncFunction,
   compat {
-    name: "async_function",
+    name: "statements.async_function",
     description: "async function 语句",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/async_function",
     tags: [

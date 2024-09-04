@@ -5,9 +5,9 @@ use crate::create_compat_2;
 create_compat_2! {
   Set,
   compat {
-    name: "get",
-    description: "Get computed property names",
-    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get",
+    name: "set",
+    description: "Set computed property names",
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/set",
     tags: [
       "web-features:snapshot:ecmascript-1"
     ],

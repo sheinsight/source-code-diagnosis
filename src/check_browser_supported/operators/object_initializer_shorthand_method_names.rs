@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ObjectInitializerShorthandMethodNames,
   compat {
-    name: "operators_object_initializer_shorthand_method_names",
+    name: "operators.object_initializer.shorthand_method_names",
     description: "对象初始化器中的简写方法名",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Method_definitions",
     tags: ["web-features:snapshot:ecmascript-2015"],

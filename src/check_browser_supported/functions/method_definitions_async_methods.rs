@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   MethodDefinitionsAsyncMethods,
   compat {
-    name: "method_definitions_async_methods",
+    name: "method_definitions.async_methods",
     description: "async methods",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions",
     tags: [

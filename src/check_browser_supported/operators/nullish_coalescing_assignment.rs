@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   NullishCoalescingAssignment,
   compat {
-    name: "operators_nullish_coalescing_assignment",
+    name: "operators.nullish_coalescing_assignment",
     description: "空值合并赋值运算符 (x ??= y)",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_assignment",
     tags: ["web-features:snapshot:ecmascript-2021"],

@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   SubtractionAssignment,
   compat {
-    name: "operators_subtraction_assignment",
+    name: "operators.subtraction_assignment",
     description: "减法赋值运算符 (<code>x -= y</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Subtraction_assignment",
     tags: ["web-features:snapshot:ecmascript-1"],

@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsRemainder,
   compat {
-    name: "operators_remainder",
+    name: "operators.remainder",
     description: "余数运算符 (<code>%</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Remainder",
     tags: ["web-features:snapshot:ecmascript-1"],

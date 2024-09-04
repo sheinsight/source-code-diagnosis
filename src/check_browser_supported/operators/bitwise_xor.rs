@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   BitwiseXor,
   compat {
-    name: "operators_bitwise_xor",
+    name: "operators.bitwise_xor",
     description: "按位异或运算符 (^)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Bitwise_XOR",
     tags: [

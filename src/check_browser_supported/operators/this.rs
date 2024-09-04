@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsThis,
   compat {
-    name: "operators_this",
+    name: "operators.this",
     description: "The `this` keyword refers to the object it belongs to. It has different values depending on where it is used.",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/this",
     tags: [

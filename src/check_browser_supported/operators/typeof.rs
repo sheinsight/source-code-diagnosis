@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsTypeof,
   compat {
-    name: "operators_typeof",
+    name: "operators.typeof",
     description: "typeof 运算符返回一个字符串，表示未经计算的操作数的类型。",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/typeof",
     tags: ["web-features:snapshot:ecmascript-1"],

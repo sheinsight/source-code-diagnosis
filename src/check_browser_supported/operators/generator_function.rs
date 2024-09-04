@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsGeneratorFunction,
   compat {
-    name: "operators_generator_function",
+    name: "operators.generator_function",
     description: "<code>function*</code> 表达式",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/function*",
     tags: ["web-features:snapshot:ecmascript-2015"],

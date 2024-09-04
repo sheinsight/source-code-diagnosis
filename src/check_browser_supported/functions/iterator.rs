@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   Iterator,
   compat {
-    name: "functions_arguments_iterator",
+    name: "functions.arguments.iterator",
     description: "[Symbol.iterator]",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments/Symbol.iterator",
     tags: [

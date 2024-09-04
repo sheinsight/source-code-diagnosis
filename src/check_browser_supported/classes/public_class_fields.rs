@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ClassesPublicClassFields,
   compat {
-    name: "classes_public_class_fields",
+    name: "classes.public_class_fields",
     description: "public class fields",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Public_class_fields",
     tags: [

@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsGreaterThan,
   compat {
-    name: "operators_greater_than",
+    name: "operators.greater_than",
     description: "大于运算符 (>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Greater_than",
     tags: ["web-features:snapshot:ecmascript-1"],

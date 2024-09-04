@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   MethodDefinitionsGeneratorMethodsNotConstructable,
   compat {
-    name: "method_definitions_async_generator_methods",
+    name: "method_definitions.generator_methods_not_constructable",
     description: "async methods",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/Method_definitions",
     tags: [

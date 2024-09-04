@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ClassesStatic,
   compat {
-    name: "classes_static",
+    name: "classes.static",
     description: "static class members",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Classes/static",
     tags: [

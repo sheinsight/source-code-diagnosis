@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   RemainderAssignment,
   compat {
-    name: "operators_remainder_assignment",
+    name: "operators.remainder_assignment",
     description: "余数赋值运算符 (<code>x %= y</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Remainder_assignment",
     tags: ["web-features:snapshot:ecmascript-1"],

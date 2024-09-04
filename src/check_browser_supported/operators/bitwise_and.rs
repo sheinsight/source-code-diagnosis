@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   BitwiseAnd,
   compat {
-    name: "operators_bitwise_and",
+    name: "operators.bitwise_and",
     description: "按位与运算符 (<code>a & b</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Bitwise_AND",
     tags: [

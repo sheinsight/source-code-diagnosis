@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   Arguments,
   compat {
-    name: "functions_arguments",
+    name: "functions.arguments",
     description: "function arguments",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/arguments",
     tags: [

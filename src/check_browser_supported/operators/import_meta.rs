@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsImportMeta,
   compat {
-    name: "operators_import_meta",
+    name: "operators.import_meta",
     description: "<code>import.meta</code>",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/import.meta",
     tags: ["web-features:js-modules"],

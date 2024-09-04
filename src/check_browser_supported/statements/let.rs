@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   Let,
   compat {
-    name: "let",
+    name: "statements.let",
     description: "let 声明",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/let",
     tags: ["web-features:snapshot:ecmascript-2015"],

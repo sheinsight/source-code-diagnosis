@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsSubtraction,
   compat {
-    name: "operators_subtraction",
+    name: "operators.subtraction",
     description: "减法运算符 (<code>-</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Subtraction",
     tags: [

@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   Division,
   compat {
-    name: "division",
+    name: "operators.division",
     description: "除法运算符 (<code>/</code>)",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Division",
     tags: [

@@ -5,7 +5,7 @@ use crate::{
 create_compat_2! {
   TrailingCommasInDynamicImport,
   compat {
-      name: "trailing_commas_trailing_commas_in_dynamic_import",
+      name: "trailing_commas.trailing_commas_in_dynamic_import",
       description: "Trailing commas in dynamic import",
       mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports",
       tags: [

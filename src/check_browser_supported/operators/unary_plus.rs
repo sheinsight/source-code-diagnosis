@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsUnaryPlus,
   compat {
-    name: "operators_unary_plus",
+    name: "operators.unary_plus",
     description: "一元加法运算符 (+)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Unary_plus",
     tags: ["web-features:snapshot:ecmascript-1"],

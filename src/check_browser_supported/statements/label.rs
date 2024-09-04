@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   LabelStatement,
   compat {
-    name: "label",
+    name: "statements.label",
     description: "标签语句",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/label",
     tags: [

@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
     ImportImportAttributesTypeCSS,
     compat {
-        name: "import_import_attributes_type_css",
+        name: "statements.import.import_attributes.type_css",
         description: "<code>with {type: 'css'}</code>",
         mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#import_attributes",
         tags: ["web-features:js-modules"],

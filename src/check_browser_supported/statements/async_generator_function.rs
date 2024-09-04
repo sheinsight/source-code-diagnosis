@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   AsyncGeneratorFunction,
   compat {
-    name: "async_generator_function",
+    name: "statements.async_generator_function",
     description: "async function* 语句",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function*",
     tags: ["web-features:snapshot:ecmascript-2018"],

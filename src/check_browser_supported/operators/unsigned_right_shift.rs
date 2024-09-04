@@ -5,7 +5,7 @@ use crate::create_compat_2;
 create_compat_2! {
   OperatorsUnsignedRightShift,
   compat {
-    name: "operators_unsigned_right_shift",
+    name: "operators.unsigned_right_shift",
     description: "无符号右移运算符 (<code>a >>> b</code>)",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Unsigned_right_shift",
     tags: ["web-features:snapshot:ecmascript-1"],

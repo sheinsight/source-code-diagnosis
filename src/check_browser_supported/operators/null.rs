@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   NullLiteral,
   compat {
-    name: "null_literal",
+    name: "operators.null",
     description: "Null 字面量",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null",
     tags: [

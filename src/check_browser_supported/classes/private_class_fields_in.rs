@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ClassesPrivateClassFieldsIn,
   compat {
-    name: "classes_private_class_fields_in",
+    name: "classes.private_class_fields_in",
     description: "private class fields 'in' operator",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_properties#javascript.classes.private_class_fields_in",
     tags: [

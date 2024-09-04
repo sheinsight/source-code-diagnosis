@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   SpreadInObjectLiterals,
   compat {
-    name: "spread_in_object_literals",
+    name: "operators.spread.spread_in_object_literals",
     description: "对象字面量中的展开语法",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#spread_in_object_literals",
     tags: ["web-features:snapshot:ecmascript-2018"],

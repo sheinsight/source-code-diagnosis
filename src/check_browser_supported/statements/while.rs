@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   While,
   compat {
-    name: "while",
+    name: "statements.while",
     description: "while 循环",
     mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/while",
     tags: [

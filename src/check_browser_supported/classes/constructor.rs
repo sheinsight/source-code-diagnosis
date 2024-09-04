@@ -3,7 +3,7 @@ use crate::create_compat_2;
 create_compat_2! {
   ClassesConstructor,
   compat {
-    name: "classes_constructor",
+    name: "classes.constructor",
     description: "constructor function",
     mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/constructor",
     tags: [
