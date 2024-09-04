@@ -1,9 +1,6 @@
-// mod classes;
+mod classes;
 mod common;
 mod compat;
-// mod functions;
-// mod grammar;
-mod classes;
 mod functions;
 mod grammar;
 mod macros;
@@ -11,9 +8,8 @@ mod operators;
 mod statements;
 mod visitor;
 use std::{
-  fs::read,
+  fs::read_to_string,
   path::PathBuf,
-  str::FromStr as _,
   sync::{Arc, Mutex},
 };
 
@@ -26,36 +22,44 @@ use oxc_parser::Parser;
 use oxc_semantic::SemanticBuilder;
 use oxc_span::GetSpan;
 use oxc_span::SourceType;
-use semver::{Version, VersionReq};
+
+use semver_rs::{Parseable as _, Version};
+// use semver::{Version, VersionReq};
 
 use crate::{
   check_browser_supported::compat::CompatHandler,
-  oxc_visitor_processor::{oxc_visit_process, Options},
+  oxc_visitor_processor::{oxc_visit_process, Options, Target},
 };
 
 #[napi]
 pub fn check_browser_supported(
-  target: String,
+  target: Target,
   options: Option<Options>,
 ) -> Result<Vec<CompatBox>> {
-  // let req = VersionReq::parse(">=45").unwrap();
+  let chrome_version = Version::parse(target.chrome.as_str(), None)
+    .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))
+    .unwrap();
 
-  let mut compat_handlers: Vec<Box<dyn CompatHandler>> = vec![];
-
-  compat_handlers.extend(classes::setup());
-  compat_handlers.extend(functions::setup());
-  compat_handlers.extend(grammar::setup());
-  compat_handlers.extend(operators::setup());
-  compat_handlers.extend(statements::setup());
-
-  // let u = compat_handlers
-  //   .iter()
-  //   .filter(|item| {
-  //     let chrome = &item.get_compat().support.chrome;
-  //     let x = Version::from_str(&chrome).unwrap();
-  //     req.matches(&x)
-  //   })
-  //   .collect::<Vec<_>>();
+  let compat_handlers: Vec<Box<dyn CompatHandler>> = vec![
+    classes::setup(),
+    functions::setup(),
+    grammar::setup(),
+    operators::setup(),
+    statements::setup(),
+  ]
+  .into_iter()
+  .flat_map(|setup| setup.into_iter())
+  .filter(|item| {
+    let compat = item.get_compat();
+    let compat_chrome_version =
+      Version::parse(compat.support.chrome.as_str(), None)
+        .map_err(|err| {
+          Error::new(napi::Status::GenericFailure, err.to_string())
+        })
+        .unwrap();
+    compat_chrome_version.ge(&chrome_version)
+  })
+  .collect();
 
   let share = Arc::new(compat_handlers);
   let used: Arc<Mutex<Vec<CompatBox>>> = Arc::new(Mutex::new(Vec::new()));
@@ -63,7 +67,7 @@ pub fn check_browser_supported(
     let used = Arc::clone(&used);
     let clone = Arc::clone(&share);
     move |path: PathBuf| {
-      let source_text = read(&path)
+      let source_code = read_to_string(&path)
         .map_err(|err| {
           Error::new(
             napi::Status::GenericFailure,
@@ -72,10 +76,10 @@ pub fn check_browser_supported(
         })
         .unwrap();
 
-      let source_code = String::from_utf8(source_text).unwrap();
       let source_type = SourceType::from_path(&path)
         .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
         .unwrap();
+
       let allocator = Allocator::default();
       let ret = Parser::new(&allocator, &source_code, source_type).parse();
       let program = allocator.alloc(ret.program);
@@ -83,6 +87,7 @@ pub fn check_browser_supported(
       let semantic = SemanticBuilder::new(&source_code, source_type)
         .build(program)
         .semantic;
+
       let nodes = semantic.nodes();
 
       for node in nodes.iter() {
@@ -99,6 +104,7 @@ pub fn check_browser_supported(
       }
     }
   };
+
   oxc_visit_process(handler, options)?;
 
   let used = Arc::try_unwrap(used)

@@ -51,7 +51,7 @@ export const enum CompatType {
   Operator = 11,
   Statement = 12
 }
-export declare function checkBrowserSupported(target: string, options?: Options | undefined | null): Array<CompatBox>
+export declare function checkBrowserSupported(target: Target, options?: Options | undefined | null): Array<CompatBox>
 export interface DangerStringLocation {
   rawValue: string
   matchDangerString: string
@@ -68,6 +68,9 @@ export interface ModuleMemberUsageLocation {
   filePath: string
 }
 export declare function getModuleMemberUsage(npmNameVec: Array<string>, options?: Options | undefined | null): Array<ModuleMemberUsageLocation>
+export interface Target {
+  chrome: string
+}
 export interface Options {
   pattern?: string
   ignore?: Array<string>
