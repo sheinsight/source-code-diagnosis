@@ -1,5 +1,3 @@
-use regex::Regex;
-
 use crate::{
   check_browser_supported::compat::get_source_code_segment, create_compat_2,
 };
