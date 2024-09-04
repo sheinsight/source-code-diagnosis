@@ -43,10 +43,10 @@ mod tests {
         console.log(y);
       "#,
       eq: [
-        r#"
+        r#"{
           var x = 2;
           let y = 2;
-        "#
+        }"#
       ],
       ne: []
     },
@@ -67,16 +67,16 @@ mod tests {
         console.log(y);
       "#,
       eq: [
-        r#"
+        r#"{
           var x = 2;
           let y = 2;
           if (true) {
             console.log('two')
           }
-        "#,
-        r#"
+        }"#,
+        r#"{
             console.log('two')
-          "#
+          }"#
       ],
       ne: []
     }

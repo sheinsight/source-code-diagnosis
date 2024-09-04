@@ -22,7 +22,7 @@ create_compat_2! {
   fn handle<'a>(&self, _source_code: &str, node: &AstNode<'a>, nodes: &AstNodes<'a>) -> bool {
     if let AstKind::SpreadElement(_) = node.kind() {
       if let Some(parent_node) = nodes.parent_node(node.id()) {
-        return matches!(parent_node.kind(), AstKind::ArrayExpression(_))
+        return matches!(parent_node.kind(), AstKind::ArrayExpressionElement(_))
       }
     }
     false

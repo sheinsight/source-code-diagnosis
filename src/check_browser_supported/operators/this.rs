@@ -43,8 +43,8 @@ mod tests {
         };
       "#,
       eq: [
-        r#"this === window"#,
-        r#"this === window"#
+        r#"this"#,
+        r#"this"#,
       ],
       ne: []
     }

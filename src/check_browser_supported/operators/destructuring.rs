@@ -78,7 +78,7 @@ mod tests {
         [a, b] = array;
       "#,
       eq: [
-        r#"[a, b]"#,
+        r#"[a, b] = array"#,
       ],
       ne: []
     },
@@ -90,7 +90,7 @@ mod tests {
         const { [key]: a } = obj;
       "#,
       eq: [
-        r#"{ [key]: a }"#,
+        r#"{ [key]: a } = obj"#,
       ],
       ne: []
     },

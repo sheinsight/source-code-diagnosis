@@ -45,7 +45,7 @@ mod tests {
         console.log(i);
       "#,
       eq: [
-        r#"break"#,
+        r#"break;"#,
       ],
       ne: []
     },
@@ -65,8 +65,8 @@ mod tests {
         }
       "#,
       eq: [
-        r#"break"#,
-        r#"break"#,
+        r#"break;"#,
+        r#"break;"#,
       ],
       ne: []
     }

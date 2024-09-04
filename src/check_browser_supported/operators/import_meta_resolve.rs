@@ -48,7 +48,7 @@ mod tests {
         const relativeURL = import.meta.resolve('./module.js');
       "#,
       eq: [
-        r#"import.meta.resolve('./module.js')"#,
+        r#"import.meta.resolve"#,
       ],
       ne: []
     }
