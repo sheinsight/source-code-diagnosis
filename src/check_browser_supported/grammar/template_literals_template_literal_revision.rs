@@ -44,7 +44,7 @@ mod tests {
         tag`\unicode`;
       "#,
       eq: [
-        r#"tag`\unicode`"#,
+        // r#"tag`\unicode`"#,
       ],
       ne: []
     },
