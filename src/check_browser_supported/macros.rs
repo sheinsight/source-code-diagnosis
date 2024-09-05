@@ -204,8 +204,8 @@ macro_rules! assert_source_seg {
                       node,
                       nodes,
                     ) {
-                      result.push(crate::check_browser_supported::compat::CompatBox::new(
-                        oxc_span::GetSpan::span(&node.kind()),
+                        result.push(crate::check_browser_supported::compat::CompatBox::new(
+                          oxc_span::GetSpan::span(&node.kind()),
                         crate::check_browser_supported::compat::CompatHandler::get_compat(
                           &compat_handler,
                         )

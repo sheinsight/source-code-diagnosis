@@ -3,6 +3,7 @@ mod compat;
 mod functions;
 mod grammar;
 mod macros;
+mod offset_to_position;
 mod operators;
 mod statements;
 use browserslist::{resolve, Distrib, Opts};
@@ -167,6 +168,13 @@ pub fn check_browser_supported(
       for node in nodes.iter() {
         for compat_handler in clone.iter() {
           if compat_handler.handle(source_code.as_str(), node, nodes) {
+            let span = oxc_span::GetSpan::span(&node.kind());
+            let start_position = crate::check_browser_supported::offset_to_position::offset_to_position(span.start as usize, &source_code);
+            let end_position = crate::check_browser_supported::offset_to_position::offset_to_position(span.end as usize, &source_code);
+            println!(
+              "start_position: {:?}, end_position: {:?}",
+              start_position, end_position
+            );
             let mut used = used.lock().unwrap();
             used.push(CompatBox::new(
               node.kind().span(),
