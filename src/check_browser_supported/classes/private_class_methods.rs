@@ -11,13 +11,13 @@ create_compat_2! {
       "web-features:snapshot:ecmascript-2015"
     ],
     support: {
-      chrome: "84.0.0",
-      chrome_android: "84.0.0",
-      firefox: "90.0.0",
-      firefox_android: "90.0.0",
-      safari: "15.0.0",
-      safari_ios: "15.0.0",
-      edge: "84.0.0",
+      chrome: "84",
+      chrome_android: "84",
+      firefox: "90",
+      firefox_android: "90",
+      safari: "15",
+      safari_ios: "15",
+      edge: "84",
       node: "14.6.0",
       deno: "1.0.0",
     }

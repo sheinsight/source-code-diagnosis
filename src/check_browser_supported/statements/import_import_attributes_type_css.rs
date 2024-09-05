@@ -10,13 +10,13 @@ create_compat_2! {
         mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#import_attributes",
         tags: ["web-features:js-modules"],
         support: {
-            chrome: "123.0.0",
-            chrome_android: "123.0.0",
+            chrome: "123",
+            chrome_android: "123",
             firefox: "-1",
             firefox_android: "-1",
             safari: "-1",
             safari_ios: "-1",
-            edge: "123.0.0",
+            edge: "123",
             node: "-1",
             deno: "-1",
         }

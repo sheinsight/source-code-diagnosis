@@ -11,6 +11,7 @@ use std::{
   sync::{Arc, Mutex},
 };
 
+use browserslist::{resolve, Distrib, Opts};
 use compat::CompatBox;
 use napi::{Error, Result};
 
@@ -21,22 +22,35 @@ use oxc_semantic::SemanticBuilder;
 use oxc_span::GetSpan;
 use oxc_span::SourceType;
 
-use semver_rs::{Parseable as _, Version};
-// use semver::{Version, VersionReq};
-
 use crate::{
   check_browser_supported::compat::CompatHandler,
-  oxc_visitor_processor::{oxc_visit_process, Options, Target},
+  oxc_visitor_processor::{oxc_visit_process, Options},
 };
+
+fn get_version_list<'a>(
+  browser_list: &'a Vec<Distrib>,
+  name: &str,
+) -> Vec<&'a str> {
+  browser_list
+    .iter()
+    .filter(|x| x.name() == name)
+    .map(|x| x.version())
+    .collect()
+}
 
 #[napi]
 pub fn check_browser_supported(
-  target: Target,
+  target: String,
   options: Option<Options>,
 ) -> Result<Vec<CompatBox>> {
-  let chrome_version = Version::parse(target.chrome.as_str(), None)
-    .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))
-    .unwrap();
+  let browser_list = resolve(&[target], &Opts::default())
+    .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))?;
+
+  let chrome_version_list = get_version_list(&browser_list, "chrome");
+  let firefox_version_list = get_version_list(&browser_list, "firefox");
+  let edge_version_list = get_version_list(&browser_list, "edge");
+  let safari_version_list = get_version_list(&browser_list, "safari");
+  let node_version_list = get_version_list(&browser_list, "node");
 
   let compat_handlers: Vec<Box<dyn CompatHandler>> = vec![
     classes::setup(),
@@ -49,13 +63,17 @@ pub fn check_browser_supported(
   .flat_map(|setup| setup.into_iter())
   .filter(|item| {
     let compat = item.get_compat();
-    let compat_chrome_version =
-      Version::parse(compat.support.chrome.as_str(), None)
-        .map_err(|err| {
-          Error::new(napi::Status::GenericFailure, err.to_string())
-        })
-        .unwrap();
-    compat_chrome_version.ge(&chrome_version)
+    let compat_support = &compat.support;
+    return browser_list.iter().any(|x| match x.name() {
+      "chrome" => chrome_version_list.contains(&compat_support.chrome.as_str()),
+      "firefox" => {
+        firefox_version_list.contains(&compat_support.firefox.as_str())
+      }
+      "edge" => edge_version_list.contains(&compat_support.edge.as_str()),
+      "safari" => safari_version_list.contains(&compat_support.safari.as_str()),
+      "node" => node_version_list.contains(&compat_support.node.as_str()),
+      _ => true,
+    });
   })
   .collect();
 

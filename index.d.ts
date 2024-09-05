@@ -51,7 +51,7 @@ export const enum CompatType {
   Operator = 11,
   Statement = 12
 }
-export declare function checkBrowserSupported(target: Target, options?: Options | undefined | null): Array<CompatBox>
+export declare function checkBrowserSupported(target: string, options?: Options | undefined | null): Array<CompatBox>
 export interface DangerStringLocation {
   rawValue: string
   matchDangerString: string

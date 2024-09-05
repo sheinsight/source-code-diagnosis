@@ -1,11 +1,11 @@
 use crate::create_compat_2;
 
 create_compat_2! {
-  DecimalNumericLiterals,
+  HexadecimalNumericLiterals,
   compat {
-    name: "decimal_numeric_literals",
-    description: "Decimal numeric literals (1234567890)",
-    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Lexical_grammar#Decimal",
+    name: "hexadecimal_numeric_literals",
+    description: "十六进制数字字面量 (0xAF)",
+    mdn_url: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal",
     tags: [
       "web-features:snapshot:ecmascript-1"
     ],
@@ -23,7 +23,7 @@ create_compat_2! {
   },
   fn handle<'a>(&self, _source_code: &str, node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
     if let AstKind::NumericLiteral(numeric_literal) = node.kind() {
-      return !numeric_literal.raw.starts_with('0');
+      return vec!["0x", "0X"].iter().any(|item| numeric_literal.raw.starts_with(item))
     }
     false
   }
@@ -31,32 +31,23 @@ create_compat_2! {
 
 #[cfg(test)]
 mod tests {
-  use super::DecimalNumericLiterals;
+  use super::HexadecimalNumericLiterals;
   use crate::assert_source_seg;
 
   assert_source_seg! {
-    should_ok_when_use_decimal_numeric_literals:{
-      setup: DecimalNumericLiterals::default(),
+    should_ok_when_use_hexadecimal_numeric_literals:{
+      setup: HexadecimalNumericLiterals::default(),
       source_code: r#"
-        1234567890;
-        42;
+        0xFFFFFFFFFFFFFFFFF; // 295147905179352830000
+        0x123456789ABCDEF;   // 81985529216486900
+        0XA;                 // 10
       "#,
       eq: [
-        r#"1234567890"#,
-        r#"42"#,
+        r#"0xFFFFFFFFFFFFFFFFF"#,
+        r#"0x123456789ABCDEF"#,
+        r#"0XA"#,
       ],
       ne: []
-    },
-
-    should_fail_when_not_decimal_numeric_literals:{
-      setup: DecimalNumericLiterals::default(),
-      source_code: r#"
-        0B42;
-      "#,
-      eq: [],
-      ne: [
-        r#"0B42"#,
-      ]
     }
   }
 }

@@ -5,6 +5,7 @@
 		"bootcss",
 		"Builtins",
 		"deno",
+		"Distrib",
 		"hashbang",
 		"instanceof",
 		"napi",

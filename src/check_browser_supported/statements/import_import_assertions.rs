@@ -8,13 +8,13 @@ create_compat_2! {
         mdn_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#import_assertions",
         tags: ["web-features:js-modules"],
         support: {
-            chrome: "91.0.0",
-            chrome_android: "91.0.0",
+            chrome: "91",
+            chrome_android: "91",
             firefox: "-1",
             firefox_android: "-1",
             safari: "-1",
             safari_ios: "-1",
-            edge: "91.0.0",
+            edge: "91",
             node: "16.14.0",
             deno: "1.17.0",
         }
