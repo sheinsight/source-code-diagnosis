@@ -44,18 +44,43 @@ pub struct Support {
 #[derive(
   Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
 )]
+pub struct Position {
+  pub line: u32,
+  pub column: u32,
+}
+
+#[napi(object)]
+#[derive(
+  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
+)]
+pub struct Location {
+  pub start: Position,
+  pub end: Position,
+}
+
+#[napi(object)]
+#[derive(
+  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
+)]
 pub struct CompatBox {
   pub name: String,
   pub span: Span,
   pub compat: Compat,
   pub file_path: String,
+  pub loc: Location,
 }
 
 impl CompatBox {
-  pub fn new(span: oxc_span::Span, compat: Compat, file_path: String) -> Self {
+  pub fn new(
+    span: oxc_span::Span,
+    loc: Location,
+    compat: Compat,
+    file_path: String,
+  ) -> Self {
     Self {
       name: compat.name.clone(),
       span: Span::from_oxc_span(span.clone()),
+      loc,
       compat: compat,
       file_path: file_path.to_string(),
     }

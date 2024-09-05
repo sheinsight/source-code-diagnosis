@@ -26,11 +26,20 @@ export interface Support {
   node: string
   deno: string
 }
+export interface Position {
+  line: number
+  column: number
+}
+export interface Location {
+  start: Position
+  end: Position
+}
 export interface CompatBox {
   name: string
   span: Span
   compat: Compat
   filePath: string
+  loc: Location
 }
 export interface Span {
   start: number
