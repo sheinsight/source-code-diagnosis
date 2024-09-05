@@ -5,15 +5,16 @@ mod grammar;
 mod macros;
 mod operators;
 mod statements;
+use browserslist::{resolve, Distrib, Opts};
+use compat::CompatBox;
+use env_logger::Env;
+use log::debug;
+use napi::{Error, Result};
 use std::{
   fs::read_to_string,
   path::PathBuf,
   sync::{Arc, Mutex},
 };
-
-use browserslist::{resolve, Distrib, Opts};
-use compat::CompatBox;
-use napi::{Error, Result};
 
 use oxc_allocator::Allocator;
 
@@ -38,19 +39,67 @@ fn get_version_list<'a>(
     .collect()
 }
 
+macro_rules! enabled_debug {
+  ($($body:tt)*) => {
+      if log::log_enabled!(log::Level::Debug) {
+          $($body)*
+      }
+  };
+}
+
 #[napi]
 pub fn check_browser_supported(
   target: String,
   options: Option<Options>,
 ) -> Result<Vec<CompatBox>> {
+  let env =
+    Env::default().filter_or("SHINED_SOURCE_CODE_DIAGNOSIS_LOG", "info");
+
+  env_logger::init_from_env(env);
+
+  debug!("User-specified browser target: {}", target);
+
   let browser_list = resolve(&[target], &Opts::default())
     .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))?;
 
   let chrome_version_list = get_version_list(&browser_list, "chrome");
+
+  enabled_debug! {
+    for version in chrome_version_list.iter() {
+      debug!("Resolved Chrome version: {}", version);
+    }
+  }
+
   let firefox_version_list = get_version_list(&browser_list, "firefox");
+  enabled_debug! {
+    for version in firefox_version_list.iter() {
+      debug!("Resolved Firefox versions: {:?}", version);
+    }
+  }
+
   let edge_version_list = get_version_list(&browser_list, "edge");
+
+  enabled_debug! {
+    for version in edge_version_list.iter() {
+      debug!("Resolved Edge versions: {:?}", version);
+    }
+  }
+
   let safari_version_list = get_version_list(&browser_list, "safari");
+
+  enabled_debug! {
+    for version in safari_version_list.iter() {
+      debug!("Resolved Safari versions: {:?}", version);
+    }
+  }
+
   let node_version_list = get_version_list(&browser_list, "node");
+
+  enabled_debug! {
+    for version in node_version_list.iter() {
+      debug!("Resolved Node versions: {:?}", version);
+    }
+  }
 
   let compat_handlers: Vec<Box<dyn CompatHandler>> = vec![
     classes::setup(),
@@ -76,6 +125,15 @@ pub fn check_browser_supported(
     });
   })
   .collect();
+
+  enabled_debug! {
+    for compat_handler in compat_handlers.iter() {
+      debug!(
+        "Compat handler: {:?}",
+        compat_handler.get_compat().name.clone()
+      );
+    }
+  }
 
   let share = Arc::new(compat_handlers);
   let used: Arc<Mutex<Vec<CompatBox>>> = Arc::new(Mutex::new(Vec::new()));
