@@ -11,5 +11,8 @@ test("getModuleMemberUsage", (t) => {
 	const response = getModuleMemberUsage(["antd"], {
 		cwd,
 	});
+	for (const item of response) {
+		console.log(item);
+	}
 	t.is(response.length, 18);
 });

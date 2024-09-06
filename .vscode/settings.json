@@ -3,6 +3,7 @@
 		"antd",
 		"bootcdn",
 		"bootcss",
+		"browserslist",
 		"Builtins",
 		"deno",
 		"Distrib",

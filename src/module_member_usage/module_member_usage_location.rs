@@ -1,5 +1,7 @@
 use serde::Serialize;
 
+use crate::utils::Location;
+
 #[napi(object)]
 #[derive(Debug, Serialize)]
 pub struct ModuleMemberUsageLocation {
@@ -8,4 +10,5 @@ pub struct ModuleMemberUsageLocation {
   pub start: u32,
   pub end: u32,
   pub file_path: String,
+  pub loc: Location,
 }

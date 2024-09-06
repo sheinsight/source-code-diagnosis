@@ -67,6 +67,7 @@ export interface ModuleMemberUsageLocation {
   start: number
   end: number
   filePath: string
+  loc: Location
 }
 export declare function getModuleMemberUsage(npmNameVec: Array<string>, options?: Options | undefined | null): Array<ModuleMemberUsageLocation>
 export interface Target {
