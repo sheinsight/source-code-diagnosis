@@ -3,12 +3,13 @@ mod compat;
 mod functions;
 mod grammar;
 mod macros;
-mod offset_to_position;
 mod operators;
 mod statements;
+
 use browserslist::{resolve, Distrib, Opts};
-use compat::{CompatBox, Position};
+use compat::CompatBox;
 use env_logger::Env;
+
 use log::debug;
 use napi::{Error, Result};
 use std::{
@@ -19,6 +20,7 @@ use std::{
 
 use oxc_allocator::Allocator;
 
+use crate::utils::{self, offset_to_position};
 use oxc_parser::Parser;
 use oxc_semantic::SemanticBuilder;
 use oxc_span::GetSpan;
@@ -169,20 +171,22 @@ pub fn check_browser_supported(
         for compat_handler in clone.iter() {
           if compat_handler.handle(source_code.as_str(), node, nodes) {
             let span = oxc_span::GetSpan::span(&node.kind());
-            let start_position = crate::check_browser_supported::offset_to_position::offset_to_position(span.start as usize, &source_code).unwrap();
-            let end_position = crate::check_browser_supported::offset_to_position::offset_to_position(span.end as usize, &source_code).unwrap();
+            let start_position =
+              offset_to_position(span.start as usize, &source_code).unwrap();
+            let end_position =
+              offset_to_position(span.end as usize, &source_code).unwrap();
 
             let mut used = used.lock().unwrap();
             used.push(CompatBox::new(
               node.kind().span(),
-              compat::Location {
-                start: Position {
+              utils::Location {
+                start: utils::Position {
                   line: start_position.line,
-                  column: start_position.character,
+                  col: start_position.character,
                 },
-                end: Position {
+                end: utils::Position {
                   line: end_position.line,
-                  column: end_position.character,
+                  col: end_position.character,
                 },
               },
               compat_handler.get_compat().clone(),

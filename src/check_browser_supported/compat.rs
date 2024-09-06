@@ -2,6 +2,8 @@ use oxc_semantic::{AstNode, AstNodes};
 use oxc_span::GetSpan;
 use serde::{Deserialize, Serialize};
 
+use crate::utils::Location;
+
 #[napi(object)]
 #[derive(
   Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
@@ -38,24 +40,6 @@ pub struct Support {
   pub edge: String,
   pub node: String,
   pub deno: String,
-}
-
-#[napi(object)]
-#[derive(
-  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
-)]
-pub struct Position {
-  pub line: u32,
-  pub column: u32,
-}
-
-#[napi(object)]
-#[derive(
-  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
-)]
-pub struct Location {
-  pub start: Position,
-  pub end: Position,
 }
 
 #[napi(object)]

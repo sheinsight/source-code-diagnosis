@@ -26,14 +26,6 @@ export interface Support {
   node: string
   deno: string
 }
-export interface Position {
-  line: number
-  column: number
-}
-export interface Location {
-  start: Position
-  end: Position
-}
 export interface CompatBox {
   name: string
   span: Span
@@ -85,4 +77,12 @@ export interface Options {
   ignore?: Array<string>
   cwd?: string
   concurrency?: number
+}
+export interface Location {
+  start: Position
+  end: Position
+}
+export interface Position {
+  line: number
+  col: number
 }

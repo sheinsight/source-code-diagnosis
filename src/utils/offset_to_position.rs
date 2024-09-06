@@ -1,7 +1,7 @@
 use ropey::Rope;
 use tower_lsp::lsp_types::Position;
 
-pub(crate) fn offset_to_position(
+pub fn offset_to_position(
   offset: usize,
   source_text: &str,
 ) -> Option<Position> {
