@@ -204,19 +204,33 @@ macro_rules! assert_source_seg {
                       node,
                       nodes,
                     ) {
-                        result.push(crate::check_browser_supported::compat::CompatBox::new(
-                          oxc_span::GetSpan::span(&node.kind()),
-                        crate::check_browser_supported::compat::CompatHandler::get_compat(
-                          &compat_handler,
-                        )
-                        .clone(),
-                        "".to_string(),
-                      ));
-                      source_seg.push(
-                        crate::check_browser_supported::compat::AstNodeHelper::text(
-                          node,
-                          &source_code,
-                        ),
+                        let span = oxc_span::GetSpan::span(&node.kind());
+                        let start_position =
+                        crate::utils::offset_to_position(span.start as usize, &source_code).unwrap();
+                        let end_position =
+                          crate::utils::offset_to_position(span.end as usize, &source_code).unwrap();
+                        result.push(
+                            crate::check_browser_supported::compat::CompatBox::new(
+                                span,
+                                crate::utils::Location {
+                                    start: crate::utils::Position {
+                                      line: start_position.line,
+                                      col: start_position.character,
+                                    },
+                                    end: crate::utils::Position {
+                                      line: end_position.line,
+                                      col: end_position.character,
+                                    },
+                                },
+                                crate::check_browser_supported::compat::CompatHandler::get_compat(&compat_handler).clone(),
+                                "".to_string(),
+                            )
+                        );
+                        source_seg.push(
+                            crate::check_browser_supported::compat::AstNodeHelper::text(
+                            node,
+                            &source_code,
+                            ),
                       )
                     }
                   }
