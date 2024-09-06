@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::utils::Location;
 
 #[napi(object)]
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct ModuleMemberUsageLocation {
   pub lib_name: String,
   pub member_name: String,
