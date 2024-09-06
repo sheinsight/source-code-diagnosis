@@ -43,7 +43,7 @@ pub fn setup() -> Vec<Box<dyn CompatHandler>> {
     // Box::new(template_literals_template_literal_revision::TemplateLiteralsTemplateLiteralRevision::default()),
     // Box::new(unicode_escape_sequences::UnicodeEscapeSequences::default()),
     // Box::new(unicode_point_escapes::UnicodePointEscapes::default()),
-    // Box::new(hexadecimal_escape_sequences::HexadecimalEscapeSequences::default()),
+    Box::new(hexadecimal_escape_sequences::HexadecimalEscapeSequences::default()),
     // Box::new(hexadecimal_numeric_literals::HexadecimalNumericLiterals::default()),
   ]
 }

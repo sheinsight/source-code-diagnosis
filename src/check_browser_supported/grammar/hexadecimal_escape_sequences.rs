@@ -1,3 +1,5 @@
+use oxc_span::GetSpan;
+
 use crate::create_compat_2;
 
 create_compat_2! {
@@ -21,18 +23,18 @@ create_compat_2! {
       deno: "1.0.0",
     }
   },
-  fn handle<'a>(&self, _source_code: &str, node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+  fn handle<'a>(&self, source_code: &str, node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
     // TODO
     if let AstKind::StringLiteral(string_literal) = node.kind() {
+      let raw = string_literal.span().source_text(source_code);
+      if vec![r#""\x"#,r#"'\x"#].iter().any(|x| raw.starts_with(x)) {
+        return true;
+      }
       false
     } else {
       false
     }
   }
-}
-
-fn is_hex_string(s: &str) -> bool {
-  s.chars().all(|c| c.is_ascii_hexdigit())
 }
 
 #[cfg(test)]
@@ -48,11 +50,21 @@ mod tests {
         const hello = "Hello, world!";
       "#,
       eq: [
-        // r#""\xA9""#,
+        r#""\xA9""#,
       ],
       ne: [
         r#""Hello, world!""#,
       ]
+    },
+    should_ok_when_use_single_quote:{
+      setup: HexadecimalEscapeSequences::default(),
+      source_code: r#"
+        const copyright = '\xA9';
+      "#,
+      eq: [
+        r#"'\xA9'"#,
+      ],
+      ne: []
     }
   }
 }
