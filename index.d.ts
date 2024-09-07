@@ -59,6 +59,7 @@ export interface DangerStringLocation {
   start: number
   end: number
   filePath: string
+  loc: Location
 }
 export declare function getDangerStringsUsage(dangerStrings: Array<string>, options?: Options | undefined | null): Array<DangerStringLocation>
 export interface ModuleMemberUsageLocation {

@@ -5,17 +5,16 @@ use std::{
 };
 
 use danger_string_location::DangerStringLocation;
-use danger_string_visitor::DangerStringVisitor;
 use napi::{Error, Result};
 use oxc_allocator::Allocator;
-use oxc_ast::Visit;
+use oxc_ast::AstKind;
 use oxc_parser::Parser;
+use oxc_semantic::SemanticBuilder;
 use oxc_span::SourceType;
 
 use crate::oxc_visitor_processor::{oxc_visit_process, Options};
 
 mod danger_string_location;
-mod danger_string_visitor;
 
 #[napi]
 pub fn get_danger_strings_usage(
@@ -40,13 +39,51 @@ pub fn get_danger_strings_usage(
         .unwrap();
       let allocator = Allocator::default();
       let ret = Parser::new(&allocator, &source_text, source_type).parse();
+      let semantic = SemanticBuilder::new(&source_text, source_type)
+        .build(&ret.program)
+        .semantic;
 
-      let mut x =
-        DangerStringVisitor::new(path.to_path_buf(), danger_strings.to_vec());
+      let mut inline_usages: Vec<DangerStringLocation> = Vec::new();
 
-      x.visit_program(&ret.program);
+      for node in semantic.nodes().iter() {
+        if let AstKind::StringLiteral(string_literal) = node.kind() {
+          let value = string_literal.value.to_string();
+          let span = string_literal.span;
+          let start_position =
+            crate::utils::offset_to_position(span.start as usize, &source_text)
+              .unwrap();
+          let end_position =
+            crate::utils::offset_to_position(span.end as usize, &source_text)
+              .unwrap();
+          let loc = crate::utils::Location {
+            start: crate::utils::Position {
+              line: start_position.line,
+              col: start_position.character,
+            },
+            end: crate::utils::Position {
+              line: end_position.line,
+              col: end_position.character,
+            },
+          };
+
+          danger_strings
+            .iter()
+            .filter(|item| value.contains(&**item))
+            .for_each(|item| {
+              inline_usages.push(DangerStringLocation {
+                raw_value: value.to_string(),
+                match_danger_string: item.to_string(),
+                start: span.start,
+                end: span.end,
+                file_path: path.display().to_string(),
+                loc: loc.clone(),
+              })
+            })
+        }
+      }
+
       let mut used = used.lock().unwrap();
-      used.extend(x.used);
+      used.extend(inline_usages);
     }
   };
   oxc_visit_process(x, options)?;
