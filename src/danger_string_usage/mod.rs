@@ -56,14 +56,8 @@ pub fn get_danger_strings_usage(
             crate::utils::offset_to_position(span.end as usize, &source_text)
               .unwrap();
           let loc = crate::utils::Location {
-            start: crate::utils::Position {
-              line: start_position.line,
-              col: start_position.character,
-            },
-            end: crate::utils::Position {
-              line: end_position.line,
-              col: end_position.character,
-            },
+            start: start_position,
+            end: end_position,
           };
 
           danger_strings

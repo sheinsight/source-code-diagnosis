@@ -348,17 +348,6 @@ impl<'a> ModuleMemberUsageHandler<'a> {
       offset_to_position(span.start as usize, &source_code).unwrap();
     let end_position =
       offset_to_position(span.end as usize, &source_code).unwrap();
-    (
-      *reference_node,
-      span,
-      Position {
-        line: start_position.line,
-        col: start_position.character,
-      },
-      Position {
-        line: end_position.line,
-        col: end_position.character,
-      },
-    )
+    (*reference_node, span, start_position, end_position)
   }
 }

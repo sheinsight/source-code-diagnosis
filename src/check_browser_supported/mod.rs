@@ -180,14 +180,8 @@ pub fn check_browser_supported(
             used.push(CompatBox::new(
               node.kind().span(),
               utils::Location {
-                start: utils::Position {
-                  line: start_position.line,
-                  col: start_position.character,
-                },
-                end: utils::Position {
-                  line: end_position.line,
-                  col: end_position.character,
-                },
+                start: start_position,
+                end: end_position,
               },
               compat_handler.get_compat().clone(),
               path.to_str().unwrap().to_string(),

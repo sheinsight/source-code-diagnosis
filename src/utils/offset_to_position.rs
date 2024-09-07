@@ -1,5 +1,7 @@
 use ropey::Rope;
-use tower_lsp::lsp_types::Position;
+
+use super::Position;
+// use tower_lsp::lsp_types::Position;
 
 pub fn offset_to_position(
   offset: usize,
@@ -10,6 +12,9 @@ pub fn offset_to_position(
   let first_char_of_line = rope.try_line_to_char(line).ok()?;
   // Original offset is byte, but Rope uses char offset
   let offset = rope.try_byte_to_char(offset).ok()?;
-  let column = offset - first_char_of_line;
-  Some(Position::new(line as u32, column as u32))
+  let col = offset - first_char_of_line;
+  Some(Position {
+    line: line as u32,
+    col: col as u32,
+  })
 }

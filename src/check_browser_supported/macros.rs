@@ -213,14 +213,8 @@ macro_rules! assert_source_seg {
                             crate::check_browser_supported::compat::CompatBox::new(
                                 span,
                                 crate::utils::Location {
-                                    start: crate::utils::Position {
-                                      line: start_position.line,
-                                      col: start_position.character,
-                                    },
-                                    end: crate::utils::Position {
-                                      line: end_position.line,
-                                      col: end_position.character,
-                                    },
+                                    start: start_position,
+                                    end: end_position,
                                 },
                                 crate::check_browser_supported::compat::CompatHandler::get_compat(&compat_handler).clone(),
                                 "".to_string(),
