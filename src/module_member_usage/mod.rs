@@ -1,4 +1,5 @@
 use std::{
+  collections::HashMap,
   fs::read_to_string,
   path::PathBuf,
   sync::{Arc, Mutex},
@@ -23,20 +24,7 @@ pub fn get_module_member_usage(
   let x = {
     let used = Arc::clone(&used);
     move |path: PathBuf| {
-      let source_code = read_to_string(&path)
-        .map_err(|err| {
-          Error::new(
-            napi::Status::GenericFailure,
-            format!("Failed to read file: {}: {}", path.display(), err),
-          )
-        })
-        .unwrap();
-
-      let source_type = SourceType::from_path(&path)
-        .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
-        .unwrap();
-
-      let inline_usages = SemanticContext::new(source_code, source_type)
+      let inline_usages = SemanticContext::new(path)
         .build_handler(npm_name_vec.clone())
         .handle()
         .unwrap();

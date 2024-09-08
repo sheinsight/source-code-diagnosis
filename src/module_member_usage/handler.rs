@@ -1,4 +1,6 @@
-use std::{collections::HashMap, error::Error};
+use std::{
+  collections::HashMap, error::Error, fs::read_to_string, path::PathBuf,
+};
 
 use oxc_allocator::Allocator;
 use oxc_ast::{
@@ -23,22 +25,26 @@ pub struct SemanticContext {
   pub source_code: String,
   pub source_type: SourceType,
   pub allocator: Allocator,
+  pub path: PathBuf,
 }
 
 impl SemanticContext {
-  pub fn new(source_code: String, source_type: SourceType) -> Self {
+  pub fn new(path: PathBuf) -> Self {
     let allocator = Allocator::default();
+    let source_code = read_to_string(&path).unwrap();
+    let source_type = SourceType::from_path(&path).unwrap();
     Self {
       source_code,
       source_type,
       allocator,
+      path,
     }
   }
 
-  pub fn build_handler(
-    &self,
+  pub fn build_handler<'a>(
+    &'a self,
     npm_name_vec: Vec<String>,
-  ) -> ModuleMemberUsageHandler {
+  ) -> ModuleMemberUsageHandler<'a> {
     let ret =
       Parser::new(&self.allocator, &self.source_code, self.source_type).parse();
     let program = self.allocator.alloc(ret.program);
