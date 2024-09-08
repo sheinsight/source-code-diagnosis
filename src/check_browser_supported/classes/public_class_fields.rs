@@ -1,4 +1,4 @@
-use oxc_ast::ast::PropertyKey;
+use oxc_ast::{ast::PropertyKey, AstKind};
 
 use crate::create_compat_2;
 

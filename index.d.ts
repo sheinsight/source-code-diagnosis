@@ -56,10 +56,8 @@ export declare function checkBrowserSupported(target: string, options?: Options 
 export interface DangerStringLocation {
   rawValue: string
   matchDangerString: string
-  start: number
-  end: number
   filePath: string
-  loc: Location
+  astNode: AstNode
 }
 export declare function getDangerStringsUsage(dangerStrings: Array<string>, options?: Options | undefined | null): Array<DangerStringLocation>
 export interface ModuleMemberUsageLocation {
@@ -79,6 +77,10 @@ export interface Options {
   ignore?: Array<string>
   cwd?: string
   concurrency?: number
+}
+export interface AstNode {
+  span: Span
+  loc: Location
 }
 export interface Location {
   start: Position

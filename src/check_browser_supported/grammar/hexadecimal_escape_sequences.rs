@@ -1,4 +1,4 @@
-use oxc_span::GetSpan;
+use oxc_ast::AstKind;
 
 use crate::create_compat_2;
 
@@ -26,7 +26,7 @@ create_compat_2! {
   fn handle<'a>(&self, source_code: &str, node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
     // TODO
     if let AstKind::StringLiteral(string_literal) = node.kind() {
-      let raw = string_literal.span().source_text(source_code);
+      let raw = string_literal.span.source_text(source_code);
       if vec![r#""\x"#,r#"'\x"#].iter().any(|x| raw.starts_with(x)) {
         return true;
       }

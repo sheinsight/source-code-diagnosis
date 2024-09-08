@@ -1,3 +1,4 @@
+use oxc_ast::AstKind;
 use oxc_syntax::operator::UpdateOperator;
 
 use crate::create_compat_2;

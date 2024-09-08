@@ -1,6 +1,7 @@
 use ropey::Rope;
 
-use super::Position;
+use super::ast_node::Position;
+
 // use tower_lsp::lsp_types::Position;
 
 pub fn offset_to_position(

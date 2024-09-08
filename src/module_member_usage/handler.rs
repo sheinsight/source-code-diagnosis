@@ -12,7 +12,7 @@ use oxc_parser::Parser;
 use oxc_semantic::{AstNode, Reference, Semantic, SemanticBuilder};
 use oxc_span::{GetSpan, SourceType, Span};
 
-use crate::utils::{find_up_ast_node, offset_to_position, Location, Position};
+use crate::utils::{ast_node::Location, find_up_ast_node, offset_to_position};
 
 use super::module_member_usage_location::ModuleMemberUsageLocation;
 
@@ -90,7 +90,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                 {
                   self.semantic.symbol_references(symbol_id).for_each(
                     |reference| {
-                      let (reference_node, span, start_position, end_position) =
+                      let (reference_node, span, loc) =
                         self.get_position_box(&reference);
                       if let Some(parent) =
                         find_up_ast_node(nodes, &reference_node, 2)
@@ -106,15 +106,13 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                             inline_usages.push(ModuleMemberUsageLocation {
                               lib_name: source_name.to_string(),
                               member_name: name.to_string(),
-                              start: span.start,
-                              end: span.end,
                               file_path:
                                 "path.to_path_buf().display().to_string()"
                                   .to_string(),
-                              loc: Location {
-                                start: start_position,
-                                end: end_position,
-                              },
+                              ast_node: crate::utils::ast_node::AstNode::new(
+                                (span.start, span.end),
+                                (loc.start, loc.end),
+                              ),
                             });
                           }
                         }
@@ -167,8 +165,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
         .semantic
         .symbol_references(symbol_id)
         .for_each(|reference| {
-          let (reference_node, span, start_position, end_position) =
-            self.get_position_box(&reference);
+          let (reference_node, span, loc) = self.get_position_box(&reference);
           if let Some(parent_node) =
             self.semantic.nodes().parent_node(reference_node.id())
           {
@@ -178,8 +175,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                   source_name,
                   member_expression,
                   span,
-                  start_position,
-                  end_position,
+                  loc,
                 ));
               }
               AstKind::JSXMemberExpressionObject(_) => {
@@ -193,8 +189,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                       source_name,
                       member_expression,
                       span,
-                      start_position,
-                      end_position,
+                      loc,
                     ));
                   }
                 }
@@ -203,14 +198,12 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                 inline_usages.push(ModuleMemberUsageLocation {
                   lib_name: source_name.to_string(),
                   member_name: ES_NAMESPACE.to_string(),
-                  start: span.start,
-                  end: span.end,
                   file_path: "self.semantic.source_path().to_string()"
                     .to_string(),
-                  loc: Location {
-                    start: start_position,
-                    end: end_position,
-                  },
+                  ast_node: crate::utils::ast_node::AstNode::new(
+                    (span.start, span.end),
+                    (loc.start, loc.end),
+                  ),
                 });
               }
             }
@@ -231,8 +224,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
         .semantic
         .symbol_references(symbol_id)
         .for_each(|reference| {
-          let (reference_node, span, start_position, end_position) =
-            self.get_position_box(&reference);
+          let (reference_node, span, loc) = self.get_position_box(&reference);
 
           if let Some(parent_node) =
             self.semantic.nodes().parent_node(reference_node.id())
@@ -243,8 +235,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                   source_name,
                   member_expression,
                   span,
-                  start_position,
-                  end_position,
+                  loc,
                 ));
               }
               AstKind::JSXMemberExpressionObject(_) => {
@@ -258,8 +249,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                       source_name,
                       member_expression,
                       span,
-                      start_position,
-                      end_position,
+                      loc,
                     ));
                   }
                 }
@@ -268,14 +258,12 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                 inline_usages.push(ModuleMemberUsageLocation {
                   lib_name: source_name.to_string(),
                   member_name: ES_DEFAULT.to_string(),
-                  start: span.start,
-                  end: span.end,
                   file_path: "self.semantic.source_path().to_string()"
                     .to_string(),
-                  loc: Location {
-                    start: start_position,
-                    end: end_position,
-                  },
+                  ast_node: crate::utils::ast_node::AstNode::new(
+                    (span.start, span.end),
+                    (loc.start, loc.end),
+                  ),
                 });
               }
             }
@@ -291,21 +279,18 @@ impl<'a> ModuleMemberUsageHandler<'a> {
     source_name: &str,
     member_expression: &MemberExpression,
     span: Span,
-    start_position: Position,
-    end_position: Position,
+    loc: Location,
   ) -> Vec<ModuleMemberUsageLocation> {
     let mut inline_usages: Vec<ModuleMemberUsageLocation> = Vec::new();
     let property_name = member_expression.static_property_name().unwrap();
     inline_usages.push(ModuleMemberUsageLocation {
       lib_name: source_name.to_string(),
       member_name: property_name.to_string(),
-      start: span.start,
-      end: span.end,
       file_path: "self.semantic.source_path().to_string()".to_string(),
-      loc: Location {
-        start: start_position,
-        end: end_position,
-      },
+      ast_node: crate::utils::ast_node::AstNode::new(
+        (span.start, span.end),
+        (loc.start, loc.end),
+      ),
     });
     inline_usages
   }
@@ -315,8 +300,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
     source_name: &str,
     member_expression: &JSXMemberExpression,
     span: Span,
-    start_position: Position,
-    end_position: Position,
+    loc: Location,
   ) -> Vec<ModuleMemberUsageLocation> {
     let mut inline_usages: Vec<ModuleMemberUsageLocation> = Vec::new();
 
@@ -325,13 +309,11 @@ impl<'a> ModuleMemberUsageHandler<'a> {
     inline_usages.push(ModuleMemberUsageLocation {
       lib_name: source_name.to_string(),
       member_name: property_name.to_string(),
-      start: span.start,
-      end: span.end,
       file_path: "self.semantic.source_path().to_string()".to_string(),
-      loc: Location {
-        start: start_position,
-        end: end_position,
-      },
+      ast_node: crate::utils::ast_node::AstNode::new(
+        (span.start, span.end),
+        (loc.start, loc.end),
+      ),
     });
 
     inline_usages
@@ -340,7 +322,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
   fn get_position_box(
     &self,
     reference: &Reference,
-  ) -> (AstNode, Span, Position, Position) {
+  ) -> (AstNode, Span, Location) {
     let source_code = self.semantic.source_text();
     let reference_node = self.semantic.nodes().get_node(reference.node_id());
     let span = GetSpan::span(&reference_node.kind());
@@ -348,6 +330,13 @@ impl<'a> ModuleMemberUsageHandler<'a> {
       offset_to_position(span.start as usize, &source_code).unwrap();
     let end_position =
       offset_to_position(span.end as usize, &source_code).unwrap();
-    (*reference_node, span, start_position, end_position)
+    (
+      *reference_node,
+      span,
+      Location {
+        start: start_position,
+        end: end_position,
+      },
+    )
   }
 }

@@ -1,4 +1,7 @@
-use oxc_ast::ast::{Expression, MemberExpression};
+use oxc_ast::{
+  ast::{Expression, MemberExpression},
+  AstKind,
+};
 
 use crate::create_compat_2;
 
@@ -45,14 +48,14 @@ mod tests {
   use crate::assert_source_seg;
 
   // TODO
-  /**
+  /*
   * [1, 2, 3, 4, 5].map(function (n) {
       let a = arguments.callee;
      return n <= 1 ? 1 : a(n - 1) * n;
    });
   */
 
-  /**
+  /*
   * [1, 2, 3, 4, 5].map(function (n) {
       let a = arguments;
      return n <= 1 ? 1 : a.callee(n - 1) * n;

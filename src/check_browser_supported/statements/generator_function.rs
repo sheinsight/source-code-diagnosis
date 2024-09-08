@@ -1,3 +1,5 @@
+use oxc_ast::AstKind;
+
 use crate::create_compat_2;
 
 create_compat_2! {

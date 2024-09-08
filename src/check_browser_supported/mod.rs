@@ -179,7 +179,7 @@ pub fn check_browser_supported(
             let mut used = used.lock().unwrap();
             used.push(CompatBox::new(
               node.kind().span(),
-              utils::Location {
+              utils::ast_node::Location {
                 start: start_position,
                 end: end_position,
               },

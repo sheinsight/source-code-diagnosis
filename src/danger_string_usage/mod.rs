@@ -12,7 +12,10 @@ use oxc_parser::Parser;
 use oxc_semantic::SemanticBuilder;
 use oxc_span::SourceType;
 
-use crate::oxc_visitor_processor::{oxc_visit_process, Options};
+use crate::{
+  oxc_visitor_processor::{oxc_visit_process, Options},
+  utils::ast_node::AstNode,
+};
 
 mod danger_string_location;
 
@@ -55,10 +58,6 @@ pub fn get_danger_strings_usage(
           let end_position =
             crate::utils::offset_to_position(span.end as usize, &source_text)
               .unwrap();
-          let loc = crate::utils::Location {
-            start: start_position,
-            end: end_position,
-          };
 
           danger_strings
             .iter()
@@ -67,10 +66,11 @@ pub fn get_danger_strings_usage(
               inline_usages.push(DangerStringLocation {
                 raw_value: value.to_string(),
                 match_danger_string: item.to_string(),
-                start: span.start,
-                end: span.end,
                 file_path: path.display().to_string(),
-                loc: loc.clone(),
+                ast_node: AstNode::new(
+                  (span.start, span.end),
+                  (start_position.clone(), end_position.clone()),
+                ),
               })
             })
         }

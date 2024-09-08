@@ -2,7 +2,7 @@ use oxc_semantic::{AstNode, AstNodes};
 use oxc_span::GetSpan;
 use serde::{Deserialize, Serialize};
 
-use crate::utils::Location;
+use crate::utils::ast_node::Location;
 
 #[napi(object)]
 #[derive(

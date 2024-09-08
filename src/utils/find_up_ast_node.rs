@@ -1,5 +1,4 @@
-use oxc_ast::AstKind;
-use oxc_semantic::{AstNode, AstNodeId, AstNodes};
+use oxc_semantic::{AstNode, AstNodes};
 
 pub fn find_up_ast_node<'a>(
   nodes: &'a AstNodes,

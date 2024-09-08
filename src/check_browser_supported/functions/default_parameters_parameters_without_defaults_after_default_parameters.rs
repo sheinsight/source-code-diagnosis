@@ -1,4 +1,4 @@
-use oxc_ast::ast::BindingPatternKind;
+use oxc_ast::{ast::BindingPatternKind, AstKind};
 
 use crate::create_compat_2;
 

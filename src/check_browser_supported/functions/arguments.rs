@@ -1,3 +1,5 @@
+use oxc_ast::AstKind;
+
 use crate::create_compat_2;
 
 create_compat_2! {
@@ -52,6 +54,64 @@ mod tests {
       ne: [
         r#"function() { }"#
       ]
+    },
+
+    should_detect_arguments_in_arrow_function:{
+      setup: Arguments::default(),
+      source_code: r#"
+        const arrowFunc = () => {
+          console.log(arguments);
+        };
+      "#,
+      eq: [
+        r#"arguments"#
+      ],
+      ne: []
+    },
+
+    should_detect_arguments_in_nested_function:{
+      setup: Arguments::default(),
+      source_code: r#"
+        function outerFunc() {
+          function innerFunc() {
+            console.log(arguments);
+          }
+          innerFunc(1, 2, 3);
+        }
+      "#,
+      eq: [
+        r#"arguments"#
+      ],
+      ne: []
+    },
+
+    should_not_detect_arguments_in_comments:{
+      setup: Arguments::default(),
+      source_code: r#"
+        function func() {
+          // This is a comment about arguments
+          /* Another comment mentioning arguments */
+        }
+      "#,
+      eq: [],
+      ne: [
+        r#"arguments"#
+      ]
+    },
+
+    should_detect_arguments_in_method:{
+      setup: Arguments::default(),
+      source_code: r#"
+        const obj = {
+          method() {
+            console.log(arguments);
+          }
+        };
+      "#,
+      eq: [
+        r#"arguments"#
+      ],
+      ne: []
     }
   }
 }

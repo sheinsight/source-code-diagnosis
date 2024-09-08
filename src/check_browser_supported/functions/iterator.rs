@@ -1,4 +1,4 @@
-use oxc_ast::ast::Expression;
+use oxc_ast::{ast::Expression, AstKind};
 
 use crate::create_compat_2;
 

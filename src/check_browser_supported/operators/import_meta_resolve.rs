@@ -1,4 +1,7 @@
-use oxc_ast::ast::{Expression, MemberExpression};
+use oxc_ast::{
+  ast::{Expression, MemberExpression},
+  AstKind,
+};
 
 use crate::create_compat_2;
 

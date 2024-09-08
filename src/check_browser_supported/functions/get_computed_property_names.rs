@@ -1,4 +1,7 @@
-use oxc_ast::ast::{MethodDefinitionKind, PropertyKind};
+use oxc_ast::{
+  ast::{MethodDefinitionKind, PropertyKind},
+  AstKind,
+};
 
 use crate::create_compat_2;
 

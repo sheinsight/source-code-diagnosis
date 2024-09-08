@@ -1,3 +1,4 @@
+use oxc_ast::AstKind;
 use oxc_span::GetSpan;
 
 use crate::{
