@@ -1,5 +1,6 @@
 pub mod ast_node;
 mod find_up_ast_node;
+pub mod semantic_builder;
 // mod location;
 mod offset_to_position;
 // mod position;
