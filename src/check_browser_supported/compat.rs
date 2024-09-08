@@ -2,7 +2,7 @@ use oxc_semantic::{AstNode, AstNodes};
 use oxc_span::GetSpan;
 use serde::{Deserialize, Serialize};
 
-use crate::utils::ast_node::Location;
+use crate::utils::ast_node::{Location, Span};
 
 #[napi(object)]
 #[derive(
@@ -63,45 +63,13 @@ impl CompatBox {
   ) -> Self {
     Self {
       name: compat.name.clone(),
-      span: Span::from_oxc_span(span.clone()),
+      span: Span {
+        start: span.start,
+        end: span.end,
+      },
       loc,
       compat: compat,
       file_path: file_path.to_string(),
-    }
-  }
-}
-
-#[napi(object)]
-#[derive(
-  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize,
-)]
-pub struct Span {
-  pub start: u32,
-  pub end: u32,
-}
-
-#[napi]
-pub enum CompatType {
-  ClassConstructor,
-  ClassExtends,
-  ClassPrivateClassFieldsIn,
-  ClassPrivateClassFields,
-  ClassPrivateMethods,
-  ClassPublicClassFields,
-  ClassStaticClassFields,
-  ClassStaticInitializationBlocks,
-  ClassStatic,
-  Function,
-  Grammar,
-  Operator,
-  Statement,
-}
-
-impl Span {
-  pub fn from_oxc_span(span: oxc_span::Span) -> Self {
-    Self {
-      start: span.start,
-      end: span.end,
     }
   }
 }
