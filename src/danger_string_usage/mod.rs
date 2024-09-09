@@ -1,86 +1,67 @@
 use std::{
-  fs::read,
   path::PathBuf,
   sync::{Arc, Mutex},
 };
 
-use danger_string_location::DangerStringLocation;
-use napi::{Error, Result};
-use oxc_allocator::Allocator;
+use napi::Result;
 use oxc_ast::AstKind;
-use oxc_parser::Parser;
-use oxc_semantic::SemanticBuilder;
-use oxc_span::SourceType;
+use serde::Serialize;
 
 use crate::{
   oxc_visitor_processor::{oxc_visit_process, Options},
-  utils::ast_node::AstNode,
+  utils::{ast_node::AstNode, semantic_builder::SemanticBuilder},
 };
 
-mod danger_string_location;
+#[napi(object)]
+#[derive(Debug, Serialize)]
+pub struct Response {
+  pub raw_value: String,
+  pub match_danger_string: String,
+  pub file_path: String,
+  pub ast_node: AstNode,
+}
 
 #[napi]
 pub fn get_danger_strings_usage(
   danger_strings: Vec<String>,
   options: Option<Options>,
-) -> Result<Vec<DangerStringLocation>> {
+) -> Result<Vec<Response>> {
   let used = Arc::new(Mutex::new(Vec::new()));
-  let x = {
+  let handler = {
     let used = Arc::clone(&used);
     move |path: PathBuf| {
-      let source_text = read(&path)
-        .map_err(|err| {
-          Error::new(
-            napi::Status::GenericFailure,
-            format!("Failed to read file: {}: {}", path.display(), err),
-          )
-        })
-        .unwrap();
-      let source_text = String::from_utf8(source_text).unwrap();
-      let source_type = SourceType::from_path(&path)
-        .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
-        .unwrap();
-      let allocator = Allocator::default();
-      let ret = Parser::new(&allocator, &source_text, source_type).parse();
-      let semantic = SemanticBuilder::new(&source_text, source_type)
-        .build(&ret.program)
-        .semantic;
+      let mut inline_usages: Vec<Response> = Vec::new();
 
-      let mut inline_usages: Vec<DangerStringLocation> = Vec::new();
+      let builder = SemanticBuilder::new(&path);
+      let handler = builder.build_handler();
 
-      for node in semantic.nodes().iter() {
+      handler.each_node(|semantic, node| {
         if let AstKind::StringLiteral(string_literal) = node.kind() {
           let value = string_literal.value.to_string();
           let span = string_literal.span;
-          let start_position =
-            crate::utils::offset_to_position(span.start as usize, &source_text)
-              .unwrap();
-          let end_position =
-            crate::utils::offset_to_position(span.end as usize, &source_text)
-              .unwrap();
+
+          let loc = handler.offset_to_location(&semantic.source_text(), span);
 
           danger_strings
             .iter()
             .filter(|item| value.contains(&**item))
             .for_each(|item| {
-              inline_usages.push(DangerStringLocation {
+              inline_usages.push(Response {
                 raw_value: value.to_string(),
                 match_danger_string: item.to_string(),
                 file_path: path.display().to_string(),
-                ast_node: AstNode::new(
-                  (span.start, span.end),
-                  (start_position.clone(), end_position.clone()),
-                ),
+                ast_node: AstNode::new((span.start, span.end), loc),
               })
             })
         }
-      }
+      });
 
       let mut used = used.lock().unwrap();
       used.extend(inline_usages);
     }
   };
-  oxc_visit_process(x, options)?;
+
+  oxc_visit_process(handler, options)?;
 
   let used = Arc::try_unwrap(used)
     .ok()

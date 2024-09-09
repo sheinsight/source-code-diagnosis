@@ -13,22 +13,14 @@ use env_logger::Env;
 use log::debug;
 use napi::{Error, Result};
 use std::{
-  fs::read_to_string,
   path::PathBuf,
   sync::{Arc, Mutex},
 };
 
-use oxc_allocator::Allocator;
-
-use crate::utils::{self, offset_to_position};
-use oxc_parser::Parser;
-use oxc_semantic::SemanticBuilder;
-use oxc_span::GetSpan;
-use oxc_span::SourceType;
-
 use crate::{
   check_browser_supported::compat::CompatHandler,
   oxc_visitor_processor::{oxc_visit_process, Options},
+  utils::semantic_builder::SemanticBuilder,
 };
 
 fn get_version_list<'a>(
@@ -144,51 +136,27 @@ pub fn check_browser_supported(
     let used = Arc::clone(&used);
     let clone = Arc::clone(&share);
     move |path: PathBuf| {
-      let source_code = read_to_string(&path)
-        .map_err(|err| {
-          Error::new(
-            napi::Status::GenericFailure,
-            format!("Failed to read file: {}: {}", path.display(), err),
-          )
-        })
-        .unwrap();
-
-      let source_type = SourceType::from_path(&path)
-        .map_err(|e| Error::new(napi::Status::GenericFailure, e.0.to_string()))
-        .unwrap();
-
-      let allocator = Allocator::default();
-      let ret = Parser::new(&allocator, &source_code, source_type).parse();
-      let program = allocator.alloc(ret.program);
-
-      let semantic = SemanticBuilder::new(&source_code, source_type)
-        .build(program)
-        .semantic;
-
-      let nodes = semantic.nodes();
-
-      for node in nodes.iter() {
+      let semantic_builder = SemanticBuilder::new(&path);
+      let semantic_handler = semantic_builder.build_handler();
+      semantic_handler.each_node(|semantic, node| {
         for compat_handler in clone.iter() {
-          if compat_handler.handle(source_code.as_str(), node, nodes) {
-            let span = oxc_span::GetSpan::span(&node.kind());
-            let start_position =
-              offset_to_position(span.start as usize, &source_code).unwrap();
-            let end_position =
-              offset_to_position(span.end as usize, &source_code).unwrap();
+          if compat_handler.handle(
+            semantic.source_text(),
+            node,
+            semantic.nodes(),
+          ) {
+            let (span, loc) = semantic_handler.get_node_box(node);
 
             let mut used = used.lock().unwrap();
             used.push(CompatBox::new(
-              node.kind().span(),
-              utils::ast_node::Location {
-                start: start_position,
-                end: end_position,
-              },
+              span,
+              loc,
               compat_handler.get_compat().clone(),
               path.to_str().unwrap().to_string(),
             ));
           }
         }
-      }
+      })
     }
   };
 

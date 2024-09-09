@@ -1,33 +1,36 @@
 use std::{
-  collections::HashMap,
-  fs::read_to_string,
   path::PathBuf,
   sync::{Arc, Mutex},
 };
 
-use handler::SemanticContext;
-use module_member_usage_location::ModuleMemberUsageLocation;
-use napi::{Error, Result};
-use oxc_span::SourceType;
+use handler::ModuleMemberUsageHandler;
+use napi::Result;
+use response::Response;
 
-use crate::oxc_visitor_processor::{oxc_visit_process, Options};
+use crate::{
+  oxc_visitor_processor::{oxc_visit_process, Options},
+  utils::semantic_builder::SemanticBuilder,
+};
 
 mod handler;
-pub mod module_member_usage_location;
+pub mod response;
 
 #[napi]
 pub fn get_module_member_usage(
   npm_name_vec: Vec<String>,
   options: Option<Options>,
-) -> Result<Vec<ModuleMemberUsageLocation>> {
+) -> Result<Vec<Response>> {
   let used = Arc::new(Mutex::new(Vec::new()));
   let x = {
     let used = Arc::clone(&used);
     move |path: PathBuf| {
-      let inline_usages = SemanticContext::new(path)
-        .build_handler(npm_name_vec.clone())
-        .handle()
-        .unwrap();
+      let builder = SemanticBuilder::new(&path);
+      let handler = builder.build_handler();
+
+      let inline_usages =
+        ModuleMemberUsageHandler::new(npm_name_vec.clone(), handler)
+          .handle()
+          .unwrap();
 
       let mut used = used.lock().unwrap();
       used.extend(inline_usages);

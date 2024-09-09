@@ -34,20 +34,20 @@ export interface CompatBox {
   loc: Location
 }
 export declare function checkBrowserSupported(target: string, options?: Options | undefined | null): Array<CompatBox>
-export interface DangerStringLocation {
+export interface Response {
   rawValue: string
   matchDangerString: string
   filePath: string
   astNode: AstNode
 }
-export declare function getDangerStringsUsage(dangerStrings: Array<string>, options?: Options | undefined | null): Array<DangerStringLocation>
-export interface ModuleMemberUsageLocation {
+export declare function getDangerStringsUsage(dangerStrings: Array<string>, options?: Options | undefined | null): Array<Response>
+export interface Response {
   libName: string
   memberName: string
   filePath: string
   astNode: AstNode
 }
-export declare function getModuleMemberUsage(npmNameVec: Array<string>, options?: Options | undefined | null): Array<ModuleMemberUsageLocation>
+export declare function getModuleMemberUsage(npmNameVec: Array<string>, options?: Options | undefined | null): Array<Response>
 export interface Target {
   chrome: string
 }
