@@ -16,7 +16,7 @@ use super::response::Response;
 
 static ES_NAMESPACE: &str = "ES:NAMESPACE";
 static ES_DEFAULT: &str = "ES:DEFAULT";
-static SIDE_EFFECTS: &str = "SIDE_EFFECTS";
+static SIDE_EFFECTS: &str = "ES:SIDE_EFFECTS";
 static UNKNOWN: &str = "UNKNOWN";
 
 pub struct ModuleMemberUsageHandler<'a> {
