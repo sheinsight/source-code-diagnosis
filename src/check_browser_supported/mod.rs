@@ -136,27 +136,27 @@ pub fn check_browser_supported(
     let used = Arc::clone(&used);
     let clone = Arc::clone(&share);
     move |path: PathBuf| {
-      let semantic_builder = SemanticBuilder::new(&path);
-      let semantic_handler = semantic_builder.build_handler();
-      semantic_handler.each_node(|semantic, node| {
-        for compat_handler in clone.iter() {
-          if compat_handler.handle(
-            semantic.source_text(),
-            node,
-            semantic.nodes(),
-          ) {
-            let (span, loc) = semantic_handler.get_node_box(node);
+      SemanticBuilder::file(path.clone())
+        .build_handler()
+        .each_node(|handler, semantic, node| {
+          for compat_handler in clone.iter() {
+            if compat_handler.handle(
+              semantic.source_text(),
+              node,
+              semantic.nodes(),
+            ) {
+              let (span, loc) = handler.get_node_box(node);
 
-            let mut used = used.lock().unwrap();
-            used.push(CompatBox::new(
-              span,
-              loc,
-              compat_handler.get_compat().clone(),
-              path.to_str().unwrap().to_string(),
-            ));
+              let mut used = used.lock().unwrap();
+              used.push(CompatBox::new(
+                span,
+                loc,
+                compat_handler.get_compat().clone(),
+                path.to_str().unwrap().to_string(),
+              ));
+            }
           }
-        }
-      })
+        })
     }
   };
 

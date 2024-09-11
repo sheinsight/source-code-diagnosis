@@ -5,44 +5,89 @@ use oxc_ast::{ast::BindingIdentifier, AstKind};
 use oxc_parser::Parser;
 use oxc_semantic::{
   AstNode, Reference, Semantic, SemanticBuilder as OxcSemanticBuilder,
+  SemanticBuilderReturn,
 };
 use oxc_span::{GetSpan, SourceType};
 use ropey::Rope;
 
 use super::ast_node::{Location, Position};
 
-pub struct SemanticBuilder<'a> {
+pub struct SemanticBuilder {
   pub source_code: String,
   pub source_type: SourceType,
   pub allocator: Allocator,
-  pub file_path: &'a PathBuf,
+  pub file_path: Option<PathBuf>,
 }
 
-impl<'a> SemanticBuilder<'a> {
-  pub fn new(path: &'a PathBuf) -> Self {
+impl SemanticBuilder {
+  pub fn new(
+    source_code: String,
+    source_type: SourceType,
+    file_path: Option<PathBuf>,
+  ) -> Self {
     let allocator = Allocator::default();
-    let source_code = read_to_string(&path).unwrap();
-    let source_type = SourceType::from_path(&path).unwrap();
     Self {
       source_code,
       source_type,
       allocator,
-      file_path: path,
+      file_path,
     }
   }
 
-  pub fn new_with_source(
-    source_code: &str,
-    file_path_str: &'a PathBuf,
-  ) -> Self {
-    let allocator = Allocator::default();
-    let source_type = SourceType::default().with_jsx(true);
-    Self {
-      source_code: source_code.to_string(),
-      source_type,
-      allocator,
-      file_path: file_path_str,
+  pub fn file(path: PathBuf) -> Self {
+    let source_code = read_to_string(&path).unwrap();
+    let source_type = SourceType::from_path(&path).unwrap();
+    Self::new(source_code, source_type, Some(path))
+  }
+
+  pub fn ts(source_code: String) -> Self {
+    Self::new(
+      source_code,
+      SourceType::default()
+        .with_module(true)
+        .with_typescript(true)
+        .with_jsx(true),
+      None,
+    )
+  }
+
+  pub fn js(source_text: String) -> Self {
+    Self::new(
+      source_text,
+      SourceType::default().with_module(true).with_jsx(true),
+      None,
+    )
+  }
+
+  pub fn build(&self) -> Semantic<'_> {
+    let semantic_ret = self.build_with_errors();
+    if !semantic_ret.errors.is_empty() {
+      panic!(
+        "Semantic analysis failed:\n\n{}",
+        semantic_ret
+          .errors
+          .iter()
+          .map(|e| format!("{e}"))
+          .collect::<String>()
+      );
     }
+    semantic_ret.semantic
+  }
+
+  pub fn build_with_errors(&self) -> SemanticBuilderReturn<'_> {
+    let parse = oxc_parser::Parser::new(
+      &self.allocator,
+      &self.source_code,
+      self.source_type,
+    )
+    .parse();
+
+    let program = self.allocator.alloc(parse.program);
+    OxcSemanticBuilder::new(&self.source_code, self.source_type)
+      .with_check_syntax_error(true)
+      .with_trivias(parse.trivias)
+      // .with_cfg(self.cfg)
+      .build(program)
   }
 
   pub fn build_handler(&self) -> SemanticHandler {
@@ -61,29 +106,34 @@ impl<'a> SemanticBuilder<'a> {
     let semantic = OxcSemanticBuilder::new(&self.source_code, self.source_type)
       .build(program)
       .semantic;
-    SemanticHandler::new(self.file_path.display().to_string(), semantic)
+    if let Some(file_path) = &self.file_path {
+      let file_path_str = file_path.to_string_lossy().to_string();
+      SemanticHandler::new(file_path_str, semantic)
+    } else {
+      SemanticHandler::new(String::new(), semantic)
+    }
   }
 }
 
 pub struct SemanticHandler<'a> {
   pub semantic: Semantic<'a>,
-  pub file_path_str: String,
+  pub file_path_str: Option<String>,
 }
 
 impl<'a> SemanticHandler<'a> {
   pub fn new(file_path_str: String, semantic: Semantic<'a>) -> Self {
     Self {
-      file_path_str,
+      file_path_str: Some(file_path_str),
       semantic,
     }
   }
 
   pub fn each_node<F>(&self, mut f: F)
   where
-    F: FnMut(&Semantic<'a>, &AstNode),
+    F: FnMut(&SemanticHandler<'a>, &Semantic<'a>, &AstNode),
   {
     for node in self.semantic.nodes().iter() {
-      f(&self.semantic, node);
+      f(&self, &self.semantic, node);
     }
   }
 

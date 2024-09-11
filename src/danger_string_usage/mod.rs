@@ -32,29 +32,28 @@ pub fn get_danger_strings_usage(
     move |path: PathBuf| {
       let mut inline_usages: Vec<Response> = Vec::new();
 
-      let builder = SemanticBuilder::new(&path);
-      let handler = builder.build_handler();
+      SemanticBuilder::file(path.clone())
+        .build_handler()
+        .each_node(|handler, semantic, node| {
+          if let AstKind::StringLiteral(string_literal) = node.kind() {
+            let value = string_literal.value.to_string();
+            let span = string_literal.span;
 
-      handler.each_node(|semantic, node| {
-        if let AstKind::StringLiteral(string_literal) = node.kind() {
-          let value = string_literal.value.to_string();
-          let span = string_literal.span;
+            let loc = handler.offset_to_location(&semantic.source_text(), span);
 
-          let loc = handler.offset_to_location(&semantic.source_text(), span);
-
-          danger_strings
-            .iter()
-            .filter(|item| value.contains(&**item))
-            .for_each(|item| {
-              inline_usages.push(Response {
-                raw_value: value.to_string(),
-                match_danger_string: item.to_string(),
-                file_path: path.display().to_string(),
-                ast_node: AstNode::new((span.start, span.end), loc),
+            danger_strings
+              .iter()
+              .filter(|item| value.contains(&**item))
+              .for_each(|item| {
+                inline_usages.push(Response {
+                  raw_value: value.to_string(),
+                  match_danger_string: item.to_string(),
+                  file_path: path.display().to_string(),
+                  ast_node: AstNode::new((span.start, span.end), loc),
+                })
               })
-            })
-        }
-      });
+          }
+        });
 
       let mut used = used.lock().unwrap();
       used.extend(inline_usages);

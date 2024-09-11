@@ -24,13 +24,16 @@ pub fn get_module_member_usage(
   let x = {
     let used = Arc::clone(&used);
     move |path: PathBuf| {
-      let builder = SemanticBuilder::new(&path);
+      let builder = SemanticBuilder::file(path.clone());
       let handler = builder.build_handler();
 
-      let inline_usages =
-        ModuleMemberUsageHandler::new(npm_name_vec.clone(), handler)
-          .handle()
-          .unwrap();
+      let inline_usages = ModuleMemberUsageHandler::new(
+        npm_name_vec.clone(),
+        path.clone(),
+        handler,
+      )
+      .handle()
+      .unwrap();
 
       let mut used = used.lock().unwrap();
       used.extend(inline_usages);

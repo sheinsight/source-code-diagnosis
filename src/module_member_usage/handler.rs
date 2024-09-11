@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error};
+use std::{collections::HashMap, error::Error, path::PathBuf};
 
 use oxc_ast::{
   ast::{
@@ -10,7 +10,10 @@ use oxc_ast::{
 
 use oxc_span::Span;
 
-use crate::utils::{ast_node::Location, semantic_builder::SemanticHandler};
+use crate::utils::{
+  ast_node::Location,
+  semantic_builder::{SemanticBuilder, SemanticHandler},
+};
 
 use super::response::Response;
 
@@ -22,16 +25,21 @@ static UNKNOWN: &str = "UNKNOWN";
 pub struct ModuleMemberUsageHandler<'a> {
   npm_name_vec: Vec<String>,
   semantic_handler: SemanticHandler<'a>,
+  path: PathBuf,
+  path_str: String,
 }
 
 impl<'a> ModuleMemberUsageHandler<'a> {
   pub fn new(
     npm_name_vec: Vec<String>,
+    path: PathBuf,
     semantic_handler: SemanticHandler<'a>,
   ) -> Self {
     Self {
       npm_name_vec,
       semantic_handler,
+      path: path.clone(),
+      path_str: path.display().to_string(),
     }
   }
 
@@ -39,7 +47,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
     let mut mapper = HashMap::new();
     let mut inline_usages: Vec<Response> = Vec::new();
 
-    self.semantic_handler.each_node(|semantic, node| {
+    self.semantic_handler.each_node(|handler, semantic, node| {
       if let AstKind::ImportDeclaration(import_declaration) = node.kind() {
         let source_name = import_declaration.source.value.to_string();
 
@@ -85,10 +93,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                           inline_usages.push(Response {
                             lib_name: source_name.to_string(),
                             member_name: name.to_string(),
-                            file_path: self
-                              .semantic_handler
-                              .file_path_str
-                              .clone(),
+                            file_path: self.path_str.clone(),
                             ast_node: crate::utils::ast_node::AstNode::new(
                               (span.start, span.end),
                               loc,
@@ -122,7 +127,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
             inline_usages.push(Response {
               lib_name: source_name.to_string(),
               member_name: SIDE_EFFECTS.to_string(),
-              file_path: self.semantic_handler.file_path_str.clone(),
+              file_path: self.path_str.clone(),
               ast_node: crate::utils::ast_node::AstNode::new(
                 (span.start, span.end),
                 loc,
@@ -184,7 +189,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
             inline_usages.push(Response {
               lib_name: source_name.to_string(),
               member_name: ES_NAMESPACE.to_string(),
-              file_path: self.semantic_handler.file_path_str.clone(),
+              file_path: self.path_str.clone(),
               ast_node: crate::utils::ast_node::AstNode::new(
                 (span.start, span.end),
                 loc,
@@ -245,7 +250,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
             inline_usages.push(Response {
               lib_name: source_name.to_string(),
               member_name: ES_DEFAULT.to_string(),
-              file_path: self.semantic_handler.file_path_str.clone(),
+              file_path: self.path_str.clone(),
               ast_node: crate::utils::ast_node::AstNode::new(
                 (span.start, span.end),
                 loc,
@@ -271,7 +276,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
     inline_usages.push(Response {
       lib_name: source_name.to_string(),
       member_name: property_name.to_string(),
-      file_path: self.semantic_handler.file_path_str.clone(),
+      file_path: self.path_str.clone(),
       ast_node: crate::utils::ast_node::AstNode::new(
         (span.start, span.end),
         loc,
@@ -300,7 +305,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
         inline_usages.push(Response {
           lib_name: source_name.to_string(),
           member_name: property_name.to_string(),
-          file_path: self.semantic_handler.file_path_str.clone(),
+          file_path: self.path_str.clone(),
           ast_node: crate::utils::ast_node::AstNode::new(
             (span.start, span.end),
             loc,
@@ -323,20 +328,21 @@ mod tests {
   fn test_import_specifier() {
     let file_path_str = PathBuf::from("file_path_str");
 
-    let semantic_builder = SemanticBuilder::new_with_source(
+    let semantic_builder = SemanticBuilder::js(
       r#"
       import { useState } from 'react';
       function Component() {
           const [state, setState] = useState(0);
           return <div>{state}</div>;
       }
-    "#,
-      &file_path_str,
+    "#
+      .to_string(),
     );
     let semantic_handler = semantic_builder.build_handler();
 
     let handler = ModuleMemberUsageHandler::new(
       vec!["react".to_string()],
+      file_path_str,
       semantic_handler,
     );
     let result = handler.handle().unwrap();
@@ -350,19 +356,20 @@ mod tests {
   fn test_import_default_specifier() {
     let file_path_str = PathBuf::from("file_path_str");
 
-    let semantic_builder = SemanticBuilder::new_with_source(
+    let semantic_builder = SemanticBuilder::js(
       r#"
         import React from 'react';
         function Component() {
             return <React.Fragment>Hello</React.Fragment>;
         }
-      "#,
-      &file_path_str,
+      "#
+      .to_string(),
     );
     let semantic_handler = semantic_builder.build_handler();
 
     let handler = ModuleMemberUsageHandler::new(
       vec!["react".to_string()],
+      file_path_str,
       semantic_handler,
     );
     let result = handler.handle().unwrap();
@@ -376,19 +383,20 @@ mod tests {
   fn test_import_namespace_specifier() {
     let file_path_str = PathBuf::from("file_path_str");
 
-    let semantic_builder = SemanticBuilder::new_with_source(
+    let semantic_builder = SemanticBuilder::js(
       r#"
         import * as React from 'react';
         function Component() {
             return <React.Fragment>Hello</React.Fragment>;
         }
-      "#,
-      &file_path_str,
+      "#
+      .to_string(),
     );
     let semantic_handler = semantic_builder.build_handler();
 
     let handler = ModuleMemberUsageHandler::new(
       vec!["react".to_string()],
+      file_path_str,
       semantic_handler,
     );
     let result = handler.handle().unwrap();
@@ -402,16 +410,17 @@ mod tests {
   fn test_side_effects_import() {
     let file_path_str = PathBuf::from("file_path_str");
 
-    let semantic_builder = SemanticBuilder::new_with_source(
+    let semantic_builder = SemanticBuilder::js(
       r#"
         import 'react';
-      "#,
-      &file_path_str,
+      "#
+      .to_string(),
     );
     let semantic_handler = semantic_builder.build_handler();
 
     let handler = ModuleMemberUsageHandler::new(
       vec!["react".to_string()],
+      file_path_str,
       semantic_handler,
     );
     let result = handler.handle().unwrap();
@@ -425,7 +434,7 @@ mod tests {
   fn test_multiple_imports() {
     let file_path_str = PathBuf::from("file_path_str");
 
-    let semantic_builder = SemanticBuilder::new_with_source(
+    let semantic_builder = SemanticBuilder::js(
       r#"
         import React, { useState } from 'react';
         import * as ReactDOM from 'react-dom';
@@ -434,13 +443,13 @@ mod tests {
             return <React.Fragment>{state}</React.Fragment>;
         }
         ReactDOM.render(<Component />, document.getElementById('root'));
-      "#,
-      &file_path_str,
+      "#
+      .to_string(),
     );
     let semantic_handler = semantic_builder.build_handler();
-
     let handler = ModuleMemberUsageHandler::new(
       vec!["react".to_string(), "react-dom".to_string()],
+      file_path_str,
       semantic_handler,
     );
     let result = handler.handle().unwrap();
