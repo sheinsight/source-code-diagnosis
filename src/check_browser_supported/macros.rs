@@ -103,27 +103,28 @@ macro_rules! assert_source_seg {
                       nodes,
                     ) {
                         let span = oxc_span::GetSpan::span(&node.kind());
-                        let start_position =
-                        crate::utils::offset_to_position(span.start as usize, &source_code).unwrap();
-                        let end_position =
-                          crate::utils::offset_to_position(span.end as usize, &source_code).unwrap();
+                        // let start_position =
+                        // crate::utils::offset_to_position(span.start as usize, &source_code).unwrap();
+                        // let end_position =
+                        //   crate::utils::offset_to_position(span.end as usize, &source_code).unwrap();
                         result.push(
                             crate::check_browser_supported::compat::CompatBox::new(
                                 span,
                                 crate::utils::ast_node::Location {
-                                    start: start_position,
-                                    end: end_position,
+                                    start: crate::utils::ast_node::Position{
+                                        line:0,
+                                        col:0,
+                                    },
+                                    end: crate::utils::ast_node::Position{
+                                        line:0,
+                                        col:0,
+                                    },
                                 },
                                 crate::check_browser_supported::compat::CompatHandler::get_compat(&compat_handler).clone(),
                                 "".to_string(),
                             )
                         );
-                        source_seg.push(
-                            crate::check_browser_supported::compat::AstNodeHelper::text(
-                            node,
-                            &source_code,
-                            ),
-                      )
+                        source_seg.push(crate::check_browser_supported::compat::AstNodeHelper::text(node,&source_code))
                     }
                   }
 

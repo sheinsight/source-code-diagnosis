@@ -31,10 +31,33 @@ impl<'a> SemanticBuilder<'a> {
     }
   }
 
+  pub fn new_with_source(
+    source_code: &str,
+    file_path_str: &'a PathBuf,
+  ) -> Self {
+    let allocator = Allocator::default();
+    let source_type = SourceType::default().with_jsx(true);
+    Self {
+      source_code: source_code.to_string(),
+      source_type,
+      allocator,
+      file_path: file_path_str,
+    }
+  }
+
   pub fn build_handler(&self) -> SemanticHandler {
     let ret =
       Parser::new(&self.allocator, &self.source_code, self.source_type).parse();
+
+    if ret.errors.len() > 0 {
+      for err in ret.errors.iter() {
+        eprintln!("parse error: {:?}", err);
+      }
+      panic!("parse error: {:?}", ret.errors);
+    }
+
     let program = self.allocator.alloc(ret.program);
+
     let semantic = OxcSemanticBuilder::new(&self.source_code, self.source_type)
       .build(program)
       .semantic;

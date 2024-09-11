@@ -42,20 +42,10 @@ impl<'a> ModuleMemberUsageHandler<'a> {
     self.semantic_handler.each_node(|semantic, node| {
       if let AstKind::ImportDeclaration(import_declaration) = node.kind() {
         let source_name = import_declaration.source.value.to_string();
+
         if self.npm_name_vec.contains(&source_name) {
           if let Some(specifiers) = &import_declaration.specifiers {
-            if specifiers.is_empty() {
-              let (span, loc) = self.semantic_handler.get_node_box(node);
-              inline_usages.push(Response {
-                lib_name: source_name.to_string(),
-                member_name: SIDE_EFFECTS.to_string(),
-                file_path: self.semantic_handler.file_path_str.clone(),
-                ast_node: crate::utils::ast_node::AstNode::new(
-                  (span.start, span.end),
-                  loc,
-                ),
-              });
-            } else {
+            if !specifiers.is_empty() {
               for specifier in specifiers {
                 match specifier {
                   ImportDeclarationSpecifier::ImportSpecifier(
@@ -77,27 +67,33 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                         .semantic_handler
                         .find_up_with_dep(&reference_node, 2)
                       {
-                        if let AstKind::JSXOpeningElement(_) = parent.kind() {
-                          if let AstKind::JSXIdentifier(identifier) =
-                            reference_node.kind()
-                          {
-                            let default_name = UNKNOWN.to_string();
-                            let name = mapper
-                              .get(&identifier.name.to_string())
-                              .unwrap_or(&default_name);
-                            inline_usages.push(Response {
-                              lib_name: source_name.to_string(),
-                              member_name: name.to_string(),
-                              file_path: self
-                                .semantic_handler
-                                .file_path_str
-                                .clone(),
-                              ast_node: crate::utils::ast_node::AstNode::new(
-                                (span.start, span.end),
-                                loc,
-                              ),
-                            });
-                          }
+                        if !matches!(
+                          parent.kind(),
+                          AstKind::JSXClosingElement(_)
+                        ) {
+                          let name = match reference_node.kind() {
+                            AstKind::JSXIdentifier(identifier) => {
+                              identifier.name.to_string()
+                            }
+                            AstKind::IdentifierReference(identifier) => {
+                              identifier.name.to_string()
+                            }
+                            _ => UNKNOWN.to_string(),
+                          };
+                          let default_name = UNKNOWN.to_string();
+                          let name = mapper.get(&name).unwrap_or(&default_name);
+                          inline_usages.push(Response {
+                            lib_name: source_name.to_string(),
+                            member_name: name.to_string(),
+                            file_path: self
+                              .semantic_handler
+                              .file_path_str
+                              .clone(),
+                            ast_node: crate::utils::ast_node::AstNode::new(
+                              (span.start, span.end),
+                              loc,
+                            ),
+                          });
                         }
                       }
                     }
@@ -121,6 +117,17 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                 }
               }
             }
+          } else {
+            let (span, loc) = self.semantic_handler.get_node_box(node);
+            inline_usages.push(Response {
+              lib_name: source_name.to_string(),
+              member_name: SIDE_EFFECTS.to_string(),
+              file_path: self.semantic_handler.file_path_str.clone(),
+              ast_node: crate::utils::ast_node::AstNode::new(
+                (span.start, span.end),
+                loc,
+              ),
+            });
           }
         }
       }
@@ -166,6 +173,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                 inline_usages.extend(self.process_jsx_member_expression(
                   source_name,
                   member_expression,
+                  &parent,
                   span,
                   loc,
                 ));
@@ -226,6 +234,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                 inline_usages.extend(self.process_jsx_member_expression(
                   source_name,
                   member_expression,
+                  &parent,
                   span,
                   loc,
                 ));
@@ -275,23 +284,176 @@ impl<'a> ModuleMemberUsageHandler<'a> {
     &self,
     source_name: &str,
     member_expression: &JSXMemberExpression,
+    member_expression_node: &oxc_semantic::AstNode,
     span: Span,
     loc: Location,
   ) -> Vec<Response> {
     let mut inline_usages: Vec<Response> = Vec::new();
 
-    let property_name = member_expression.property.name.to_string();
-
-    inline_usages.push(Response {
-      lib_name: source_name.to_string(),
-      member_name: property_name.to_string(),
-      file_path: self.semantic_handler.file_path_str.clone(),
-      ast_node: crate::utils::ast_node::AstNode::new(
-        (span.start, span.end),
-        loc,
-      ),
-    });
+    if let Some(node) = self
+      .semantic_handler
+      .find_up_with_dep(member_expression_node, 2)
+    {
+      if let AstKind::JSXClosingElement(_) = node.kind() {
+      } else {
+        let property_name = member_expression.property.name.to_string();
+        inline_usages.push(Response {
+          lib_name: source_name.to_string(),
+          member_name: property_name.to_string(),
+          file_path: self.semantic_handler.file_path_str.clone(),
+          ast_node: crate::utils::ast_node::AstNode::new(
+            (span.start, span.end),
+            loc,
+          ),
+        });
+      }
+    }
 
     inline_usages
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::ModuleMemberUsageHandler;
+  use crate::utils::semantic_builder::SemanticBuilder;
+  use std::path::PathBuf;
+
+  #[test]
+  fn test_import_specifier() {
+    let file_path_str = PathBuf::from("file_path_str");
+
+    let semantic_builder = SemanticBuilder::new_with_source(
+      r#"
+      import { useState } from 'react';
+      function Component() {
+          const [state, setState] = useState(0);
+          return <div>{state}</div>;
+      }
+    "#,
+      &file_path_str,
+    );
+    let semantic_handler = semantic_builder.build_handler();
+
+    let handler = ModuleMemberUsageHandler::new(
+      vec!["react".to_string()],
+      semantic_handler,
+    );
+    let result = handler.handle().unwrap();
+
+    assert_eq!(result.len(), 1);
+    assert_eq!(result[0].lib_name, "react");
+    assert_eq!(result[0].member_name, "useState");
+  }
+
+  #[test]
+  fn test_import_default_specifier() {
+    let file_path_str = PathBuf::from("file_path_str");
+
+    let semantic_builder = SemanticBuilder::new_with_source(
+      r#"
+        import React from 'react';
+        function Component() {
+            return <React.Fragment>Hello</React.Fragment>;
+        }
+      "#,
+      &file_path_str,
+    );
+    let semantic_handler = semantic_builder.build_handler();
+
+    let handler = ModuleMemberUsageHandler::new(
+      vec!["react".to_string()],
+      semantic_handler,
+    );
+    let result = handler.handle().unwrap();
+
+    assert_eq!(result.len(), 1);
+    assert_eq!(result[0].lib_name, "react");
+    assert_eq!(result[0].member_name, "Fragment");
+  }
+
+  #[test]
+  fn test_import_namespace_specifier() {
+    let file_path_str = PathBuf::from("file_path_str");
+
+    let semantic_builder = SemanticBuilder::new_with_source(
+      r#"
+        import * as React from 'react';
+        function Component() {
+            return <React.Fragment>Hello</React.Fragment>;
+        }
+      "#,
+      &file_path_str,
+    );
+    let semantic_handler = semantic_builder.build_handler();
+
+    let handler = ModuleMemberUsageHandler::new(
+      vec!["react".to_string()],
+      semantic_handler,
+    );
+    let result = handler.handle().unwrap();
+
+    assert_eq!(result.len(), 1);
+    assert_eq!(result[0].lib_name, "react");
+    assert_eq!(result[0].member_name, "Fragment");
+  }
+
+  #[test]
+  fn test_side_effects_import() {
+    let file_path_str = PathBuf::from("file_path_str");
+
+    let semantic_builder = SemanticBuilder::new_with_source(
+      r#"
+        import 'react';
+      "#,
+      &file_path_str,
+    );
+    let semantic_handler = semantic_builder.build_handler();
+
+    let handler = ModuleMemberUsageHandler::new(
+      vec!["react".to_string()],
+      semantic_handler,
+    );
+    let result = handler.handle().unwrap();
+
+    assert_eq!(result.len(), 1);
+    assert_eq!(result[0].lib_name, "react");
+    assert_eq!(result[0].member_name, "ES:SIDE_EFFECTS");
+  }
+
+  #[test]
+  fn test_multiple_imports() {
+    let file_path_str = PathBuf::from("file_path_str");
+
+    let semantic_builder = SemanticBuilder::new_with_source(
+      r#"
+        import React, { useState } from 'react';
+        import * as ReactDOM from 'react-dom';
+        function Component() {
+            const [state, setState] = useState(0);
+            return <React.Fragment>{state}</React.Fragment>;
+        }
+        ReactDOM.render(<Component />, document.getElementById('root'));
+      "#,
+      &file_path_str,
+    );
+    let semantic_handler = semantic_builder.build_handler();
+
+    let handler = ModuleMemberUsageHandler::new(
+      vec!["react".to_string(), "react-dom".to_string()],
+      semantic_handler,
+    );
+    let result = handler.handle().unwrap();
+
+    assert_eq!(result.len(), 3);
+    assert!(result
+      .iter()
+      .any(|r| r.lib_name == "react" && r.member_name == "useState"));
+    assert!(result
+      .iter()
+      .any(|r| r.lib_name == "react" && r.member_name == "Fragment"));
+    assert!(result
+      .iter()
+      .any(|r| r.lib_name == "react-dom" && r.member_name == "render"));
   }
 }
