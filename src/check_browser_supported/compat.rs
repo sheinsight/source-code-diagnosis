@@ -48,10 +48,9 @@ pub struct Support {
 )]
 pub struct CompatBox {
   pub name: String,
-  pub span: Span,
   pub compat: Compat,
   pub file_path: String,
-  pub loc: Location,
+  pub ast_node: crate::utils::ast_node::AstNode,
 }
 
 impl CompatBox {
@@ -63,11 +62,10 @@ impl CompatBox {
   ) -> Self {
     Self {
       name: compat.name.clone(),
-      span: Span {
-        start: span.start,
-        end: span.end,
-      },
-      loc,
+      ast_node: crate::utils::ast_node::AstNode::new(
+        (span.start, span.end),
+        loc,
+      ),
       compat: compat,
       file_path: file_path.to_string(),
     }

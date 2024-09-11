@@ -28,10 +28,9 @@ export interface Support {
 }
 export interface CompatBox {
   name: string
-  span: Span
   compat: Compat
   filePath: string
-  loc: Location
+  astNode: AstNode
 }
 export declare function checkBrowserSupported(target: string, options?: Options | undefined | null): Array<CompatBox>
 export interface Response {
