@@ -148,8 +148,8 @@ impl<'a> SemanticHandler<'a> {
     let offset = rope.try_byte_to_char(offset).unwrap_or(0);
     let col = offset - first_char_of_line;
     Position {
-      line: line as u32,
-      col: col as u32,
+      line: (line + 1) as u32,
+      col: (col + 1) as u32,
     }
   }
 
