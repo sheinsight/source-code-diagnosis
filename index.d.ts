@@ -32,6 +32,7 @@ export interface CompatBox {
   filePath: string
   astNode: AstNode
 }
+export declare function checkBrowserSupportedWithSourceCode(target: string, sourceCode: string): Array<CompatBox>
 export declare function checkBrowserSupported(target: string, options?: Options | undefined | null): Array<CompatBox>
 export interface Response {
   rawValue: string
