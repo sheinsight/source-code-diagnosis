@@ -1,4 +1,5 @@
 use napi::{Error, Result};
+use rayon::prelude::*;
 use std::{
   env::current_dir,
   path::PathBuf,
@@ -28,11 +29,11 @@ pub struct Options {
 }
 
 pub fn oxc_visit_process<F>(
-  create_visit: F,
+  mut create_visit: F,
   options: Option<Options>,
 ) -> Result<()>
 where
-  F: FnMut(PathBuf) + Send + 'static,
+  F: Fn(PathBuf) + Send + Sync + 'static,
 {
   let default_pattern: &str = "**/*.{js,ts,jsx,tsx}";
 
@@ -59,11 +60,6 @@ where
     .and_then(|opts| opts.cwd.clone())
     .unwrap_or(dir);
 
-  let concurrency = options
-    .as_ref()
-    .and_then(|opts| opts.concurrency)
-    .unwrap_or(4);
-
   let glob = match Glob::new(default_pattern) {
     Ok(glob) => glob,
     Err(e) => {
@@ -71,31 +67,43 @@ where
     }
   };
 
-  let entries = glob
+  let entries: Vec<_> = glob
     .walk(&cwd)
     .not(ignore_patterns)
-    .map_err(|e| Error::new(napi::Status::GenericFailure, e.to_string()))?;
+    .map_err(|e| Error::new(napi::Status::GenericFailure, e.to_string()))?
+    .collect();
 
-  let create_visit = Arc::new(Mutex::new(create_visit));
+  // let create_visit = Arc::new(Mutex::new(create_visit));
 
-  // TODO use rayon 🤔 ？
-  let pool = ThreadPool::new(concurrency as usize);
-
-  for entry in entries {
-    let entry = entry
-      .map_err(|e| Error::new(napi::Status::GenericFailure, e.to_string()))?;
-    let path = entry.path().to_path_buf();
-
-    let create_visit = Arc::clone(&create_visit);
-
-    if path.is_file() {
-      pool.execute(move || {
-        create_visit.lock().unwrap()(path.to_path_buf());
-      });
+  entries.par_iter().try_for_each(|item| -> Result<()> {
+    if let Ok(entry) = item {
+      if entry.path().is_file() {
+        create_visit(entry.path().to_path_buf());
+      }
     }
-  }
+    Ok(())
+  })?;
 
-  pool.join();
+  // let create_visit = Arc::new(Mutex::new(create_visit));
+
+  // // TODO use rayon 🤔 ？
+  // let pool = ThreadPool::new(concurrency as usize);
+
+  // for entry in entries {
+  //   let entry = entry
+  //     .map_err(|e| Error::new(napi::Status::GenericFailure, e.to_string()))?;
+  //   let path = entry.path().to_path_buf();
+
+  //   let create_visit = Arc::clone(&create_visit);
+
+  //   if path.is_file() {
+  //     pool.execute(move || {
+  //       create_visit.lock().unwrap()(path.to_path_buf());
+  //     });
+  //   }
+  // }
+
+  // pool.join();
 
   Ok(())
 }
