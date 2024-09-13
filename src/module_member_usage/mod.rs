@@ -7,9 +7,9 @@ use handler::ModuleMemberUsageHandler;
 use napi::Result;
 use response::Response;
 
-use crate::{
-  oxc_visitor_processor::{oxc_visit_process, Options},
-  utils::semantic_builder::SemanticBuilder,
+use crate::utils::{
+  global::{glob, Options},
+  semantic_builder::SemanticBuilder,
 };
 
 mod handler;
@@ -39,7 +39,9 @@ pub fn get_module_member_usage(
       used.extend(inline_usages);
     }
   };
-  oxc_visit_process(x, options)?;
+  glob(x, options).map_err(|err| {
+    napi::Error::new(napi::Status::GenericFailure, err.to_string())
+  })?;
 
   let used = Arc::try_unwrap(used)
     .ok()

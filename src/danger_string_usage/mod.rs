@@ -7,9 +7,10 @@ use napi::Result;
 use oxc_ast::AstKind;
 use serde::Serialize;
 
-use crate::{
-  oxc_visitor_processor::{oxc_visit_process, Options},
-  utils::{ast_node::AstNode, semantic_builder::SemanticBuilder},
+use crate::utils::{
+  ast_node::AstNode,
+  global::{glob, Options},
+  semantic_builder::SemanticBuilder,
 };
 
 #[napi(object)]
@@ -60,7 +61,9 @@ pub fn get_danger_strings_usage(
     }
   };
 
-  oxc_visit_process(handler, options)?;
+  glob(handler, options).map_err(|err| {
+    napi::Error::new(napi::Status::GenericFailure, err.to_string())
+  })?;
 
   let used = Arc::try_unwrap(used)
     .ok()

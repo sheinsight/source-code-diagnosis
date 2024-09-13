@@ -48,15 +48,6 @@ export interface Response {
   astNode: AstNode
 }
 export declare function getModuleMemberUsage(npmNameVec: Array<string>, options?: Options | undefined | null): Array<Response>
-export interface Target {
-  chrome: string
-}
-export interface Options {
-  pattern?: string
-  ignore?: Array<string>
-  cwd?: string
-  concurrency?: number
-}
 export interface AstNode {
   span: Span
   loc: Location
@@ -72,4 +63,10 @@ export interface Location {
 export interface Position {
   line: number
   col: number
+}
+export interface Options {
+  pattern?: string
+  ignore?: Array<string>
+  cwd?: string
+  concurrency?: number
 }

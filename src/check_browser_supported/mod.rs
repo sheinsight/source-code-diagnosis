@@ -19,8 +19,10 @@ use std::{
 
 use crate::{
   check_browser_supported::compat::CompatHandler,
-  oxc_visitor_processor::{oxc_visit_process, Options},
-  utils::semantic_builder::SemanticBuilder,
+  utils::{
+    global::{glob, Options},
+    semantic_builder::SemanticBuilder,
+  },
 };
 
 fn get_version_list<'a>(
@@ -271,7 +273,8 @@ pub fn check_browser_supported(
     }
   };
 
-  oxc_visit_process(handler, options)?;
+  glob(handler, options)
+    .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))?;
 
   let used = Arc::try_unwrap(used)
     .ok()
