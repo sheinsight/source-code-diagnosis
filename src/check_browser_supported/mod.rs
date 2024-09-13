@@ -50,7 +50,7 @@ pub fn check_browser_supported_with_source_code(
   let env =
     Env::default().filter_or("SHINED_SOURCE_CODE_DIAGNOSIS_LOG", "info");
 
-  env_logger::init_from_env(env);
+  let _ = env_logger::try_init_from_env(env);
 
   debug!("User-specified browser target: {}", target);
 
@@ -161,7 +161,7 @@ pub fn check_browser_supported(
   let env =
     Env::default().filter_or("SHINED_SOURCE_CODE_DIAGNOSIS_LOG", "info");
 
-  env_logger::init_from_env(env);
+  let _ = env_logger::try_init_from_env(env);
 
   debug!("User-specified browser target: {}", target);
 
