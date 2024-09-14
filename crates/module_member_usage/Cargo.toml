@@ -1,0 +1,16 @@
+[package]
+name = "module_member_usage"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+napi-derive = { workspace = true }
+napi = { workspace = true }
+utils = { path = "../utils" }
+beans = { path = "../beans" }
+oxc_span = { workspace = true }
+oxc_ast = { workspace = true }
+oxc_semantic = { workspace = true }
+serde = { workspace = true }
