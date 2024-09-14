@@ -1,0 +1,22 @@
+[package]
+name = "check_browser_supported"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+oxc-browserslist = "1.0.3"
+oxc_ast = { workspace = true }
+oxc_semantic = { workspace = true }
+oxc_span = { workspace = true }
+oxc_allocator = { workspace = true }
+oxc_parser = { workspace = true }
+oxc_syntax = { workspace = true }
+serde = { workspace = true }
+napi = { workspace = true }
+napi-derive = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+beans = { path = "../beans" }
+utils = { path = "../utils" }

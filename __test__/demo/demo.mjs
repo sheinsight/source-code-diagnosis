@@ -1,14 +1,14 @@
 import ava_test from "ava";
-import { checkBrowserSupported } from "../../index.js";
+import a, {checkDangerStrings} from "../../index.js";
 import { performance } from "node:perf_hooks";
 
-// ava_test(`should to has demo`, (t) => {
-//   const start = performance.now();
-
-//   const res = checkBrowserSupported("", {
-//     cwd: __dirname,
-//     concurrency: 1,
-//   });
+ava_test(`should to has demo`, (t) => {
+  const start = performance.now();
+  console.log(a);
+  // const res = checkDangerStrings("", {
+  //   cwd: __dirname,
+  //   concurrency: 1,
+  // });
 
 //   res.sort((a, b) => {
 //     return +a.compat.support.chrome > +b.compat.support.chrome ? -1 : 1;
@@ -43,9 +43,9 @@ import { performance } from "node:perf_hooks";
 //    console.log(iterator, mapper[iterator].length,mapper[iterator][0].compat.support.chrome); 
 //   }
 
-//   const end = performance.now();
+  const end = performance.now();
 
-//   console.log(`cost: ${end - start}ms`);
+  console.log(`cost: ${end - start}ms`);
 
-//   t.truthy(true);
-// });
+  t.truthy(true);
+});

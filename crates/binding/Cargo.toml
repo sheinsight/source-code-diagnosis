@@ -1,0 +1,21 @@
+[package]
+name = "binding"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+napi = {workspace = true}
+napi-derive = {workspace = true}
+check_danger_string = { path = "../check_danger_string" }
+check_browser_supported = { path = "../check_browser_supported" }
+module_member_usage = { path = "../module_member_usage" }
+utils = { path = "../utils" }
+beans = { path = "../beans" }
+
+[build-dependencies]
+napi-build = "2.0.1"

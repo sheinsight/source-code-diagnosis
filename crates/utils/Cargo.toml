@@ -1,0 +1,20 @@
+[package]
+name = "utils"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.88"
+napi-derive = { workspace = true }
+napi = { workspace = true }
+rayon = "1.10.0" 
+wax = "0.6.0"
+ropey = "1.0.0"
+oxc_ast = {workspace = true}
+oxc_span = {workspace = true}
+oxc_parser = {workspace = true}
+oxc_semantic = {workspace = true}
+oxc_allocator = {workspace = true}
+beans = { path = "../beans" }
