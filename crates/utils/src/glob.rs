@@ -10,7 +10,6 @@ pub struct GlobOptions {
   pub pattern: Option<String>,
   pub ignore: Option<Vec<String>>,
   pub cwd: Option<String>,
-  pub concurrency: Option<i32>,
 }
 
 pub fn glob<F>(handler_fn: F, options: Option<GlobOptions>) -> Result<()>

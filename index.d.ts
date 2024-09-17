@@ -23,17 +23,16 @@ export interface GlobOptions {
   pattern?: string
   ignore?: Array<string>
   cwd?: string
-  concurrency?: number
-}
-export interface Response {
-  rawValue: string
-  matchDangerString: string
-  filePath: string
-  astNode: AstNode
 }
 export interface Response {
   libName: string
   memberName: string
+  filePath: string
+  astNode: AstNode
+}
+export interface Response {
+  rawValue: string
+  matchDangerString: string
   filePath: string
   astNode: AstNode
 }
