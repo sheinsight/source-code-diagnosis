@@ -1,7 +1,10 @@
 use anyhow::Result;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
-use petgraph::{algo::is_cyclic_directed, graphmap::DiGraphMap};
+use petgraph::{
+  algo::{is_cyclic_directed, kosaraju_scc},
+  graphmap::DiGraphMap,
+};
 use std::{
   collections::{HashMap, HashSet},
   path::PathBuf,
@@ -111,13 +114,20 @@ pub fn get_dependents(
   )
 }
 
-pub fn detect_cycle(options: Option<Options>) -> Result<bool> {
+pub fn detect_cycle(options: Option<Options>) -> Result<Vec<Vec<String>>> {
   let used = get_node(options)?;
   let mut graph = DiGraphMap::new();
   for (key, value) in used.iter() {
     graph.add_edge(key.as_str(), value.as_str(), ());
   }
-  Ok(is_cyclic_directed(&graph))
+  let files = kosaraju_scc(&graph)
+    .into_iter()
+    .filter(|scc| {
+      scc.len() > 1 || (scc.len() == 1 && graph.contains_edge(scc[0], scc[0]))
+    })
+    .map(|scc| scc.into_iter().map(|x| x.to_string()).collect())
+    .collect();
+  Ok(files)
 }
 
 #[cfg(test)]
