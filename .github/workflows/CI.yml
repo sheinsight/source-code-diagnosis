@@ -131,6 +131,7 @@ jobs:
           path: |
             index.js
             index.d.ts
+          overwrite: true
 
   test-macOS-windows-binding:
     name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
