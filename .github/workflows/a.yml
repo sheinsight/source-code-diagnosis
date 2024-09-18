@@ -1,0 +1,31 @@
+name: CI
+env:
+  DEBUG: napi:*
+  APP_NAME: source-code-diagnosis
+  MACOSX_DEPLOYMENT_TARGET: '10.13'
+permissions:
+  contents: write
+  id-token: write
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+    
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn 
+      - name: Publish
+        run: |
+          gh release edit v0.0.20 --draft=false --prerelease=false --latest=true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
