@@ -164,6 +164,11 @@ jobs:
         with:
           name: bindings-${{ matrix.settings.target }}
           path: .
+      - name: Download Javascript artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: js
+          path: .
       - name: List packages
         run: ls -R .
         shell: bash
