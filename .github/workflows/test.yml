@@ -9,13 +9,12 @@ permissions:
 on:
   release:
     types: [published, prereleased]
-  push:
-    branches: [test]
     
 jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
+    if: github.event.release.target_commitish == 'test'
     steps:
       - name: Publish and update release
         run: |
