@@ -51,7 +51,7 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
 
       SemanticBuilder::file(path.clone())
         .build_handler()
-        .each_node(|handler, semantic, node| {
+        .each_node(|_handler, node| {
           if let AstKind::ImportDeclaration(import_declaration) = node.kind() {
             let value = import_declaration.source.value.to_string();
             let is_relative_path =

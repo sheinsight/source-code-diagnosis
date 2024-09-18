@@ -129,10 +129,10 @@ impl<'a> SemanticHandler<'a> {
 
   pub fn each_node<F>(&self, mut f: F)
   where
-    F: FnMut(&SemanticHandler<'a>, &Semantic<'a>, &AstNode),
+    F: FnMut(&SemanticHandler<'a>, &AstNode),
   {
     for node in self.semantic.nodes().iter() {
-      f(&self, &self.semantic, node);
+      f(&self, node);
     }
   }
 

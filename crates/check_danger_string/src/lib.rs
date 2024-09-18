@@ -32,12 +32,13 @@ pub fn check_danger_strings(
 
       SemanticBuilder::file(path.clone())
         .build_handler()
-        .each_node(|handler, semantic, node| {
+        .each_node(|handler, node| {
           if let AstKind::StringLiteral(string_literal) = node.kind() {
             let value = string_literal.value.to_string();
             let span = string_literal.span;
 
-            let loc = handler.offset_to_location(&semantic.source_text(), span);
+            let loc =
+              handler.offset_to_location(handler.semantic.source_text(), span);
 
             danger_strings
               .iter()

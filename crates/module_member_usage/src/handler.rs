@@ -42,97 +42,90 @@ impl<'a> ModuleMemberUsageHandler<'a> {
     let mut mapper = HashMap::new();
     let mut inline_usages: Vec<Response> = Vec::new();
 
-    self
-      .semantic_handler
-      .each_node(|_handler, _semantic, node| {
-        if let AstKind::ImportDeclaration(import_declaration) = node.kind() {
-          let source_name = import_declaration.source.value.to_string();
+    self.semantic_handler.each_node(|_handler, node| {
+      if let AstKind::ImportDeclaration(import_declaration) = node.kind() {
+        let source_name = import_declaration.source.value.to_string();
 
-          if self.npm_name_vec.contains(&source_name) {
-            if let Some(specifiers) = &import_declaration.specifiers {
-              if !specifiers.is_empty() {
-                for specifier in specifiers {
-                  match specifier {
-                    ImportDeclarationSpecifier::ImportSpecifier(
-                      import_specifier,
-                    ) => {
-                      let imported_name =
-                        import_specifier.imported.name().to_string();
-                      let local_name = import_specifier.local.name.to_string();
-                      mapper.insert(local_name, imported_name);
-                      let references = self
+        if self.npm_name_vec.contains(&source_name) {
+          if let Some(specifiers) = &import_declaration.specifiers {
+            if !specifiers.is_empty() {
+              for specifier in specifiers {
+                match specifier {
+                  ImportDeclarationSpecifier::ImportSpecifier(
+                    import_specifier,
+                  ) => {
+                    let imported_name =
+                      import_specifier.imported.name().to_string();
+                    let local_name = import_specifier.local.name.to_string();
+                    mapper.insert(local_name, imported_name);
+                    let references = self
+                      .semantic_handler
+                      .get_symbol_references(&import_specifier.local);
+
+                    for reference in references {
+                      let (reference_node, span, loc) =
+                        self.semantic_handler.get_reference_node_box(reference);
+
+                      if let Some(parent) = self
                         .semantic_handler
-                        .get_symbol_references(&import_specifier.local);
-
-                      for reference in references {
-                        let (reference_node, span, loc) = self
-                          .semantic_handler
-                          .get_reference_node_box(reference);
-
-                        if let Some(parent) = self
-                          .semantic_handler
-                          .find_up_with_dep(&reference_node, 2)
-                        {
-                          if !matches!(
-                            parent.kind(),
-                            AstKind::JSXClosingElement(_)
-                          ) {
-                            let name = match reference_node.kind() {
-                              AstKind::JSXIdentifier(identifier) => {
-                                identifier.name.to_string()
-                              }
-                              AstKind::IdentifierReference(identifier) => {
-                                identifier.name.to_string()
-                              }
-                              _ => UNKNOWN.to_string(),
-                            };
-                            let default_name = UNKNOWN.to_string();
-                            let name =
-                              mapper.get(&name).unwrap_or(&default_name);
-                            inline_usages.push(Response {
-                              lib_name: source_name.to_string(),
-                              member_name: name.to_string(),
-                              file_path: self.path_str.clone(),
-                              ast_node: AstNode::new(
-                                (span.start, span.end),
-                                loc,
-                              ),
-                            });
-                          }
+                        .find_up_with_dep(&reference_node, 2)
+                      {
+                        if !matches!(
+                          parent.kind(),
+                          AstKind::JSXClosingElement(_)
+                        ) {
+                          let name = match reference_node.kind() {
+                            AstKind::JSXIdentifier(identifier) => {
+                              identifier.name.to_string()
+                            }
+                            AstKind::IdentifierReference(identifier) => {
+                              identifier.name.to_string()
+                            }
+                            _ => UNKNOWN.to_string(),
+                          };
+                          let default_name = UNKNOWN.to_string();
+                          let name = mapper.get(&name).unwrap_or(&default_name);
+                          inline_usages.push(Response {
+                            lib_name: source_name.to_string(),
+                            member_name: name.to_string(),
+                            file_path: self.path_str.clone(),
+                            ast_node: AstNode::new((span.start, span.end), loc),
+                          });
                         }
                       }
                     }
-                    ImportDeclarationSpecifier::ImportDefaultSpecifier(
+                  }
+                  ImportDeclarationSpecifier::ImportDefaultSpecifier(
+                    import_default_specifier,
+                  ) => {
+                    inline_usages.extend(self.process_default_specifier(
                       import_default_specifier,
-                    ) => {
-                      inline_usages.extend(self.process_default_specifier(
-                        import_default_specifier,
-                        &source_name,
-                      ));
-                    }
-                    ImportDeclarationSpecifier::ImportNamespaceSpecifier(
+                      &source_name,
+                    ));
+                  }
+                  ImportDeclarationSpecifier::ImportNamespaceSpecifier(
+                    import_namespace_specifier,
+                  ) => {
+                    inline_usages.extend(self.process_namespace_specifier(
                       import_namespace_specifier,
-                    ) => {
-                      inline_usages.extend(self.process_namespace_specifier(
-                        import_namespace_specifier,
-                        &source_name,
-                      ));
-                    }
+                      &source_name,
+                    ));
                   }
                 }
               }
-            } else {
-              let (span, loc) = self.semantic_handler.get_node_box(node);
-              inline_usages.push(Response {
-                lib_name: source_name.to_string(),
-                member_name: SIDE_EFFECTS.to_string(),
-                file_path: self.path_str.clone(),
-                ast_node: AstNode::new((span.start, span.end), loc),
-              });
             }
+          } else {
+            let (span, loc) = self.semantic_handler.get_node_box(node);
+            inline_usages.push(Response {
+              lib_name: source_name.to_string(),
+              member_name: SIDE_EFFECTS.to_string(),
+              file_path: self.path_str.clone(),
+              ast_node: AstNode::new((span.start, span.end), loc),
+            });
           }
         }
-      });
+      }
+    });
 
     Ok(inline_usages.clone())
   }

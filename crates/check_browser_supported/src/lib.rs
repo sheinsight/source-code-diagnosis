@@ -129,10 +129,13 @@ pub fn check_browser_supported_with_source_code(
   let mut used: Vec<CompatBox> = Vec::new();
 
   SemanticBuilder::js(source_code).build_handler().each_node(
-    |handler, semantic, node| {
+    |handler, node| {
       for compat_handler in compat_handlers.iter() {
-        if compat_handler.handle(semantic.source_text(), node, semantic.nodes())
-        {
+        if compat_handler.handle(
+          handler.semantic.source_text(),
+          node,
+          handler.semantic.nodes(),
+        ) {
           let (span, loc) = handler.get_node_box(node);
 
           used.push(CompatBox::new(
@@ -245,12 +248,12 @@ pub fn check_browser_supported(
     move |path: PathBuf| {
       SemanticBuilder::file(path.clone())
         .build_handler()
-        .each_node(|handler, semantic, node| {
+        .each_node(|handler, node| {
           for compat_handler in clone.iter() {
             if compat_handler.handle(
-              semantic.source_text(),
+              handler.semantic.source_text(),
               node,
-              semantic.nodes(),
+              handler.semantic.nodes(),
             ) {
               let (span, loc) = handler.get_node_box(node);
 
