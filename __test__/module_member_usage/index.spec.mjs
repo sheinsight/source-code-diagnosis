@@ -1,5 +1,5 @@
 import test from "ava";
-import { getModuleMemberUsage } from "../../index.js";
+import { checkModuleMemberUsage } from "../../index.js";
 import { fileURLToPath } from "node:url";
 import { dirname, posix } from "node:path";
 
@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 
 test("getModuleMemberUsage", (t) => {
 	const cwd = dirname(__filename);
-	const response = getModuleMemberUsage(["antd"], {
+	const response = checkModuleMemberUsage(["antd"], {
 		cwd,
 	});
 	for (const item of response) {
