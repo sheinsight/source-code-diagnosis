@@ -413,10 +413,10 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
           if echo "$TAG" | grep -q "^v[0-9]\+\.[0-9]\+\.[0-9]\+$"; then
             npm publish --access public
-            gh release edit $TAG --draft=false --prerelease=false
+            gh release edit $TAG --draft=false --prerelease=false --latest=true
           elif echo "$TAG" | grep -q "^v[0-9]\+\.[0-9]\+\.[0-9]\+"; then
             npm publish --tag next --access public
-            gh release edit $TAG --draft=false --prerelease=false
+            gh release edit $TAG --draft=false --prerelease=false --latest=true
           else
             echo "Not a release, skipping publish"
           fi
