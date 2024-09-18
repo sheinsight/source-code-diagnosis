@@ -5,14 +5,12 @@ use std::{
 
 use handler::ModuleMemberUsageHandler;
 use napi::Result;
-use napi_derive::napi;
 pub use response::Response;
 use utils::{glob, GlobOptions, SemanticBuilder};
 mod handler;
 mod response;
 
-// #[napi]
-pub fn get_module_member_usage(
+pub fn check_module_member_usage(
   npm_name_vec: Vec<String>,
   options: Option<GlobOptions>,
 ) -> Result<Vec<Response>> {

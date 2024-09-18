@@ -131,3 +131,5 @@ dist
 target
 .DS_Store
 source-code-diagnosis.darwin-arm64.node
+index.d.ts
+index.js
