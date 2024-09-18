@@ -8,7 +8,7 @@ permissions:
   id-token: write
 on:
   release:
-    types: [published]
+    types: [prereleased]
 jobs:
   build:
     strategy:
@@ -124,6 +124,14 @@ jobs:
           name: bindings-${{ matrix.settings.target }}
           path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
+      - name: Upload Javascript artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: js
+          path: |
+            index.js
+            index.d.ts
+
   test-macOS-windows-binding:
     name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
     needs:
@@ -185,6 +193,11 @@ jobs:
         with:
           name: bindings-x86_64-unknown-linux-gnu
           path: .
+      - name: Download Javascript artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: js
+          path: .
       - name: List packages
         run: ls -R .
         shell: bash
@@ -217,6 +230,11 @@ jobs:
         with:
           name: bindings-x86_64-unknown-linux-musl
           path: .
+      - name: Download Javascript artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: js
+          path: .
       - name: List packages
         run: ls -R .
         shell: bash
@@ -239,6 +257,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bindings-aarch64-unknown-linux-gnu
+          path: .
+      - name: Download Javascript artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: js
           path: .
       - name: List packages
         run: ls -R .
@@ -273,6 +296,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bindings-aarch64-unknown-linux-musl
+          path: .
+      - name: Download Javascript artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: js
           path: .
       - name: List packages
         run: ls -R .
@@ -312,6 +340,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bindings-armv7-unknown-linux-gnueabihf
+          path: .
+      - name: Download Javascript artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: js
           path: .
       - name: List packages
         run: ls -R .
@@ -353,6 +386,11 @@ jobs:
           cache: yarn
       - name: Install dependencies
         run: yarn install
+      - name: Download Javascript artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: js
+          path: .
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -371,6 +409,7 @@ jobs:
             npm publish --access public
           elif echo "$TAG" | grep -q "^v[0-9]\+\.[0-9]\+\.[0-9]\+"; then
             npm publish --tag next --access public
+            gh release edit $TAG --draft=false --prerelease=false
           else
             echo "Not a release, skipping publish"
           fi
