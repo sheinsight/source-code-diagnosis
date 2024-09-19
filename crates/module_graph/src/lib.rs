@@ -20,6 +20,7 @@ pub struct Options {
   pub pattern: Option<String>,
   pub ignore: Option<Vec<String>>,
   pub alias: Option<HashMap<String, Vec<String>>>,
+  pub modules: Option<Vec<String>>,
 }
 
 pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
@@ -32,6 +33,14 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
     _ => HashMap::new(),
   };
 
+  let modules = match &options {
+    Some(Options {
+      modules: Some(modules),
+      ..
+    }) => modules.clone(),
+    _ => vec!["node_modules".into(), "web_modules".into()],
+  };
+
   let resolver_alias = alias
     .into_iter()
     .map(|(key, values)| {
@@ -41,6 +50,7 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
 
   let resolver = Resolver::new(ResolveOptions {
     alias: resolver_alias,
+    modules,
     extensions: vec![
       ".ts".into(),
       ".js".into(),
@@ -158,13 +168,12 @@ mod tests {
     // ];
 
     let x = &[
-      ("@public-component", "src/public-component"),
-      ("@apis", "src/apis"),
-      ("@hooks", "src/public-component/hooks"),
-      ("@common", "web_modules/common"),
-      ("@hoc", "src/component/hoc"),
-      ("@shein-lib", "web_modules/shein-lib"),
-      ("vscode", "monaco-languageclient/lib/vscode-compatibility"),
+      ("apis", "web_modules/apis"),
+      ("common", "web_modules/common"),
+      ("shein-lib", "web_modules/shein-lib"),
+      ("hooks", "web_modules/hooks"),
+      ("publicComponent", "web_modules/public/spmb"),
+      ("@", "src"),
     ];
 
     for (key, value) in x.iter() {
@@ -172,7 +181,7 @@ mod tests {
         key.to_string(),
         vec![format!(
           "{}/{}",
-          "/Users/10015448/Git/pdc",
+          "/Users/10015448/Git/bmas",
           value.to_string()
         )],
       );
@@ -208,12 +217,13 @@ mod tests {
     //   vec!["/Users/ityuany/GitRepository/wms/src".to_string()],
     // );
 
-    let op = Options {
-      cwd: Some("/Users/10015448/Git/pdc/src".to_string()),
-      pattern: None,
-      ignore: None,
-      alias: Some(alias),
-    };
+    // let op = Options {
+    //   cwd: Some("/Users/10015448/Git/bmas/src".to_string()),
+    //   modules: Some(vec!["node_modules".into(), "web_modules".into()]),
+    //   pattern: None,
+    //   ignore: None,
+    //   alias: Some(alias),
+    // };
 
     // let result = get_dependents(
     //   "/Users/ityuany/GitRepository/wms/src/lib/dealFunc.js".to_string(),
@@ -225,13 +235,13 @@ mod tests {
     //   }
     // }
 
-    let result1 = detect_cycle(Some(op.clone())).unwrap();
+    // let result1 = detect_cycle(Some(op.clone())).unwrap();
 
-    for x in result1 {
-      println!("\n跨越{}个文件的循环依赖", x.len());
-      for y in x.iter() {
-        println!("{}", y);
-      }
-    }
+    // for x in result1 {
+    //   println!("\n跨越{}个文件的循环依赖", x.len());
+    //   for y in x.iter() {
+    //     println!("{}", y);
+    //   }
+    // }
   }
 }
