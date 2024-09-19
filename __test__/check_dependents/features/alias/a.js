@@ -1,1 +1,1 @@
-import * as h from "@/utils.js"
+import * as h from "@/utils"

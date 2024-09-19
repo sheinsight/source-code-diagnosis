@@ -1,3 +1,3 @@
-import * as a from "@/a.js"
-import * as b from "@/b.js"
+import * as a from "@/a"
+import * as b from "@/b"
 
