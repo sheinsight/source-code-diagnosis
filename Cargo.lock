@@ -142,6 +142,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 name = "check_browser_supported"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "beans",
  "env_logger",
  "log",
@@ -162,10 +163,12 @@ dependencies = [
 name = "check_danger_string"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "beans",
  "napi",
  "napi-derive",
  "oxc_ast",
+ "parking_lot",
  "serde",
  "utils",
 ]
@@ -473,12 +476,14 @@ dependencies = [
 name = "module_member_usage"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "beans",
  "napi",
  "napi-derive",
  "oxc_ast",
  "oxc_semantic",
  "oxc_span",
+ "parking_lot",
  "serde",
  "utils",
 ]
@@ -762,6 +767,16 @@ dependencies = [
  "phf",
  "rustc-hash",
  "unicode-id-start",
+]
+
+[[package]]
+name = "parking_lot"
+version = "0.12.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1bf18183cf54e8d6059647fc3063646a1801cf30896933ec2311622cc4b9a27"
+dependencies = [
+ "lock_api",
+ "parking_lot_core",
 ]
 
 [[package]]

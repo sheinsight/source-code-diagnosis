@@ -1,14 +1,14 @@
-use std::{
-  path::PathBuf,
-  sync::{Arc, Mutex},
-};
+use std::{path::PathBuf, sync::Arc};
 
+use anyhow::Context;
+use anyhow::Result;
 use handler::ModuleMemberUsageHandler;
-use napi::Result;
-pub use response::Response;
+use parking_lot::Mutex;
 use utils::{glob, GlobOptions, SemanticBuilder};
+
 mod handler;
 mod response;
+pub use response::Response;
 
 pub fn check_module_member_usage(
   npm_name_vec: Vec<String>,
@@ -26,24 +26,17 @@ pub fn check_module_member_usage(
         path.clone(),
         handler,
       )
-      .handle()
-      .unwrap();
+      .handle();
 
-      let mut used = used.lock().unwrap();
-      used.extend(inline_usages);
+      used.lock().extend(inline_usages);
     }
   };
-  glob(x, options).map_err(|err| {
-    napi::Error::new(napi::Status::GenericFailure, err.to_string())
-  })?;
+  glob(x, options)?;
 
   let used = Arc::try_unwrap(used)
     .ok()
-    .expect("Arc has more than one strong reference")
-    .into_inner()
-    .expect("Mutex cannot be locked");
-
-  println!("{:?}", used.len());
+    .context("Arc has more than one strong reference")?
+    .into_inner();
 
   Ok(used)
 }

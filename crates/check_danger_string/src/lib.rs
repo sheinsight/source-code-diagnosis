@@ -1,12 +1,10 @@
-use std::{
-  path::PathBuf,
-  sync::{Arc, Mutex},
-};
+use std::{path::PathBuf, sync::Arc};
 
+use anyhow::{Context, Result};
 use beans::AstNode;
-use napi::Result;
 use napi_derive::napi;
 use oxc_ast::AstKind;
+use parking_lot::Mutex;
 use serde::Serialize;
 use utils::{glob, GlobOptions, SemanticBuilder};
 
@@ -19,17 +17,16 @@ pub struct Response {
   pub ast_node: AstNode,
 }
 
-// #[napi]
 pub fn check_danger_strings(
   danger_strings: Vec<String>,
   options: Option<GlobOptions>,
 ) -> Result<Vec<Response>> {
   let used = Arc::new(Mutex::new(Vec::new()));
+
   let handler = {
     let used = Arc::clone(&used);
     move |path: PathBuf| {
       let mut inline_usages: Vec<Response> = Vec::new();
-
       SemanticBuilder::file(path.clone())
         .build_handler()
         .each_node(|handler, node| {
@@ -40,34 +37,28 @@ pub fn check_danger_strings(
             let loc =
               handler.offset_to_location(handler.semantic.source_text(), span);
 
-            danger_strings
-              .iter()
-              .filter(|item| value.contains(&**item))
-              .for_each(|item| {
+            for danger_string in danger_strings.iter() {
+              if value.contains(danger_string) {
                 inline_usages.push(Response {
-                  raw_value: value.to_string(),
-                  match_danger_string: item.to_string(),
+                  raw_value: value.clone(),
+                  match_danger_string: danger_string.to_string(),
                   file_path: path.display().to_string(),
                   ast_node: AstNode::new((span.start, span.end), loc),
-                })
-              })
+                });
+              }
+            }
           }
         });
-
-      let mut used = used.lock().unwrap();
-      used.extend(inline_usages);
+      used.lock().extend(inline_usages);
     }
   };
 
-  glob(handler, options).map_err(|err| {
-    napi::Error::new(napi::Status::GenericFailure, err.to_string())
-  })?;
+  glob(handler, options)?;
 
   let used = Arc::try_unwrap(used)
     .ok()
-    .expect("Arc has more than one strong reference")
-    .into_inner()
-    .expect("Mutex cannot be locked");
+    .context("Arc has more than one strong reference")?
+    .into_inner();
 
   Ok(used)
 }

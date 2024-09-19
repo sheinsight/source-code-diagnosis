@@ -12,9 +12,9 @@ pub struct GlobOptions {
   pub cwd: Option<String>,
 }
 
-pub fn glob<F>(handler_fn: F, options: Option<GlobOptions>) -> Result<()>
+pub fn glob<'a, F>(handler_fn: F, options: Option<GlobOptions>) -> Result<()>
 where
-  F: Fn(PathBuf) + Send + Sync + 'static,
+  F: Fn(PathBuf) + Send + Sync + 'a,
 {
   let default_pattern: &str = "**/*.{js,ts,jsx,tsx}";
 

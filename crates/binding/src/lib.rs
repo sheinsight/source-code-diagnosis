@@ -8,6 +8,7 @@ pub fn check_danger_strings(
   options: Option<GlobOptions>,
 ) -> Result<Vec<check_danger_string::Response>> {
   check_danger_string::check_danger_strings(danger_strings, options)
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
 #[napi]
@@ -16,6 +17,7 @@ pub fn check_module_member_usage(
   options: Option<GlobOptions>,
 ) -> Result<Vec<module_member_usage::Response>> {
   module_member_usage::check_module_member_usage(npm_name_vec, options)
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
 #[napi]
@@ -24,6 +26,7 @@ pub fn check_browser_supported(
   options: Option<utils::GlobOptions>,
 ) -> Result<Vec<check_browser_supported::CompatBox>> {
   check_browser_supported::check_browser_supported(target, options)
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
 #[napi]
@@ -35,6 +38,7 @@ pub fn check_browser_supported_with_source_code(
     target,
     source_code,
   )
+  .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
 #[napi]
