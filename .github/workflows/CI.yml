@@ -309,6 +309,7 @@ jobs:
           run: |
             set -e
             npm install -g pnpm@9.10.0
+            pnpm install
             pnpm run test
             ls -la
   test-linux-aarch64-musl-binding:
@@ -350,6 +351,7 @@ jobs:
           run: |
             set -e
             npm install -g pnpm@9.10.0
+            pnpm install
             pnpm run test
   test-linux-arm-gnueabihf-binding:
     name: Test bindings on armv7-unknown-linux-gnueabihf - node@${{ matrix.node }}
@@ -396,6 +398,7 @@ jobs:
           run: |
             set -e
             npm install -g pnpm@9.10.0
+            pnpm install
             pnpm run test
             ls -la
 
