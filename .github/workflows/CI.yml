@@ -217,6 +217,8 @@ jobs:
         run: |
           docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim sh -c "
             npm install -g pnpm@9.10.0 &&
+            rm -rf ./pnpm-lock.yaml &&
+            rm -rf ./node_modules &&
             pnpm install &&
             pnpm run test
           "
@@ -261,6 +263,8 @@ jobs:
         run: |
           docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine sh -c "
             npm install -g pnpm@9.10.0 &&
+            rm -rf ./pnpm-lock.yaml &&
+            rm -rf ./node_modules &&
             pnpm install &&
             pnpm run test
           "
@@ -309,6 +313,8 @@ jobs:
           run: |
             set -e
             npm install -g pnpm@9.10.0
+            rm -rf ./pnpm-lock.yaml
+            rm -rf ./node_modules
             pnpm install
             pnpm run test
             ls -la
@@ -351,6 +357,8 @@ jobs:
           run: |
             set -e
             npm install -g pnpm@9.10.0
+            rm -rf ./pnpm-lock.yaml
+            rm -rf ./node_modules
             pnpm install
             pnpm run test
   test-linux-arm-gnueabihf-binding:
@@ -398,6 +406,8 @@ jobs:
           run: |
             set -e
             npm install -g pnpm@9.10.0
+            rm -rf ./pnpm-lock.yaml
+            rm -rf ./node_modules
             pnpm install
             pnpm run test
             ls -la
