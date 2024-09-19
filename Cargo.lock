@@ -100,6 +100,7 @@ dependencies = [
  "beans",
  "check_browser_supported",
  "check_danger_string",
+ "module_graph",
  "module_member_usage",
  "napi",
  "napi-build",
