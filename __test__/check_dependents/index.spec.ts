@@ -7,6 +7,8 @@ const __filename = fileURLToPath(import.meta.url);
  
 test('should return 1 result when module member used in tsx with use-in-jsx-element', () => {
   const cwd = path.resolve(dirname(__filename),"features","normal");
+  console.log("cwd--->",cwd);
+  
   const response = checkDependents(`${cwd}/utils.js`,{
     alias:{
       "@":[cwd]
