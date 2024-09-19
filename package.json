@@ -38,6 +38,9 @@
     "clean-pkg-json": "^1.2.0",
     "vitest": "^2.1.1"
   },
+  "optionalDependencies": {
+    "@rollup/rollup-win32-ia32-msvc": "*"
+  },
   "ava": {
     "timeout": "3m"
   },
