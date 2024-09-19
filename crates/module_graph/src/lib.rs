@@ -62,25 +62,21 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
         .each_node(|_handler, node| {
           if let AstKind::ImportDeclaration(import_declaration) = node.kind() {
             let value = import_declaration.source.value.to_string();
-            let is_relative_path =
-              value.starts_with("./") || value.starts_with("../");
-            if is_relative_path {
-              if let Ok(resolved_path) =
-                resolver.resolve(&path.parent().unwrap(), &value.clone())
-              {
+
+            if let Some(parent) = path.parent() {
+              let resolved = resolver.resolve(&parent, &value);
+              if let Ok(resolved_path) = resolved {
                 inline_usages.push((
                   path.display().to_string(),
                   resolved_path.full_path().display().to_string(),
                 ));
               } else {
-                println!(
-                  "无法解析引用地址: {},{}",
+                eprintln!(
+                  "no resolved path  {} in {}",
                   value,
                   path.display().to_string()
                 );
               }
-            } else {
-              // println!("非相对路径: {}, 当前文件: {}", value, path.display());
             }
           }
         });

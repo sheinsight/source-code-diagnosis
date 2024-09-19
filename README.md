@@ -44,7 +44,28 @@ const response = getModuleMemberUsage(["antd"], {
 ## checkSupportBrowser
 
 ```ts
-const response = checkBrowserSupported("chrome 100", {
+const response = checkBrowserSupported("chrome >= 100", {
   cwd: "/Users/Pikachu/project",
+});
+```
+
+## checkDependents
+
+Detecting dependencies on a file
+
+```ts
+const response = checkDependents("/Users/Pikachu/project/src/utils/index.ts", {
+  cwd: "/Users/Pikachu/project",
+});
+```
+
+Of course you can also configure alias
+
+```ts
+const response = checkDependents("/Users/Pikachu/project/src/utils/index.ts", {
+  cwd: "/Users/Pikachu/project",
+  alias: {
+    "@": "/Users/Pikachu/project/src",
+  },
 });
 ```

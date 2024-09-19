@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use napi::Result;
 use napi_derive::napi;
 use utils::GlobOptions;
