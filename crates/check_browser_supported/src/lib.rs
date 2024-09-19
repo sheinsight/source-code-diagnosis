@@ -10,9 +10,9 @@ use browserslist::{resolve, Distrib, Opts};
 pub use compat::{CompatBox, CompatHandler};
 use env_logger::Env;
 
+use anyhow::Result;
 use log::debug;
-use napi::{Error, Result};
-use napi_derive::napi;
+use napi::Error;
 use std::{
   path::PathBuf,
   sync::{Arc, Mutex},
@@ -38,7 +38,6 @@ macro_rules! enabled_debug {
   };
 }
 
-// #[napi]
 pub fn check_browser_supported_with_source_code(
   target: String,
   source_code: String,
@@ -152,7 +151,6 @@ pub fn check_browser_supported_with_source_code(
   Ok(used)
 }
 
-// #[napi]
 pub fn check_browser_supported(
   target: String,
   options: Option<utils::GlobOptions>,

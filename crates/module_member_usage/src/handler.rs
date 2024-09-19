@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error, path::PathBuf};
+use std::{collections::HashMap, path::PathBuf};
 
 use beans::{AstNode, Location};
 use oxc_ast::{
@@ -38,7 +38,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
     }
   }
 
-  pub fn handle(&self) -> Result<Vec<Response>, Box<dyn Error>> {
+  pub fn handle(&self) -> Vec<Response> {
     let mut mapper = HashMap::new();
     let mut inline_usages: Vec<Response> = Vec::new();
 
@@ -127,7 +127,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
       }
     });
 
-    Ok(inline_usages.clone())
+    inline_usages.clone()
   }
 
   fn process_namespace_specifier(
@@ -322,7 +322,7 @@ mod tests {
       file_path_str,
       semantic_handler,
     );
-    let result = handler.handle().unwrap();
+    let result = handler.handle();
 
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "react");
@@ -349,7 +349,7 @@ mod tests {
       file_path_str,
       semantic_handler,
     );
-    let result = handler.handle().unwrap();
+    let result = handler.handle();
 
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "react");
@@ -376,7 +376,7 @@ mod tests {
       file_path_str,
       semantic_handler,
     );
-    let result = handler.handle().unwrap();
+    let result = handler.handle();
 
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "react");
@@ -400,7 +400,7 @@ mod tests {
       file_path_str,
       semantic_handler,
     );
-    let result = handler.handle().unwrap();
+    let result = handler.handle();
 
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "react");
@@ -429,7 +429,7 @@ mod tests {
       file_path_str,
       semantic_handler,
     );
-    let result = handler.handle().unwrap();
+    let result = handler.handle();
 
     assert_eq!(result.len(), 3);
     assert!(result

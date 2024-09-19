@@ -12,3 +12,5 @@ serde = { workspace = true }
 oxc_ast = { workspace = true }
 utils = { path = "../utils" }
 beans = { path = "../beans" }
+anyhow = { workspace = true }
+parking_lot = { workspace = true }
