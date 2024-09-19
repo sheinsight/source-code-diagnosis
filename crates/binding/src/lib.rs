@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use napi::Result;
 use napi_derive::napi;
 use utils::GlobOptions;
@@ -48,4 +50,14 @@ pub fn check_detect_cycle(
   module_graph::detect_cycle(options).map_err(|err| {
     napi::Error::new(napi::Status::GenericFailure, err.to_string())
   })
+}
+
+#[napi]
+pub fn check_dependents(
+  file: String,
+  options: Option<module_graph::Options>,
+) -> Result<Vec<String>> {
+  module_graph::get_dependents(file, options)
+    .and_then(|x| Ok(x.into_iter().collect()))
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
