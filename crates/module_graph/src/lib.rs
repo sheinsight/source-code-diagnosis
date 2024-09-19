@@ -87,6 +87,8 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
                   path.display().to_string()
                 );
               }
+            } else {
+              eprintln!("no parent path {}", path.display().to_string());
             }
           }
         });
