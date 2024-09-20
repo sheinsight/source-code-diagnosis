@@ -473,11 +473,6 @@ jobs:
       - publish
     steps:
       - uses: actions/checkout@v4
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
       - name: Update release
         run: |
           TAG=${{github.ref_name}}
@@ -485,4 +480,3 @@ jobs:
           gh release edit $TAG --draft=false --prerelease=false --latest=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
