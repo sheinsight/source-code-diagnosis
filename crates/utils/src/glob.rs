@@ -1,4 +1,5 @@
 use anyhow::Result;
+use log::debug;
 use napi_derive::napi;
 use rayon::prelude::*;
 use std::{env::current_dir, path::PathBuf};
@@ -16,34 +17,45 @@ pub fn glob<'a, F>(handler_fn: F, options: Option<GlobOptions>) -> Result<()>
 where
   F: Fn(PathBuf) + Send + Sync + 'a,
 {
-  let default_pattern: &str = "**/*.{js,ts,jsx,tsx}";
+  let pattern = match &options {
+    Some(GlobOptions {
+      pattern: Some(pattern),
+      ..
+    }) => pattern,
+    _ => "**/*.{js,ts,jsx,tsx}",
+  };
 
-  let default_ignore_patterns: Vec<String> =
-    vec!["**/node_modules/**".to_string(), "**/*.d.ts".to_string()];
+  debug!("pattern: {}", pattern);
 
-  let ignore_patterns_vec: Vec<String> = options
-    .as_ref()
-    .and_then(|opts| opts.ignore.clone())
-    .unwrap_or_else(|| {
-      default_ignore_patterns
-        .iter()
-        .map(|s| s.to_string())
-        .collect()
-    });
+  let ignore_patterns = match &options {
+    Some(GlobOptions {
+      ignore: Some(ignore),
+      ..
+    }) => ignore.into_iter().map(|x| x.as_str()).collect(),
+    _ => vec!["**/node_modules/**", "**/*.d.ts"],
+  };
 
-  let ignore_patterns: Vec<&str> =
-    ignore_patterns_vec.iter().map(String::as_str).collect();
+  debug!("ignore_patterns: {:?}", ignore_patterns);
 
-  let dir = current_dir()?.display().to_string();
+  let cwd = match &options {
+    Some(GlobOptions { cwd: Some(cwd), .. }) => cwd.clone(),
+    _ => current_dir()?.display().to_string(),
+  };
 
-  let cwd = options
-    .as_ref()
-    .and_then(|opts| opts.cwd.clone())
-    .unwrap_or(dir);
+  debug!("cwd: {}", cwd);
 
-  let glob = Glob::new(default_pattern)?;
+  let glob = Glob::new(pattern)?;
 
   let entries: Vec<_> = glob.walk(&cwd).not(ignore_patterns)?.collect();
+
+  if log::log_enabled!(log::Level::Debug) {
+    entries.iter().try_for_each(|item| -> Result<()> {
+      if let Ok(entry) = item {
+        debug!("entry: {}", entry.path().display().to_string());
+      }
+      Ok(())
+    })?;
+  }
 
   entries.par_iter().try_for_each(|item| -> Result<()> {
     if let Ok(entry) = item {

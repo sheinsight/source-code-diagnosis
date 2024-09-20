@@ -17,7 +17,6 @@ serde = { workspace = true }
 napi = { workspace = true }
 napi-derive = { workspace = true }
 log = { workspace = true }
-env_logger = { workspace = true }
 beans = { path = "../beans" }
 utils = { path = "../utils" }
 anyhow = { workspace = true }

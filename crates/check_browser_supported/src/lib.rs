@@ -8,7 +8,6 @@ mod statements;
 
 use browserslist::{resolve, Distrib, Opts};
 pub use compat::{CompatBox, CompatHandler};
-use env_logger::Env;
 
 use anyhow::Result;
 use log::debug;
@@ -42,11 +41,6 @@ pub fn check_browser_supported_with_source_code(
   target: String,
   source_code: String,
 ) -> Result<Vec<CompatBox>> {
-  let env =
-    Env::default().filter_or("SHINED_SOURCE_CODE_DIAGNOSIS_LOG", "info");
-
-  let _ = env_logger::try_init_from_env(env);
-
   debug!("User-specified browser target: {}", target);
 
   let browser_list = resolve(&[target], &Opts::default())
@@ -155,11 +149,6 @@ pub fn check_browser_supported(
   target: String,
   options: Option<utils::GlobOptions>,
 ) -> Result<Vec<CompatBox>> {
-  let env =
-    Env::default().filter_or("SHINED_SOURCE_CODE_DIAGNOSIS_LOG", "info");
-
-  let _ = env_logger::try_init_from_env(env);
-
   debug!("User-specified browser target: {}", target);
 
   let browser_list = resolve(&[target], &Opts::default())

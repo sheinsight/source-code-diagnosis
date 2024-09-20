@@ -100,6 +100,8 @@ dependencies = [
  "beans",
  "check_browser_supported",
  "check_danger_string",
+ "env_logger",
+ "log",
  "module_graph",
  "module_member_usage",
  "napi",
@@ -144,7 +146,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "beans",
- "env_logger",
  "log",
  "napi",
  "napi-derive",
@@ -464,6 +465,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "beans",
+ "log",
  "napi",
  "napi-derive",
  "oxc_ast",
@@ -1220,6 +1222,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "beans",
+ "log",
  "napi",
  "napi-derive",
  "oxc_allocator",

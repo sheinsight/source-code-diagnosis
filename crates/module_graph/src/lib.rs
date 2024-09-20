@@ -1,4 +1,5 @@
 use anyhow::Result;
+use log::debug;
 use napi_derive::napi;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
@@ -65,6 +66,8 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
     let used = Arc::clone(&used);
 
     move |path: PathBuf| {
+      debug!("path: {}", path.display().to_string());
+
       let mut inline_usages: Vec<(String, String)> = Vec::new();
 
       SemanticBuilder::file(path.clone())
@@ -72,10 +75,15 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
         .each_node(|_handler, node| {
           if let AstKind::ImportDeclaration(import_declaration) = node.kind() {
             let value = import_declaration.source.value.to_string();
-
+            debug!("value: {}", value);
             if let Some(parent) = path.parent() {
+              debug!("parent: {}", parent.display().to_string());
               let resolved = resolver.resolve(&parent, &value);
               if let Ok(resolved_path) = resolved {
+                debug!(
+                  "resolved_path: {}",
+                  resolved_path.full_path().display().to_string()
+                );
                 inline_usages.push((
                   path.display().to_string(),
                   resolved_path.full_path().display().to_string(),
