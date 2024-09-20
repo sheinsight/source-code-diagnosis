@@ -78,10 +78,10 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
             debug!("value: {}", value);
 
             #[cfg(windows)]
-            let normalized_value = value.replace('\\', "/");
+            let normalized_value = value.clone().replace('\\', "/");
 
             #[cfg(not(windows))]
-            let normalized_value = value;
+            let normalized_value = value.clone();
 
             debug!("normalized_value: {}", normalized_value);
 
