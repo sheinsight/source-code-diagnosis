@@ -13,22 +13,86 @@ on:
     branches: [dev]
     
 jobs:
-  publish:
-    name: Publish
-    runs-on: ubuntu-latest
+  build-artifacts:
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+
+          # macos
+          - host: macos-13
+            target: x86_64-apple-darwin
+          - host: macos-14
+            target: aarch64-apple-darwin
+
+          # windows
+          - host: windows-2022
+            target: x86_64-pc-windows-msvc
+          - host: windows-2022
+            target: i686-pc-windows-msvc
+
+          # linux
+          - host: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+          - host: ubuntu-24.04
+            target: x86_64-unknown-linux-musl
+
+          - host: ubuntu-24.04
+            target: i686-unknown-linux-gnu
+          - host: ubuntu-24.04
+            target: i686-unknown-linux-musl
+
+          - host: ubuntu-24.04
+            target: aarch64-unknown-linux-gnu
+          - host: ubuntu-24.04
+            target: aarch64-unknown-linux-musl
+
+
+    name: Build artifacts ${{ matrix.settings.target }} on ${{ matrix.settings.host }}
+    runs-on: ${{ matrix.settings.host }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: yarn 
-      - name: Publish
-        run: |
-          npm config set provenance true
-          TAG=${{github.ref_name}}
-          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-          cat ~/.npmrc
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          node-version-file: '.node-version'
+          cache: 'pnpm' 
+      - name: Setup Pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - name: Setup toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          override: true
+          target: ${{ matrix.settings.target }}
+          components: rustfmt
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            .cargo-cache
+            target/
+          key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies 
+      - name: Build artifacts
+        run: pnpm build --target ${{ matrix.settings.target }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{ matrix.settings.target }}
+          path: ${{ env.APP_NAME }}.*.node
+          if-no-files-found: error
+      - name: Upload Javascript artifact
+        uses: actions/upload-artifact@v4
+        with:
+            name: js
+            path: |
+              index.js
+              index.d.ts
+            overwrite: true
