@@ -76,9 +76,18 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
           if let AstKind::ImportDeclaration(import_declaration) = node.kind() {
             let value = import_declaration.source.value.to_string();
             debug!("value: {}", value);
+
+            #[cfg(windows)]
+            let normalized_value = value.replace('\\', "/");
+
+            #[cfg(not(windows))]
+            let normalized_value = value;
+
+            debug!("normalized_value: {}", normalized_value);
+
             if let Some(parent) = path.parent() {
               debug!("parent: {}", parent.display().to_string());
-              let resolved = resolver.resolve(&parent, &value);
+              let resolved = resolver.resolve(&parent, &normalized_value);
               if let Ok(resolved_path) = resolved {
                 debug!(
                   "resolved_path: {}",
