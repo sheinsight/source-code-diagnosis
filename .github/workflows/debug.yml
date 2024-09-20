@@ -1,6 +1,7 @@
 name: CI
 env:
   DEBUG: napi:*
+  RUST_BACKTRACE: full
   APP_NAME: source-code-diagnosis
   MACOSX_DEPLOYMENT_TARGET: '10.13'
 permissions:
@@ -81,7 +82,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --strict-peer-dependencies 
       - name: Build artifacts
-        run: pnpm build --target ${{ matrix.settings.target }}
+        run: pnpm build --target ${{ matrix.settings.target }} --verbose
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
