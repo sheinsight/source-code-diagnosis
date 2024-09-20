@@ -17,6 +17,8 @@ module_member_usage = { path = "../module_member_usage" }
 utils = { path = "../utils" }
 beans = { path = "../beans" }
 module_graph = { path = "../module_graph" }
+log = { workspace = true }
+env_logger = { workspace = true }
 
 [build-dependencies]
 napi-build = "2.0.1"

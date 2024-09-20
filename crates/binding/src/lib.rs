@@ -1,3 +1,4 @@
+use env_logger::Env;
 use napi::Result;
 use napi_derive::napi;
 use utils::GlobOptions;
@@ -55,7 +56,15 @@ pub fn check_dependents(
   file: String,
   options: Option<module_graph::Options>,
 ) -> Result<Vec<String>> {
+  let _ = init_logger();
   module_graph::get_dependents(file, options)
     .and_then(|x| Ok(x.into_iter().collect()))
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+}
+
+#[napi]
+pub fn init_logger() -> napi::Result<()> {
+  env_logger::Builder::from_env(Env::default().filter_or("SHINED_LOG", "info"))
+    .try_init()
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }

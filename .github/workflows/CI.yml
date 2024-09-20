@@ -1,6 +1,7 @@
 name: CI
 env:
   DEBUG: napi:*
+  SHINED_LOG: debug
   APP_NAME: source-code-diagnosis
   MACOSX_DEPLOYMENT_TARGET: '10.13'
 permissions:
