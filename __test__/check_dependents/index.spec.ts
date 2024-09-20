@@ -11,7 +11,7 @@ test('should return 1 result when module member used in tsx with use-in-jsx-elem
   const cwd = path.resolve(dirname(__filename),"features","normal");
   console.log("cwd--->",cwd);
   initLogger();
-  const response = checkDependents(`${cwd}/utils.js`,{
+  const response = checkDependents(path.join(cwd,"utils.js"),{
     alias:{
       "@":[cwd]
     },
@@ -25,7 +25,7 @@ test('should return 1 result when module member used in tsx with use-in-jsx-elem
 
 test('should return 1 result when module member used in tsx with use-in-jsx-element1', () => {
   const cwd = path.resolve(dirname(__filename),"features","alias");  
-  const response = checkDependents(`${cwd}/utils.js`,{
+  const response = checkDependents(path.join(cwd,"utils.js"),{
     alias:{
       "@":[cwd]
     },
