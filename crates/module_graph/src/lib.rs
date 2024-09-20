@@ -134,22 +134,6 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
   Ok(x)
 }
 
-fn normalize_path(path: &str) -> &str {
-  #[cfg(windows)]
-  {
-    path
-      .split(':')
-      .map_or(path.to_string(), |p| {
-        format!("/{}", p.trim_start_matches('\\'))
-      })
-      .as_str()
-  }
-  #[cfg(not(windows))]
-  {
-    path
-  }
-}
-
 pub fn get_dependents(
   file: String,
   options: Option<Options>,
@@ -157,7 +141,7 @@ pub fn get_dependents(
   let used = get_node(options)?;
   let mut graph = DiGraphMap::new();
   for (key, value) in used.iter() {
-    graph.add_edge(normalize_path(key.as_str()), value.as_str(), ());
+    graph.add_edge(key.as_str(), value.as_str(), ());
   }
   Ok(
     graph
@@ -171,7 +155,7 @@ pub fn detect_cycle(options: Option<Options>) -> Result<Vec<Vec<String>>> {
   let used = get_node(options)?;
   let mut graph = DiGraphMap::new();
   for (key, value) in used.iter() {
-    graph.add_edge(normalize_path(key.as_str()), value.as_str(), ());
+    graph.add_edge(key.as_str(), value.as_str(), ());
   }
   let files = kosaraju_scc(&graph)
     .into_iter()
