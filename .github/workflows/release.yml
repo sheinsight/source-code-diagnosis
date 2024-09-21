@@ -79,7 +79,7 @@ jobs:
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
 
       - name: Cargo test
-        run: cargo test --target ${{ matrix.settings.target }}
+        run: cargo test
 
   build-artifacts:
     needs:
