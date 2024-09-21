@@ -279,6 +279,10 @@ jobs:
         with:
           path: artifacts
 
+      - name: List packages
+        run: ls -R ./artifacts
+        shell: bash
+
       - name: Move artifacts
         run: pnpm run artifacts
 
