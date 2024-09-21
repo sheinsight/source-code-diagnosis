@@ -49,7 +49,7 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "napi build --cargo-cwd crates/binding --platform --release --verbose",
+    "build": "napi build --cargo-cwd crates/binding --platform --release",
     "build:debug": "napi build --cargo-cwd crates/binding --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "test:ava": "ava",
