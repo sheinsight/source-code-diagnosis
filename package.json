@@ -8,9 +8,9 @@
     "triples": {
       "additional": [
         "aarch64-apple-darwin",
+        "aarch64-pc-windows-msvc",
         "aarch64-unknown-linux-gnu",
         "aarch64-unknown-linux-musl",
-        "aarch64-pc-windows-msvc",
         "armv7-unknown-linux-gnueabihf",
         "armv7-unknown-linux-musleabihf",
         "x86_64-unknown-linux-musl",
@@ -49,6 +49,7 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
+    "build:js": "napi build --cargo-cwd crates/binding --platform --js index.js --dts index.d.ts",
     "build": "napi build --cargo-cwd crates/binding --platform --release",
     "build:debug": "napi build --cargo-cwd crates/binding --platform",
     "prepublishOnly": "napi prepublish -t npm",
