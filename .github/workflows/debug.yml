@@ -31,6 +31,8 @@ jobs:
             target: x86_64-pc-windows-msvc
           - host: windows-2022
             target: i686-pc-windows-msvc
+          - host: windows-2022
+            target: aarch64-pc-windows-msvc
 
           # linux
           - host: ubuntu-24.04
@@ -73,6 +75,11 @@ jobs:
           target: ${{ matrix.settings.target }}
           components: rustfmt
 
+      - name: Install cross-compilation tools
+        uses: taiki-e/setup-cross-toolchain-action@v1
+        with:
+          target: ${{ matrix.settings.target }} 
+
       - name: Cache cargo
         uses: actions/cache@v4
         with:
@@ -86,11 +93,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --strict-peer-dependencies 
-
-      - name: Install cross-compilation tools
-        uses: taiki-e/setup-cross-toolchain-action@v1
-        with:
-          target: ${{ matrix.settings.target }} 
 
       # - name: Install ziglang 
       #   uses: goto-bus-stop/setup-zig@v1
