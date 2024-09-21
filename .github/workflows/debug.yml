@@ -54,21 +54,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Pnpm
         uses: pnpm/action-setup@v4
         with:
           run_install: false
+
       - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version-file: '.node-version'
           cache: 'pnpm' 
+
       - name: Setup toolchain
         uses: actions-rs/toolchain@v1
         with:
           override: true
           target: ${{ matrix.settings.target }}
           components: rustfmt
+
       - name: Cache cargo
         uses: actions/cache@v4
         with:
@@ -79,18 +83,33 @@ jobs:
             .cargo-cache
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --strict-peer-dependencies 
+
+
+      - name: Install ziglang 
+        uses: goto-bus-stop/setup-zig@v1
+        with:
+          version: 0.13.0
+      - name: Install cargo toolchains
+        uses: taiki-e/install-action@v2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tool: cargo-zigbuild,cargo-xwin
+
       - name: Build artifacts
         run: |
-            rustup target add ${{ matrix.settings.target }}
             pnpm build --target ${{ matrix.settings.target }} 
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
           path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
+
       - name: Upload Javascript artifact
         uses: actions/upload-artifact@v4
         with:
