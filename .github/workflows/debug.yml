@@ -82,7 +82,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --strict-peer-dependencies 
       - name: Build artifacts
-        run: pnpm build --target ${{ matrix.settings.target }} --verbose
+        run: pnpm build --target ${{ matrix.settings.target }} 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
