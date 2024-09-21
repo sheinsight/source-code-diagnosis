@@ -49,6 +49,7 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
+    "build:js": "napi build --cargo-cwd crates/binding --platform --js index.js --dts index.d.ts",
     "build": "napi build --cargo-cwd crates/binding --platform --release",
     "build:debug": "napi build --cargo-cwd crates/binding --platform",
     "prepublishOnly": "napi prepublish -t npm",

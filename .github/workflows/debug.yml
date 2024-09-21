@@ -14,6 +14,7 @@ on:
     branches: [dev]
     
 jobs:
+
   build-artifacts:
     strategy:
       fail-fast: false
@@ -98,17 +99,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --strict-peer-dependencies 
 
-      # - name: Install ziglang 
-      #   uses: goto-bus-stop/setup-zig@v1
-      #   with:
-      #     version: 0.13.0
-      # - name: Install cargo toolchains
-      #   uses: taiki-e/install-action@v2
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-      #   with:
-      #     tool: cargo-zigbuild,cargo-xwin
-
       - name: Build artifacts
         run: |
             pnpm build --target ${{ matrix.settings.target }} 
@@ -120,11 +110,77 @@ jobs:
           path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
 
-      - name: Upload Javascript artifact
-        uses: actions/upload-artifact@v4
+  test-artifacts:
+    needs:
+      - build-artifacts
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - host: macos-13
+            target: x86_64-apple-darwin
+          - host: macos-14
+            target: aarch64-apple-darwin
+
+          - host: windows-2022
+            target: x86_64-pc-windows-msvc
+          - host: windows-2022
+            target: i686-pc-windows-msvc
+          - host: windows-2022
+            target: aarch64-pc-windows-msvc
+
+          - host: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+          - host: ubuntu-24.04
+            target: x86_64-unknown-linux-musl
+
+          - host: ubuntu-24.04
+            target: i686-unknown-linux-gnu
+          - host: ubuntu-24.04
+            target: i686-unknown-linux-musl
+
+          - host: ubuntu-24.04
+            target: aarch64-unknown-linux-gnu
+          - host: ubuntu-24.04
+            target: armv7-unknown-linux-gnueabihf
+          - host: ubuntu-24.04
+            target: aarch64-unknown-linux-musl
+          - host: ubuntu-24.04
+            target: armv7-unknown-linux-musleabihf
+        node:
+          - '18'
+          - '20'
+
+    name: Test artifacts ${{ matrix.settings.target }} on ${{ matrix.settings.host }}
+    runs-on: ${{ matrix.settings.host }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pnpm
+        uses: pnpm/action-setup@v4
         with:
-            name: js
-            path: |
-              index.js
-              index.d.ts
-            overwrite: true
+          run_install: false
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm' 
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: bindings-${{ matrix.settings.target }}
+          path: .
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies 
+
+      - name: Build js
+        run: pnpm build:js
+
+      - name: Test
+        run: pnpm test
+
+
