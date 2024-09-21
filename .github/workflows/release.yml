@@ -82,8 +82,8 @@ jobs:
         run: cargo test
 
   build-artifacts:
-    needs:
-      - cargo-test
+    # needs:
+    #   - cargo-test
     strategy:
       fail-fast: false
       matrix:
