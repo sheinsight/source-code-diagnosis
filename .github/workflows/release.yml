@@ -35,10 +35,10 @@ jobs:
           - host: ubuntu-24.04
             target: x86_64-unknown-linux-musl
 
-          - host: ubuntu-24.04
-            target: i686-unknown-linux-gnu
-          - host: ubuntu-24.04
-            target: i686-unknown-linux-musl
+          # - host: ubuntu-24.04
+          #   target: i686-unknown-linux-gnu
+          # - host: ubuntu-24.04
+          #   target: i686-unknown-linux-musl
 
           - host: ubuntu-24.04
             target: aarch64-unknown-linux-gnu
@@ -109,10 +109,10 @@ jobs:
           - host: ubuntu-24.04
             target: x86_64-unknown-linux-musl
 
-          - host: ubuntu-24.04
-            target: i686-unknown-linux-gnu
-          - host: ubuntu-24.04
-            target: i686-unknown-linux-musl
+          # - host: ubuntu-24.04
+          #   target: i686-unknown-linux-gnu
+          # - host: ubuntu-24.04
+          #   target: i686-unknown-linux-musl
 
           - host: ubuntu-24.04
             target: aarch64-unknown-linux-gnu
@@ -202,10 +202,10 @@ jobs:
           - host: ubuntu-24.04
             target: x86_64-unknown-linux-musl
 
-          - host: ubuntu-24.04
-            target: i686-unknown-linux-gnu
-          - host: ubuntu-24.04
-            target: i686-unknown-linux-musl
+          # - host: ubuntu-24.04
+          #   target: i686-unknown-linux-gnu
+          # - host: ubuntu-24.04
+          #   target: i686-unknown-linux-musl
 
           - host: ubuntu-24.04
             target: aarch64-unknown-linux-gnu
