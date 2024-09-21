@@ -82,6 +82,8 @@ jobs:
         run: cargo test --target ${{ matrix.settings.target }}
 
   build-artifacts:
+    needs:
+      - cargo-test
     strategy:
       fail-fast: false
       matrix:
