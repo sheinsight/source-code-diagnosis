@@ -1,15 +1,15 @@
 {
-  "name": "@shined/source-code-diagnosis-darwin-arm64",
+  "name": "@shined/source-code-diagnosis-freebsd-x64",
   "version": "0.0.26",
   "os": [
-    "darwin"
+    "freebsd"
   ],
   "cpu": [
-    "arm64"
+    "x64"
   ],
-  "main": "source-code-diagnosis.darwin-arm64.node",
+  "main": "source-code-diagnosis.freebsd-x64.node",
   "files": [
-    "source-code-diagnosis.darwin-arm64.node"
+    "source-code-diagnosis.freebsd-x64.node"
   ],
   "license": "MIT",
   "engines": {

@@ -1,6 +1,6 @@
 {
   "name": "@shined/source-code-diagnosis-win32-arm64-msvc",
-  "version": "0.0.0",
+  "version": "0.0.26",
   "os": [
     "win32"
   ],
@@ -11,11 +11,14 @@
   "files": [
     "source-code-diagnosis.win32-arm64-msvc.node"
   ],
-  "repository": {
-    "url": "https://github.com/sheinsight/source-code-diagnosis"
-  },
   "license": "MIT",
   "engines": {
     "node": ">= 10"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "url": "https://github.com/sheinsight/source-code-diagnosis"
   }
 }

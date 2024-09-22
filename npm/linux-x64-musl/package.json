@@ -1,6 +1,6 @@
 {
   "name": "@shined/source-code-diagnosis-linux-x64-musl",
-  "version": "0.0.0",
+  "version": "0.0.26",
   "os": [
     "linux"
   ],
@@ -11,12 +11,15 @@
   "files": [
     "source-code-diagnosis.linux-x64-musl.node"
   ],
-  "repository": {
-    "url": "https://github.com/sheinsight/source-code-diagnosis"
-  },
   "license": "MIT",
   "engines": {
     "node": ">= 10"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "url": "https://github.com/sheinsight/source-code-diagnosis"
   },
   "libc": [
     "musl"
