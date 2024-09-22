@@ -1,4 +1,4 @@
-name: CI
+name: release
 env:
   DEBUG: napi:*
   RUST_BACKTRACE: full
