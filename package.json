@@ -1,11 +1,12 @@
 {
   "name": "@shined/source-code-diagnosis",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "main": "index.js",
   "types": "index.d.ts",
   "napi": {
     "name": "source-code-diagnosis",
     "triples": {
+      "defaults":false,
       "additional": [
         "i686-pc-windows-msvc",
         "x86_64-apple-darwin",
