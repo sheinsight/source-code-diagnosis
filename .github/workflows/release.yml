@@ -31,19 +31,11 @@ jobs:
             target: aarch64-pc-windows-msvc
 
           - host: ubuntu-24.04
-            target: x86_64-unknown-linux-gnu
-          - host: ubuntu-24.04
             target: x86_64-unknown-linux-musl
 
           # - host: ubuntu-24.04
-          #   target: i686-unknown-linux-gnu
-          # - host: ubuntu-24.04
           #   target: i686-unknown-linux-musl
 
-          - host: ubuntu-24.04
-            target: aarch64-unknown-linux-gnu
-          - host: ubuntu-24.04
-            target: armv7-unknown-linux-gnueabihf
           - host: ubuntu-24.04
             target: aarch64-unknown-linux-musl
           - host: ubuntu-24.04
@@ -109,21 +101,13 @@ jobs:
 
           # linux
           - host: ubuntu-24.04
-            target: x86_64-unknown-linux-gnu
-          - host: ubuntu-24.04
             target: x86_64-unknown-linux-musl
           - host: ubuntu-24.04
             target: x86_64-unknown-freebsd
 
           # - host: ubuntu-24.04
-          #   target: i686-unknown-linux-gnu
-          # - host: ubuntu-24.04
           #   target: i686-unknown-linux-musl
 
-          - host: ubuntu-24.04
-            target: aarch64-unknown-linux-gnu
-          - host: ubuntu-24.04
-            target: armv7-unknown-linux-gnueabihf
           - host: ubuntu-24.04
             target: aarch64-unknown-linux-musl
           - host: ubuntu-24.04
@@ -204,20 +188,12 @@ jobs:
             target: aarch64-pc-windows-msvc
 
           - host: ubuntu-24.04
-            target: x86_64-unknown-linux-gnu
-          - host: ubuntu-24.04
             target: x86_64-unknown-linux-musl
           - host: ubuntu-24.04
             target: x86_64-unknown-freebsd
           # - host: ubuntu-24.04
-          #   target: i686-unknown-linux-gnu
-          # - host: ubuntu-24.04
           #   target: i686-unknown-linux-musl
 
-          - host: ubuntu-24.04
-            target: aarch64-unknown-linux-gnu
-          - host: ubuntu-24.04
-            target: armv7-unknown-linux-gnueabihf
           - host: ubuntu-24.04
             target: aarch64-unknown-linux-musl
           - host: ubuntu-24.04

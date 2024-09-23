@@ -1,3 +1,0 @@
-# `@shined/source-code-diagnosis-linux-x64-gnu`
-
-This is the **x86_64-unknown-linux-gnu** binary for `@shined/source-code-diagnosis`
