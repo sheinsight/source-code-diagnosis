@@ -15,14 +15,14 @@ npm i @shined/source-code-diagnosis -D
 yarn add @shined/source-code-diagnosis -D
 ```
 
-## getUsageOfDangerStrings
+## checkDangerStrings
 
 Analyze the dangerous strings in the source code, usually used for third-party CDN detection.
 
 ```ts
-import { getDangerStringsUsage } from "@shined/source-code-diagnosis";
+import { checkDangerStrings } from "@shined/source-code-diagnosis";
 
-let response = getDangerStringsUsage(
+let response = checkDangerStrings(
   ["bootcss.com", "bootcdn.com", "polyfill.com", "polyfill.io"],
   {
     cwd: "/Users/Pikachu/project",
@@ -31,22 +31,34 @@ let response = getDangerStringsUsage(
 );
 ```
 
-## getModuleMemberUsage
+## checkModuleMemberUsage
 
 Analyze the usage rate of module members, generally used to analyze the number of times the exported members of a third-party package are used.
 
 ```ts
-const response = getModuleMemberUsage(["antd"], {
+import { checkModuleMemberUsage } from "@shined/source-code-diagnosis";
+const response = checkModuleMemberUsage(["antd"], {
   cwd: "/Users/Pikachu/project",
 });
 ```
 
-## checkSupportBrowser
+## checkBrowserSupported
 
 ```ts
+import { checkBrowserSupported } from "@shined/source-code-diagnosis";
 const response = checkBrowserSupported("chrome >= 100", {
   cwd: "/Users/Pikachu/project",
 });
+```
+
+## checkBrowserSupportedWithSourceCode
+
+```ts
+import { checkBrowserSupportedWithSourceCode } from "@shined/source-code-diagnosis";
+const response = checkBrowserSupportedWithSourceCode(
+  "chrome >= 100",
+  "function hello(){}"
+);
 ```
 
 ## checkDependents
@@ -59,7 +71,7 @@ const response = checkDependents("/Users/Pikachu/project/src/utils/index.ts", {
 });
 ```
 
-Of course you can also configure alias
+Of course you can also configure alias and modules
 
 ```ts
 const response = checkDependents("/Users/Pikachu/project/src/utils/index.ts", {
@@ -67,5 +79,17 @@ const response = checkDependents("/Users/Pikachu/project/src/utils/index.ts", {
   alias: {
     "@": "/Users/Pikachu/project/src",
   },
+  modules: ["node_modules", "web_modules"],
+});
+```
+
+## checkDetectCycle
+
+Detecting circular dependencies in the project
+
+```ts
+import { checkDetectCycle } from "@shined/source-code-diagnosis";
+const response = checkDetectCycle({
+  cwd: "/Users/Pikachu/project",
 });
 ```
