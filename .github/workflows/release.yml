@@ -292,7 +292,7 @@ jobs:
         shell: bash
 
       - name: Move artifacts
-        run: pnpm run artifacts
+        run: npm run artifacts
 
       - name: List packages
         run: ls -R ./npm
@@ -304,14 +304,14 @@ jobs:
           TAG=${{github.ref_name}}
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
           if echo "$TAG" | grep -q "^v[0-9]\+\.[0-9]\+\.[0-9]\+$"; then
-            pnpm publish --no-git-checks --access public 
+            npm publish --access public 
           elif echo "$TAG" | grep -q "^v[0-9]\+\.[0-9]\+\.[0-9]\+"; then
-            pnpm publish --no-git-checks --tag next --access public 
+            npm publish --tag next --access public 
           else
             echo "Not a release, skipping publish"
           fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   update-release:
@@ -329,7 +329,7 @@ jobs:
           echo "Update release $TAG"
           gh release edit $TAG --draft=false --prerelease=false --latest=true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
  
 
 
