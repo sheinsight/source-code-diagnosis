@@ -21,6 +21,7 @@
 		"newable",
 		"petgraph",
 		"ropey",
+		"RUSTFLAGS",
 		"threadpool"
 	],
 	"[javascript]": {
