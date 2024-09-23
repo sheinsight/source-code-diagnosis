@@ -304,9 +304,9 @@ jobs:
           TAG=${{github.ref_name}}
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
           if echo "$TAG" | grep -q "^v[0-9]\+\.[0-9]\+\.[0-9]\+$"; then
-            pnpm publish --access public 
+            pnpm publish --no-git-checks --access public 
           elif echo "$TAG" | grep -q "^v[0-9]\+\.[0-9]\+\.[0-9]\+"; then
-            pnpm publish --tag next --access public 
+            pnpm publish --no-git-checks --tag next --access public 
           else
             echo "Not a release, skipping publish"
           fi
