@@ -77,7 +77,7 @@ Of course you can also configure alias and modules
 const response = checkDependents("/Users/Pikachu/project/src/utils/index.ts", {
   cwd: "/Users/Pikachu/project",
   alias: {
-    "@": "/Users/Pikachu/project/src",
+    "@": ["/Users/Pikachu/project/src"],
   },
   modules: ["node_modules", "web_modules"],
 });
