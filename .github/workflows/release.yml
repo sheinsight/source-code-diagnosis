@@ -14,6 +14,7 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+  
 jobs:
   build:
     strategy:
@@ -139,10 +140,10 @@ jobs:
           - host: windows-latest
             target: x86_64-pc-windows-msvc
             architecture: x64
-          - host: macos-latest
+          - host: macos-14
             target: aarch64-apple-darwin
             architecture: arm64
-          - host: macos-latest
+          - host: macos-13
             target: x86_64-apple-darwin
             architecture: x64
         node:
@@ -218,9 +219,7 @@ jobs:
             pnpm install --frozen-lockfile
             pnpm test
             ls -la
-      # - name: Test In Docker
-      #   run: |
-      #     docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim corepack enable && pnpm install --frozen-lockfile && pnpm test
+
   test-linux-x64-musl-binding:
     name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
     needs:
@@ -260,9 +259,6 @@ jobs:
             pnpm install --frozen-lockfile
             pnpm test
 
-      # - name: Test bindings
-      #   run: |
-      #     docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine corepack enable && pnpm config set supportedArchitectures.libc "musl" && pnpm install --frozen-lockfile && pnpm test
   test-linux-aarch64-gnu-binding:
     name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
     needs:
@@ -294,7 +290,8 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
-      - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      - name: Run QEMU
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       - name: Setup And Run Tests In Docker
         uses: addnab/docker-run-action@v3
         with:
@@ -333,7 +330,8 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
-      - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      - name: Run QEMU
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       - name: Setup And Run Tests In Docker
         uses: addnab/docker-run-action@v3
         with:
