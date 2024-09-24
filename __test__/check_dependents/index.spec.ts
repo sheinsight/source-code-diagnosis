@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import { fileURLToPath } from "node:url";
 import path, { dirname } from "node:path";
-import { checkDependents,initLogger } from '../../index.js'
+import { checkDependents,initLogger  , checkDetectCycle } from '../../index.js'
 
 
 
@@ -31,5 +31,18 @@ test('should return 1 result when module member used in tsx with use-in-jsx-elem
     },
     cwd,
   })
+
+  
   expect(response.length).toBe(2)
+})
+
+
+
+test('should return 1 result when module member used in tsx with use-in-jsx-element2', () => {
+  const cwd = path.resolve(dirname(__filename),"features","cycle");  
+  const response = checkDetectCycle({
+    cwd,
+  })
+
+  expect(response.length).toBe(1)
 })
