@@ -75,7 +75,7 @@ jobs:
           node-version: 20
           cache: pnpm
       
-      - name: Install
+      - name: Install rust toolchain
         uses: dtolnay/rust-toolchain@stable
         if: ${{ !matrix.settings.docker }}
         with:
