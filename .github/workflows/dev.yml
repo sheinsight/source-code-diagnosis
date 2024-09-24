@@ -116,10 +116,13 @@ jobs:
           # linux
           - host: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
           - host: ubuntu-24.04
             target: x86_64-unknown-linux-musl
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
           - host: ubuntu-24.04
             target: x86_64-unknown-freebsd
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
 
           # - host: ubuntu-24.04
           #   target: i686-unknown-linux-gnu
@@ -128,12 +131,16 @@ jobs:
 
           - host: ubuntu-24.04
             target: aarch64-unknown-linux-gnu
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
           - host: ubuntu-24.04
             target: armv7-unknown-linux-gnueabihf
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
           - host: ubuntu-24.04
             target: aarch64-unknown-linux-musl
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
           - host: ubuntu-24.04
             target: armv7-unknown-linux-musleabihf
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
 
 
     name: Build artifacts ${{ matrix.settings.target }} on ${{ matrix.settings.host }}
