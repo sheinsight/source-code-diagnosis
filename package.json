@@ -56,6 +56,7 @@
     "build:debug": "napi build --cargo-cwd crates/binding --platform",
     "prepublishOnly": "napi prepublish -t npm --gh-release-id $GITHUB_REF_NAME",
     "test:ava": "ava",
+    "hello": "echo $GITHUB_REF_NAME",
     "test": "vitest run",
     "universal": "napi universal",
     "version": "napi version"
