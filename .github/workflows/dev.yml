@@ -186,9 +186,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --strict-peer-dependencies 
 
-      - name: Build artifacts
-        run: |
-            pnpm build --target ${{ matrix.settings.target }} 
+      # - name: Build artifacts
+      #   run: |
+      #       pnpm build --target ${{ matrix.settings.target }} 
+
+      - name: Build in docker
+        uses: addnab/docker-run-action@v3
+        if: ${{ matrix.settings.docker }}
+        with:
+          image: ${{ matrix.settings.docker }}
+          options: '--user 0:0 -v ${{ github.workspace }}/.cargo-cache/git/db:/usr/local/cargo/git/db -v ${{ github.workspace }}/.cargo/registry/cache:/usr/local/cargo/registry/cache -v ${{ github.workspace }}/.cargo/registry/index:/usr/local/cargo/registry/index -v ${{ github.workspace }}:/build -w /build'
+          run: pnpm build --target ${{ matrix.settings.target }} 
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
