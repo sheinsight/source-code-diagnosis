@@ -151,6 +151,23 @@ pub fn get_dependents(
   )
 }
 
+pub fn get_dependencies(
+  file: String,
+  options: Option<Options>,
+) -> Result<HashSet<String>> {
+  let used = get_node(options)?;
+  let mut graph = DiGraphMap::new();
+  for (key, value) in used.iter() {
+    graph.add_edge(key.as_str(), value.as_str(), ());
+  }
+  Ok(
+    graph
+      .neighbors_directed(&file, petgraph::Direction::Outgoing)
+      .map(|x| x.to_string())
+      .collect(),
+  )
+}
+
 #[napi(object)]
 pub struct Cycle {
   pub from: String,
