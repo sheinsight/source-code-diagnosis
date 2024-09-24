@@ -184,9 +184,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --strict-peer-dependencies 
 
-      # - name: Build artifacts
-      #   run: |
-      #       pnpm build --target ${{ matrix.settings.target }} 
+      - name: Build artifacts
+        if: ${{ !matrix.settings.docker }}
+        run: |
+            pnpm build --target ${{ matrix.settings.target }} 
 
       - name: Build in docker
         uses: addnab/docker-run-action@v3
