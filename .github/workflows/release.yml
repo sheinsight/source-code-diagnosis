@@ -83,6 +83,10 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+      - name: Setup Pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
       - name: Install
         uses: dtolnay/rust-toolchain@stable
         if: ${{ !matrix.settings.docker }}
@@ -195,6 +199,10 @@ jobs:
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
       - name: Setup node
         uses: actions/setup-node@v4
         with:
@@ -226,6 +234,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
       - name: Setup node
         uses: actions/setup-node@v4
         with:
@@ -256,6 +268,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
       - name: Setup node
         uses: actions/setup-node@v4
         with:
@@ -288,6 +304,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -322,6 +342,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -361,6 +385,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -405,6 +433,8 @@ jobs:
 
       - name: Setup Pnpm
         uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
       - name: Setup node
         uses: actions/setup-node@v4
