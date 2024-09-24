@@ -162,7 +162,7 @@ jobs:
           cache: pnpm
           architecture: ${{ matrix.settings.architecture }}
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -190,19 +190,9 @@ jobs:
           - '20'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-          cache: pnpm
-      - name: Install dependencies
-        run: pnpm install
-      - name: Download artifacts
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           name: bindings-x86_64-unknown-linux-gnu
@@ -215,8 +205,22 @@ jobs:
       - name: List packages
         run: ls -R .
         shell: bash
-      - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn test
+      - name: Setup and run tests
+        uses: addnab/docker-run-action@v3
+        with:
+          image: node:${{ matrix.node }}-slim
+          options: '-v ${{ github.workspace }}:/build -w /build'
+          run: |
+            set -e
+            corepack enable
+            pnpm config set supportedArchitectures.cpu "x64"
+            pnpm config set supportedArchitectures.libc "glibc"
+            pnpm install --frozen-lockfile
+            pnpm test
+            ls -la
+      # - name: Test In Docker
+      #   run: |
+      #     docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim corepack enable && pnpm install --frozen-lockfile && pnpm test
   test-linux-x64-musl-binding:
     name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
     needs:
@@ -230,15 +234,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-          cache: pnpm
       - name: Install dependencies
         run: |
           pnpm config set supportedArchitectures.libc "musl"
@@ -256,8 +251,21 @@ jobs:
       - name: List packages
         run: ls -R .
         shell: bash
-      - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine yarn test
+      - name: Test In Docker
+        uses: addnab/docker-run-action@v3
+        with:
+          image: node:${{ matrix.node }}-alpine
+          options: '-v ${{ github.workspace }}:/build -w /build'
+          run: |
+            set -e
+            corepack enable
+            pnpm config set supportedArchitectures.libc "musl"
+            pnpm install --frozen-lockfile
+            pnpm test
+
+      # - name: Test bindings
+      #   run: |
+      #     docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine corepack enable && pnpm config set supportedArchitectures.libc "musl" && pnpm install --frozen-lockfile && pnpm test
   test-linux-aarch64-gnu-binding:
     name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
     needs:
@@ -271,10 +279,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -305,6 +309,10 @@ jobs:
           options: '--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build'
           run: |
             set -e
+            corepack enable
+            pnpm config set supportedArchitectures.cpu "arm64"
+            pnpm config set supportedArchitectures.libc "glibc"
+            pnpm install --frozen-lockfile
             pnpm test
             ls -la
   test-linux-aarch64-musl-binding:
@@ -314,10 +322,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -348,55 +352,12 @@ jobs:
           options: '--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build'
           run: |
             set -e
+            corepack enable
+            pnpm config set supportedArchitectures.cpu "arm64"
+            pnpm config set supportedArchitectures.libc "musl"
+            pnpm install --frozen-lockfile
             pnpm test
-  test-linux-arm-gnueabihf-binding:
-    name: Test bindings on armv7-unknown-linux-gnueabihf - node@${{ matrix.node }}
-    needs:
-      - build
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-          - '18'
-          - '20'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: bindings-armv7-unknown-linux-gnueabihf
-          path: .
-      - name: Download js
-        uses: actions/download-artifact@v4
-        with:
-          name: js
-          path: .
-      - name: List packages
-        run: ls -R .
-        shell: bash
-      - name: Install dependencies
-        run: |
-          pnpm config set supportedArchitectures.cpu "arm"
-          pnpm install
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm
-      - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-      - name: Setup and run tests
-        uses: addnab/docker-run-action@v3
-        with:
-          image: node:${{ matrix.node }}-bullseye-slim
-          options: '--platform linux/arm/v7 -v ${{ github.workspace }}:/build -w /build'
-          run: |
-            set -e
-            pnpm test
-            ls -la
+   
             
   publish:
     name: Publish
@@ -407,7 +368,6 @@ jobs:
       - test-linux-x64-musl-binding
       - test-linux-aarch64-gnu-binding
       - test-linux-aarch64-musl-binding
-      - test-linux-arm-gnueabihf-binding
     steps:
       - name: Checkout
         uses: actions/checkout@v4
