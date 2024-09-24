@@ -1,0 +1,24 @@
+{
+  "name": "@shined/source-code-diagnosis-linux-arm-gnueabihf",
+  "version": "0.0.26",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "arm"
+  ],
+  "main": "source-code-diagnosis.linux-arm-gnueabihf.node",
+  "files": [
+    "source-code-diagnosis.linux-arm-gnueabihf.node"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "url": "https://github.com/sheinsight/source-code-diagnosis"
+  }
+}

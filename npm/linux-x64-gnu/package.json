@@ -1,0 +1,27 @@
+{
+  "name": "@shined/source-code-diagnosis-linux-x64-gnu",
+  "version": "0.0.26",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "source-code-diagnosis.linux-x64-gnu.node",
+  "files": [
+    "source-code-diagnosis.linux-x64-gnu.node"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "url": "https://github.com/sheinsight/source-code-diagnosis"
+  },
+  "libc": [
+    "glibc"
+  ]
+}
