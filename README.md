@@ -83,6 +83,26 @@ const response = checkDependents("/Users/Pikachu/project/src/utils/index.ts", {
 });
 ```
 
+## checkDependencies
+
+Detecting dependencies on a file
+
+```ts
+const response = checkDependencies("/Users/Pikachu/project/src/utils/index.ts", {
+  cwd: "/Users/Pikachu/project",
+});
+```
+
+Of course you can also configure alias and modules
+
+```ts
+const response = checkDependencies("/Users/Pikachu/project/src/utils/index.ts", {
+  cwd: "/Users/Pikachu/project",
+  alias: {
+    "@": ["/Users/Pikachu/project/src"],
+  },
+});
+
 ## checkDetectCycle
 
 Detecting circular dependencies in the project
