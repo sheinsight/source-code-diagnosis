@@ -100,24 +100,31 @@ jobs:
           # macos
           - host: macos-13
             target: x86_64-apple-darwin
+
           - host: macos-14
             target: aarch64-apple-darwin
+
 
           # windows
           - host: windows-2022
             target: x86_64-pc-windows-msvc
+
           - host: windows-2022
             target: i686-pc-windows-msvc
+
           - host: windows-2022
             target: aarch64-pc-windows-msvc
+
 
           # linux
           - host: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
+
           - host: ubuntu-24.04
             target: x86_64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
+
           - host: ubuntu-24.04
             target: x86_64-unknown-freebsd
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
@@ -133,8 +140,13 @@ jobs:
           - host: ubuntu-24.04
             target: armv7-unknown-linux-gnueabihf
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
+            setup: |
+              sudo apt-get update
+              sudo apt-get install gcc-arm-linux-gnueabihf -y
           - host: ubuntu-24.04
             target: aarch64-unknown-linux-musl
+            setup: |
+              rustup target add aarch64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
           - host: ubuntu-24.04
             target: armv7-unknown-linux-musleabihf
@@ -183,6 +195,11 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --strict-peer-dependencies 
+
+      - name: Setup toolchain
+        run: ${{ matrix.settings.setup }}
+        if: ${{ matrix.settings.setup }}
+        shell: bash
 
       - name: Build artifacts
         if: ${{ !matrix.settings.docker }}

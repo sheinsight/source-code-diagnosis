@@ -135,9 +135,14 @@ jobs:
           - host: ubuntu-24.04
             target: armv7-unknown-linux-gnueabihf
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
+            setup: |
+              sudo apt-get update
+              sudo apt-get install gcc-arm-linux-gnueabihf -y
           - host: ubuntu-24.04
             target: aarch64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
+            setup: |
+              rustup target add aarch64-unknown-linux-musl
           - host: ubuntu-24.04
             target: armv7-unknown-linux-musleabihf
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
@@ -185,6 +190,11 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --strict-peer-dependencies 
+
+      - name: Setup toolchain
+        run: ${{ matrix.settings.setup }}
+        if: ${{ matrix.settings.setup }}
+        shell: bash
 
       - name: Build artifacts
         if: ${{ !matrix.settings.docker }}
@@ -245,9 +255,14 @@ jobs:
           - host: ubuntu-24.04
             target: armv7-unknown-linux-gnueabihf
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
+            setup: |
+              sudo apt-get update
+              sudo apt-get install gcc-arm-linux-gnueabihf -y
           - host: ubuntu-24.04
             target: aarch64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
+            setup: |
+              rustup target add aarch64-unknown-linux-musl
           - host: ubuntu-24.04
             target: armv7-unknown-linux-musleabihf
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
