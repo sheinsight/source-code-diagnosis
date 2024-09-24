@@ -1,6 +1,6 @@
 {
   "name": "@shined/source-code-diagnosis",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "main": "index.js",
   "types": "index.d.ts",
   "napi": {
@@ -54,7 +54,7 @@
     "build:js": "napi build --cargo-cwd crates/binding --platform --js index.js --dts index.d.ts",
     "build": "napi build --cargo-cwd crates/binding --platform --release",
     "build:debug": "napi build --cargo-cwd crates/binding --platform",
-    "prepublishOnly": "napi prepublish -t npm",
+    "prepublishOnly": "napi prepublish -t npm --gh-release-id $GITHUB_REF_NAME",
     "test:ava": "ava",
     "test": "vitest run",
     "universal": "napi universal",
