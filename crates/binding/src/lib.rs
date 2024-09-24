@@ -45,7 +45,7 @@ pub fn check_browser_supported_with_source_code(
 #[napi]
 pub fn check_detect_cycle(
   options: Option<module_graph::Options>,
-) -> Result<Vec<Vec<String>>> {
+) -> Result<Vec<Vec<module_graph::Cycle>>> {
   module_graph::detect_cycle(options).map_err(|err| {
     napi::Error::new(napi::Status::GenericFailure, err.to_string())
   })

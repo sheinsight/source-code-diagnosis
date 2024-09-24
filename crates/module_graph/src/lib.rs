@@ -151,7 +151,13 @@ pub fn get_dependents(
   )
 }
 
-pub fn detect_cycle(options: Option<Options>) -> Result<Vec<Vec<String>>> {
+#[napi(object)]
+pub struct Cycle {
+  pub from: String,
+  pub to: String,
+}
+
+pub fn detect_cycle(options: Option<Options>) -> Result<Vec<Vec<Cycle>>> {
   let used = get_node(options)?;
   let mut graph = DiGraphMap::new();
   for (key, value) in used.iter() {
@@ -162,7 +168,16 @@ pub fn detect_cycle(options: Option<Options>) -> Result<Vec<Vec<String>>> {
     .filter(|scc| {
       scc.len() > 1 || (scc.len() == 1 && graph.contains_edge(scc[0], scc[0]))
     })
-    .map(|scc| scc.into_iter().map(|x| x.to_string()).collect())
+    .map(|scc| {
+      scc
+        .iter()
+        .zip(scc.iter().cycle().skip(1))
+        .map(|(&from, &to)| Cycle {
+          from: from.to_string(),
+          to: to.to_string(),
+        })
+        .collect()
+    })
     .collect();
   Ok(files)
 }
@@ -236,13 +251,13 @@ mod tests {
     //   vec!["/Users/ityuany/GitRepository/wms/src".to_string()],
     // );
 
-    // let op = Options {
-    //   cwd: Some("/Users/10015448/Git/bmas/src".to_string()),
-    //   modules: Some(vec!["node_modules".into(), "web_modules".into()]),
-    //   pattern: None,
-    //   ignore: None,
-    //   alias: Some(alias),
-    // };
+    let op = Options {
+      cwd: Some("/Users/10015448/Git/bmas/src".to_string()),
+      modules: Some(vec!["node_modules".into(), "web_modules".into()]),
+      pattern: None,
+      ignore: None,
+      alias: Some(alias),
+    };
 
     // let result = get_dependents(
     //   "/Users/ityuany/GitRepository/wms/src/lib/dealFunc.js".to_string(),
@@ -254,13 +269,13 @@ mod tests {
     //   }
     // }
 
-    // let result1 = detect_cycle(Some(op.clone())).unwrap();
+    let result1 = detect_cycle(Some(op.clone())).unwrap();
 
-    // for x in result1 {
-    //   println!("\n跨越{}个文件的循环依赖", x.len());
-    //   for y in x.iter() {
-    //     println!("{}", y);
-    //   }
-    // }
+    for x in result1 {
+      println!("\n跨越{}个文件的循环依赖", x.len());
+      for y in x.iter() {
+        println!("{} {}", y.from, y.to);
+      }
+    }
   }
 }
