@@ -197,15 +197,15 @@ jobs:
         with:
           name: bindings-x86_64-unknown-linux-gnu
           path: .
-      - name: Download js
+      - name: Download Javascript Entry
         uses: actions/download-artifact@v4
         with:
           name: js
           path: .
-      - name: List packages
+      - name: Debug List Packages
         run: ls -R .
         shell: bash
-      - name: Setup and run tests
+      - name: Setup And Run Tests In Docker
         uses: addnab/docker-run-action@v3
         with:
           image: node:${{ matrix.node }}-slim
@@ -233,25 +233,22 @@ jobs:
           - '20'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: |
-          pnpm config set supportedArchitectures.libc "musl"
-          pnpm install
-      - name: Download artifacts
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           name: bindings-x86_64-unknown-linux-musl
           path: .
-      - name: Download js
+      - name: Download Javascript Entry
         uses: actions/download-artifact@v4
         with:
           name: js
           path: .
-      - name: List packages
+      - name: Debug List Packages
         run: ls -R .
         shell: bash
-      - name: Test In Docker
+      - name: Setup And Run Tests In Docker
         uses: addnab/docker-run-action@v3
         with:
           image: node:${{ matrix.node }}-alpine
@@ -278,31 +275,27 @@ jobs:
           - '20'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Download artifacts
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           name: bindings-aarch64-unknown-linux-gnu
           path: .
-      - name: Download js
+      - name: Download Javascript Entry
         uses: actions/download-artifact@v4
         with:
           name: js
           path: .
-      - name: List packages
+      - name: Debug List Packages
         run: ls -R .
         shell: bash
-      - name: Install dependencies
-        run: |
-          pnpm config set supportedArchitectures.cpu "arm64"
-          pnpm config set supportedArchitectures.libc "glibc"
-          pnpm install
-      - name: Set up QEMU
+      - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
       - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-      - name: Setup and run tests
+      - name: Setup And Run Tests In Docker
         uses: addnab/docker-run-action@v3
         with:
           image: node:${{ matrix.node }}-slim
@@ -321,31 +314,27 @@ jobs:
       - build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Download artifacts
+      - name: Checkout Repository 
+        uses: actions/checkout@v4
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           name: bindings-aarch64-unknown-linux-musl
           path: .
-      - name: Download js
+      - name: Download Javascript Entry
         uses: actions/download-artifact@v4
         with:
           name: js
           path: .
-      - name: List packages
+      - name: Debug List Packages
         run: ls -R .
         shell: bash
-      - name: Install dependencies
-        run: |
-          pnpm config set supportedArchitectures.cpu "arm64"
-          pnpm config set supportedArchitectures.libc "musl"
-          pnpm install
-      - name: Set up QEMU
+      - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
       - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-      - name: Setup and run tests
+      - name: Setup And Run Tests In Docker
         uses: addnab/docker-run-action@v3
         with:
           image: node:lts-alpine
