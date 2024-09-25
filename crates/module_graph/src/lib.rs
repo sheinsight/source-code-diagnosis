@@ -8,9 +8,10 @@ use petgraph::{
   algo::{is_cyclic_directed, kosaraju_scc},
   graph::{DiGraph, NodeIndex},
   graphmap::DiGraphMap,
+  visit::Dfs,
 };
 use std::{
-  collections::{HashMap, HashSet},
+  collections::{HashMap, HashSet, VecDeque},
   path::PathBuf,
   sync::{Arc, Mutex},
 };
@@ -151,20 +152,72 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, Dependency)>> {
 pub fn get_dependents(
   file: String,
   options: Option<Options>,
-) -> Result<HashSet<String>> {
+) -> Result<Vec<Vec<Cycle>>> {
   let used = get_node(options)?;
-  let mut graph = DiGraphMap::new();
+
+  let mut module_map = HashMap::new();
+
+  let mut graph = DiGraph::new();
+  let mut node_indices = HashMap::new();
+
   for (_, value) in used.iter() {
     let from = value.from.as_str();
     let to = value.to.as_str();
-    graph.add_edge(from, to, ());
+    let from_node = *node_indices
+      .entry(from)
+      .or_insert_with(|| graph.add_node(from));
+    let to_node = *node_indices.entry(to).or_insert_with(|| graph.add_node(to));
+
+    module_map.insert((from, to), value);
+
+    graph.add_edge(to_node, from_node, ());
   }
-  Ok(
-    graph
-      .neighbors_directed(&file, petgraph::Direction::Incoming)
-      .map(|x| x.to_string())
-      .collect(),
-  )
+
+  let mut dependency_paths: Vec<Vec<Cycle>> = Vec::new();
+
+  if let Some(&start_index) = node_indices.get(file.as_str()) {
+    let mut queue = VecDeque::new();
+
+    queue.push_back(vec![start_index]);
+
+    while let Some(path) = queue.pop_front() {
+      let current = *path.last().unwrap();
+
+      if current != start_index {
+        let mut inline_result = Vec::new();
+
+        for (index, node) in path.iter().enumerate() {
+          let from = graph[*node].to_string();
+          let to = if index == path.len() - 1 {
+            graph[start_index].to_string()
+          } else {
+            graph[path[index + 1]].to_string()
+          };
+          if let Some(dependency) =
+            module_map.get(&(from.as_str(), to.as_str()))
+          {
+            inline_result.push(Cycle {
+              from: from.clone(),
+              to: to.clone(),
+              ast_node: dependency.ast_node,
+            });
+          }
+        }
+
+        dependency_paths.push(inline_result);
+      }
+
+      for neighbor in graph.neighbors(current) {
+        let mut new_path = path.clone();
+        new_path.push(neighbor);
+        queue.push_back(new_path);
+      }
+    }
+  } else {
+    println!("File {} not found in the dependency graph", file);
+  }
+
+  Ok(dependency_paths)
 }
 
 pub fn get_dependencies(

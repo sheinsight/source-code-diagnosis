@@ -55,7 +55,7 @@ pub fn check_detect_cycle(
 pub fn check_dependents(
   file: String,
   options: Option<module_graph::Options>,
-) -> Result<Vec<String>> {
+) -> Result<Vec<Vec<module_graph::Cycle>>> {
   let _ = init_logger();
   module_graph::get_dependents(file, options)
     .and_then(|x| Ok(x.into_iter().collect()))
