@@ -14,14 +14,18 @@ test('The dependency file list of the specified file should be obtained normally
     cwd,
   })
 
-  let expectFiles = ["a.js","b.js"]
+  expect(response.length).toBe(2);
 
-  expect(expectFiles.length).toBe(response.length);
+  expect(response[0][0]?.from.endsWith("c.js")).toBeTruthy()
+  expect(response[0][0]?.to.endsWith("b.js")).toBeTruthy()
+  expect(response[0][1]?.from.endsWith("b.js")).toBeTruthy()
+  expect(response[0][1]?.to.endsWith("utils.js")).toBeTruthy()
 
-  for (const item of response) {
-    let res = expectFiles.some((name)=>item.endsWith(name))
-    expect(res).toBeTruthy()
-  }
+  expect(response[1][0]?.from.endsWith("c.js")).toBeDefined()
+  expect(response[1][0]?.to.endsWith("a.js")).toBeDefined()
+  expect(response[1][1]?.from.endsWith("a.js")).toBeDefined()
+  expect(response[1][1]?.to.endsWith("utils.js")).toBeDefined()
+ 
 })
 
 test('The dependency file list of the specified file should be obtained normally.', () => {
@@ -33,7 +37,17 @@ test('The dependency file list of the specified file should be obtained normally
     cwd,
   })
 
-  let expectFiles = ["a.js","b.js"]
+  expect(response.length).toBe(2);
 
-  expect(expectFiles.length).toBe(response.length);
+  expect(response[0][0]?.from.endsWith("c.js")).toBeTruthy()
+  expect(response[0][0]?.to.endsWith("b.js")).toBeTruthy()
+  expect(response[0][1]?.from.endsWith("b.js")).toBeTruthy()
+  expect(response[0][1]?.to.endsWith("utils.js")).toBeTruthy()
+
+  expect(response[1][0]?.from.endsWith("c.js")).toBeDefined()
+  expect(response[1][0]?.to.endsWith("a.js")).toBeDefined()
+  expect(response[1][1]?.from.endsWith("a.js")).toBeDefined()
+  expect(response[1][1]?.to.endsWith("utils.js")).toBeDefined()
+
+
 })

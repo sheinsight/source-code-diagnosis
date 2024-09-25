@@ -153,6 +153,8 @@ pub fn get_dependents(
   file: String,
   options: Option<Options>,
 ) -> Result<Vec<Vec<Cycle>>> {
+  let direction = petgraph::Direction::Incoming;
+
   let used = get_node(options)?;
 
   let mut module_map = HashMap::new();
@@ -184,7 +186,7 @@ pub fn get_dependents(
       let current = *path.last().unwrap();
 
       let is_end = graph
-        .neighbors_directed(current, petgraph::Direction::Incoming)
+        .neighbors_directed(current, direction)
         .next()
         .is_none();
 
@@ -218,9 +220,7 @@ pub fn get_dependents(
         }
       }
 
-      for neighbor in
-        graph.neighbors_directed(current, petgraph::Direction::Incoming)
-      {
+      for neighbor in graph.neighbors_directed(current, direction) {
         let mut new_path = path.clone();
         new_path.push(neighbor);
         queue.push_back(new_path);
@@ -236,20 +236,80 @@ pub fn get_dependents(
 pub fn get_dependencies(
   file: String,
   options: Option<Options>,
-) -> Result<HashSet<String>> {
+) -> Result<Vec<Vec<Cycle>>> {
+  let direction = petgraph::Direction::Outgoing;
+
   let used = get_node(options)?;
-  let mut graph = DiGraphMap::new();
-  for (key, value) in used.iter() {
-    let from = key.as_str();
+
+  let mut module_map = HashMap::new();
+
+  let mut graph = DiGraph::new();
+  let mut node_indices = HashMap::new();
+
+  for (_, value) in used.iter() {
+    let from = value.from.as_str();
     let to = value.to.as_str();
-    graph.add_edge(from, to, ());
+    let from_node = *node_indices
+      .entry(from)
+      .or_insert_with(|| graph.add_node(from));
+    let to_node = *node_indices.entry(to).or_insert_with(|| graph.add_node(to));
+
+    module_map.insert((from, to), value);
+
+    graph.add_edge(from_node, to_node, ());
   }
-  Ok(
-    graph
-      .neighbors_directed(&file, petgraph::Direction::Outgoing)
-      .map(|x| x.to_string())
-      .collect(),
-  )
+
+  let mut dependency_paths: Vec<Vec<Cycle>> = Vec::new();
+
+  if let Some(&start_index) = node_indices.get(file.as_str()) {
+    let mut queue = VecDeque::new();
+
+    queue.push_back(vec![start_index]);
+
+    while let Some(path) = queue.pop_front() {
+      let current = *path.last().unwrap();
+
+      let is_end = graph
+        .neighbors_directed(current, direction)
+        .next()
+        .is_none();
+
+      if is_end {
+        let mut inline_result = Vec::new();
+
+        for (index, node) in path.iter().enumerate() {
+          let from = graph[*node].to_string();
+          let to = if index == path.len() - 1 {
+            graph[start_index].to_string()
+          } else {
+            graph[path[index + 1]].to_string()
+          };
+          if let Some(dependency) =
+            module_map.get(&(from.as_str(), to.as_str()))
+          {
+            inline_result.push(Cycle {
+              from: from.clone(),
+              to: to.clone(),
+              ast_node: dependency.ast_node,
+            });
+          }
+        }
+        if !inline_result.is_empty() {
+          dependency_paths.push(inline_result);
+        }
+      }
+
+      for neighbor in graph.neighbors_directed(current, direction) {
+        let mut new_path = path.clone();
+        new_path.push(neighbor);
+        queue.push_back(new_path);
+      }
+    }
+  } else {
+    println!("File {} not found in the dependency graph", file);
+  }
+
+  Ok(dependency_paths)
 }
 
 #[napi(object)]

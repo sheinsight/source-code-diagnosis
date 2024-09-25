@@ -17,16 +17,7 @@ test('Get which files depend on the specified file', () => {
     cwd,
   })
 
-  console.log(response);
-  
-
-  for (const item of response) {
-    console.log("--------------------------------");
-    
-    for (const item2 of item) {
-      console.log(item2.from,item2.to,item2.astNode.loc);
-    }
-  }
+ 
 
   expect(response.length).toBe(2)
 })
