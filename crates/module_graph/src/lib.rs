@@ -183,7 +183,12 @@ pub fn get_dependents(
     while let Some(path) = queue.pop_front() {
       let current = *path.last().unwrap();
 
-      if current != start_index {
+      let is_end = graph
+        .neighbors_directed(current, petgraph::Direction::Incoming)
+        .next()
+        .is_none();
+
+      if is_end {
         let mut inline_result = Vec::new();
 
         println!(
@@ -199,7 +204,7 @@ pub fn get_dependents(
             graph[path[index + 1]].to_string()
           };
           if let Some(dependency) =
-            module_map.get(&(from.as_str(), to.as_str()))
+            module_map.get(&(to.as_str(), from.as_str()))
           {
             inline_result.push(Cycle {
               from: from.clone(),
@@ -212,8 +217,6 @@ pub fn get_dependents(
           dependency_paths.push(inline_result);
         }
       }
-
-      // graph.neighbors_undirected(a)
 
       for neighbor in
         graph.neighbors_directed(current, petgraph::Direction::Incoming)

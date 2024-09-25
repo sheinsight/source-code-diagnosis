@@ -9,6 +9,7 @@
 		"browserslist",
 		"Builtins",
 		"deno",
+		"Deque",
 		"Distrib",
 		"gnueabihf",
 		"graphmap",
