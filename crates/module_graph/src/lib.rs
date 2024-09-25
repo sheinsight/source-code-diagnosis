@@ -170,7 +170,7 @@ pub fn get_dependents(
 
     module_map.insert((from, to), value);
 
-    graph.add_edge(to_node, from_node, ());
+    graph.add_edge(from_node, to_node, ());
   }
 
   let mut dependency_paths: Vec<Vec<Cycle>> = Vec::new();
@@ -185,6 +185,11 @@ pub fn get_dependents(
 
       if current != start_index {
         let mut inline_result = Vec::new();
+
+        println!(
+          "path: {:?}",
+          path.iter().map(|x| graph[*x]).collect::<Vec<&str>>()
+        );
 
         for (index, node) in path.iter().enumerate() {
           let from = graph[*node].to_string();
@@ -203,11 +208,16 @@ pub fn get_dependents(
             });
           }
         }
-
-        dependency_paths.push(inline_result);
+        if !inline_result.is_empty() {
+          dependency_paths.push(inline_result);
+        }
       }
 
-      for neighbor in graph.neighbors(current) {
+      // graph.neighbors_undirected(a)
+
+      for neighbor in
+        graph.neighbors_directed(current, petgraph::Direction::Incoming)
+      {
         let mut new_path = path.clone();
         new_path.push(neighbor);
         queue.push_back(new_path);

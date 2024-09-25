@@ -17,13 +17,18 @@ test('Get which files depend on the specified file', () => {
     cwd,
   })
 
-  // for (const item of response) {
-  //   for (const item2 of item) {
-  //     console.log(item2.astNode.loc);
-  //   }
-  // }
+  console.log(response);
+  
 
-  expect(response.length).toBe(4)
+  for (const item of response) {
+    console.log("--------------------------------");
+    
+    for (const item2 of item) {
+      console.log(item2.from,item2.to,item2.astNode.loc);
+    }
+  }
+
+  expect(response.length).toBe(2)
 })
 
 
@@ -37,6 +42,6 @@ test('Get which files depend on the specified file with alias', () => {
     cwd,
   })
 
-  expect(response.length).toBe(4)
+  expect(response.length).toBe(2)
 })
  
