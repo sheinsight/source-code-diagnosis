@@ -154,8 +154,10 @@ pub fn get_dependents(
 ) -> Result<HashSet<String>> {
   let used = get_node(options)?;
   let mut graph = DiGraphMap::new();
-  for (key, value) in used.iter() {
-    graph.add_edge(value.to.as_str(), key.as_str(), ());
+  for (_, value) in used.iter() {
+    let from = value.from.as_str();
+    let to = value.to.as_str();
+    graph.add_edge(from, to, ());
   }
   Ok(
     graph
@@ -172,7 +174,9 @@ pub fn get_dependencies(
   let used = get_node(options)?;
   let mut graph = DiGraphMap::new();
   for (key, value) in used.iter() {
-    graph.add_edge(key.as_str(), value.to.as_str(), ());
+    let from = key.as_str();
+    let to = value.to.as_str();
+    graph.add_edge(from, to, ());
   }
   Ok(
     graph
