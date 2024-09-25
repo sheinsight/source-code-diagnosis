@@ -1,10 +1,12 @@
 use anyhow::Result;
+use beans::{AstNode, Span};
 use log::debug;
 use napi_derive::napi;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
 use petgraph::{
   algo::{is_cyclic_directed, kosaraju_scc},
+  graph::{DiGraph, NodeIndex},
   graphmap::DiGraphMap,
 };
 use std::{
@@ -24,7 +26,14 @@ pub struct Options {
   pub modules: Option<Vec<String>>,
 }
 
-pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
+#[derive(Debug, Clone)]
+pub struct Dependency {
+  pub from: String,
+  pub to: String,
+  pub ast_node: AstNode,
+}
+
+pub fn get_node(options: Option<Options>) -> Result<Vec<(String, Dependency)>> {
   let used = Arc::new(Mutex::new(Vec::new()));
 
   let alias = match &options {
@@ -68,34 +77,39 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, String)>> {
     move |path: PathBuf| {
       debug!("path: {}", path.display().to_string());
 
-      let mut inline_usages: Vec<(String, String)> = Vec::new();
+      let mut inline_usages: Vec<(String, Dependency)> = Vec::new();
 
       SemanticBuilder::file(path.clone())
         .build_handler()
-        .each_node(|_handler, node| {
+        .each_node(|handler, node| {
           if let AstKind::ImportDeclaration(import_declaration) = node.kind() {
             let value = import_declaration.source.value.to_string();
             debug!("value: {}", value);
 
-            #[cfg(windows)]
-            let normalized_value = value.clone().replace('\\', "/");
-
-            #[cfg(not(windows))]
-            let normalized_value = value.clone();
-
-            debug!("normalized_value: {}", normalized_value);
-
             if let Some(parent) = path.parent() {
               debug!("parent: {}", parent.display().to_string());
-              let resolved = resolver.resolve(&parent, &normalized_value);
+              let resolved = resolver.resolve(&parent, &value);
               if let Ok(resolved_path) = resolved {
                 debug!(
                   "resolved_path: {}",
                   resolved_path.full_path().display().to_string()
                 );
+
+                let (span, loc) = handler.get_node_box(node);
+
                 inline_usages.push((
                   path.display().to_string(),
-                  resolved_path.full_path().display().to_string(),
+                  Dependency {
+                    from: path.display().to_string(),
+                    to: resolved_path.full_path().display().to_string(),
+                    ast_node: AstNode {
+                      span: Span {
+                        start: span.start,
+                        end: span.end,
+                      },
+                      loc: loc,
+                    },
+                  },
                 ));
               } else {
                 eprintln!(
@@ -141,7 +155,7 @@ pub fn get_dependents(
   let used = get_node(options)?;
   let mut graph = DiGraphMap::new();
   for (key, value) in used.iter() {
-    graph.add_edge(key.as_str(), value.as_str(), ());
+    graph.add_edge(value.to.as_str(), key.as_str(), ());
   }
   Ok(
     graph
@@ -158,7 +172,7 @@ pub fn get_dependencies(
   let used = get_node(options)?;
   let mut graph = DiGraphMap::new();
   for (key, value) in used.iter() {
-    graph.add_edge(key.as_str(), value.as_str(), ());
+    graph.add_edge(key.as_str(), value.to.as_str(), ());
   }
   Ok(
     graph
@@ -169,34 +183,94 @@ pub fn get_dependencies(
 }
 
 #[napi(object)]
+#[derive(Debug)]
 pub struct Cycle {
   pub from: String,
+  pub ast_node: AstNode,
   pub to: String,
+}
+
+fn dfs_cycle<'a>(
+  graph: &'a DiGraph<&'a str, ()>,
+  node: petgraph::prelude::NodeIndex,
+  visited: &mut HashSet<petgraph::prelude::NodeIndex>,
+  path: &mut Vec<&'a str>,
+  cycles: &mut Vec<Vec<&'a str>>,
+) {
+  visited.insert(node);
+  path.push(graph[node]);
+
+  for neighbor in graph.neighbors(node) {
+    if !visited.contains(&neighbor) {
+      dfs_cycle(graph, neighbor, visited, path, cycles);
+    } else if path.contains(&graph[neighbor]) {
+      let cycle_start =
+        path.iter().position(|&x| x == graph[neighbor]).unwrap();
+      cycles.push(path[cycle_start..].to_vec());
+    }
+  }
+
+  path.pop();
 }
 
 pub fn detect_cycle(options: Option<Options>) -> Result<Vec<Vec<Cycle>>> {
   let used = get_node(options)?;
-  let mut graph = DiGraphMap::new();
-  for (key, value) in used.iter() {
-    graph.add_edge(key.as_str(), value.as_str(), ());
+
+  let mut module_map = HashMap::new();
+
+  let mut graph = DiGraph::new();
+  let mut node_map: HashMap<&str, NodeIndex> = HashMap::new();
+
+  for (_, value) in used.iter() {
+    let from = value.from.as_str();
+    let to = value.to.as_str();
+
+    let from_node =
+      *node_map.entry(from).or_insert_with(|| graph.add_node(from));
+
+    let to_node = *node_map.entry(to).or_insert_with(|| graph.add_node(to));
+
+    module_map.insert((from, to), value);
+
+    graph.add_edge(from_node, to_node, ());
   }
-  let files = kosaraju_scc(&graph)
-    .into_iter()
-    .filter(|scc| {
-      scc.len() > 1 || (scc.len() == 1 && graph.contains_edge(scc[0], scc[0]))
-    })
-    .map(|scc| {
-      scc
-        .iter()
-        .zip(scc.iter().cycle().skip(1))
-        .map(|(&from, &to)| Cycle {
-          from: from.to_string(),
-          to: to.to_string(),
-        })
-        .collect()
-    })
-    .collect();
-  Ok(files)
+
+  let mut cycles = Vec::new();
+  let mut visited = HashSet::new();
+  let mut path = Vec::new();
+
+  for node in graph.node_indices() {
+    if !visited.contains(&node) {
+      dfs_cycle(&graph, node, &mut visited, &mut path, &mut cycles);
+    }
+  }
+
+  let mut result = Vec::new();
+
+  for cycle in cycles.into_iter() {
+    let mut inline_result = Vec::new();
+
+    for (index, item) in cycle.iter().enumerate() {
+      let from = item.to_string();
+      let to = if index == cycle.len() - 1 {
+        cycle[0].to_string()
+      } else {
+        cycle[index + 1].to_string()
+      };
+      if let Some(dependency) = module_map.get(&(from.as_str(), to.as_str())) {
+        inline_result.push(Cycle {
+          from: from.clone(),
+          to: to.clone(),
+          ast_node: dependency.ast_node,
+        });
+      } else {
+        eprintln!("no dependency for {} -> {}", from, to);
+      }
+    }
+    result.push(inline_result);
+  }
+
+  Ok(result)
 }
 
 #[cfg(test)]
@@ -291,7 +365,11 @@ mod tests {
     for x in result1 {
       println!("\n跨越{}个文件的循环依赖", x.len());
       for y in x.iter() {
-        println!("{} {}", y.from, y.to);
+        // println!("{}  {} ", y.from, y.to);
+        println!(
+          "{}:{}..{}",
+          y.from, y.ast_node.loc.start.line, y.ast_node.loc.end.line
+        );
       }
     }
   }
