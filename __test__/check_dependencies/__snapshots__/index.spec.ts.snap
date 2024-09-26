@@ -1,0 +1,141 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`The dependency file list of the specified file should be obtained normally. 1`] = `
+{
+  "astNode": {
+    "loc": {
+      "end": {
+        "col": 25,
+        "line": 1,
+      },
+      "start": {
+        "col": 1,
+        "line": 1,
+      },
+    },
+    "span": {
+      "end": 24,
+      "start": 0,
+    },
+  },
+  "children": [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "children": [
+        {
+          "astNode": undefined,
+          "children": [],
+          "name": "features/normal/utils.js",
+        },
+      ],
+      "name": "features/normal/a.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "children": [],
+      "name": "features/normal/b.js",
+    },
+  ],
+  "name": "features/normal/c.js",
+}
+`;
+
+exports[`The dependency file list of the specified file should be obtained normally. 2`] = `
+{
+  "astNode": {
+    "loc": {
+      "end": {
+        "col": 25,
+        "line": 1,
+      },
+      "start": {
+        "col": 1,
+        "line": 1,
+      },
+    },
+    "span": {
+      "end": 24,
+      "start": 0,
+    },
+  },
+  "children": [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "children": [
+        {
+          "astNode": undefined,
+          "children": [],
+          "name": "features/alias/utils.js",
+        },
+      ],
+      "name": "features/alias/a.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "children": [],
+      "name": "features/alias/b.js",
+    },
+  ],
+  "name": "features/alias/c.js",
+}
+`;

@@ -4,14 +4,10 @@ use log::debug;
 use napi_derive::napi;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
-use petgraph::{
-  algo::{is_cyclic_directed, kosaraju_scc},
-  graph::{DiGraph, NodeIndex},
-  graphmap::DiGraphMap,
-  visit::Dfs,
-};
+use petgraph::graph::{DiGraph, NodeIndex};
+
 use std::{
-  collections::{HashMap, HashSet, VecDeque},
+  collections::{HashMap, HashSet},
   path::PathBuf,
   sync::{Arc, Mutex},
 };
@@ -149,167 +145,144 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, Dependency)>> {
   Ok(x)
 }
 
+// fn build_tree(
+//   name: String,
+//   graph: &HashMap<String, Vec<Dependency>>,
+//   visited: &mut HashSet<String>,
+//   get_children: impl Fn(&Dependency) -> String,
+// ) -> DependencyNode {
+//   let mut node = DependencyNode {
+//     name: name.clone(),
+//     children: Vec::new(),
+//     ast_node: None,
+//   };
+
+//   if let Some(dependencies) = graph.get(&name) {
+//     for dependency in dependencies {
+//       let child_name = get_children(dependency);
+//       if !visited.contains(&child_name) {
+//         visited.insert(child_name.clone());
+//         let child_node = build_tree(child_name, graph, visited, &get_children);
+//         node.children.push(child_node);
+//       }
+//     }
+
+//     if let Some(ast_node) = dependencies.first() {
+//       node.ast_node = Some(ast_node.ast_node.clone());
+//     }
+//   }
+
+//   node
+// }
+
 pub fn get_dependents(
   file: String,
   options: Option<Options>,
-) -> Result<Vec<Vec<Cycle>>> {
-  let direction = petgraph::Direction::Incoming;
-
+) -> Result<DependencyNode> {
   let used = get_node(options)?;
-
-  let mut module_map = HashMap::new();
-
-  let mut graph = DiGraph::new();
-  let mut node_indices = HashMap::new();
+  let mut graph = HashMap::new();
 
   for (_, value) in used.iter() {
-    let from = value.from.as_str();
-    let to = value.to.as_str();
-    let from_node = *node_indices
-      .entry(from)
-      .or_insert_with(|| graph.add_node(from));
-    let to_node = *node_indices.entry(to).or_insert_with(|| graph.add_node(to));
-
-    module_map.insert((from, to), value);
-
-    graph.add_edge(from_node, to_node, ());
+    graph
+      .entry(value.to.clone())
+      .or_insert_with(Vec::new)
+      .push(value.clone());
   }
 
-  let mut dependency_paths: Vec<Vec<Cycle>> = Vec::new();
+  fn build_tree(
+    name: String,
+    graph: &HashMap<String, Vec<Dependency>>,
+    path: &mut Vec<String>,
+  ) -> DependencyNode {
+    let mut node = DependencyNode {
+      name: name.clone(),
+      children: Vec::new(),
+      ast_node: None,
+    };
 
-  if let Some(&start_index) = node_indices.get(file.as_str()) {
-    let mut queue = VecDeque::new();
-
-    queue.push_back(vec![start_index]);
-
-    while let Some(path) = queue.pop_front() {
-      let current = *path.last().unwrap();
-
-      let is_end = graph
-        .neighbors_directed(current, direction)
-        .next()
-        .is_none();
-
-      if is_end {
-        let mut inline_result = Vec::new();
-
-        println!(
-          "path: {:?}",
-          path.iter().map(|x| graph[*x]).collect::<Vec<&str>>()
-        );
-
-        for (index, node) in path.iter().enumerate() {
-          let from = graph[*node].to_string();
-          let to = if index == path.len() - 1 {
-            graph[start_index].to_string()
-          } else {
-            graph[path[index + 1]].to_string()
-          };
-          if let Some(dependency) =
-            module_map.get(&(to.as_str(), from.as_str()))
-          {
-            inline_result.push(Cycle {
-              from: from.clone(),
-              to: to.clone(),
-              ast_node: dependency.ast_node,
-            });
-          }
+    if let Some(dependents) = graph.get(&name) {
+      for dependent in dependents {
+        if path.contains(&dependent.from) {
+          // 检测到循环依赖
+          node.children.push(DependencyNode {
+            name: format!("CIRCULAR: {}", dependent.from),
+            children: Vec::new(),
+            ast_node: Some(dependent.ast_node.clone()),
+          });
+        } else {
+          path.push(dependent.from.clone());
+          let mut child_node = build_tree(dependent.from.clone(), graph, path);
+          child_node.ast_node = Some(dependent.ast_node.clone());
+          path.pop();
+          node.children.push(child_node);
         }
-        if !inline_result.is_empty() {
-          dependency_paths.push(inline_result);
-        }
-      }
-
-      for neighbor in graph.neighbors_directed(current, direction) {
-        let mut new_path = path.clone();
-        new_path.push(neighbor);
-        queue.push_back(new_path);
       }
     }
-  } else {
-    println!("File {} not found in the dependency graph", file);
+
+    node
   }
 
-  Ok(dependency_paths)
+  // let mut visited = HashSet::new();
+  // visited.insert(file.clone());
+  let mut path = vec![file.clone()];
+  let tree = build_tree(file, &graph, &mut path);
+  Ok(tree)
+}
+
+#[derive(Debug, Clone)]
+#[napi(object)]
+pub struct DependencyNode {
+  pub name: String,
+  pub children: Vec<DependencyNode>,
+  pub ast_node: Option<AstNode>,
 }
 
 pub fn get_dependencies(
   file: String,
   options: Option<Options>,
-) -> Result<Vec<Vec<Cycle>>> {
-  let direction = petgraph::Direction::Outgoing;
-
+) -> Result<DependencyNode> {
   let used = get_node(options)?;
-
-  let mut module_map = HashMap::new();
-
-  let mut graph = DiGraph::new();
-  let mut node_indices = HashMap::new();
+  let mut graph = HashMap::new();
 
   for (_, value) in used.iter() {
-    let from = value.from.as_str();
-    let to = value.to.as_str();
-    let from_node = *node_indices
-      .entry(from)
-      .or_insert_with(|| graph.add_node(from));
-    let to_node = *node_indices.entry(to).or_insert_with(|| graph.add_node(to));
-
-    module_map.insert((from, to), value);
-
-    graph.add_edge(from_node, to_node, ());
+    graph
+      .entry(value.from.clone())
+      .or_insert_with(Vec::new)
+      .push(value.clone());
   }
 
-  let mut dependency_paths: Vec<Vec<Cycle>> = Vec::new();
+  fn build_tree(
+    name: String,
+    graph: &HashMap<String, Vec<Dependency>>,
+    visited: &mut HashSet<String>,
+  ) -> DependencyNode {
+    let mut node = DependencyNode {
+      name: name.clone(),
+      children: Vec::new(),
+      ast_node: None,
+    };
 
-  if let Some(&start_index) = node_indices.get(file.as_str()) {
-    let mut queue = VecDeque::new();
-
-    queue.push_back(vec![start_index]);
-
-    while let Some(path) = queue.pop_front() {
-      let current = *path.last().unwrap();
-
-      let is_end = graph
-        .neighbors_directed(current, direction)
-        .next()
-        .is_none();
-
-      if is_end {
-        let mut inline_result = Vec::new();
-
-        for (index, node) in path.iter().enumerate() {
-          let from = graph[*node].to_string();
-          let to = if index == path.len() - 1 {
-            graph[start_index].to_string()
-          } else {
-            graph[path[index + 1]].to_string()
-          };
-          if let Some(dependency) =
-            module_map.get(&(from.as_str(), to.as_str()))
-          {
-            inline_result.push(Cycle {
-              from: from.clone(),
-              to: to.clone(),
-              ast_node: dependency.ast_node,
-            });
-          }
-        }
-        if !inline_result.is_empty() {
-          dependency_paths.push(inline_result);
+    if let Some(children) = graph.get(&name) {
+      for child in children {
+        if !visited.contains(&child.to) {
+          visited.insert(child.to.clone());
+          let child_node = build_tree(child.to.clone(), graph, visited);
+          node.children.push(child_node);
         }
       }
 
-      for neighbor in graph.neighbors_directed(current, direction) {
-        let mut new_path = path.clone();
-        new_path.push(neighbor);
-        queue.push_back(new_path);
+      if let Some(ast_node) = children.first() {
+        node.ast_node = Some(ast_node.ast_node.clone());
       }
     }
-  } else {
-    println!("File {} not found in the dependency graph", file);
+
+    node
   }
 
-  Ok(dependency_paths)
+  let mut visited = HashSet::new();
+  visited.insert(file.clone());
+  let tree = build_tree(file, &graph, &mut visited);
+  Ok(tree)
 }
 
 #[napi(object)]

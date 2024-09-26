@@ -55,10 +55,9 @@ pub fn check_detect_cycle(
 pub fn check_dependents(
   file: String,
   options: Option<module_graph::Options>,
-) -> Result<Vec<Vec<module_graph::Cycle>>> {
+) -> Result<module_graph::DependencyNode> {
   let _ = init_logger();
   module_graph::get_dependents(file, options)
-    .and_then(|x| Ok(x.into_iter().collect()))
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
@@ -66,10 +65,9 @@ pub fn check_dependents(
 pub fn check_dependencies(
   file: String,
   options: Option<module_graph::Options>,
-) -> Result<Vec<Vec<module_graph::Cycle>>> {
+) -> Result<module_graph::DependencyNode> {
   let _ = init_logger();
   module_graph::get_dependencies(file, options)
-    .and_then(|x| Ok(x.into_iter().collect()))
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 

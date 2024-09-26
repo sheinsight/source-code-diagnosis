@@ -15,4 +15,5 @@ oxc_ast = { workspace = true }
 oxc_resolver = { workspace = true }
 anyhow = { workspace = true }
 log = { workspace = true }
-
+serde_json = { workspace = true }
+serde = { workspace = true }
