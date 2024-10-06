@@ -4,7 +4,9 @@ use log::debug;
 use napi_derive::napi;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
+use petgraph::algo::kosaraju_scc;
 use petgraph::graph::{DiGraph, NodeIndex};
+use petgraph::visit::{Dfs, DfsPostOrder, EdgeRef};
 
 use std::{
   collections::{HashMap, HashSet},
@@ -288,42 +290,19 @@ pub fn get_dependencies(
 #[napi(object)]
 #[derive(Debug)]
 pub struct Cycle {
-  pub from: String,
+  pub source: String,
+  pub target: String,
   pub ast_node: AstNode,
-  pub to: String,
 }
 
-fn dfs_cycle<'a>(
-  graph: &'a DiGraph<&'a str, ()>,
-  node: petgraph::prelude::NodeIndex,
-  visited: &mut HashSet<petgraph::prelude::NodeIndex>,
-  path: &mut Vec<&'a str>,
-  cycles: &mut Vec<Vec<&'a str>>,
-) {
-  visited.insert(node);
-  path.push(graph[node]);
-
-  for neighbor in graph.neighbors(node) {
-    if !visited.contains(&neighbor) {
-      dfs_cycle(graph, neighbor, visited, path, cycles);
-    } else if path.contains(&graph[neighbor]) {
-      let cycle_start =
-        path.iter().position(|&x| x == graph[neighbor]).unwrap();
-      cycles.push(path[cycle_start..].to_vec());
-    }
-  }
-
-  path.pop();
-}
-
-pub fn detect_cycle(options: Option<Options>) -> Result<Vec<Vec<Cycle>>> {
+pub fn check_cycle(options: Option<Options>) -> Result<Vec<Vec<Cycle>>> {
   let used = get_node(options)?;
 
   let mut module_map = HashMap::new();
-
   let mut graph = DiGraph::new();
   let mut node_map: HashMap<&str, NodeIndex> = HashMap::new();
 
+  // 构建图的代码保持不变
   for (_, value) in used.iter() {
     let from = value.from.as_str();
     let to = value.to.as_str();
@@ -334,43 +313,66 @@ pub fn detect_cycle(options: Option<Options>) -> Result<Vec<Vec<Cycle>>> {
     let to_node = *node_map.entry(to).or_insert_with(|| graph.add_node(to));
 
     module_map.insert((from, to), value);
-
     graph.add_edge(from_node, to_node, ());
   }
 
-  let mut cycles = Vec::new();
-  let mut visited = HashSet::new();
-  let mut path = Vec::new();
-
-  for node in graph.node_indices() {
-    if !visited.contains(&node) {
-      dfs_cycle(&graph, node, &mut visited, &mut path, &mut cycles);
-    }
-  }
+  // 使用 kosaraju_scc 算法找出强连通分量
+  let sccs = kosaraju_scc(&graph);
 
   let mut result = Vec::new();
 
-  for cycle in cycles.into_iter() {
-    let mut inline_result = Vec::new();
+  for scc in sccs.into_iter().filter(|scc| scc.len() > 1) {
+    let mut cycles = Vec::new();
+    let mut visited = HashSet::new();
 
-    for (index, item) in cycle.iter().enumerate() {
-      let from = item.to_string();
-      let to = if index == cycle.len() - 1 {
-        cycle[0].to_string()
-      } else {
-        cycle[index + 1].to_string()
-      };
-      if let Some(dependency) = module_map.get(&(from.as_str(), to.as_str())) {
-        inline_result.push(Cycle {
-          from: from.clone(),
-          to: to.clone(),
-          ast_node: dependency.ast_node,
-        });
-      } else {
-        eprintln!("no dependency for {} -> {}", from, to);
+    for &start_node in scc.iter() {
+      if !visited.contains(&start_node) {
+        let mut cycle = Vec::new();
+        let mut stack = vec![(start_node, Vec::new())];
+
+        while let Some((node, path)) = stack.pop() {
+          if path.contains(&node) {
+            let cycle_start = path.iter().position(|&n| n == node).unwrap();
+            let cycle_path = &path[cycle_start..];
+
+            for (&from, &to) in cycle_path
+              .iter()
+              .zip(cycle_path.iter().skip(1).chain(std::iter::once(&node)))
+            {
+              if let Some(dependency) =
+                module_map.get(&(graph[from], graph[to]))
+              {
+                cycle.push(Cycle {
+                  source: graph[from].to_string(),
+                  target: graph[to].to_string(),
+                  ast_node: dependency.ast_node.clone(),
+                });
+              }
+            }
+
+            if !cycle.is_empty() {
+              cycles.push(cycle);
+            }
+            cycle = Vec::new();
+          } else if !visited.contains(&node) {
+            visited.insert(node);
+            let mut new_path = path.clone();
+            new_path.push(node);
+
+            for edge in graph.edges(node) {
+              let target = edge.target();
+              if scc.contains(&target) {
+                stack.push((target, new_path.clone()));
+              }
+            }
+          }
+        }
       }
     }
-    result.push(inline_result);
+
+    if !cycles.is_empty() {
+      result.extend(cycles);
+    }
   }
 
   Ok(result)
@@ -409,7 +411,7 @@ mod tests {
         key.to_string(),
         vec![format!(
           "{}/{}",
-          "/Users/10015448/Git/bmas",
+          "/Users/ityuany/GitRepository/bmas",
           value.to_string()
         )],
       );
@@ -446,7 +448,7 @@ mod tests {
     // );
 
     let op = Options {
-      cwd: Some("/Users/10015448/Git/bmas/src".to_string()),
+      cwd: Some("/Users/ityuany/GitRepository/bmas/src".to_string()),
       modules: Some(vec!["node_modules".into(), "web_modules".into()]),
       pattern: None,
       ignore: None,
@@ -463,7 +465,7 @@ mod tests {
     //   }
     // }
 
-    let result1 = detect_cycle(Some(op.clone())).unwrap();
+    let result1 = check_cycle(Some(op.clone())).unwrap();
 
     for x in result1 {
       println!("\n跨越{}个文件的循环依赖", x.len());
@@ -471,7 +473,7 @@ mod tests {
         // println!("{}  {} ", y.from, y.to);
         println!(
           "{}:{}..{}",
-          y.from, y.ast_node.loc.start.line, y.ast_node.loc.end.line
+          y.source, y.ast_node.loc.start.line, y.ast_node.loc.end.line
         );
       }
     }
