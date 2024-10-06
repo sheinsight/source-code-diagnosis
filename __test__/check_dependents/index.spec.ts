@@ -1,18 +1,20 @@
 import { expect, test } from 'vitest'
 import { fileURLToPath } from "node:url";
 import path, { dirname } from "node:path";
-import { checkDependents, DependencyNode} from '../../index.js'
+import { checkDependents, Cycle, DependencyNode} from '../../index.js'
 
 
-function normalizePaths(node: DependencyNode): DependencyNode {
-  const basePath = dirname(__filename);
-  let name = path.relative(basePath, node.name).replace(/\\/g, '/');
-  let children = node.children.map(normalizePaths).sort((a, b) => a.name.localeCompare(b.name));
-  return {
-    name,
-    children,
-    astNode: node.astNode
-  };
+function normalizePaths(cwd:string,node:  Array<Array<Cycle>>):  Array<Array<Cycle>> {
+  return node.map(
+    item => 
+      item.map(
+        x => ({
+          ...x,
+          source:x.source.replace(cwd,""),
+          target:x.target.replace(cwd,""),
+        })
+      )
+  );
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -24,7 +26,7 @@ test('Get which files depend on the specified file', () => {
     cwd,
   })
 
-  const normalizedPaths = normalizePaths(response);
+  const normalizedPaths = normalizePaths(cwd,response);
 
   expect(normalizedPaths).toMatchSnapshot()
 
@@ -40,11 +42,7 @@ test('Get which files depend on the specified file with alias', () => {
     },
     cwd,
   })
-
-  const normalizedPaths = normalizePaths(response);
-
-  console.log(JSON.stringify(normalizedPaths, null, 2));
-  
+  const normalizedPaths = normalizePaths(cwd,response);
 
   expect(normalizedPaths).toMatchSnapshot()
 })

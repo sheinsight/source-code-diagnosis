@@ -55,7 +55,7 @@ pub fn check_cycle(
 pub fn check_dependents(
   file: String,
   options: Option<module_graph::Options>,
-) -> Result<module_graph::DependencyNode> {
+) -> Result<Vec<Vec<module_graph::Cycle>>> {
   let _ = init_logger();
   module_graph::get_dependents(file, options)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))

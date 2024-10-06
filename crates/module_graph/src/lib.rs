@@ -148,88 +148,62 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<Dependency>> {
   Ok(x)
 }
 
-// fn build_tree(
-//   name: String,
-//   graph: &HashMap<String, Vec<Dependency>>,
-//   visited: &mut HashSet<String>,
-//   get_children: impl Fn(&Dependency) -> String,
-// ) -> DependencyNode {
-//   let mut node = DependencyNode {
-//     name: name.clone(),
-//     children: Vec::new(),
-//     ast_node: None,
-//   };
-
-//   if let Some(dependencies) = graph.get(&name) {
-//     for dependency in dependencies {
-//       let child_name = get_children(dependency);
-//       if !visited.contains(&child_name) {
-//         visited.insert(child_name.clone());
-//         let child_node = build_tree(child_name, graph, visited, &get_children);
-//         node.children.push(child_node);
-//       }
-//     }
-
-//     if let Some(ast_node) = dependencies.first() {
-//       node.ast_node = Some(ast_node.ast_node.clone());
-//     }
-//   }
-
-//   node
-// }
-
 pub fn get_dependents(
   file: String,
   options: Option<Options>,
-) -> Result<DependencyNode> {
+) -> Result<Vec<Vec<Cycle>>> {
   let used = get_node(options)?;
-  let mut graph = HashMap::new();
+
+  let mut graph = DiGraph::new();
+  let mut module_map = HashMap::new();
+  let mut node_indices: HashMap<&str, NodeIndex> = HashMap::new();
 
   for value in used.iter() {
-    graph
-      .entry(value.to.clone())
-      .or_insert_with(Vec::new)
-      .push(value.clone());
+    let from = value.from.as_str();
+    let to = value.to.as_str();
+
+    let from_node = *node_indices
+      .entry(from)
+      .or_insert_with(|| graph.add_node(from));
+
+    let to_node = *node_indices.entry(to).or_insert_with(|| graph.add_node(to));
+    module_map.insert((to, from), value);
+    graph.add_edge(to_node, from_node, ());
   }
 
-  fn build_tree(
-    name: String,
-    graph: &HashMap<String, Vec<Dependency>>,
-    path: &mut Vec<String>,
-  ) -> DependencyNode {
-    let mut node = DependencyNode {
-      name: name.clone(),
-      children: Vec::new(),
-      ast_node: None,
-    };
+  let target_index = *node_indices.get(file.as_str()).unwrap();
+  let mut result = Vec::new();
 
-    if let Some(dependents) = graph.get(&name) {
-      for dependent in dependents {
-        if path.contains(&dependent.from) {
-          // 检测到循环依赖
-          node.children.push(DependencyNode {
-            name: format!("CIRCULAR: {}", dependent.from),
-            children: Vec::new(),
-            ast_node: Some(dependent.ast_node.clone()),
-          });
-        } else {
-          path.push(dependent.from.clone());
-          let mut child_node = build_tree(dependent.from.clone(), graph, path);
-          child_node.ast_node = Some(dependent.ast_node.clone());
-          path.pop();
-          node.children.push(child_node);
-        }
-      }
+  // 使用 Dfs 遍历反向图
+  let mut dfs = Dfs::new(&graph, target_index);
+  while let Some(nx) = dfs.next(&graph) {
+    if nx != target_index {
+      // 使用 all_simple_paths 找到所有路径
+
+      all_simple_paths::<Vec<_>, _>(&graph, target_index, nx, 0, None)
+        .for_each(|path| {
+          let mut inline_path = Vec::with_capacity(path.len() - 1);
+          for window in path
+            .into_iter()
+            .rev()
+            .collect::<Vec<NodeIndex>>()
+            .windows(2)
+          {
+            let source = graph[window[0]];
+            let target = graph[window[1]];
+
+            inline_path.push(Cycle {
+              source: source.to_string(),
+              target: target.to_string(),
+              ast_node: module_map[&(target, source)].ast_node.clone(),
+            });
+          }
+          result.push(inline_path);
+        });
     }
-
-    node
   }
 
-  // let mut visited = HashSet::new();
-  // visited.insert(file.clone());
-  let mut path = vec![file.clone()];
-  let tree = build_tree(file, &graph, &mut path);
-  Ok(tree)
+  Ok(result)
 }
 
 #[derive(Debug, Clone)]

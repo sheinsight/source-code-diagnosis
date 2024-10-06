@@ -1,9 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Get which files depend on the specified file 1`] = `
-{
-  "astNode": undefined,
-  "children": [
+[
+  [
     {
       "astNode": {
         "loc": {
@@ -21,80 +20,122 @@ exports[`Get which files depend on the specified file 1`] = `
           "start": 0,
         },
       },
-      "children": [
-        {
-          "astNode": {
-            "loc": {
-              "end": {
-                "col": 25,
-                "line": 1,
-              },
-              "start": {
-                "col": 1,
-                "line": 1,
-              },
-            },
-            "span": {
-              "end": 24,
-              "start": 0,
-            },
-          },
-          "children": [],
-          "name": "features/normal/c.js",
-        },
-      ],
-      "name": "features/normal/a.js",
-    },
-    {
-      "astNode": {
-        "loc": {
-          "end": {
-            "col": 29,
-            "line": 1,
-          },
-          "start": {
-            "col": 1,
-            "line": 1,
-          },
-        },
-        "span": {
-          "end": 28,
-          "start": 0,
-        },
-      },
-      "children": [
-        {
-          "astNode": {
-            "loc": {
-              "end": {
-                "col": 25,
-                "line": 2,
-              },
-              "start": {
-                "col": 1,
-                "line": 2,
-              },
-            },
-            "span": {
-              "end": 49,
-              "start": 25,
-            },
-          },
-          "children": [],
-          "name": "features/normal/c.js",
-        },
-      ],
-      "name": "features/normal/b.js",
+      "source": "/b.js",
+      "target": "/utils.js",
     },
   ],
-  "name": "features/normal/utils.js",
-}
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 24,
+          "start": 0,
+        },
+      },
+      "source": "/c.js",
+      "target": "/a.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/a.js",
+      "target": "/utils.js",
+    },
+  ],
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 2,
+          },
+          "start": {
+            "col": 1,
+            "line": 2,
+          },
+        },
+        "span": {
+          "end": 49,
+          "start": 25,
+        },
+      },
+      "source": "/c.js",
+      "target": "/b.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/b.js",
+      "target": "/utils.js",
+    },
+  ],
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/a.js",
+      "target": "/utils.js",
+    },
+  ],
+]
 `;
 
 exports[`Get which files depend on the specified file with alias 1`] = `
-{
-  "astNode": undefined,
-  "children": [
+[
+  [
     {
       "astNode": {
         "loc": {
@@ -112,72 +153,115 @@ exports[`Get which files depend on the specified file with alias 1`] = `
           "start": 0,
         },
       },
-      "children": [
-        {
-          "astNode": {
-            "loc": {
-              "end": {
-                "col": 25,
-                "line": 1,
-              },
-              "start": {
-                "col": 1,
-                "line": 1,
-              },
-            },
-            "span": {
-              "end": 24,
-              "start": 0,
-            },
-          },
-          "children": [],
-          "name": "features/alias/c.js",
-        },
-      ],
-      "name": "features/alias/a.js",
-    },
-    {
-      "astNode": {
-        "loc": {
-          "end": {
-            "col": 29,
-            "line": 1,
-          },
-          "start": {
-            "col": 1,
-            "line": 1,
-          },
-        },
-        "span": {
-          "end": 28,
-          "start": 0,
-        },
-      },
-      "children": [
-        {
-          "astNode": {
-            "loc": {
-              "end": {
-                "col": 25,
-                "line": 2,
-              },
-              "start": {
-                "col": 1,
-                "line": 2,
-              },
-            },
-            "span": {
-              "end": 49,
-              "start": 25,
-            },
-          },
-          "children": [],
-          "name": "features/alias/c.js",
-        },
-      ],
-      "name": "features/alias/b.js",
+      "source": "/a.js",
+      "target": "/utils.js",
     },
   ],
-  "name": "features/alias/utils.js",
-}
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 2,
+          },
+          "start": {
+            "col": 1,
+            "line": 2,
+          },
+        },
+        "span": {
+          "end": 49,
+          "start": 25,
+        },
+      },
+      "source": "/c.js",
+      "target": "/b.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/b.js",
+      "target": "/utils.js",
+    },
+  ],
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 24,
+          "start": 0,
+        },
+      },
+      "source": "/c.js",
+      "target": "/a.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/a.js",
+      "target": "/utils.js",
+    },
+  ],
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/b.js",
+      "target": "/utils.js",
+    },
+  ],
+]
 `;
