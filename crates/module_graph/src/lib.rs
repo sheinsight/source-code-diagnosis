@@ -32,7 +32,7 @@ pub struct Dependency {
   pub ast_node: AstNode,
 }
 
-pub fn get_node(options: Option<Options>) -> Result<Vec<(String, Dependency)>> {
+pub fn get_node(options: Option<Options>) -> Result<Vec<Dependency>> {
   let used = Arc::new(Mutex::new(Vec::new()));
 
   let alias = match &options {
@@ -76,7 +76,7 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, Dependency)>> {
     move |path: PathBuf| {
       debug!("path: {}", path.display().to_string());
 
-      let mut inline_usages: Vec<(String, Dependency)> = Vec::new();
+      let mut inline_usages: Vec<Dependency> = Vec::new();
 
       SemanticBuilder::file(path.clone())
         .build_handler()
@@ -96,20 +96,17 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<(String, Dependency)>> {
 
                 let (span, loc) = handler.get_node_box(node);
 
-                inline_usages.push((
-                  path.display().to_string(),
-                  Dependency {
-                    from: path.display().to_string(),
-                    to: resolved_path.full_path().display().to_string(),
-                    ast_node: AstNode {
-                      span: Span {
-                        start: span.start,
-                        end: span.end,
-                      },
-                      loc: loc,
+                inline_usages.push(Dependency {
+                  from: path.display().to_string(),
+                  to: resolved_path.full_path().display().to_string(),
+                  ast_node: AstNode {
+                    span: Span {
+                      start: span.start,
+                      end: span.end,
                     },
+                    loc: loc,
                   },
-                ));
+                });
               } else {
                 eprintln!(
                   "no resolved path  {} in {}",
@@ -184,7 +181,7 @@ pub fn get_dependents(
   let used = get_node(options)?;
   let mut graph = HashMap::new();
 
-  for (_, value) in used.iter() {
+  for value in used.iter() {
     graph
       .entry(value.to.clone())
       .or_insert_with(Vec::new)
@@ -246,7 +243,7 @@ pub fn get_dependencies(
   let used = get_node(options)?;
   let mut graph = HashMap::new();
 
-  for (_, value) in used.iter() {
+  for value in used.iter() {
     graph
       .entry(value.from.clone())
       .or_insert_with(Vec::new)
@@ -303,7 +300,7 @@ pub fn check_cycle(options: Option<Options>) -> Result<Vec<Vec<Cycle>>> {
   let mut node_map: HashMap<&str, NodeIndex> = HashMap::new();
 
   // 构建图的代码保持不变
-  for (_, value) in used.iter() {
+  for value in used.iter() {
     let from = value.from.as_str();
     let to = value.to.as_str();
 
