@@ -4,9 +4,13 @@ use log::debug;
 use napi_derive::napi;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
-use petgraph::algo::kosaraju_scc;
+use petgraph::algo::all_simple_paths;
+use petgraph::algo::has_path_connecting;
+use petgraph::algo::{kosaraju_scc, scc};
 use petgraph::graph::{DiGraph, NodeIndex};
-use petgraph::visit::{Dfs, DfsPostOrder, EdgeRef};
+use petgraph::visit::{Bfs, Dfs, DfsPostOrder, EdgeRef};
+use petgraph::Direction;
+use serde::Serialize;
 
 use std::{
   collections::{HashMap, HashSet},
@@ -239,53 +243,71 @@ pub struct DependencyNode {
 pub fn get_dependencies(
   file: String,
   options: Option<Options>,
-) -> Result<DependencyNode> {
+) -> Result<Vec<Vec<Cycle>>> {
   let used = get_node(options)?;
-  let mut graph = HashMap::new();
+
+  let mut graph = DiGraph::new();
+  let mut module_map = HashMap::new();
+  let mut node_indices: HashMap<&str, NodeIndex> = HashMap::new();
 
   for value in used.iter() {
-    graph
-      .entry(value.from.clone())
-      .or_insert_with(Vec::new)
-      .push(value.clone());
+    let from = value.from.as_str();
+    let to = value.to.as_str();
+
+    let from_node = *node_indices
+      .entry(from)
+      .or_insert_with(|| graph.add_node(from));
+
+    let to_node = *node_indices.entry(to).or_insert_with(|| graph.add_node(to));
+    module_map.insert((from, to), value);
+    graph.add_edge(from_node, to_node, ());
   }
 
-  fn build_tree(
-    name: String,
-    graph: &HashMap<String, Vec<Dependency>>,
-    visited: &mut HashSet<String>,
-  ) -> DependencyNode {
-    let mut node = DependencyNode {
-      name: name.clone(),
-      children: Vec::new(),
-      ast_node: None,
-    };
+  let target_index = node_indices.get(file.as_str()).unwrap();
+  let mut result = Vec::new();
 
-    if let Some(children) = graph.get(&name) {
-      for child in children {
-        if !visited.contains(&child.to) {
-          visited.insert(child.to.clone());
-          let child_node = build_tree(child.to.clone(), graph, visited);
-          node.children.push(child_node);
+  // 使用 Dfs 遍历图
+  let mut dfs = Dfs::new(&graph, *target_index);
+  while let Some(nx) = dfs.next(&graph) {
+    if nx != *target_index {
+      petgraph::algo::all_simple_paths::<Vec<_>, _>(
+        &graph,
+        *target_index,
+        nx,
+        0,
+        None,
+      )
+      .for_each(|path| {
+        let mut inline_path = Vec::with_capacity(path.len() - 1);
+        for window in path.windows(2) {
+          let source = graph[window[0]];
+          let target = graph[window[1]];
+
+          inline_path.push(Cycle {
+            source: source.to_string(),
+            target: target.to_string(),
+            ast_node: module_map[&(source, target)].ast_node.clone(),
+          });
         }
-      }
+        result.push(inline_path);
+      });
 
-      if let Some(ast_node) = children.first() {
-        node.ast_node = Some(ast_node.ast_node.clone());
+      // // 检查是否存在从 nx 到 target_index 的路径（循环依赖）
+      if has_path_connecting(&graph, nx, *target_index, None) {
+        // let mut cycle_path = paths[0].clone();
+        // cycle_path.push(file.clone());
+        // result.push(cycle_path);
+        // todo!("cycle");
+        println!("TODO cycle: {}", graph[nx].to_string());
       }
     }
-
-    node
   }
 
-  let mut visited = HashSet::new();
-  visited.insert(file.clone());
-  let tree = build_tree(file, &graph, &mut visited);
-  Ok(tree)
+  Ok(result)
 }
 
 #[napi(object)]
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Cycle {
   pub source: String,
   pub target: String,

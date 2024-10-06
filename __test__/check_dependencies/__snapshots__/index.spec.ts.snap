@@ -1,29 +1,13 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`The dependency file list of the specified file should be obtained normally. 1`] = `
-{
-  "astNode": {
-    "loc": {
-      "end": {
-        "col": 25,
-        "line": 1,
-      },
-      "start": {
-        "col": 1,
-        "line": 1,
-      },
-    },
-    "span": {
-      "end": 24,
-      "start": 0,
-    },
-  },
-  "children": [
+[
+  [
     {
       "astNode": {
         "loc": {
           "end": {
-            "col": 29,
+            "col": 25,
             "line": 1,
           },
           "start": {
@@ -32,68 +16,131 @@ exports[`The dependency file list of the specified file should be obtained norma
           },
         },
         "span": {
-          "end": 28,
+          "end": 24,
           "start": 0,
         },
       },
-      "children": [
-        {
-          "astNode": undefined,
-          "children": [],
-          "name": "features/normal/utils.js",
-        },
-      ],
-      "name": "features/normal/a.js",
-    },
-    {
-      "astNode": {
-        "loc": {
-          "end": {
-            "col": 29,
-            "line": 1,
-          },
-          "start": {
-            "col": 1,
-            "line": 1,
-          },
-        },
-        "span": {
-          "end": 28,
-          "start": 0,
-        },
-      },
-      "children": [],
-      "name": "features/normal/b.js",
+      "source": "/c.js",
+      "target": "/a.js",
     },
   ],
-  "name": "features/normal/c.js",
-}
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 2,
+          },
+          "start": {
+            "col": 1,
+            "line": 2,
+          },
+        },
+        "span": {
+          "end": 49,
+          "start": 25,
+        },
+      },
+      "source": "/c.js",
+      "target": "/b.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/b.js",
+      "target": "/utils.js",
+    },
+  ],
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 24,
+          "start": 0,
+        },
+      },
+      "source": "/c.js",
+      "target": "/a.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/a.js",
+      "target": "/utils.js",
+    },
+  ],
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 2,
+          },
+          "start": {
+            "col": 1,
+            "line": 2,
+          },
+        },
+        "span": {
+          "end": 49,
+          "start": 25,
+        },
+      },
+      "source": "/c.js",
+      "target": "/b.js",
+    },
+  ],
+]
 `;
 
 exports[`The dependency file list of the specified file should be obtained normally. 2`] = `
-{
-  "astNode": {
-    "loc": {
-      "end": {
-        "col": 25,
-        "line": 1,
-      },
-      "start": {
-        "col": 1,
-        "line": 1,
-      },
-    },
-    "span": {
-      "end": 24,
-      "start": 0,
-    },
-  },
-  "children": [
+[
+  [
     {
       "astNode": {
         "loc": {
           "end": {
-            "col": 29,
+            "col": 25,
             "line": 1,
           },
           "start": {
@@ -102,40 +149,119 @@ exports[`The dependency file list of the specified file should be obtained norma
           },
         },
         "span": {
-          "end": 28,
+          "end": 24,
           "start": 0,
         },
       },
-      "children": [
-        {
-          "astNode": undefined,
-          "children": [],
-          "name": "features/alias/utils.js",
-        },
-      ],
-      "name": "features/alias/a.js",
-    },
-    {
-      "astNode": {
-        "loc": {
-          "end": {
-            "col": 29,
-            "line": 1,
-          },
-          "start": {
-            "col": 1,
-            "line": 1,
-          },
-        },
-        "span": {
-          "end": 28,
-          "start": 0,
-        },
-      },
-      "children": [],
-      "name": "features/alias/b.js",
+      "source": "/c.js",
+      "target": "/a.js",
     },
   ],
-  "name": "features/alias/c.js",
-}
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 2,
+          },
+          "start": {
+            "col": 1,
+            "line": 2,
+          },
+        },
+        "span": {
+          "end": 49,
+          "start": 25,
+        },
+      },
+      "source": "/c.js",
+      "target": "/b.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/b.js",
+      "target": "/utils.js",
+    },
+  ],
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 24,
+          "start": 0,
+        },
+      },
+      "source": "/c.js",
+      "target": "/a.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/a.js",
+      "target": "/utils.js",
+    },
+  ],
+  [
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 2,
+          },
+          "start": {
+            "col": 1,
+            "line": 2,
+          },
+        },
+        "span": {
+          "end": 49,
+          "start": 25,
+        },
+      },
+      "source": "/c.js",
+      "target": "/b.js",
+    },
+  ],
+]
 `;
