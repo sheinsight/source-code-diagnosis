@@ -198,6 +198,7 @@ pub fn get_dependents(
               ast_node: module_map[&(target, source)].ast_node.clone(),
             });
           }
+
           result.push(inline_path);
         });
     }

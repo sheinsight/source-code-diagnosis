@@ -10,11 +10,15 @@ function normalizePaths(cwd:string,node:  Array<Array<Cycle>>):  Array<Array<Cyc
       item.map(
         x => ({
           ...x,
-          source:x.source.replace(cwd,""),
-          target:x.target.replace(cwd,""),
+          source:x.source.replace(cwd,"").replace(/^\\/,"/"),
+          target:x.target.replace(cwd,"").replace(/^\\/,"/"),
         })
-      )
-  );
+      ).sort((a,b)=>`${a.source}${a.target}`.localeCompare(`${b.source}${b.target}`))
+  ).sort((a,b)=> {
+
+    return a.map(x => x.source).join("").localeCompare(b.map(x => x.source).join(""))
+
+  });
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -31,8 +35,6 @@ test('Get which files depend on the specified file', () => {
   expect(normalizedPaths).toMatchSnapshot()
 
 })
-
-
 
 test('Get which files depend on the specified file with alias', () => {
   const cwd = path.resolve(dirname(__filename),"features","alias");  

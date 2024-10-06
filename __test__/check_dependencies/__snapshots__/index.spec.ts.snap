@@ -7,6 +7,26 @@ exports[`The dependency file list of the specified file should be obtained norma
       "astNode": {
         "loc": {
           "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/a.js",
+      "target": "/utils.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
             "col": 25,
             "line": 1,
           },
@@ -25,26 +45,6 @@ exports[`The dependency file list of the specified file should be obtained norma
     },
   ],
   [
-    {
-      "astNode": {
-        "loc": {
-          "end": {
-            "col": 25,
-            "line": 2,
-          },
-          "start": {
-            "col": 1,
-            "line": 2,
-          },
-        },
-        "span": {
-          "end": 49,
-          "start": 25,
-        },
-      },
-      "source": "/c.js",
-      "target": "/b.js",
-    },
     {
       "astNode": {
         "loc": {
@@ -65,6 +65,26 @@ exports[`The dependency file list of the specified file should be obtained norma
       "source": "/b.js",
       "target": "/utils.js",
     },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 2,
+          },
+          "start": {
+            "col": 1,
+            "line": 2,
+          },
+        },
+        "span": {
+          "end": 49,
+          "start": 25,
+        },
+      },
+      "source": "/c.js",
+      "target": "/b.js",
+    },
   ],
   [
     {
@@ -86,26 +106,6 @@ exports[`The dependency file list of the specified file should be obtained norma
       },
       "source": "/c.js",
       "target": "/a.js",
-    },
-    {
-      "astNode": {
-        "loc": {
-          "end": {
-            "col": 29,
-            "line": 1,
-          },
-          "start": {
-            "col": 1,
-            "line": 1,
-          },
-        },
-        "span": {
-          "end": 28,
-          "start": 0,
-        },
-      },
-      "source": "/a.js",
-      "target": "/utils.js",
     },
   ],
   [
@@ -140,6 +140,26 @@ exports[`The dependency file list of the specified file should be obtained norma
       "astNode": {
         "loc": {
           "end": {
+            "col": 29,
+            "line": 1,
+          },
+          "start": {
+            "col": 1,
+            "line": 1,
+          },
+        },
+        "span": {
+          "end": 28,
+          "start": 0,
+        },
+      },
+      "source": "/a.js",
+      "target": "/utils.js",
+    },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
             "col": 25,
             "line": 1,
           },
@@ -158,26 +178,6 @@ exports[`The dependency file list of the specified file should be obtained norma
     },
   ],
   [
-    {
-      "astNode": {
-        "loc": {
-          "end": {
-            "col": 25,
-            "line": 2,
-          },
-          "start": {
-            "col": 1,
-            "line": 2,
-          },
-        },
-        "span": {
-          "end": 49,
-          "start": 25,
-        },
-      },
-      "source": "/c.js",
-      "target": "/b.js",
-    },
     {
       "astNode": {
         "loc": {
@@ -198,6 +198,26 @@ exports[`The dependency file list of the specified file should be obtained norma
       "source": "/b.js",
       "target": "/utils.js",
     },
+    {
+      "astNode": {
+        "loc": {
+          "end": {
+            "col": 25,
+            "line": 2,
+          },
+          "start": {
+            "col": 1,
+            "line": 2,
+          },
+        },
+        "span": {
+          "end": 49,
+          "start": 25,
+        },
+      },
+      "source": "/c.js",
+      "target": "/b.js",
+    },
   ],
   [
     {
@@ -219,26 +239,6 @@ exports[`The dependency file list of the specified file should be obtained norma
       },
       "source": "/c.js",
       "target": "/a.js",
-    },
-    {
-      "astNode": {
-        "loc": {
-          "end": {
-            "col": 29,
-            "line": 1,
-          },
-          "start": {
-            "col": 1,
-            "line": 1,
-          },
-        },
-        "span": {
-          "end": 28,
-          "start": 0,
-        },
-      },
-      "source": "/a.js",
-      "target": "/utils.js",
     },
   ],
   [

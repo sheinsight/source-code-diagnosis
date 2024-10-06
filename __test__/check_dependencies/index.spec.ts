@@ -4,18 +4,21 @@ import path, { dirname } from "node:path";
 import { checkDependencies, Cycle, DependencyNode} from '../../index.js'
 
 
-
 function normalizePaths(cwd:string,node:  Array<Array<Cycle>>):  Array<Array<Cycle>> {
   return node.map(
     item => 
       item.map(
         x => ({
           ...x,
-          source:x.source.replace(cwd,""),
-          target:x.target.replace(cwd,""),
+          source:x.source.replace(cwd,"").replace(/^\\/,"/"),
+          target:x.target.replace(cwd,"").replace(/^\\/,"/"),
         })
-      )
-  );
+      ).sort((a,b)=>`${a.source}${a.target}`.localeCompare(`${b.source}${b.target}`))
+  ).sort((a,b)=> {
+
+    return a.map(x => x.source).join("").localeCompare(b.map(x => x.source).join(""))
+
+  });
 }
 
 const __filename = fileURLToPath(import.meta.url);
