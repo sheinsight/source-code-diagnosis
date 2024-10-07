@@ -9,6 +9,7 @@ use petgraph::algo::has_path_connecting;
 use petgraph::algo::kosaraju_scc;
 use petgraph::graph::{DiGraph, NodeIndex};
 use petgraph::visit::Dfs;
+use petgraph::Direction;
 use serde::Serialize;
 
 use std::{
@@ -149,6 +150,7 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<Dependency>> {
 
 pub fn build_graph(
   used: &[Dependency],
+  dir: Direction,
 ) -> (
   DiGraph<String, ()>,
   HashMap<(String, String), &Dependency>,
@@ -168,8 +170,16 @@ pub fn build_graph(
       .entry(value.to.clone())
       .or_insert_with(|| graph.add_node(value.to.clone()));
 
-    module_map.insert((value.to.clone(), value.from.clone()), value);
-    graph.add_edge(to_node, from_node, ());
+    match dir {
+      Direction::Outgoing => {
+        module_map.insert((value.to.clone(), value.from.clone()), value);
+        graph.add_edge(to_node, from_node, ());
+      }
+      Direction::Incoming => {
+        module_map.insert((value.from.clone(), value.to.clone()), value);
+        graph.add_edge(from_node, to_node, ());
+      }
+    }
   }
 
   (graph, module_map, node_indices)
@@ -181,7 +191,8 @@ pub fn get_dependents(
 ) -> Result<Vec<Vec<Cycle>>> {
   let used = get_node(options)?;
 
-  let (graph, module_map, node_indices) = build_graph(&used);
+  let (graph, module_map, node_indices) =
+    build_graph(&used, Direction::Outgoing);
 
   let target_index = *node_indices.get(file.as_str()).unwrap();
   let mut result = Vec::new();
@@ -234,23 +245,8 @@ pub fn get_dependencies(
   options: Option<Options>,
 ) -> Result<Vec<Vec<Cycle>>> {
   let used = get_node(options)?;
-
-  let mut graph = DiGraph::new();
-  let mut module_map = HashMap::new();
-  let mut node_indices: HashMap<&str, NodeIndex> = HashMap::new();
-
-  for value in used.iter() {
-    let from = value.from.as_str();
-    let to = value.to.as_str();
-
-    let from_node = *node_indices
-      .entry(from)
-      .or_insert_with(|| graph.add_node(from));
-
-    let to_node = *node_indices.entry(to).or_insert_with(|| graph.add_node(to));
-    module_map.insert((from, to), value);
-    graph.add_edge(from_node, to_node, ());
-  }
+  let (graph, module_map, node_indices) =
+    build_graph(&used, Direction::Incoming);
 
   let target_index = node_indices.get(file.as_str()).unwrap();
   let mut result = Vec::new();
@@ -259,34 +255,29 @@ pub fn get_dependencies(
   let mut dfs = Dfs::new(&graph, *target_index);
   while let Some(nx) = dfs.next(&graph) {
     if nx != *target_index {
-      petgraph::algo::all_simple_paths::<Vec<_>, _>(
+      for path in petgraph::algo::all_simple_paths::<Vec<_>, _>(
         &graph,
         *target_index,
         nx,
         0,
         None,
-      )
-      .for_each(|path| {
-        let mut inline_path = Vec::with_capacity(path.len() - 1);
-        for window in path.windows(2) {
-          let source = graph[window[0]];
-          let target = graph[window[1]];
-
-          inline_path.push(Cycle {
-            source: source.to_string(),
-            target: target.to_string(),
-            ast_node: module_map[&(source, target)].ast_node.clone(),
-          });
-        }
+      ) {
+        let inline_path = path
+          .windows(2)
+          .map(|window| {
+            let source = graph[window[0]].clone();
+            let target = graph[window[1]].clone();
+            Cycle {
+              source: source.to_string(),
+              target: target.to_string(),
+              ast_node: module_map[&(source, target)].ast_node.clone(),
+            }
+          })
+          .collect();
         result.push(inline_path);
-      });
+      }
 
-      // // 检查是否存在从 nx 到 target_index 的路径（循环依赖）
       if has_path_connecting(&graph, nx, *target_index, None) {
-        // let mut cycle_path = paths[0].clone();
-        // cycle_path.push(file.clone());
-        // result.push(cycle_path);
-        // todo!("cycle");
         println!("TODO cycle: {}", graph[nx].to_string());
       }
     }

@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { fileURLToPath } from "node:url";
 import path, { dirname } from "node:path";
-import { checkDependencies, Cycle, DependencyNode } from "../../index.js";
+import { checkDependencies } from "../../index.js";
 import { normalizePaths } from "../utils/normalize-paths.js";
 
 const __filename = fileURLToPath(import.meta.url);
