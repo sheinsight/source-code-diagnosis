@@ -31,8 +31,8 @@ pub struct Options {
 
 #[derive(Debug, Clone)]
 pub struct Dependency {
-  pub from: String,
-  pub to: String,
+  pub source: String,
+  pub target: String,
   pub ast_node: AstNode,
 }
 
@@ -101,8 +101,8 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<Dependency>> {
                 let (span, loc) = handler.get_node_box(node);
 
                 inline_usages.push(Dependency {
-                  from: path.display().to_string(),
-                  to: resolved_path.full_path().display().to_string(),
+                  source: path.display().to_string(),
+                  target: resolved_path.full_path().display().to_string(),
                   ast_node: AstNode {
                     span: Span {
                       start: span.start,
@@ -163,21 +163,21 @@ pub fn build_graph(
   let mut node_indices = HashMap::with_capacity(len);
 
   for value in used.iter() {
-    let from_node = *node_indices
-      .entry(value.from.clone())
-      .or_insert_with(|| graph.add_node(value.from.clone()));
-    let to_node = *node_indices
-      .entry(value.to.clone())
-      .or_insert_with(|| graph.add_node(value.to.clone()));
+    let source_node = *node_indices
+      .entry(value.source.clone())
+      .or_insert_with(|| graph.add_node(value.source.clone()));
+    let target_node = *node_indices
+      .entry(value.target.clone())
+      .or_insert_with(|| graph.add_node(value.target.clone()));
 
     match dir {
       Direction::Outgoing => {
-        module_map.insert((value.to.clone(), value.from.clone()), value);
-        graph.add_edge(to_node, from_node, ());
+        module_map.insert((value.target.clone(), value.source.clone()), value);
+        graph.add_edge(target_node, source_node, ());
       }
       Direction::Incoming => {
-        module_map.insert((value.from.clone(), value.to.clone()), value);
-        graph.add_edge(from_node, to_node, ());
+        module_map.insert((value.source.clone(), value.target.clone()), value);
+        graph.add_edge(source_node, target_node, ());
       }
     }
   }
@@ -303,16 +303,19 @@ pub fn check_cycle(options: Option<Options>) -> Result<Vec<Vec<Cycle>>> {
 
   // 构建图的代码保持不变
   for value in used.iter() {
-    let from = value.from.as_str();
-    let to = value.to.as_str();
+    let source = value.source.as_str();
+    let target = value.target.as_str();
 
-    let from_node =
-      *node_map.entry(from).or_insert_with(|| graph.add_node(from));
+    let source_node = *node_map
+      .entry(source)
+      .or_insert_with(|| graph.add_node(source));
 
-    let to_node = *node_map.entry(to).or_insert_with(|| graph.add_node(to));
+    let target_node = *node_map
+      .entry(target)
+      .or_insert_with(|| graph.add_node(target));
 
-    module_map.insert((from, to), value);
-    graph.add_edge(from_node, to_node, ());
+    module_map.insert((source, target), value);
+    graph.add_edge(source_node, target_node, ());
   }
 
   // 使用 kosaraju_scc 算法找出强连通分量
