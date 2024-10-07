@@ -147,60 +147,75 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<Dependency>> {
   Ok(x)
 }
 
+pub fn build_graph(
+  used: &[Dependency],
+) -> (
+  DiGraph<String, ()>,
+  HashMap<(String, String), &Dependency>,
+  HashMap<String, NodeIndex>,
+) {
+  let len = used.len();
+
+  let mut graph = DiGraph::with_capacity(len, len);
+  let mut module_map = HashMap::with_capacity(len);
+  let mut node_indices = HashMap::with_capacity(len);
+
+  for value in used.iter() {
+    let from_node = *node_indices
+      .entry(value.from.clone())
+      .or_insert_with(|| graph.add_node(value.from.clone()));
+    let to_node = *node_indices
+      .entry(value.to.clone())
+      .or_insert_with(|| graph.add_node(value.to.clone()));
+
+    module_map.insert((value.to.clone(), value.from.clone()), value);
+    graph.add_edge(to_node, from_node, ());
+  }
+
+  (graph, module_map, node_indices)
+}
+
 pub fn get_dependents(
   file: String,
   options: Option<Options>,
 ) -> Result<Vec<Vec<Cycle>>> {
   let used = get_node(options)?;
 
-  let mut graph = DiGraph::new();
-  let mut module_map = HashMap::new();
-  let mut node_indices: HashMap<&str, NodeIndex> = HashMap::new();
-
-  for value in used.iter() {
-    let from = value.from.as_str();
-    let to = value.to.as_str();
-
-    let from_node = *node_indices
-      .entry(from)
-      .or_insert_with(|| graph.add_node(from));
-
-    let to_node = *node_indices.entry(to).or_insert_with(|| graph.add_node(to));
-    module_map.insert((to, from), value);
-    graph.add_edge(to_node, from_node, ());
-  }
+  let (graph, module_map, node_indices) = build_graph(&used);
 
   let target_index = *node_indices.get(file.as_str()).unwrap();
   let mut result = Vec::new();
 
   // 使用 Dfs 遍历反向图
   let mut dfs = Dfs::new(&graph, target_index);
+
+  let mut prev_node = target_index;
+
   while let Some(nx) = dfs.next(&graph) {
-    if nx != target_index {
+    if nx != target_index && !graph.contains_edge(prev_node, nx) {
       // 使用 all_simple_paths 找到所有路径
-
-      all_simple_paths::<Vec<_>, _>(&graph, target_index, nx, 0, None)
-        .for_each(|path| {
-          let mut inline_path = Vec::with_capacity(path.len() - 1);
-          for window in path
-            .into_iter()
-            .rev()
-            .collect::<Vec<NodeIndex>>()
-            .windows(2)
-          {
-            let source = graph[window[0]];
-            let target = graph[window[1]];
-
-            inline_path.push(Cycle {
+      for path in
+        all_simple_paths::<Vec<_>, _>(&graph, target_index, prev_node, 0, None)
+      {
+        let inline_path = path
+          .into_iter()
+          .rev()
+          .collect::<Vec<NodeIndex>>()
+          .windows(2)
+          .map(|window| {
+            let source = graph[window[0]].clone();
+            let target = graph[window[1]].clone();
+            Cycle {
               source: source.to_string(),
               target: target.to_string(),
               ast_node: module_map[&(target, source)].ast_node.clone(),
-            });
-          }
-
-          result.push(inline_path);
-        });
+            }
+          })
+          .collect();
+        result.push(inline_path);
+      }
     }
+    prev_node = nx;
   }
 
   Ok(result)

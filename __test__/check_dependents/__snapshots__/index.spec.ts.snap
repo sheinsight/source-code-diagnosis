@@ -1,5 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Get which files depend on the specified file 1`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js , a.js -> utils.js :: c.js -> b.js , b.js -> utils.js"`;
+exports[`Get which files depend on the specified file 1`] = `"c.js -> a.js , a.js -> utils.js :: c.js -> b.js , b.js -> utils.js"`;
 
-exports[`Get which files depend on the specified file with alias 1`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js , a.js -> utils.js :: c.js -> b.js , b.js -> utils.js"`;
+exports[`Get which files depend on the specified file with alias 1`] = `"c.js -> a.js , a.js -> utils.js :: c.js -> b.js , b.js -> utils.js"`;
