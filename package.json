@@ -1,64 +1,61 @@
 {
-  "name": "@shined/source-code-diagnosis",
-  "version": "0.0.36",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "napi": {
-    "name": "source-code-diagnosis",
-    "triples": {
-      "defaults":false,
-      "additional": [
-        "x86_64-apple-darwin",
-        "aarch64-apple-darwin",
-        "i686-pc-windows-msvc",
-        "x86_64-pc-windows-msvc",
-        "aarch64-pc-windows-msvc",
-        "x86_64-unknown-linux-gnu",
-        "x86_64-unknown-linux-musl",
-        "aarch64-unknown-linux-gnu",
-        "aarch64-unknown-linux-musl"
-      ]
-    }
-  },
-  "repository": {
-    "url": "https://github.com/sheinsight/source-code-diagnosis"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "files": [
-    "index.js",
-    "index.d.ts"
-  ],
-  "license": "MIT",
-  "packageManager": "pnpm@9.10.0",
-  "devDependencies": {
-    "@biomejs/biome": "1.8.2",
-    "@napi-rs/cli": "^2.18.4",
-    "@types/node": "^22.5.5",
-    "ava": "^6.0.1",
-    "clean-pkg-json": "^1.2.0",
-    "vitest": "^2.1.1"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-win32-ia32-msvc": "*"
-  },
-  "ava": {
-    "timeout": "3m"
-  },
-  "engines": {
-    "node": ">= 10"
-  },
-  "scripts": {
-    "artifacts": "napi artifacts",
-    "build:js": "napi build --cargo-cwd crates/binding --platform --js index.js --dts index.d.ts",
-    "build": "napi build --cargo-cwd crates/binding --platform --release",
-    "build:debug": "napi build --cargo-cwd crates/binding --platform",
-    "prepublishOnly": "napi prepublish -t npm --gh-release-id $GITHUB_REF_NAME",
-    "test:ava": "ava",
-    "hello": "echo $GITHUB_REF_NAME",
-    "test": "vitest run",
-    "universal": "napi universal",
-    "version": "napi version"
-  }
+	"name": "@shined/source-code-diagnosis",
+	"version": "0.0.37",
+	"main": "index.js",
+	"types": "index.d.ts",
+	"napi": {
+		"name": "source-code-diagnosis",
+		"triples": {
+			"defaults": false,
+			"additional": [
+				"x86_64-apple-darwin",
+				"aarch64-apple-darwin",
+				"i686-pc-windows-msvc",
+				"x86_64-pc-windows-msvc",
+				"aarch64-pc-windows-msvc",
+				"x86_64-unknown-linux-gnu",
+				"x86_64-unknown-linux-musl",
+				"aarch64-unknown-linux-gnu",
+				"aarch64-unknown-linux-musl"
+			]
+		}
+	},
+	"repository": {
+		"url": "https://github.com/sheinsight/source-code-diagnosis"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": ["index.js", "index.d.ts"],
+	"license": "MIT",
+	"packageManager": "pnpm@9.10.0",
+	"devDependencies": {
+		"@biomejs/biome": "1.8.2",
+		"@napi-rs/cli": "^2.18.4",
+		"@types/node": "^22.5.5",
+		"ava": "^6.0.1",
+		"clean-pkg-json": "^1.2.0",
+		"vitest": "^2.1.1"
+	},
+	"optionalDependencies": {
+		"@rollup/rollup-win32-ia32-msvc": "*"
+	},
+	"ava": {
+		"timeout": "3m"
+	},
+	"engines": {
+		"node": ">= 10"
+	},
+	"scripts": {
+		"artifacts": "napi artifacts",
+		"build:js": "napi build --cargo-cwd crates/binding --platform --js index.js --dts index.d.ts",
+		"build": "napi build --cargo-cwd crates/binding --platform --release",
+		"build:debug": "napi build --cargo-cwd crates/binding --platform",
+		"prepublishOnly": "napi prepublish -t npm --gh-release-id $GITHUB_REF_NAME",
+		"test:ava": "ava",
+		"hello": "echo $GITHUB_REF_NAME",
+		"test": "vitest run",
+		"universal": "napi universal",
+		"version": "napi version"
+	}
 }
