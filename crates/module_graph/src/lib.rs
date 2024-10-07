@@ -6,10 +6,9 @@ use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
 use petgraph::algo::all_simple_paths;
 use petgraph::algo::has_path_connecting;
-use petgraph::algo::{kosaraju_scc, scc};
+use petgraph::algo::kosaraju_scc;
 use petgraph::graph::{DiGraph, NodeIndex};
-use petgraph::visit::{Bfs, Dfs, DfsPostOrder, EdgeRef};
-use petgraph::Direction;
+use petgraph::visit::Dfs;
 use serde::Serialize;
 
 use std::{
@@ -282,7 +281,7 @@ pub fn get_dependencies(
 }
 
 #[napi(object)]
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Eq, Hash, PartialEq)]
 pub struct Cycle {
   pub source: String,
   pub target: String,
@@ -315,61 +314,91 @@ pub fn check_cycle(options: Option<Options>) -> Result<Vec<Vec<Cycle>>> {
 
   let mut result = Vec::new();
 
+  // 遍历所有大小大于1的强连通分量
   for scc in sccs.into_iter().filter(|scc| scc.len() > 1) {
-    let mut cycles = Vec::new();
-    let mut visited = HashSet::new();
+    let mut cycles = HashSet::new();
+    let scc_set: HashSet<_> = scc.iter().cloned().collect();
 
-    for &start_node in scc.iter() {
-      if !visited.contains(&start_node) {
-        let mut cycle = Vec::new();
-        let mut stack = vec![(start_node, Vec::new())];
+    // 对SCC中的每个节点进行深度优先搜索
+    for &start_node in &scc {
+      // 创建一个新的DFS迭代器
+      let mut dfs = Dfs::new(&graph, start_node);
+      let mut path = Vec::new();
+      let mut stack = Vec::new();
 
-        while let Some((node, path)) = stack.pop() {
-          if path.contains(&node) {
-            let cycle_start = path.iter().position(|&n| n == node).unwrap();
-            let cycle_path = &path[cycle_start..];
+      // 使用DFS遍历图
+      while let Some(nx) = dfs.next(&graph) {
+        // 如果当前节点不在SCC中,跳过
+        if !scc_set.contains(&nx) {
+          continue;
+        }
 
-            for (&from, &to) in cycle_path
-              .iter()
-              .zip(cycle_path.iter().skip(1).chain(std::iter::once(&node)))
-            {
-              if let Some(dependency) =
-                module_map.get(&(graph[from], graph[to]))
-              {
-                cycle.push(Cycle {
-                  source: graph[from].to_string(),
-                  target: graph[to].to_string(),
-                  ast_node: dependency.ast_node.clone(),
-                });
-              }
-            }
+        // 更新路径
+        while let Some(&last) = path.last() {
+          if !graph.contains_edge(last, nx) {
+            path.pop();
+            stack.pop();
+          } else {
+            break;
+          }
+        }
+        path.push(nx);
+        stack.push(nx);
 
-            if !cycle.is_empty() {
-              cycles.push(cycle);
-            }
-            cycle = Vec::new();
-          } else if !visited.contains(&node) {
-            visited.insert(node);
-            let mut new_path = path.clone();
-            new_path.push(node);
+        // 检查当前节点的所有邻居
+        for neighbor in graph.neighbors(nx) {
+          if neighbor == start_node || stack.contains(&neighbor) {
+            let cycle_start =
+              stack.iter().position(|&n| n == neighbor).unwrap();
+            let mut cycle = stack[cycle_start..]
+              .windows(2)
+              .map(|window| {
+                let source = graph[window[0]];
+                let target = graph[window[1]];
+                Cycle {
+                  source: source.to_string(),
+                  target: target.to_string(),
+                  ast_node: module_map[&(source, target)].ast_node.clone(),
+                }
+              })
+              .collect::<Vec<Cycle>>();
 
-            for edge in graph.edges(node) {
-              let target = edge.target();
-              if scc.contains(&target) {
-                stack.push((target, new_path.clone()));
-              }
-            }
+            let last = stack.last().unwrap();
+            cycle.push(Cycle {
+              source: graph[*last].to_string(),
+              target: graph[neighbor].to_string(),
+              ast_node: module_map[&(graph[*last], graph[neighbor])]
+                .ast_node
+                .clone(),
+            });
+
+            // 标准化循环并添加到HashSet中
+            let normalized_cycle = normalize_cycle(cycle);
+            cycles.insert(normalized_cycle);
           }
         }
       }
     }
 
+    // 如果在当前SCC中找到了循环,将它们添加到结果中
     if !cycles.is_empty() {
       result.extend(cycles);
     }
   }
 
   Ok(result)
+}
+
+fn normalize_cycle(mut cycle: Vec<Cycle>) -> Vec<Cycle> {
+  if let Some(min_pos) = cycle
+    .iter()
+    .enumerate()
+    .min_by_key(|(_, c)| &c.source)
+    .map(|(i, _)| i)
+  {
+    cycle.rotate_left(min_pos);
+  }
+  cycle
 }
 
 #[cfg(test)]
