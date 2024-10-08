@@ -5,7 +5,6 @@ use log::debug;
 use napi_derive::napi;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
-use petgraph::algo::all_simple_paths;
 use petgraph::algo::has_path_connecting;
 use petgraph::algo::kosaraju_scc;
 use petgraph::graph::{DiGraph, NodeIndex};
@@ -52,6 +51,11 @@ pub fn get_node(
       ..
     }) => modules.clone(),
     _ => vec!["node_modules".into(), "web_modules".into()],
+  };
+
+  let cwd = match &options {
+    Some(Options { cwd: Some(cwd), .. }) => cwd.clone() + "/",
+    _ => "".to_string(),
   };
 
   let resolver_alias = alias
@@ -101,8 +105,13 @@ pub fn get_node(
 
                 let (span, loc) = handler.get_node_box(node);
 
-                let source = path.display().to_string();
-                let target = resolved_path.full_path().display().to_string();
+                let source =
+                  path.display().to_string().replace(cwd.as_str(), "");
+                let target = resolved_path
+                  .full_path()
+                  .display()
+                  .to_string()
+                  .replace(cwd.as_str(), "");
 
                 let mut bi_map = bi_map.lock().unwrap();
 
@@ -207,7 +216,7 @@ pub fn build_graph(
 pub fn get_dependents(
   file: String,
   options: Option<Options>,
-) -> Result<Vec<Edge>> {
+) -> Result<Graphics> {
   let (used, bimap) = get_node(options)?;
 
   let (graph, module_map, node_indices) = build_graph(&used);
@@ -238,8 +247,8 @@ pub fn get_dependents(
       let target_file_path = bimap.get_by_right(&target).unwrap();
 
       result.push(Edge {
-        source: source_file_path.to_string(),
-        target: target_file_path.to_string(),
+        source: source.to_string(),
+        target: target.to_string(),
         ast_node: module_map[&(source, target)].ast_node.clone(),
       });
 
@@ -256,7 +265,10 @@ pub fn get_dependents(
     &mut result,
   );
 
-  Ok(result)
+  Ok(Graphics {
+    dictionaries: bimap.clone().into_iter().map(|(l, r)| (r, l)).collect(),
+    graph: result,
+  })
 }
 
 pub fn get_dependencies(
@@ -316,12 +328,18 @@ pub struct Edge {
 }
 
 #[napi(object)]
-pub struct Graphics {
+pub struct GroupGraphics {
   pub dictionaries: HashMap<String, String>,
   pub graph: Vec<Vec<Edge>>,
 }
 
-pub fn check_cycle(options: Option<Options>) -> Result<Graphics> {
+#[napi(object)]
+pub struct Graphics {
+  pub dictionaries: HashMap<String, String>,
+  pub graph: Vec<Edge>,
+}
+
+pub fn check_cycle(options: Option<Options>) -> Result<GroupGraphics> {
   let (used, bimap) = get_node(options)?;
 
   let (graph, module_map, node_indices) = build_graph(&used);
@@ -404,7 +422,7 @@ pub fn check_cycle(options: Option<Options>) -> Result<Graphics> {
     }
   }
 
-  Ok(Graphics {
+  Ok(GroupGraphics {
     dictionaries: bimap.clone().into_iter().map(|(l, r)| (r, l)).collect(),
     graph: result,
   })

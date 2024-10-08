@@ -45,7 +45,7 @@ pub fn check_browser_supported_with_source_code(
 #[napi]
 pub fn check_cycle(
   options: Option<module_graph::Options>,
-) -> Result<module_graph::Graphics> {
+) -> Result<module_graph::GroupGraphics> {
   module_graph::check_cycle(options).map_err(|err| {
     napi::Error::new(napi::Status::GenericFailure, err.to_string())
   })
@@ -55,7 +55,7 @@ pub fn check_cycle(
 pub fn check_dependents(
   file: String,
   options: Option<module_graph::Options>,
-) -> Result<Vec<module_graph::Edge>> {
+) -> Result<module_graph::Graphics> {
   let _ = init_logger();
   module_graph::get_dependents(file, options)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
