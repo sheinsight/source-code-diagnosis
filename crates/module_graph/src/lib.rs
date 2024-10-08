@@ -1,5 +1,6 @@
 use anyhow::Result;
 use beans::{AstNode, Span};
+use bimap::BiMap;
 use log::debug;
 use napi_derive::napi;
 use oxc_ast::AstKind;
@@ -11,7 +12,8 @@ use petgraph::graph::{DiGraph, NodeIndex};
 use petgraph::visit::Dfs;
 use petgraph::Direction;
 use serde::Serialize;
-
+use std::sync::atomic::AtomicU32;
+use std::sync::atomic::Ordering;
 use std::{
   collections::{HashMap, HashSet},
   path::PathBuf,
@@ -29,15 +31,13 @@ pub struct Options {
   pub modules: Option<Vec<String>>,
 }
 
-#[derive(Debug, Clone)]
-pub struct Dependency {
-  pub source: String,
-  pub target: String,
-  pub ast_node: AstNode,
-}
-
-pub fn get_node(options: Option<Options>) -> Result<Vec<Dependency>> {
+pub fn get_node(
+  options: Option<Options>,
+) -> Result<(Vec<Edge>, BiMap<String, String>)> {
   let used = Arc::new(Mutex::new(Vec::new()));
+  let id_counter = Arc::new(AtomicU32::new(0));
+  let bi_map: Arc<Mutex<BiMap<String, String>>> =
+    Arc::new(Mutex::new(BiMap::new()));
 
   let alias = match &options {
     Some(Options {
@@ -76,11 +76,12 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<Dependency>> {
 
   let handler = {
     let used = Arc::clone(&used);
+    let bi_map = Arc::clone(&bi_map);
 
     move |path: PathBuf| {
       debug!("path: {}", path.display().to_string());
 
-      let mut inline_usages: Vec<Dependency> = Vec::new();
+      let mut inline_usages: Vec<Edge> = Vec::new();
 
       SemanticBuilder::file(path.clone())
         .build_handler()
@@ -100,9 +101,36 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<Dependency>> {
 
                 let (span, loc) = handler.get_node_box(node);
 
-                inline_usages.push(Dependency {
-                  source: path.display().to_string(),
-                  target: resolved_path.full_path().display().to_string(),
+                let source = path.display().to_string();
+                let target = resolved_path.full_path().display().to_string();
+
+                let mut bi_map = bi_map.lock().unwrap();
+
+                let source_id = {
+                  if bi_map.contains_left(&source) {
+                    bi_map.get_by_left(&source).unwrap().to_string()
+                  } else {
+                    let id =
+                      id_counter.fetch_add(1, Ordering::SeqCst).to_string();
+                    bi_map.insert(source.clone(), id.to_string());
+                    id.to_string()
+                  }
+                };
+
+                let target_id = {
+                  if bi_map.contains_left(&target) {
+                    bi_map.get_by_left(&target).unwrap().to_string()
+                  } else {
+                    let id =
+                      id_counter.fetch_add(1, Ordering::SeqCst).to_string();
+                    bi_map.insert(target.clone(), id.to_string());
+                    id.to_string()
+                  }
+                };
+
+                inline_usages.push(Edge {
+                  source: source_id,
+                  target: target_id,
                   ast_node: AstNode {
                     span: Span {
                       start: span.start,
@@ -144,16 +172,17 @@ pub fn get_node(options: Option<Options>) -> Result<Vec<Dependency>> {
   })?;
 
   let x = used.lock().unwrap().clone();
+  let y = bi_map.lock().unwrap().clone();
 
-  Ok(x)
+  Ok((x, y))
 }
 
 pub fn build_graph(
-  used: &[Dependency],
+  used: &[Edge],
   dir: Direction,
 ) -> (
   DiGraph<String, ()>,
-  HashMap<(String, String), &Dependency>,
+  HashMap<(String, String), &Edge>,
   HashMap<String, NodeIndex>,
 ) {
   let len = used.len();
@@ -188,13 +217,15 @@ pub fn build_graph(
 pub fn get_dependents(
   file: String,
   options: Option<Options>,
-) -> Result<Vec<Vec<Cycle>>> {
-  let used = get_node(options)?;
+) -> Result<Vec<Vec<Edge>>> {
+  let (used, bimap) = get_node(options)?;
 
   let (graph, module_map, node_indices) =
     build_graph(&used, Direction::Outgoing);
 
-  let target_index = *node_indices.get(file.as_str()).unwrap();
+  let file_id = bimap.get_by_left(&file).unwrap();
+
+  let target_index = *node_indices.get(file_id).unwrap();
   let mut result = Vec::new();
 
   // 使用 Dfs 遍历反向图
@@ -216,9 +247,9 @@ pub fn get_dependents(
           .map(|window| {
             let source = graph[window[0]].clone();
             let target = graph[window[1]].clone();
-            Cycle {
-              source: source.to_string(),
-              target: target.to_string(),
+            Edge {
+              source: source.clone(),
+              target: target.clone(),
               ast_node: module_map[&(target, source)].ast_node.clone(),
             }
           })
@@ -232,32 +263,27 @@ pub fn get_dependents(
   Ok(result)
 }
 
-#[derive(Debug, Clone)]
-#[napi(object)]
-pub struct DependencyNode {
-  pub name: String,
-  pub children: Vec<DependencyNode>,
-  pub ast_node: Option<AstNode>,
-}
-
 pub fn get_dependencies(
   file: String,
   options: Option<Options>,
-) -> Result<Vec<Vec<Cycle>>> {
-  let used = get_node(options)?;
+) -> Result<Vec<Vec<Edge>>> {
+  let (used, bimap) = get_node(options)?;
   let (graph, module_map, node_indices) =
     build_graph(&used, Direction::Incoming);
 
-  let target_index = node_indices.get(file.as_str()).unwrap();
+  let file_id = bimap.get_by_left(&file).unwrap();
+
+  let target_index = *node_indices.get(file_id).unwrap();
+
   let mut result = Vec::new();
 
   // 使用 Dfs 遍历图
-  let mut dfs = Dfs::new(&graph, *target_index);
+  let mut dfs = Dfs::new(&graph, target_index);
   while let Some(nx) = dfs.next(&graph) {
-    if nx != *target_index {
+    if nx != target_index {
       for path in petgraph::algo::all_simple_paths::<Vec<_>, _>(
         &graph,
-        *target_index,
+        target_index,
         nx,
         0,
         None,
@@ -267,7 +293,7 @@ pub fn get_dependencies(
           .map(|window| {
             let source = graph[window[0]].clone();
             let target = graph[window[1]].clone();
-            Cycle {
+            Edge {
               source: source.to_string(),
               target: target.to_string(),
               ast_node: module_map[&(source, target)].ast_node.clone(),
@@ -277,7 +303,7 @@ pub fn get_dependencies(
         result.push(inline_path);
       }
 
-      if has_path_connecting(&graph, nx, *target_index, None) {
+      if has_path_connecting(&graph, nx, target_index, None) {
         println!("TODO cycle: {}", graph[nx].to_string());
       }
     }
@@ -287,36 +313,24 @@ pub fn get_dependencies(
 }
 
 #[napi(object)]
-#[derive(Debug, Serialize, Eq, Hash, PartialEq)]
-pub struct Cycle {
+#[derive(Debug, Serialize, Eq, Hash, PartialEq, Clone)]
+pub struct Edge {
   pub source: String,
   pub target: String,
   pub ast_node: AstNode,
 }
 
-pub fn check_cycle(options: Option<Options>) -> Result<Vec<Vec<Cycle>>> {
-  let used = get_node(options)?;
+#[napi(object)]
+pub struct Graphics {
+  pub dictionaries: HashMap<String, String>,
+  pub graph: Vec<Vec<Edge>>,
+}
 
-  let mut module_map = HashMap::new();
-  let mut graph = DiGraph::new();
-  let mut node_map: HashMap<&str, NodeIndex> = HashMap::new();
+pub fn check_cycle(options: Option<Options>) -> Result<Graphics> {
+  let (used, bimap) = get_node(options)?;
 
-  // 构建图的代码保持不变
-  for value in used.iter() {
-    let source = value.source.as_str();
-    let target = value.target.as_str();
-
-    let source_node = *node_map
-      .entry(source)
-      .or_insert_with(|| graph.add_node(source));
-
-    let target_node = *node_map
-      .entry(target)
-      .or_insert_with(|| graph.add_node(target));
-
-    module_map.insert((source, target), value);
-    graph.add_edge(source_node, target_node, ());
-  }
+  let (graph, module_map, node_indices) =
+    build_graph(&used, Direction::Incoming);
 
   // 使用 kosaraju_scc 算法找出强连通分量
   let sccs = kosaraju_scc(&graph);
@@ -362,21 +376,22 @@ pub fn check_cycle(options: Option<Options>) -> Result<Vec<Vec<Cycle>>> {
             let mut cycle = stack[cycle_start..]
               .windows(2)
               .map(|window| {
-                let source = graph[window[0]];
-                let target = graph[window[1]];
-                Cycle {
+                let source = graph[window[0]].clone();
+                let target = graph[window[1]].clone();
+                Edge {
                   source: source.to_string(),
                   target: target.to_string(),
                   ast_node: module_map[&(source, target)].ast_node.clone(),
                 }
               })
-              .collect::<Vec<Cycle>>();
+              .collect::<Vec<Edge>>();
 
             let last = stack.last().unwrap();
-            cycle.push(Cycle {
-              source: graph[*last].to_string(),
-              target: graph[neighbor].to_string(),
-              ast_node: module_map[&(graph[*last], graph[neighbor])]
+            cycle.push(Edge {
+              source: graph[*last].clone(),
+              target: graph[neighbor].clone(),
+              ast_node: module_map
+                [&(graph[*last].clone(), graph[neighbor].clone())]
                 .ast_node
                 .clone(),
             });
@@ -395,10 +410,13 @@ pub fn check_cycle(options: Option<Options>) -> Result<Vec<Vec<Cycle>>> {
     }
   }
 
-  Ok(result)
+  Ok(Graphics {
+    dictionaries: bimap.clone().into_iter().map(|(l, r)| (r, l)).collect(),
+    graph: result,
+  })
 }
 
-fn normalize_cycle(mut cycle: Vec<Cycle>) -> Vec<Cycle> {
+fn normalize_cycle(mut cycle: Vec<Edge>) -> Vec<Edge> {
   if let Some(min_pos) = cycle
     .iter()
     .enumerate()
@@ -408,106 +426,4 @@ fn normalize_cycle(mut cycle: Vec<Cycle>) -> Vec<Cycle> {
     cycle.rotate_left(min_pos);
   }
   cycle
-}
-
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_check_danger_strings() {
-    let mut alias = HashMap::new();
-
-    // let x = &[
-    //   ("@src", "src"),
-    //   ("@public-component", "src/component/public-component"),
-    //   ("@search-queries", "src/component/search-queries"),
-    //   (
-    //     "@shein-components/dateRangePicker2",
-    //     "src/component/public-component/dateRangePicker2Wrapper",
-    //   ),
-    //   ("@", "src"),
-    // ];
-
-    let x = &[
-      ("apis", "web_modules/apis"),
-      ("common", "web_modules/common"),
-      ("shein-lib", "web_modules/shein-lib"),
-      ("hooks", "web_modules/hooks"),
-      ("publicComponent", "web_modules/public/spmb"),
-      ("@", "src"),
-    ];
-
-    for (key, value) in x.iter() {
-      alias.insert(
-        key.to_string(),
-        vec![format!(
-          "{}/{}",
-          "/Users/ityuany/GitRepository/bmas",
-          value.to_string()
-        )],
-      );
-    }
-
-    // alias.insert(
-    //   "@src".to_string(),
-    //   vec!["/Users/ityuany/GitRepository/wms/src".to_string()],
-    // );
-    // alias.insert(
-    //   "@public-component".to_string(),
-    //   vec![
-    //     "/Users/ityuany/GitRepository/wms/src/component/public-component"
-    //       .to_string(),
-    //   ],
-    // );
-    // alias.insert(
-    //   "@search-queries".to_string(),
-    //   vec![
-    //     "/Users/ityuany/GitRepository/wms/src/component/search-queries"
-    //       .to_string(),
-    //   ],
-    // );
-    // alias.insert(
-    //   "@shein-components/dateRangePicker2".to_string(),
-    //   vec![
-    //     "/Users/ityuany/GitRepository/wms/src/component/public-component/dateRangePicker2Wrapper"
-    //       .to_string(),
-    //   ],
-    // );
-    // alias.insert(
-    //   "@".to_string(),
-    //   vec!["/Users/ityuany/GitRepository/wms/src".to_string()],
-    // );
-
-    let op = Options {
-      cwd: Some("/Users/ityuany/GitRepository/bmas/src".to_string()),
-      modules: Some(vec!["node_modules".into(), "web_modules".into()]),
-      pattern: None,
-      ignore: None,
-      alias: Some(alias),
-    };
-
-    // let result = get_dependents(
-    //   "/Users/ityuany/GitRepository/wms/src/lib/dealFunc.js".to_string(),
-    //   Some(op.clone()),
-    // );
-    // if let Ok(result) = result {
-    //   for x in result {
-    //     println!("{}", x);
-    //   }
-    // }
-
-    let result1 = check_cycle(Some(op.clone())).unwrap();
-
-    for x in result1 {
-      println!("\n跨越{}个文件的循环依赖", x.len());
-      for y in x.iter() {
-        // println!("{}  {} ", y.from, y.to);
-        println!(
-          "{}:{}..{}",
-          y.source, y.ast_node.loc.start.line, y.ast_node.loc.end.line
-        );
-      }
-    }
-  }
 }
