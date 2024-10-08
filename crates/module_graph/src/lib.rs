@@ -274,49 +274,58 @@ pub fn get_dependents(
 pub fn get_dependencies(
   file: String,
   options: Option<Options>,
-) -> Result<Vec<Vec<Edge>>> {
+) -> Result<Graphics> {
   let (used, bimap) = get_node(options)?;
   let (graph, module_map, node_indices) = build_graph(&used);
 
   let file_id = bimap.get_by_left(&file).unwrap();
-
   let target_index = *node_indices.get(file_id).unwrap();
 
   let mut result = Vec::new();
+  let mut visited = HashSet::new();
 
-  // 使用 Dfs 遍历图
-  let mut dfs = Dfs::new(&graph, target_index);
-  while let Some(nx) = dfs.next(&graph) {
-    if nx != target_index {
-      for path in petgraph::algo::all_simple_paths::<Vec<_>, _>(
-        &graph,
-        target_index,
-        nx,
-        0,
-        None,
-      ) {
-        let inline_path = path
-          .windows(2)
-          .map(|window| {
-            let source = graph[window[0]].clone();
-            let target = graph[window[1]].clone();
-            Edge {
-              source: source.to_string(),
-              target: target.to_string(),
-              ast_node: module_map[&(source, target)].ast_node.clone(),
-            }
-          })
-          .collect();
-        result.push(inline_path);
-      }
+  fn traverse_neighbors(
+    current: NodeIndex,
+    graph: &DiGraph<String, ()>,
+    module_map: &HashMap<(String, String), &Edge>,
+    bimap: &BiMap<String, String>,
+    visited: &mut HashSet<NodeIndex>,
+    result: &mut Vec<Edge>,
+  ) {
+    if visited.contains(&current) {
+      return;
+    }
+    visited.insert(current);
 
-      if has_path_connecting(&graph, nx, target_index, None) {
-        println!("TODO cycle: {}", graph[nx].to_string());
-      }
+    for neighbor in graph.neighbors_directed(current, Direction::Outgoing) {
+      let source = graph[current].to_string();
+      let target = graph[neighbor].to_string();
+      let source_file_path = bimap.get_by_right(&source).unwrap();
+      let target_file_path = bimap.get_by_right(&target).unwrap();
+
+      result.push(Edge {
+        source: source.to_string(),
+        target: target.to_string(),
+        ast_node: module_map[&(source, target)].ast_node.clone(),
+      });
+
+      traverse_neighbors(neighbor, graph, module_map, bimap, visited, result);
     }
   }
 
-  Ok(result)
+  traverse_neighbors(
+    target_index,
+    &graph,
+    &module_map,
+    &bimap,
+    &mut visited,
+    &mut result,
+  );
+
+  Ok(Graphics {
+    dictionaries: bimap.clone().into_iter().map(|(l, r)| (r, l)).collect(),
+    graph: result,
+  })
 }
 
 #[napi(object)]

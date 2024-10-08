@@ -1,5 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`The dependency file list of the specified file should be obtained normally. 1`] = `"c.js -> a.js :: c.js -> a.js , a.js -> utils.js :: c.js -> b.js :: c.js -> b.js , b.js -> utils.js"`;
+exports[`The dependency file list of the specified file should be obtained normally. 1`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js :: c.js -> b.js"`;
 
-exports[`The dependency file list of the specified file should be obtained normally. 2`] = `"c.js -> a.js :: c.js -> a.js , a.js -> utils.js :: c.js -> b.js :: c.js -> b.js , b.js -> utils.js"`;
+exports[`The dependency file list of the specified file should be obtained normally. 2`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js :: c.js -> b.js"`;

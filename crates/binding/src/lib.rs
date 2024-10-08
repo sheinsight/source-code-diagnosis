@@ -65,7 +65,7 @@ pub fn check_dependents(
 pub fn check_dependencies(
   file: String,
   options: Option<module_graph::Options>,
-) -> Result<Vec<Vec<module_graph::Edge>>> {
+) -> Result<module_graph::Graphics> {
   let _ = init_logger();
   module_graph::get_dependencies(file, options)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
