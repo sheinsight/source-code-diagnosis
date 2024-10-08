@@ -179,7 +179,6 @@ pub fn get_node(
 
 pub fn build_graph(
   used: &[Edge],
-  dir: Direction,
 ) -> (
   DiGraph<String, ()>,
   HashMap<(String, String), &Edge>,
@@ -191,24 +190,15 @@ pub fn build_graph(
   let mut module_map = HashMap::with_capacity(len);
   let mut node_indices = HashMap::with_capacity(len);
 
-  for value in used.iter() {
+  for edge in used.iter() {
     let source_node = *node_indices
-      .entry(value.source.clone())
-      .or_insert_with(|| graph.add_node(value.source.clone()));
+      .entry(edge.source.clone())
+      .or_insert_with(|| graph.add_node(edge.source.clone()));
     let target_node = *node_indices
-      .entry(value.target.clone())
-      .or_insert_with(|| graph.add_node(value.target.clone()));
-
-    match dir {
-      Direction::Outgoing => {
-        module_map.insert((value.target.clone(), value.source.clone()), value);
-        graph.add_edge(target_node, source_node, ());
-      }
-      Direction::Incoming => {
-        module_map.insert((value.source.clone(), value.target.clone()), value);
-        graph.add_edge(source_node, target_node, ());
-      }
-    }
+      .entry(edge.target.clone())
+      .or_insert_with(|| graph.add_node(edge.target.clone()));
+    graph.add_edge(source_node, target_node, ());
+    module_map.insert((edge.source.clone(), edge.target.clone()), edge);
   }
 
   (graph, module_map, node_indices)
@@ -217,48 +207,54 @@ pub fn build_graph(
 pub fn get_dependents(
   file: String,
   options: Option<Options>,
-) -> Result<Vec<Vec<Edge>>> {
+) -> Result<Vec<Edge>> {
   let (used, bimap) = get_node(options)?;
 
-  let (graph, module_map, node_indices) =
-    build_graph(&used, Direction::Outgoing);
+  let (graph, module_map, node_indices) = build_graph(&used);
 
   let file_id = bimap.get_by_left(&file).unwrap();
-
   let target_index = *node_indices.get(file_id).unwrap();
+
   let mut result = Vec::new();
+  let mut visited = HashSet::new();
 
-  // 使用 Dfs 遍历反向图
-  let mut dfs = Dfs::new(&graph, target_index);
-
-  let mut prev_node = target_index;
-
-  while let Some(nx) = dfs.next(&graph) {
-    if nx != target_index && !graph.contains_edge(prev_node, nx) {
-      // 使用 all_simple_paths 找到所有路径
-      for path in
-        all_simple_paths::<Vec<_>, _>(&graph, target_index, prev_node, 0, None)
-      {
-        let inline_path = path
-          .into_iter()
-          .rev()
-          .collect::<Vec<NodeIndex>>()
-          .windows(2)
-          .map(|window| {
-            let source = graph[window[0]].clone();
-            let target = graph[window[1]].clone();
-            Edge {
-              source: source.clone(),
-              target: target.clone(),
-              ast_node: module_map[&(target, source)].ast_node.clone(),
-            }
-          })
-          .collect();
-        result.push(inline_path);
-      }
+  fn traverse_neighbors(
+    current: NodeIndex,
+    graph: &DiGraph<String, ()>,
+    module_map: &HashMap<(String, String), &Edge>,
+    bimap: &BiMap<String, String>,
+    visited: &mut HashSet<NodeIndex>,
+    result: &mut Vec<Edge>,
+  ) {
+    if visited.contains(&current) {
+      return;
     }
-    prev_node = nx;
+    visited.insert(current);
+
+    for neighbor in graph.neighbors_directed(current, Direction::Incoming) {
+      let source = graph[neighbor].to_string();
+      let target = graph[current].to_string();
+      let source_file_path = bimap.get_by_right(&source).unwrap();
+      let target_file_path = bimap.get_by_right(&target).unwrap();
+
+      result.push(Edge {
+        source: source_file_path.to_string(),
+        target: target_file_path.to_string(),
+        ast_node: module_map[&(source, target)].ast_node.clone(),
+      });
+
+      traverse_neighbors(neighbor, graph, module_map, bimap, visited, result);
+    }
   }
+
+  traverse_neighbors(
+    target_index,
+    &graph,
+    &module_map,
+    &bimap,
+    &mut visited,
+    &mut result,
+  );
 
   Ok(result)
 }
@@ -268,8 +264,7 @@ pub fn get_dependencies(
   options: Option<Options>,
 ) -> Result<Vec<Vec<Edge>>> {
   let (used, bimap) = get_node(options)?;
-  let (graph, module_map, node_indices) =
-    build_graph(&used, Direction::Incoming);
+  let (graph, module_map, node_indices) = build_graph(&used);
 
   let file_id = bimap.get_by_left(&file).unwrap();
 
@@ -329,8 +324,7 @@ pub struct Graphics {
 pub fn check_cycle(options: Option<Options>) -> Result<Graphics> {
   let (used, bimap) = get_node(options)?;
 
-  let (graph, module_map, node_indices) =
-    build_graph(&used, Direction::Incoming);
+  let (graph, module_map, node_indices) = build_graph(&used);
 
   // 使用 kosaraju_scc 算法找出强连通分量
   let sccs = kosaraju_scc(&graph);
