@@ -1,6 +1,7 @@
 use anyhow::Result;
 use beans::{AstNode, Span};
 use bimap::BiMap;
+use camino::Utf8PathBuf;
 use log::debug;
 use napi_derive::napi;
 use oxc_ast::AstKind;
@@ -54,7 +55,9 @@ pub fn get_node(
   };
 
   let cwd = match &options {
-    Some(Options { cwd: Some(cwd), .. }) => cwd.clone() + "/",
+    Some(Options { cwd: Some(cwd), .. }) => {
+      Utf8PathBuf::from(cwd.clone() + "/").to_string()
+    }
     _ => "".to_string(),
   };
 
@@ -107,11 +110,12 @@ pub fn get_node(
 
                 let source =
                   path.display().to_string().replace(cwd.as_str(), "");
-                let target = resolved_path
-                  .full_path()
-                  .display()
-                  .to_string()
-                  .replace(cwd.as_str(), "");
+
+                let target = Utf8PathBuf::from(
+                  resolved_path.full_path().display().to_string(),
+                )
+                .to_string()
+                .replace(cwd.as_str(), "");
 
                 let mut bi_map = bi_map.lock().unwrap();
 
