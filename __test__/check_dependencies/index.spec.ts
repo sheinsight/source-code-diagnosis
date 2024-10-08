@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { fileURLToPath } from "node:url";
 import path, { dirname } from "node:path";
 import { checkDependencies, type Graphics } from "../../index.js";
-
+import fs from "node:fs";
 const __filename = fileURLToPath(import.meta.url);
 
 function normalizePaths(graphics: Graphics): string {
@@ -16,20 +16,49 @@ function normalizePaths(graphics: Graphics): string {
 	return graph;
 }
 
+function transformToEcharts(current: string, graphics: Graphics) {
+	const nodes = Object.entries(graphics.dictionaries).map(([id, name]) => ({
+		id,
+		name,
+		symbolSize: current === name ? 30 : 10,
+		edgeSymbol: ["circle", "arrow"],
+		itemStyle: {
+			color: current === name ? "#3ba272" : undefined,
+		},
+	}));
+
+	const links = graphics.graph.map((edge) => ({
+		source: edge.source,
+		target: edge.target,
+	}));
+
+	return {
+		nodes,
+		links,
+		categories: [],
+	};
+}
+
 test("The dependency file list of the specified file should be obtained normally.", () => {
 	const cwd = path.resolve(dirname(__filename), "features", "normal");
-	const response = checkDependencies("c.js", {
+	const current = "c.js";
+	const response = checkDependencies(current, {
 		cwd,
 	});
 
 	const normalizedPaths = normalizePaths(response);
 
 	expect(normalizedPaths).toMatchSnapshot();
+
+	fs.writeFileSync("./response.json", JSON.stringify(transformToEcharts(current, response), null, 2), {
+		encoding: "utf-8",
+	});
 });
 
 test("The dependency file list of the specified file should be obtained normally.", () => {
+	const current = "c.js";
 	const cwd = path.resolve(dirname(__filename), "features", "alias");
-	const response = checkDependencies("c.js", {
+	const response = checkDependencies(current, {
 		alias: {
 			"@": [cwd],
 		},
