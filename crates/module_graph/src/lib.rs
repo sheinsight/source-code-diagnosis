@@ -230,9 +230,11 @@ pub fn get_dependents(
 
   let mut result = Vec::new();
   let mut visited = HashSet::new();
+  let mut dictionaries = HashMap::new();
 
   fn traverse_neighbors(
     current: NodeIndex,
+    dictionaries: &mut HashMap<String, String>,
     graph: &DiGraph<String, ()>,
     module_map: &HashMap<(String, String), &Edge>,
     bimap: &BiMap<String, String>,
@@ -250,18 +252,30 @@ pub fn get_dependents(
       let source_file_path = bimap.get_by_right(&source).unwrap();
       let target_file_path = bimap.get_by_right(&target).unwrap();
 
+      dictionaries.insert(source.to_string(), source_file_path.to_string());
+      dictionaries.insert(target.to_string(), target_file_path.to_string());
+
       result.push(Edge {
         source: source.to_string(),
         target: target.to_string(),
         ast_node: module_map[&(source, target)].ast_node.clone(),
       });
 
-      traverse_neighbors(neighbor, graph, module_map, bimap, visited, result);
+      traverse_neighbors(
+        neighbor,
+        dictionaries,
+        graph,
+        module_map,
+        bimap,
+        visited,
+        result,
+      );
     }
   }
 
   traverse_neighbors(
     target_index,
+    &mut dictionaries,
     &graph,
     &module_map,
     &bimap,
@@ -270,7 +284,8 @@ pub fn get_dependents(
   );
 
   Ok(Graphics {
-    dictionaries: bimap.clone().into_iter().map(|(l, r)| (r, l)).collect(),
+    dictionaries: dictionaries,
+    // dictionaries: bimap.clone().into_iter().map(|(l, r)| (r, l)).collect(),
     graph: result,
   })
 }
@@ -287,9 +302,11 @@ pub fn get_dependencies(
 
   let mut result = Vec::new();
   let mut visited = HashSet::new();
+  let mut dictionaries = HashMap::new();
 
   fn traverse_neighbors(
     current: NodeIndex,
+    dictionaries: &mut HashMap<String, String>,
     graph: &DiGraph<String, ()>,
     module_map: &HashMap<(String, String), &Edge>,
     bimap: &BiMap<String, String>,
@@ -307,18 +324,30 @@ pub fn get_dependencies(
       let source_file_path = bimap.get_by_right(&source).unwrap();
       let target_file_path = bimap.get_by_right(&target).unwrap();
 
+      dictionaries.insert(source.to_string(), source_file_path.to_string());
+      dictionaries.insert(target.to_string(), target_file_path.to_string());
+
       result.push(Edge {
         source: source.to_string(),
         target: target.to_string(),
         ast_node: module_map[&(source, target)].ast_node.clone(),
       });
 
-      traverse_neighbors(neighbor, graph, module_map, bimap, visited, result);
+      traverse_neighbors(
+        neighbor,
+        dictionaries,
+        graph,
+        module_map,
+        bimap,
+        visited,
+        result,
+      );
     }
   }
 
   traverse_neighbors(
     target_index,
+    &mut dictionaries,
     &graph,
     &module_map,
     &bimap,
@@ -327,7 +356,8 @@ pub fn get_dependencies(
   );
 
   Ok(Graphics {
-    dictionaries: bimap.clone().into_iter().map(|(l, r)| (r, l)).collect(),
+    dictionaries: dictionaries,
+    // dictionaries: bimap.clone().into_iter().map(|(l, r)| (r, l)).collect(),
     graph: result,
   })
 }
