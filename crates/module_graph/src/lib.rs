@@ -56,9 +56,9 @@ pub fn get_node(
 
   let cwd = match &options {
     Some(Options { cwd: Some(cwd), .. }) => {
-      Utf8PathBuf::from(cwd.clone() + "/").to_string()
+      Utf8PathBuf::from(cwd).join("").into_string()
     }
-    _ => "".to_string(),
+    _ => String::new(),
   };
 
   let resolver_alias = alias
