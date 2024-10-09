@@ -32,7 +32,7 @@ pub fn check_browser_supported(
 
 #[napi]
 pub fn check_browser_supported_with_source_code(
-  target: String,
+  target: check_browser_supported::Target,
   source_code: String,
 ) -> Result<Vec<check_browser_supported::CompatBox>> {
   check_browser_supported::check_browser_supported_with_source_code(

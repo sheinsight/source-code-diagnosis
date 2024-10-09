@@ -12,6 +12,7 @@ pub use compat::{CompatBox, CompatHandler};
 use anyhow::Result;
 use log::debug;
 use napi::Error;
+use napi_derive::napi;
 use std::{
   path::PathBuf,
   sync::{Arc, Mutex},
@@ -37,13 +38,26 @@ macro_rules! enabled_debug {
   };
 }
 
+#[derive(Debug, Clone)]
+#[napi[object]]
+pub struct Target {
+  pub chrome: String,
+  // pub firefox: Option<String>,
+  // pub safari: Option<String>,
+  // pub edge: Option<String>,
+  // pub node: Option<String>,
+  // pub deno: Option<String>,
+}
+
 pub fn check_browser_supported_with_source_code(
-  target: String,
+  target: Target,
   source_code: String,
 ) -> Result<Vec<CompatBox>> {
-  debug!("User-specified browser target: {}", target);
+  debug!("User-specified browser target: {:?}", target);
 
-  let browser_list = resolve(&[target], &Opts::default())
+  let chrome_queries = format!("chrome >= {}", target.chrome);
+
+  let browser_list = resolve(&[chrome_queries], &Opts::default())
     .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))?;
 
   let chrome_version_list = get_version_list(&browser_list, "chrome");
