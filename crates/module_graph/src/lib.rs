@@ -117,10 +117,6 @@ pub fn get_node(
                 .to_string()
                 .replace(cwd.as_str(), "");
 
-                println!("cwd: {}", cwd);
-                println!("source: {}", source);
-                println!("target: {}", target);
-
                 let mut bi_map = bi_map.lock().unwrap();
 
                 let source_id = {
