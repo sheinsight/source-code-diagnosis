@@ -160,12 +160,14 @@ pub fn check_browser_supported_with_source_code(
 }
 
 pub fn check_browser_supported(
-  target: String,
+  target: Target,
   options: Option<utils::GlobOptions>,
 ) -> Result<Vec<CompatBox>> {
-  debug!("User-specified browser target: {}", target);
+  debug!("User-specified browser target: {:?}", target);
 
-  let browser_list = resolve(&[target], &Opts::default())
+  let chrome_queries = format!("chrome >= {}", target.chrome);
+
+  let browser_list = resolve(&[chrome_queries], &Opts::default())
     .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))?;
 
   let chrome_version_list = get_version_list(&browser_list, "chrome");
@@ -305,7 +307,12 @@ mod tests {
     .to_string();
 
     // Call the function
-    let result = check_browser_supported_with_source_code(target, source_code);
+    let result = check_browser_supported_with_source_code(
+      Target {
+        chrome: "40".to_string(),
+      },
+      source_code,
+    );
 
     // Assert the result
     assert!(result.is_ok());

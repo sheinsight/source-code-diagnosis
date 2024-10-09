@@ -23,7 +23,7 @@ pub fn check_module_member_usage(
 
 #[napi]
 pub fn check_browser_supported(
-  target: String,
+  target: check_browser_supported::Target,
   options: Option<utils::GlobOptions>,
 ) -> Result<Vec<check_browser_supported::CompatBox>> {
   check_browser_supported::check_browser_supported(target, options)
