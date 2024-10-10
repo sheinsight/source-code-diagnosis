@@ -97,7 +97,11 @@ impl SemanticBuilder {
       for err in ret.errors.iter() {
         eprintln!("parse error: {:?}", err);
       }
-      panic!("parse error: {:?}", ret.errors);
+      panic!(
+        "parse error: {:?} {}",
+        ret.errors,
+        self.file_path.as_ref().unwrap().to_string_lossy()
+      );
     }
 
     let program = self.allocator.alloc(ret.program);
