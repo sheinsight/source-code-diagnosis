@@ -97,7 +97,7 @@ impl SemanticBuilder {
       for err in ret.errors.iter() {
         eprintln!("parse error: {:?}", err);
       }
-      panic!(
+      eprintln!(
         "parse error: {:?} {}",
         ret.errors,
         self.file_path.as_ref().unwrap().to_string_lossy()
