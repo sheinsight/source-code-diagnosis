@@ -1,8 +1,10 @@
+use std::fs::read_to_string;
 use std::{path::PathBuf, sync::Arc};
 
 use anyhow::Context;
 use anyhow::Result;
 use handler::ModuleMemberUsageHandler;
+use oxc_span::SourceType;
 use parking_lot::Mutex;
 use utils::{glob, GlobOptions, SemanticBuilder};
 
@@ -18,7 +20,11 @@ pub fn check_module_member_usage(
   let x = {
     let used = Arc::clone(&used);
     move |path: PathBuf| {
-      let builder = SemanticBuilder::file(path.clone());
+      let source_code = read_to_string(&path).unwrap();
+
+      let source_type = SourceType::from_path(&path).unwrap();
+
+      let builder = SemanticBuilder::code(&source_code, source_type);
       let handler = builder.build_handler();
 
       let inline_usages = ModuleMemberUsageHandler::new(

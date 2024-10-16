@@ -1,9 +1,10 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{fs::read_to_string, path::PathBuf, sync::Arc};
 
 use anyhow::{Context, Result};
 use beans::AstNode;
 use napi_derive::napi;
 use oxc_ast::AstKind;
+use oxc_span::SourceType;
 use parking_lot::Mutex;
 use serde::Serialize;
 use utils::{glob, GlobOptions, SemanticBuilder};
@@ -27,13 +28,17 @@ pub fn check_danger_strings(
     let used = Arc::clone(&used);
     move |path: PathBuf| {
       let mut inline_usages: Vec<Response> = Vec::new();
-      SemanticBuilder::file(path.clone())
+
+      let source_code = read_to_string(&path).unwrap();
+
+      let source_type = SourceType::from_path(&path).unwrap();
+
+      SemanticBuilder::code(&source_code, source_type)
         .build_handler()
         .each_node(|handler, node| {
           if let AstKind::StringLiteral(string_literal) = node.kind() {
             let value = string_literal.value.to_string();
             let span = string_literal.span;
-
             let loc =
               handler.offset_to_location(handler.semantic.source_text(), span);
 

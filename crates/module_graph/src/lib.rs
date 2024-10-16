@@ -6,12 +6,14 @@ use log::debug;
 use napi_derive::napi;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
+use oxc_span::SourceType;
 use petgraph::algo::has_path_connecting;
 use petgraph::algo::kosaraju_scc;
 use petgraph::graph::{DiGraph, NodeIndex};
 use petgraph::visit::Dfs;
 use petgraph::Direction;
 use serde::Serialize;
+use std::fs::read_to_string;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
 use std::{
@@ -90,7 +92,11 @@ pub fn get_node(
 
       let mut inline_usages: Vec<Edge> = Vec::new();
 
-      SemanticBuilder::file(path.clone())
+      let source_code = read_to_string(&path).unwrap();
+
+      let source_type = SourceType::from_path(&path).unwrap();
+
+      SemanticBuilder::code(&source_code, source_type)
         .build_handler()
         .each_node(|handler, node| {
           if let AstKind::ImportDeclaration(import_declaration) = node.kind() {

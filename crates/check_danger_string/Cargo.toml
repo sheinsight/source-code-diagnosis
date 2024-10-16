@@ -14,3 +14,4 @@ utils = { path = "../utils" }
 beans = { path = "../beans" }
 anyhow = { workspace = true }
 parking_lot = { workspace = true }
+oxc_span = {workspace = true}
