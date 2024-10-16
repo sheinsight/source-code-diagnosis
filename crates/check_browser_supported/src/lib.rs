@@ -13,7 +13,9 @@ use anyhow::Result;
 use log::debug;
 use napi::Error;
 use napi_derive::napi;
+use oxc_span::SourceType;
 use std::{
+  fs::read_to_string,
   path::PathBuf,
   sync::{Arc, Mutex},
 };
@@ -135,7 +137,7 @@ pub fn check_browser_supported_with_source_code(
 
   let mut used: Vec<CompatBox> = Vec::new();
 
-  SemanticBuilder::js(source_code).build_handler().each_node(
+  SemanticBuilder::js(&source_code).build_handler().each_node(
     |handler, node| {
       for compat_handler in compat_handlers.iter() {
         if compat_handler.handle(
@@ -249,7 +251,11 @@ pub fn check_browser_supported(
     let used = Arc::clone(&used);
     let clone = Arc::clone(&share);
     move |path: PathBuf| {
-      SemanticBuilder::file(path.clone())
+      let source_code = read_to_string(&path).unwrap();
+
+      let source_type = SourceType::from_path(&path).unwrap();
+
+      SemanticBuilder::code(&source_code, source_type)
         .build_handler()
         .each_node(|handler, node| {
           for compat_handler in clone.iter() {

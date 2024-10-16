@@ -306,14 +306,13 @@ mod tests {
     let file_path_str = PathBuf::from("file_path_str");
 
     let semantic_builder = SemanticBuilder::js(
-      r#"
+      &r#"
       import { useState } from 'react';
       function Component() {
           const [state, setState] = useState(0);
           return <div>{state}</div>;
       }
-    "#
-      .to_string(),
+    "#,
     );
     let semantic_handler = semantic_builder.build_handler();
 
@@ -334,13 +333,12 @@ mod tests {
     let file_path_str = PathBuf::from("file_path_str");
 
     let semantic_builder = SemanticBuilder::js(
-      r#"
+      &r#"
         import React from 'react';
         function Component() {
             return <React.Fragment>Hello</React.Fragment>;
         }
-      "#
-      .to_string(),
+      "#,
     );
     let semantic_handler = semantic_builder.build_handler();
 
@@ -361,13 +359,12 @@ mod tests {
     let file_path_str = PathBuf::from("file_path_str");
 
     let semantic_builder = SemanticBuilder::js(
-      r#"
+      &r#"
         import * as React from 'react';
         function Component() {
             return <React.Fragment>Hello</React.Fragment>;
         }
-      "#
-      .to_string(),
+      "#,
     );
     let semantic_handler = semantic_builder.build_handler();
 
@@ -388,10 +385,9 @@ mod tests {
     let file_path_str = PathBuf::from("file_path_str");
 
     let semantic_builder = SemanticBuilder::js(
-      r#"
+      &r#"
         import 'react';
-      "#
-      .to_string(),
+      "#,
     );
     let semantic_handler = semantic_builder.build_handler();
 
@@ -412,7 +408,7 @@ mod tests {
     let file_path_str = PathBuf::from("file_path_str");
 
     let semantic_builder = SemanticBuilder::js(
-      r#"
+      &r#"
         import React, { useState } from 'react';
         import * as ReactDOM from 'react-dom';
         function Component() {
@@ -420,8 +416,7 @@ mod tests {
             return <React.Fragment>{state}</React.Fragment>;
         }
         ReactDOM.render(<Component />, document.getElementById('root'));
-      "#
-      .to_string(),
+      "#,
     );
     let semantic_handler = semantic_builder.build_handler();
     let handler = ModuleMemberUsageHandler::new(

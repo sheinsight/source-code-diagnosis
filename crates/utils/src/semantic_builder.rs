@@ -11,16 +11,16 @@ use oxc_semantic::{
 use oxc_span::{GetSpan, SourceType};
 use ropey::Rope;
 
-pub struct SemanticBuilder {
-  pub source_code: String,
+pub struct SemanticBuilder<'a> {
+  pub source_code: &'a str,
   pub source_type: SourceType,
   pub allocator: Allocator,
   pub file_path: Option<PathBuf>,
 }
 
-impl SemanticBuilder {
+impl<'a> SemanticBuilder<'a> {
   pub fn new(
-    source_code: String,
+    source_code: &'a str,
     source_type: SourceType,
     file_path: Option<PathBuf>,
   ) -> Self {
@@ -33,13 +33,11 @@ impl SemanticBuilder {
     }
   }
 
-  pub fn file(path: PathBuf) -> Self {
-    let source_code = read_to_string(&path).unwrap();
-    let source_type = SourceType::from_path(&path).unwrap();
-    Self::new(source_code, source_type, Some(path))
+  pub fn code(source_code: &'a str, source_type: SourceType) -> Self {
+    Self::new(source_code, source_type, None)
   }
 
-  pub fn ts(source_code: String) -> Self {
+  pub fn ts(source_code: &'a str) -> Self {
     Self::new(
       source_code,
       SourceType::default()
@@ -50,7 +48,7 @@ impl SemanticBuilder {
     )
   }
 
-  pub fn js(source_text: String) -> Self {
+  pub fn js(source_text: &'a str) -> Self {
     Self::new(
       source_text,
       SourceType::default().with_module(true).with_jsx(true),
