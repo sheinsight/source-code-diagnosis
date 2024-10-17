@@ -11,6 +11,9 @@ beans = { path = "../beans" }
 petgraph = "0.6.5"
 bimap = "0.6.2"
 camino = "1.1.9"
+wax = "0.6.0"
+rayon = "1.10.0"
+crossbeam = "0.8.4"
 napi-derive = { workspace = true }
 napi = { workspace = true }
 oxc_ast = { workspace = true }

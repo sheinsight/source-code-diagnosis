@@ -22,6 +22,7 @@ use std::{
   sync::{Arc, Mutex},
 };
 use utils::{glob, GlobOptions, SemanticBuilder};
+mod graph;
 
 #[napi[object]]
 #[derive(Debug, Clone)]
