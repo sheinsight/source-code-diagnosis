@@ -7,7 +7,6 @@ use napi_derive::napi;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
 use oxc_span::SourceType;
-use petgraph::algo::has_path_connecting;
 use petgraph::algo::kosaraju_scc;
 use petgraph::graph::{DiGraph, NodeIndex};
 use petgraph::visit::Dfs;
@@ -22,7 +21,7 @@ use std::{
   sync::{Arc, Mutex},
 };
 use utils::{glob, GlobOptions, SemanticBuilder};
-mod graph;
+pub mod graph;
 
 #[napi[object]]
 #[derive(Debug, Clone)]

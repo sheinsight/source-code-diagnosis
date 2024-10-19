@@ -43,6 +43,31 @@ pub fn check_browser_supported_with_source_code(
 }
 
 #[napi]
+pub fn test(file: String, args: module_graph::graph::JsArgs) {
+  // let mut graph = module_graph::graph::Graph::new(Some(args.clone()));
+  // if let Ok(cycles) = graph.check_cycle() {
+  //   println!("--->>>  {:?}", &cycles.graph);
+  //   println!("--->>>  {:?}", &cycles.dictionaries);
+  // }
+
+  let cwd = args.cwd.unwrap_or_default();
+  let ignore = args.ignore.unwrap_or_default();
+  let pattern = args.pattern.unwrap_or_default();
+
+  let mut graph = module_graph::graph::Graph::new(module_graph::graph::Args {
+    alias: args.alias.unwrap_or_default(),
+    modules: args.modules.unwrap_or_default(),
+    cwd: cwd.as_str(),
+    ignore: ignore.iter().map(|s| s.as_str()).collect(),
+    pattern: pattern.as_str(),
+  });
+  if let Ok(cycles) = graph.check_dependencies(file.to_string()) {
+    println!("--->>>  {:?}", &cycles.graph);
+    println!("--->>>  {:?}", &cycles.dictionaries);
+  }
+}
+
+#[napi]
 pub fn check_cycle(
   options: Option<module_graph::Options>,
 ) -> Result<module_graph::GroupGraphics> {
