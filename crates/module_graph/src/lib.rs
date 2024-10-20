@@ -3,6 +3,7 @@ use beans::{AstNode, Span};
 use bimap::BiMap;
 use camino::Utf8PathBuf;
 use log::debug;
+use model::{Edge, Graphics, GroupGraphics};
 use napi_derive::napi;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
@@ -11,7 +12,6 @@ use petgraph::algo::kosaraju_scc;
 use petgraph::graph::{DiGraph, NodeIndex};
 use petgraph::visit::Dfs;
 use petgraph::Direction;
-use serde::Serialize;
 use std::fs::read_to_string;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
@@ -22,6 +22,7 @@ use std::{
 };
 use utils::{glob, GlobOptions, SemanticBuilder};
 pub mod graph;
+pub mod model;
 
 #[napi[object]]
 #[derive(Debug, Clone)]
@@ -366,26 +367,6 @@ pub fn get_dependencies(
     // dictionaries: bimap.clone().into_iter().map(|(l, r)| (r, l)).collect(),
     graph: result,
   })
-}
-
-#[napi(object)]
-#[derive(Debug, Serialize, Eq, Hash, PartialEq, Clone)]
-pub struct Edge {
-  pub source: String,
-  pub target: String,
-  pub ast_node: AstNode,
-}
-
-#[napi(object)]
-pub struct GroupGraphics {
-  pub dictionaries: HashMap<String, String>,
-  pub graph: Vec<Vec<Edge>>,
-}
-
-#[napi(object)]
-pub struct Graphics {
-  pub dictionaries: HashMap<String, String>,
-  pub graph: Vec<Edge>,
 }
 
 pub fn check_cycle(options: Option<Options>) -> Result<GroupGraphics> {

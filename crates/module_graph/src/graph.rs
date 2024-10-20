@@ -1,6 +1,5 @@
 use std::{
   collections::{HashMap, HashSet},
-  env::current_dir,
   fs::read_to_string,
   path::PathBuf,
   sync::{
@@ -13,7 +12,6 @@ use anyhow::Result;
 use beans::{AstNode, Location, Span};
 use bimap::BiMap;
 use camino::Utf8PathBuf;
-use napi_derive::napi;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
 use oxc_span::SourceType;
@@ -24,62 +22,10 @@ use petgraph::{
   Direction,
 };
 use rayon::prelude::*;
-use serde::Serialize;
 use utils::SemanticBuilder;
 use wax::{Glob, WalkEntry, WalkError};
 
-#[napi(object)]
-pub struct JsArgs {
-  pub cwd: Option<String>,
-  pub pattern: Option<String>,
-  pub ignore: Option<Vec<String>>,
-  pub alias: Option<HashMap<String, Vec<String>>>,
-  pub modules: Option<Vec<String>>,
-}
-
-impl Default for JsArgs {
-  fn default() -> Self {
-    Self {
-      cwd: Some(current_dir().unwrap().display().to_string()),
-      pattern: Some("**/*.{js,ts,jsx,tsx}".to_string()),
-      ignore: Some(vec![
-        "**/node_modules/**".to_string(),
-        "**/*.d.ts".to_string(),
-      ]),
-      alias: Some(HashMap::new()),
-      modules: Some(vec!["node_modules".to_string()]),
-    }
-  }
-}
-
-#[derive(Debug, Clone)]
-pub struct Args<'a> {
-  pub cwd: &'a str,
-  pub pattern: &'a str,
-  pub ignore: Vec<&'a str>,
-  pub alias: HashMap<String, Vec<String>>,
-  pub modules: Vec<String>,
-}
-
-#[napi(object)]
-#[derive(Debug, Serialize, Eq, Hash, PartialEq, Clone)]
-pub struct Edge {
-  pub source: String,
-  pub target: String,
-  pub ast_node: AstNode,
-}
-
-#[napi(object)]
-pub struct GroupGraphics {
-  pub dictionaries: HashMap<String, String>,
-  pub graph: Vec<Vec<Edge>>,
-}
-
-#[napi(object)]
-pub struct Graphics {
-  pub dictionaries: HashMap<String, String>,
-  pub graph: Vec<Edge>,
-}
+use crate::model::{Args, Edge, Graphics, GroupGraphics};
 
 pub struct Graph<'a> {
   id_counter: Arc<AtomicU32>,

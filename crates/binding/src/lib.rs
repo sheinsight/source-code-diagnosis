@@ -43,7 +43,7 @@ pub fn check_browser_supported_with_source_code(
 }
 
 #[napi]
-pub fn test(file: String, args: module_graph::graph::JsArgs) {
+pub fn test(file: String, args: module_graph::model::JsArgs) {
   // let mut graph = module_graph::graph::Graph::new(Some(args.clone()));
   // if let Ok(cycles) = graph.check_cycle() {
   //   println!("--->>>  {:?}", &cycles.graph);
@@ -54,7 +54,7 @@ pub fn test(file: String, args: module_graph::graph::JsArgs) {
   let ignore = args.ignore.unwrap_or_default();
   let pattern = args.pattern.unwrap_or_default();
 
-  let mut graph = module_graph::graph::Graph::new(module_graph::graph::Args {
+  let mut graph = module_graph::graph::Graph::new(module_graph::model::Args {
     alias: args.alias.unwrap_or_default(),
     modules: args.modules.unwrap_or_default(),
     cwd: cwd.as_str(),
@@ -70,7 +70,7 @@ pub fn test(file: String, args: module_graph::graph::JsArgs) {
 #[napi]
 pub fn check_cycle(
   options: Option<module_graph::Options>,
-) -> Result<module_graph::GroupGraphics> {
+) -> Result<module_graph::model::GroupGraphics> {
   module_graph::check_cycle(options).map_err(|err| {
     napi::Error::new(napi::Status::GenericFailure, err.to_string())
   })
@@ -80,7 +80,7 @@ pub fn check_cycle(
 pub fn check_dependents(
   file: String,
   options: Option<module_graph::Options>,
-) -> Result<module_graph::Graphics> {
+) -> Result<module_graph::model::Graphics> {
   let _ = init_logger();
   module_graph::get_dependents(file, options)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
@@ -90,7 +90,7 @@ pub fn check_dependents(
 pub fn check_dependencies(
   file: String,
   options: Option<module_graph::Options>,
-) -> Result<module_graph::Graphics> {
+) -> Result<module_graph::model::Graphics> {
   let _ = init_logger();
   module_graph::get_dependencies(file, options)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
