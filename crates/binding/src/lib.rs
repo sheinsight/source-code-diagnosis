@@ -69,11 +69,23 @@ pub fn test(file: String, args: module_graph::model::JsArgs) {
 
 #[napi]
 pub fn check_cycle(
-  options: Option<module_graph::Options>,
+  args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::GroupGraphics> {
-  module_graph::check_cycle(options).map_err(|err| {
-    napi::Error::new(napi::Status::GenericFailure, err.to_string())
-  })
+  let cwd = args.get_cwd();
+
+  let ignore = args.get_ignore();
+
+  let pattern = args.get_pattern();
+
+  let mut graph = module_graph::graph::Graph::new(module_graph::model::Args {
+    alias: args.get_alias(),
+    modules: args.get_modules(),
+    cwd: cwd.as_str(),
+    ignore: ignore.iter().map(|s| s.as_str()).collect(),
+    pattern: pattern.as_str(),
+  });
+  let res = graph.check_cycle();
+  res.map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
 #[napi]
