@@ -61,7 +61,7 @@ impl SemanticBuilder {
   pub fn build(&self) -> Semantic<'_> {
     let semantic_ret = self.build_with_errors();
     if !semantic_ret.errors.is_empty() {
-      panic!(
+      eprintln!(
         "Semantic analysis failed:\n\n{}",
         semantic_ret
           .errors
