@@ -1,4 +1,5 @@
 use env_logger::Env;
+use module_graph::model::DemoArgs;
 use napi::Result;
 use napi_derive::napi;
 use utils::GlobOptions;
@@ -43,12 +44,20 @@ pub fn check_browser_supported_with_source_code(
 }
 
 #[napi]
-pub fn test(file: String, args: module_graph::model::JsArgs) {
+pub fn test(file: String, args: module_graph::model::DemoArgs) {
   // let mut graph = module_graph::graph::Graph::new(Some(args.clone()));
   // if let Ok(cycles) = graph.check_cycle() {
   //   println!("--->>>  {:?}", &cycles.graph);
   //   println!("--->>>  {:?}", &cycles.dictionaries);
   // }
+
+  println!(
+    "--->>>  {:?} {:?}",
+    args,
+    module_graph::model::DemoArgs {
+      ..module_graph::model::DemoArgs::default()
+    }
+  );
 
   let cwd = args.cwd;
   let ignore = args.ignore.unwrap_or_default();

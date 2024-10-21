@@ -19,6 +19,7 @@ test("Detect circular dependencies in the specified directory.", () => {
 
 	const cwd = path.resolve(dirname(__filename), "..", "check_dependencies", "features", "normal");
 
+	// @ts-ignore
 	const res = t("a.js", {
 		cwd,
 	});
