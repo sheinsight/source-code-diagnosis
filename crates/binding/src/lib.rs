@@ -50,7 +50,7 @@ pub fn test(file: String, args: module_graph::model::JsArgs) {
   //   println!("--->>>  {:?}", &cycles.dictionaries);
   // }
 
-  let cwd = args.cwd.unwrap_or_default();
+  let cwd = args.cwd;
   let ignore = args.ignore.unwrap_or_default();
   let pattern = args.pattern.unwrap_or_default();
 
@@ -80,9 +80,9 @@ pub fn check_cycle(
   let mut graph = module_graph::graph::Graph::new(module_graph::model::Args {
     alias: args.get_alias(),
     modules: args.get_modules(),
-    cwd: cwd.as_str(),
-    ignore: ignore.iter().map(|s| s.as_str()).collect(),
-    pattern: pattern.as_str(),
+    ignore: ignore.iter().map(AsRef::as_ref).collect(),
+    cwd: &cwd,
+    pattern: &pattern,
   });
   let res = graph.check_cycle();
   res.map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
@@ -91,20 +91,48 @@ pub fn check_cycle(
 #[napi]
 pub fn check_dependents(
   file: String,
-  options: Option<module_graph::Options>,
+  args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::Graphics> {
-  let _ = init_logger();
-  module_graph::get_dependents(file, options)
+  let cwd = args.get_cwd();
+
+  let ignore = args.get_ignore();
+
+  let pattern = args.get_pattern();
+
+  let mut graph = module_graph::graph::Graph::new(module_graph::model::Args {
+    alias: args.get_alias(),
+    modules: args.get_modules(),
+    ignore: ignore.iter().map(AsRef::as_ref).collect(),
+    cwd: &cwd,
+    pattern: &pattern,
+  });
+
+  graph
+    .check_dependents(file)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
 #[napi]
 pub fn check_dependencies(
   file: String,
-  options: Option<module_graph::Options>,
+  args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::Graphics> {
-  let _ = init_logger();
-  module_graph::get_dependencies(file, options)
+  let cwd = args.get_cwd();
+
+  let ignore = args.get_ignore();
+
+  let pattern = args.get_pattern();
+
+  let mut graph = module_graph::graph::Graph::new(module_graph::model::Args {
+    alias: args.get_alias(),
+    modules: args.get_modules(),
+    ignore: ignore.iter().map(AsRef::as_ref).collect(),
+    cwd: &cwd,
+    pattern: &pattern,
+  });
+
+  graph
+    .check_dependencies(file)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 

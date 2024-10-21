@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env::current_dir};
+use std::collections::HashMap;
 
 use camino::Utf8PathBuf;
 use napi_derive::napi;
@@ -7,7 +7,7 @@ use serde::Serialize;
 #[derive(Debug, Clone)]
 #[napi(object)]
 pub struct JsArgs {
-  pub cwd: Option<String>,
+  pub cwd: String,
   pub pattern: Option<String>,
   pub ignore: Option<Vec<String>>,
   pub alias: Option<HashMap<String, Vec<String>>>,
@@ -16,10 +16,7 @@ pub struct JsArgs {
 
 impl JsArgs {
   pub fn get_cwd(&self) -> String {
-    let default_cwd = current_dir().unwrap().display().to_string();
-    Utf8PathBuf::from(self.cwd.clone().unwrap_or(default_cwd))
-      .join("")
-      .into_string()
+    return Utf8PathBuf::from(self.cwd.clone()).join("").to_string();
   }
 
   pub fn get_pattern(&self) -> String {
