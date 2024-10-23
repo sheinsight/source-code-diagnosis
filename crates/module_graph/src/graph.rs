@@ -33,17 +33,17 @@ pub struct Graph<'a> {
   pub edges: Arc<Mutex<Vec<Edge>>>,
   node_index_map: HashMap<String, NodeIndex>,
   edge_map: HashMap<(String, String), Edge>,
-  cwd: &'a str,
+  cwd: String,
   resolver: Resolver,
   entries: Vec<Result<WalkEntry<'a>, WalkError>>,
 }
 
 impl<'a> Graph<'a> {
-  pub fn new(options: Args<'a>) -> Self {
+  pub fn new(options: Args) -> Self {
     let resolver =
       Self::build_resolver(options.alias.clone(), options.modules.clone());
     let entries =
-      Self::build_entries(options.cwd, options.pattern, options.ignore.clone());
+      Self::build_entries(&options.cwd, &options.pattern, options.ignore);
     Self {
       id_counter: Arc::new(AtomicU32::new(0)),
       bi_map: Arc::new(Mutex::new(BiMap::new())),
@@ -84,12 +84,14 @@ impl<'a> Graph<'a> {
   }
 
   fn build_entries(
-    cwd: &'a str,
-    pattern: &'a str,
-    ignore: Vec<&'a str>,
+    cwd: &str,
+    pattern: &str,
+    ignore: Vec<String>,
   ) -> Vec<Result<WalkEntry<'a>, WalkError>> {
     if let Ok(glob) = Glob::new(pattern) {
-      if let Ok(entries) = glob.walk(&cwd).not(ignore) {
+      if let Ok(entries) =
+        glob.walk(&cwd).not(ignore.iter().map(|s| s.as_str()))
+      {
         return entries.collect::<Vec<_>>();
       }
     }
@@ -145,9 +147,9 @@ impl<'a> Graph<'a> {
 
         let (span, loc) = handler.get_node_box(node);
 
-        let source = self.to_relative_path(self.cwd, path.to_path_buf());
+        let source = self.to_relative_path(&self.cwd, path.to_path_buf());
         let target = self
-          .to_relative_path(self.cwd, resolved_path.full_path().to_path_buf());
+          .to_relative_path(&self.cwd, resolved_path.full_path().to_path_buf());
 
         let source_id = self.build_id(&source);
         let target_id = self.build_id(&target);
@@ -437,7 +439,11 @@ impl<'a> Graph<'a> {
     }
   }
 
-  fn to_relative_path(&self, cwd: &str, absolute_path_buf: PathBuf) -> String {
+  fn to_relative_path(
+    &self,
+    cwd: &String,
+    absolute_path_buf: PathBuf,
+  ) -> String {
     if let Ok(absolute_path) = Utf8PathBuf::from_path_buf(absolute_path_buf) {
       absolute_path.to_string().replace(cwd, "")
     } else {

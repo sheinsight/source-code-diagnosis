@@ -1,5 +1,4 @@
 use env_logger::Env;
-use module_graph::model::DemoArgs;
 use napi::Result;
 use napi_derive::napi;
 use utils::GlobOptions;
@@ -44,55 +43,11 @@ pub fn check_browser_supported_with_source_code(
 }
 
 #[napi]
-pub fn test(file: String, args: module_graph::model::DemoArgs) {
-  // let mut graph = module_graph::graph::Graph::new(Some(args.clone()));
-  // if let Ok(cycles) = graph.check_cycle() {
-  //   println!("--->>>  {:?}", &cycles.graph);
-  //   println!("--->>>  {:?}", &cycles.dictionaries);
-  // }
-
-  println!(
-    "--->>>  {:?} {:?}",
-    args,
-    module_graph::model::DemoArgs {
-      ..module_graph::model::DemoArgs::default()
-    }
-  );
-
-  let cwd = args.cwd;
-  let ignore = args.ignore.unwrap_or_default();
-  let pattern = args.pattern.unwrap_or_default();
-
-  let mut graph = module_graph::graph::Graph::new(module_graph::model::Args {
-    alias: args.alias.unwrap_or_default(),
-    modules: args.modules.unwrap_or_default(),
-    cwd: cwd.as_str(),
-    ignore: ignore.iter().map(|s| s.as_str()).collect(),
-    pattern: pattern.as_str(),
-  });
-  if let Ok(cycles) = graph.check_dependencies(file.to_string()) {
-    println!("--->>>  {:?}", &cycles.graph);
-    println!("--->>>  {:?}", &cycles.dictionaries);
-  }
-}
-
-#[napi]
 pub fn check_cycle(
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::GroupGraphics> {
-  let cwd = args.get_cwd();
-
-  let ignore = args.get_ignore();
-
-  let pattern = args.get_pattern();
-
-  let mut graph = module_graph::graph::Graph::new(module_graph::model::Args {
-    alias: args.get_alias(),
-    modules: args.get_modules(),
-    ignore: ignore.iter().map(AsRef::as_ref).collect(),
-    cwd: &cwd,
-    pattern: &pattern,
-  });
+  let args = module_graph::model::Args::from(args);
+  let mut graph = module_graph::graph::Graph::new(args);
   let res = graph.check_cycle();
   res.map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
@@ -102,20 +57,8 @@ pub fn check_dependents(
   file: String,
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::Graphics> {
-  let cwd = args.get_cwd();
-
-  let ignore = args.get_ignore();
-
-  let pattern = args.get_pattern();
-
-  let mut graph = module_graph::graph::Graph::new(module_graph::model::Args {
-    alias: args.get_alias(),
-    modules: args.get_modules(),
-    ignore: ignore.iter().map(AsRef::as_ref).collect(),
-    cwd: &cwd,
-    pattern: &pattern,
-  });
-
+  let args = module_graph::model::Args::from(args);
+  let mut graph = module_graph::graph::Graph::new(args);
   graph
     .check_dependents(file)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
@@ -126,20 +69,8 @@ pub fn check_dependencies(
   file: String,
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::Graphics> {
-  let cwd = args.get_cwd();
-
-  let ignore = args.get_ignore();
-
-  let pattern = args.get_pattern();
-
-  let mut graph = module_graph::graph::Graph::new(module_graph::model::Args {
-    alias: args.get_alias(),
-    modules: args.get_modules(),
-    ignore: ignore.iter().map(AsRef::as_ref).collect(),
-    cwd: &cwd,
-    pattern: &pattern,
-  });
-
+  let args = module_graph::model::Args::from(args);
+  let mut graph = module_graph::graph::Graph::new(args);
   graph
     .check_dependencies(file)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
