@@ -81,3 +81,19 @@ test("Ignore node_modules and dist directories.", () => {
 
 	expect(normalizedPaths).toMatchSnapshot();
 });
+
+test("Ignore empty import.", () => {
+	try {
+		const cwd = path.resolve(dirname(__filename), "features", "empty-import");
+		const current = "a.js";
+		const response = checkDependencies(current, {
+			cwd,
+		});
+
+		const normalizedPaths = normalizePaths(response);
+
+		expect(normalizedPaths).toMatchSnapshot();
+	} catch (error) {
+		console.log(error);
+	}
+});

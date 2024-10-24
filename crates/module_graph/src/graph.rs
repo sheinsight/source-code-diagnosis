@@ -101,6 +101,7 @@ impl<'a> Graph<'a> {
 
 impl<'a> Graph<'a> {
   fn build_edges(&mut self) {
+    let empty_id = self.build_id(&"__END__");
     self.entries.par_iter().for_each(|item| {
       let entry = match item {
         Ok(entry) => entry,
@@ -133,9 +134,24 @@ impl<'a> Graph<'a> {
       let mut thread_edges: Vec<Edge> = Vec::new();
 
       for node in nodes.iter() {
+        let source = self.to_relative_path(&self.cwd, path.to_path_buf());
+        let source_id = self.build_id(&source);
         let import_declaration = match node.kind() {
           AstKind::ImportDeclaration(id) => id,
-          _ => continue,
+          _ => {
+            let span = Span { start: 0, end: 0 };
+            let loc = Location {
+              start: beans::Position { line: 0, col: 0 },
+              end: beans::Position { line: 0, col: 0 },
+            };
+            let edge = Edge {
+              source: source_id,
+              target: empty_id.clone(),
+              ast_node: AstNode { span, loc },
+            };
+            thread_edges.push(edge);
+            continue;
+          }
         };
 
         let value = import_declaration.source.value.to_string();
@@ -159,11 +175,8 @@ impl<'a> Graph<'a> {
 
         let (span, loc) = handler.get_node_box(node);
 
-        let source = self.to_relative_path(&self.cwd, path.to_path_buf());
         let target = self
           .to_relative_path(&self.cwd, resolved_path.full_path().to_path_buf());
-
-        let source_id = self.build_id(&source);
         let target_id = self.build_id(&target);
 
         let edge = self.build_edge(source_id, target_id, span, loc);
