@@ -112,6 +112,10 @@ impl<'a> Graph<'a> {
         return;
       }
 
+      if path.components().any(|c| c.as_os_str() == "node_modules") {
+        return;
+      }
+
       let source_code = match read_to_string(&path) {
         Ok(code) => code,
         Err(_) => return,
@@ -144,6 +148,14 @@ impl<'a> Graph<'a> {
           Ok(rp) => rp,
           Err(_) => continue,
         };
+
+        if resolved_path
+          .full_path()
+          .components()
+          .any(|c| c.as_os_str() == "node_modules")
+        {
+          continue;
+        }
 
         let (span, loc) = handler.get_node_box(node);
 

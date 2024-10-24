@@ -31,3 +31,14 @@ test("Detect circular dependencies in the specified directory.", () => {
 
 	expect(normalizedPaths).toMatchSnapshot();
 });
+
+test("Ignore node_modules and dist directories.", () => {
+	const cwd = path.resolve(dirname(__filename), "features", "ignore");
+	const response = checkCycle({
+		cwd,
+	});
+
+	const normalizedPaths = normalizePaths(response);
+
+	expect(normalizedPaths).toMatchSnapshot();
+});

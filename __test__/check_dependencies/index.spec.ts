@@ -69,3 +69,15 @@ test("The dependency file list of the specified file should be obtained normally
 
 	expect(normalizedPaths).toMatchSnapshot();
 });
+
+test("Ignore node_modules and dist directories.", () => {
+	const cwd = path.resolve(dirname(__filename), "features", "has_node_modules");
+	const current = "a.js";
+	const response = checkDependencies(current, {
+		cwd,
+	});
+
+	const normalizedPaths = normalizePaths(response);
+
+	expect(normalizedPaths).toMatchSnapshot();
+});

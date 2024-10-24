@@ -1,5 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Ignore node_modules and dist directories. 1`] = `"a.js -> utils.js"`;
+
 exports[`The dependency file list of the specified file should be obtained normally. 1`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js :: c.js -> b.js"`;
 
 exports[`The dependency file list of the specified file should be obtained normally. 2`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js :: c.js -> b.js"`;
