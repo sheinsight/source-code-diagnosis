@@ -1,9 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Ignore empty import. 1`] = `"a.js -> __END__"`;
+exports[`Ignore empty import. 1`] = `""`;
 
-exports[`Ignore node_modules and dist directories. 1`] = `"a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> utils.js :: utils.js -> __END__"`;
+exports[`Ignore node_modules and dist directories. 1`] = `"a.js -> utils.js"`;
 
-exports[`The dependency file list of the specified file should be obtained normally. 1`] = `"a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> utils.js :: b.js -> __END__ :: b.js -> __END__ :: b.js -> __END__ :: b.js -> __END__ :: b.js -> __END__ :: b.js -> utils.js :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> a.js :: c.js -> b.js :: utils.js -> __END__"`;
+exports[`The dependency file list of the specified file should be obtained normally. 1`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js :: c.js -> b.js"`;
 
-exports[`The dependency file list of the specified file should be obtained normally. 2`] = `"a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> __END__ :: a.js -> utils.js :: b.js -> __END__ :: b.js -> __END__ :: b.js -> __END__ :: b.js -> __END__ :: b.js -> __END__ :: b.js -> utils.js :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> __END__ :: c.js -> a.js :: c.js -> b.js :: utils.js -> __END__"`;
+exports[`The dependency file list of the specified file should be obtained normally. 2`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js :: c.js -> b.js"`;

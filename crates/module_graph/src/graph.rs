@@ -99,9 +99,11 @@ impl<'a> Graph<'a> {
   }
 }
 
+const END_ID: &str = "__END__";
+
 impl<'a> Graph<'a> {
   fn build_edges(&mut self) {
-    let empty_id = self.build_id(&"__END__");
+    let empty_id = self.build_id(END_ID);
     self.entries.par_iter().for_each(|item| {
       let entry = match item {
         Ok(entry) => entry,
@@ -374,6 +376,10 @@ impl<'a> Graph<'a> {
       if let Ok(bin_map) = self.bi_map.lock() {
         let source_file_path = bin_map.get_by_right(&source).unwrap();
         let target_file_path = bin_map.get_by_right(&target).unwrap();
+
+        if END_ID == source_file_path || END_ID == target_file_path {
+          continue;
+        }
 
         dictionaries.insert(source.to_string(), source_file_path.to_string());
         dictionaries.insert(target.to_string(), target_file_path.to_string());
