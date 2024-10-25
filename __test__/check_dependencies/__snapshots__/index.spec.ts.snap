@@ -1,5 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Get which files depend on the specified file with all-from 1`] = `"a.js -> b.js"`;
+
 exports[`Ignore empty import. 1`] = `""`;
 
 exports[`Ignore node_modules and dist directories. 1`] = `"a.js -> utils.js"`;

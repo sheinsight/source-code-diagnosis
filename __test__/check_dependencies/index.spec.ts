@@ -97,3 +97,15 @@ test("Ignore empty import.", () => {
 		console.log(error);
 	}
 });
+
+test("Get which files depend on the specified file with all-from", () => {
+	const cwd = path.resolve(dirname(__filename), "features", "all-from");
+	const current = "a.js";
+	const response = checkDependencies(current, {
+		cwd,
+	});
+
+	const normalizedPaths = normalizePaths(response);
+
+	expect(normalizedPaths).toMatchSnapshot();
+});

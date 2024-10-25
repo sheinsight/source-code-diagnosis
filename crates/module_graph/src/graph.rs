@@ -138,8 +138,9 @@ impl<'a> Graph<'a> {
       for node in nodes.iter() {
         let source = self.to_relative_path(&self.cwd, path.to_path_buf());
         let source_id = self.build_id(&source);
-        let import_declaration = match node.kind() {
-          AstKind::ImportDeclaration(id) => id,
+        let source_value = match node.kind() {
+          AstKind::ImportDeclaration(id) => id.source.value.to_string(),
+          AstKind::ExportAllDeclaration(id) => id.source.value.to_string(),
           _ => {
             let span = Span { start: 0, end: 0 };
             let loc = Location {
@@ -156,13 +157,13 @@ impl<'a> Graph<'a> {
           }
         };
 
-        let value = import_declaration.source.value.to_string();
         let parent = match path.parent() {
           Some(p) => p,
           None => continue,
         };
 
-        let resolved_path = match self.resolver.resolve(&parent, &value) {
+        let resolved_path = match self.resolver.resolve(&parent, &source_value)
+        {
           Ok(rp) => rp,
           Err(_) => continue,
         };

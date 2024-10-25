@@ -3,3 +3,5 @@
 exports[`Get which files depend on the specified file 1`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js :: c.js -> b.js"`;
 
 exports[`Get which files depend on the specified file with alias 1`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js :: c.js -> b.js"`;
+
+exports[`Get which files depend on the specified file with all-from 1`] = `"a.js -> b.js"`;

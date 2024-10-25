@@ -40,3 +40,13 @@ test("Get which files depend on the specified file with alias", () => {
 
 	expect(normalizedPaths).toMatchSnapshot();
 });
+
+test("Get which files depend on the specified file with all-from", () => {
+	const cwd = path.resolve(dirname(__filename), "features", "all-from");
+	const response = checkDependents("b.js", {
+		cwd,
+	});
+	const normalizedPaths = normalizePaths(response);
+
+	expect(normalizedPaths).toMatchSnapshot();
+});
