@@ -1,5 +1,6 @@
 use std::{fs::read_to_string, path::PathBuf};
 
+use anyhow::{bail, Error, Result};
 use beans::{Location, Position};
 use oxc_allocator::Allocator;
 use oxc_ast::{ast::BindingIdentifier, AstKind};
@@ -87,7 +88,7 @@ impl<'a> SemanticBuilder<'a> {
       .build(program)
   }
 
-  pub fn build_handler(&self) -> SemanticHandler {
+  pub fn build_handler(&self) -> Result<SemanticHandler> {
     let ret =
       Parser::new(&self.allocator, &self.source_code, self.source_type).parse();
 
@@ -95,11 +96,7 @@ impl<'a> SemanticBuilder<'a> {
       for err in ret.errors.iter() {
         eprintln!("parse error: {:?}", err);
       }
-      eprintln!(
-        "parse error: {:?} {}",
-        ret.errors,
-        self.file_path.as_ref().unwrap().to_string_lossy()
-      );
+      bail!("parse error: ");
     }
 
     let program = self.allocator.alloc(ret.program);
@@ -109,9 +106,9 @@ impl<'a> SemanticBuilder<'a> {
       .semantic;
     if let Some(file_path) = &self.file_path {
       let file_path_str = file_path.to_string_lossy().to_string();
-      SemanticHandler::new(file_path_str, semantic)
+      Ok(SemanticHandler::new(file_path_str, semantic))
     } else {
-      SemanticHandler::new(String::new(), semantic)
+      Ok(SemanticHandler::new(String::new(), semantic))
     }
   }
 }

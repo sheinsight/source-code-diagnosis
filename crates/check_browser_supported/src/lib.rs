@@ -137,26 +137,34 @@ pub fn check_browser_supported_with_source_code(
 
   let mut used: Vec<CompatBox> = Vec::new();
 
-  SemanticBuilder::js(&source_code).build_handler().each_node(
-    |handler, node| {
-      for compat_handler in compat_handlers.iter() {
-        if compat_handler.handle(
-          handler.semantic.source_text(),
-          node,
-          handler.semantic.nodes(),
-        ) {
-          let (span, loc) = handler.get_node_box(node);
+  let builder = SemanticBuilder::js(&source_code);
 
-          used.push(CompatBox::new(
-            span,
-            loc,
-            compat_handler.get_compat().clone(),
-            String::new(),
-          ));
-        }
+  let handler = match builder.build_handler() {
+    Ok(handler) => handler,
+    Err(e) => {
+      eprintln!("parse error: {}", e);
+      return Err(e);
+    }
+  };
+
+  handler.each_node(|handler, node| {
+    for compat_handler in compat_handlers.iter() {
+      if compat_handler.handle(
+        handler.semantic.source_text(),
+        node,
+        handler.semantic.nodes(),
+      ) {
+        let (span, loc) = handler.get_node_box(node);
+
+        used.push(CompatBox::new(
+          span,
+          loc,
+          compat_handler.get_compat().clone(),
+          String::new(),
+        ));
       }
-    },
-  );
+    }
+  });
 
   Ok(used)
 }
@@ -255,27 +263,35 @@ pub fn check_browser_supported(
 
       let source_type = SourceType::from_path(&path).unwrap();
 
-      SemanticBuilder::code(&source_code, source_type)
-        .build_handler()
-        .each_node(|handler, node| {
-          for compat_handler in clone.iter() {
-            if compat_handler.handle(
-              handler.semantic.source_text(),
-              node,
-              handler.semantic.nodes(),
-            ) {
-              let (span, loc) = handler.get_node_box(node);
+      let builder = SemanticBuilder::code(&source_code, source_type);
 
-              let mut used = used.lock().unwrap();
-              used.push(CompatBox::new(
-                span,
-                loc,
-                compat_handler.get_compat().clone(),
-                path.to_str().unwrap().to_string(),
-              ));
-            }
+      let handler = match builder.build_handler() {
+        Ok(handler) => handler,
+        Err(e) => {
+          eprintln!("parse error: {} {}", e, path.to_string_lossy());
+          return;
+        }
+      };
+
+      handler.each_node(|handler, node| {
+        for compat_handler in clone.iter() {
+          if compat_handler.handle(
+            handler.semantic.source_text(),
+            node,
+            handler.semantic.nodes(),
+          ) {
+            let (span, loc) = handler.get_node_box(node);
+
+            let mut used = used.lock().unwrap();
+            used.push(CompatBox::new(
+              span,
+              loc,
+              compat_handler.get_compat().clone(),
+              path.to_str().unwrap().to_string(),
+            ));
           }
-        })
+        }
+      })
     }
   };
 

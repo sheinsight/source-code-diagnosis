@@ -130,7 +130,14 @@ impl<'a> Graph<'a> {
       };
 
       let builder = SemanticBuilder::code(&source_code, source_type);
-      let handler = builder.build_handler();
+      let handler = match builder.build_handler() {
+        Ok(handler) => handler,
+        Err(e) => {
+          eprintln!("parse error: {} {}", e, path.to_string_lossy());
+          return;
+        }
+      };
+
       let nodes = handler.semantic.nodes();
 
       let mut thread_edges: Vec<Edge> = Vec::new();

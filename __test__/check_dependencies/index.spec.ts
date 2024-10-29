@@ -109,3 +109,15 @@ test("Get which files depend on the specified file with all-from", () => {
 
 	expect(normalizedPaths).toMatchSnapshot();
 });
+
+// test("Test error syntax code", () => {
+// 	const cwd = path.resolve(dirname(__filename), "features", "error_syntax");
+// 	const current = "a.js";
+// 	const response = checkDependencies(current, {
+// 		cwd,
+// 	});
+
+// 	const normalizedPaths = normalizePaths(response);
+
+// 	expect(normalizedPaths).toMatchSnapshot();
+// });

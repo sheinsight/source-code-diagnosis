@@ -33,27 +33,35 @@ pub fn check_danger_strings(
 
       let source_type = SourceType::from_path(&path).unwrap();
 
-      SemanticBuilder::code(&source_code, source_type)
-        .build_handler()
-        .each_node(|handler, node| {
-          if let AstKind::StringLiteral(string_literal) = node.kind() {
-            let value = string_literal.value.to_string();
-            let span = string_literal.span;
-            let loc =
-              handler.offset_to_location(handler.semantic.source_text(), span);
+      let builder = SemanticBuilder::code(&source_code, source_type);
 
-            for danger_string in danger_strings.iter() {
-              if value.contains(danger_string) {
-                inline_usages.push(Response {
-                  raw_value: value.clone(),
-                  match_danger_string: danger_string.to_string(),
-                  file_path: path.display().to_string(),
-                  ast_node: AstNode::new((span.start, span.end), loc),
-                });
-              }
+      let handler = match builder.build_handler() {
+        Ok(handler) => handler,
+        Err(e) => {
+          eprintln!("parse error: {} {}", e, path.to_string_lossy());
+          return;
+        }
+      };
+
+      handler.each_node(|handler, node| {
+        if let AstKind::StringLiteral(string_literal) = node.kind() {
+          let value = string_literal.value.to_string();
+          let span = string_literal.span;
+          let loc =
+            handler.offset_to_location(handler.semantic.source_text(), span);
+
+          for danger_string in danger_strings.iter() {
+            if value.contains(danger_string) {
+              inline_usages.push(Response {
+                raw_value: value.clone(),
+                match_danger_string: danger_string.to_string(),
+                file_path: path.display().to_string(),
+                ast_node: AstNode::new((span.start, span.end), loc),
+              });
             }
           }
-        });
+        }
+      });
       used.lock().extend(inline_usages);
     }
   };
