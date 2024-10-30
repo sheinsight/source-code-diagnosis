@@ -6,6 +6,10 @@ exports[`Ignore empty import. 1`] = `""`;
 
 exports[`Ignore node_modules and dist directories. 1`] = `"a.js -> utils.js"`;
 
+exports[`Test error syntax code 1`] = `""`;
+
+exports[`Test error syntax code 2`] = `"/b.js"`;
+
 exports[`The dependency file list of the specified file should be obtained normally. 1`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js :: c.js -> b.js"`;
 
 exports[`The dependency file list of the specified file should be obtained normally. 2`] = `"a.js -> utils.js :: b.js -> utils.js :: c.js -> a.js :: c.js -> b.js"`;

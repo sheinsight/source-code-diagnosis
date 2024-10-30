@@ -8,7 +8,7 @@ use std::{
   },
 };
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use beans::{AstNode, Location, Span};
 use bimap::BiMap;
 use camino::Utf8PathBuf;
@@ -36,6 +36,7 @@ pub struct Graph<'a> {
   cwd: String,
   resolver: Resolver,
   entries: Vec<Result<WalkEntry<'a>, WalkError>>,
+  invalid_syntax_files: Arc<Mutex<Vec<String>>>,
 }
 
 impl<'a> Graph<'a> {
@@ -53,6 +54,7 @@ impl<'a> Graph<'a> {
       cwd: options.cwd,
       resolver,
       entries,
+      invalid_syntax_files: Arc::new(Mutex::new(Vec::new())),
     }
   }
 
@@ -134,6 +136,10 @@ impl<'a> Graph<'a> {
         Ok(handler) => handler,
         Err(e) => {
           eprintln!("parse error: {} {}", e, path.to_string_lossy());
+          if let Ok(mut invalid_syntax_files) = self.invalid_syntax_files.lock()
+          {
+            invalid_syntax_files.push(path.to_string_lossy().to_string());
+          }
           return;
         }
       };
@@ -322,14 +328,21 @@ impl<'a> Graph<'a> {
         .lock()
         .map_err(|_| anyhow::anyhow!("bi_map lock failed"))?;
 
-      let file_id = bin_map
-        .get_by_left(&file)
-        .ok_or(anyhow::anyhow!("file not found"))?;
+      let file_id = match bin_map.get_by_left(&file) {
+        Some(file_id) => file_id,
+        None => bail!(
+          "Not found {} , Maybe you should check the file path or check syntax",
+          file
+        ),
+      };
 
-      let target_index = self
-        .node_index_map
-        .get(file_id)
-        .ok_or(anyhow::anyhow!("file not found"))?;
+      let target_index = match self.node_index_map.get(file_id) {
+        Some(target_index) => target_index,
+        None => bail!(
+          "Not found {} , Maybe you should check the file path or check syntax",
+          file
+        ),
+      };
 
       *target_index
     };
@@ -347,10 +360,15 @@ impl<'a> Graph<'a> {
       direction,
     );
 
-    Ok(Graphics {
-      dictionaries,
-      graph: result,
-    })
+    if let Ok(invalid_syntax_files) = self.invalid_syntax_files.lock() {
+      Ok(Graphics {
+        dictionaries,
+        graph: result,
+        invalid_syntax_files: invalid_syntax_files.clone(),
+      })
+    } else {
+      bail!("invalid_syntax_files lock failed");
+    }
   }
 
   fn traverse_neighbors(

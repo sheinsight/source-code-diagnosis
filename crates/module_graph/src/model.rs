@@ -62,4 +62,5 @@ pub struct GroupGraphics {
 pub struct Graphics {
   pub dictionaries: HashMap<String, String>,
   pub graph: Vec<Edge>,
+  pub invalid_syntax_files: Vec<String>,
 }
