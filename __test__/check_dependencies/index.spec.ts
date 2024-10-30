@@ -122,6 +122,10 @@ test("Test error syntax code", () => {
 	expect(normalizedPaths).toMatchSnapshot();
 
 	for (const file of response.invalidSyntaxFiles) {
-		expect(file.replace(cwd, "")).toMatchSnapshot();
+		expect(winPath(file.replace(cwd, ""))).toMatchSnapshot();
 	}
 });
+
+function winPath(path: string) {
+	return path.replace(/\\/g, "/");
+}
