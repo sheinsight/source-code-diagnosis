@@ -126,6 +126,16 @@ test("Test error syntax code", () => {
 	}
 });
 
+test("Test error syntax code", () => {
+	const cwd = path.resolve(dirname(__filename), "features", "error_syntax");
+	const current = "b.js";
+	expect(() => {
+		checkDependencies(current, {
+			cwd,
+		});
+	}).toThrowError();
+});
+
 function winPath(path: string) {
 	return path.replace(/\\/g, "/");
 }
