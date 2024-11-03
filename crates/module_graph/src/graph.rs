@@ -118,6 +118,8 @@ impl<'a> Graph<'a> {
         return;
       }
 
+      log::debug!("path: {}", path.to_string_lossy());
+
       if path.components().any(|c| c.as_os_str() == "node_modules") {
         return;
       }
@@ -170,6 +172,8 @@ impl<'a> Graph<'a> {
             continue;
           }
         };
+
+        log::debug!("source_value: {}", source_value);
 
         let parent = match path.parent() {
           Some(p) => p,
