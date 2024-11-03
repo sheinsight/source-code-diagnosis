@@ -43,6 +43,18 @@ pub fn check_browser_supported_with_source_code(
 }
 
 #[napi]
+pub fn check_phantom_dependencies(
+  dependencies: Vec<String>,
+  args: module_graph::model::JsArgs,
+) -> Result<module_graph::model::Graphics> {
+  let args = module_graph::model::Args::from(args);
+  let mut graph = module_graph::graph::Graph::new(args);
+  graph
+    .check_phantom_dependencies(dependencies)
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+}
+
+#[napi]
 pub fn check_cycle(
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::GroupGraphics> {

@@ -33,28 +33,28 @@ pub struct Graph<'a> {
   pub edges: Arc<Mutex<Vec<Edge>>>,
   node_index_map: HashMap<String, NodeIndex>,
   edge_map: HashMap<(String, String), Edge>,
-  cwd: String,
   resolver: Resolver,
   entries: Vec<Result<WalkEntry<'a>, WalkError>>,
   invalid_syntax_files: Arc<Mutex<Vec<String>>>,
+  args: Args,
 }
 
 impl<'a> Graph<'a> {
-  pub fn new(options: Args) -> Self {
+  pub fn new(args: Args) -> Self {
     let resolver =
-      Self::build_resolver(options.alias.clone(), options.modules.clone());
+      Self::build_resolver(args.alias.clone(), args.modules.clone());
     let entries =
-      Self::build_entries(&options.cwd, &options.pattern, options.ignore);
+      Self::build_entries(&args.cwd, &args.pattern, args.ignore.clone());
     Self {
       id_counter: Arc::new(AtomicU32::new(0)),
       bi_map: Arc::new(Mutex::new(BiMap::new())),
       edges: Arc::new(Mutex::new(Vec::new())),
       node_index_map: HashMap::new(),
       edge_map: HashMap::new(),
-      cwd: options.cwd,
       resolver,
       entries,
       invalid_syntax_files: Arc::new(Mutex::new(Vec::new())),
+      args,
     }
   }
 
@@ -106,6 +106,7 @@ const END_ID: &str = "__END__";
 impl<'a> Graph<'a> {
   fn build_edges(&mut self) {
     let empty_id = self.build_id(END_ID);
+
     self.entries.par_iter().for_each(|item| {
       let entry = match item {
         Ok(entry) => entry,
@@ -149,7 +150,7 @@ impl<'a> Graph<'a> {
       let mut thread_edges: Vec<Edge> = Vec::new();
 
       for node in nodes.iter() {
-        let source = self.to_relative_path(&self.cwd, path.to_path_buf());
+        let source = self.to_relative_path(&self.args.cwd, path.to_path_buf());
         let source_id = self.build_id(&source);
         let source_value = match node.kind() {
           AstKind::ImportDeclaration(id) => id.source.value.to_string(),
@@ -181,18 +182,20 @@ impl<'a> Graph<'a> {
           Err(_) => continue,
         };
 
-        if resolved_path
-          .full_path()
-          .components()
-          .any(|c| c.as_os_str() == "node_modules")
-        {
-          continue;
-        }
+        // if resolved_path
+        //   .full_path()
+        //   .components()
+        //   .any(|c| c.as_os_str() == "node_modules")
+        // {
+        //   continue;
+        // }
 
         let (span, loc) = handler.get_node_box(node);
 
-        let target = self
-          .to_relative_path(&self.cwd, resolved_path.full_path().to_path_buf());
+        let target = self.to_relative_path(
+          &self.args.cwd,
+          resolved_path.full_path().to_path_buf(),
+        );
         let target_id = self.build_id(&target);
 
         let edge = self.build_edge(source_id, target_id, span, loc);
@@ -307,6 +310,57 @@ impl<'a> Graph<'a> {
   pub fn check_dependents(&mut self, file: String) -> Result<Graphics> {
     let graphics = self.deep_neighbors_directed(file, Direction::Incoming)?;
     Ok(graphics)
+  }
+
+  pub fn check_phantom_dependencies(
+    &mut self,
+    dependencies: Vec<String>,
+  ) -> Result<Graphics> {
+    let phantom_deps = {
+      self.build_edges();
+
+      let deps_set: Vec<String> =
+        dependencies.into_iter().collect::<Vec<String>>();
+
+      let bin_map = self.bi_map.lock().unwrap();
+      let edges = self.edges.lock().unwrap();
+
+      let phantom_deps: Vec<Edge> = edges
+        .iter()
+        .filter_map(|edge| {
+          let target = bin_map.get_by_right(&edge.target)?;
+
+          if !target.starts_with("node_modules") || END_ID == target {
+            return None;
+          }
+
+          let res = deps_set.iter().any(|dep| {
+            self
+              .args
+              .modules
+              .iter()
+              .any(|m| target.starts_with(&format!("{}/{}/", m, dep)))
+          });
+
+          if res {
+            return None;
+          }
+
+          Some(edge.clone())
+        })
+        .collect();
+      phantom_deps
+    };
+
+    if let Ok(invalid_syntax_files) = self.invalid_syntax_files.lock() {
+      Ok(Graphics {
+        dictionaries: self.get_dictionaries(),
+        graph: phantom_deps,
+        invalid_syntax_files: invalid_syntax_files.to_vec(),
+      })
+    } else {
+      bail!("invalid_syntax_files lock failed");
+    }
   }
 
   pub fn check_dependencies(&mut self, file: String) -> Result<Graphics> {
