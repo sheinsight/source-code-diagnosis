@@ -570,7 +570,7 @@ impl<'a> Graph<'a> {
         id.to_string()
       } else {
         let id = self.id_counter.fetch_add(1, Ordering::SeqCst);
-        bin_map.insert(node.to_string(), id.to_string());
+        bin_map.insert(node.to_string().replace("\\", "/"), id.to_string());
         id.to_string()
       }
     } else {
