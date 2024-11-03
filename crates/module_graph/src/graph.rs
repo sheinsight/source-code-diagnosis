@@ -325,12 +325,16 @@ impl<'a> Graph<'a> {
       let bin_map = self.bi_map.lock().unwrap();
       let edges = self.edges.lock().unwrap();
 
+      log::debug!("bin_map: {:?}", bin_map);
+
       log::debug!("edges: {:?}", edges.len());
 
       let phantom_deps: Vec<Edge> = edges
         .iter()
         .filter_map(|edge| {
           let target = bin_map.get_by_right(&edge.target)?;
+
+          log::debug!("target: {}", target);
 
           if !target.starts_with("node_modules") || END_ID == target {
             return None;
