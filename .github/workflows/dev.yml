@@ -1,6 +1,7 @@
 name: dev
 env:
   DEBUG: napi:*
+  SHINED_LOG: debug
   RUST_BACKTRACE: full
   APP_NAME: source-code-diagnosis
   MACOSX_DEPLOYMENT_TARGET: '10.13'

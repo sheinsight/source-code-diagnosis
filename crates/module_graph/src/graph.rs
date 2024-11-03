@@ -325,6 +325,8 @@ impl<'a> Graph<'a> {
       let bin_map = self.bi_map.lock().unwrap();
       let edges = self.edges.lock().unwrap();
 
+      log::debug!("edges: {:?}", edges.len());
+
       let phantom_deps: Vec<Edge> = edges
         .iter()
         .filter_map(|edge| {
@@ -351,6 +353,8 @@ impl<'a> Graph<'a> {
         .collect();
       phantom_deps
     };
+
+    log::debug!("phantom_deps: {:?}", phantom_deps);
 
     if let Ok(invalid_syntax_files) = self.invalid_syntax_files.lock() {
       Ok(Graphics {

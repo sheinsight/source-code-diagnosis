@@ -47,6 +47,10 @@ pub fn check_phantom_dependencies(
   dependencies: Vec<String>,
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::Graphics> {
+  let _ = env_logger::Builder::from_env(
+    Env::default().filter_or("SHINED_LOG", "info"),
+  )
+  .try_init();
   let args = module_graph::model::Args::from(args);
   let mut graph = module_graph::graph::Graph::new(args);
   graph
