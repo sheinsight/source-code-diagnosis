@@ -25,7 +25,10 @@ use rayon::prelude::*;
 use utils::SemanticBuilder;
 use wax::{Glob, WalkEntry, WalkError};
 
-use crate::model::{Args, Edge, Graphics, GroupGraphics};
+use crate::{
+  debug_expensive,
+  model::{Args, Edge, Graphics, GroupGraphics},
+};
 
 pub struct Graph<'a> {
   id_counter: Arc<AtomicU32>,
@@ -173,18 +176,30 @@ impl<'a> Graph<'a> {
           }
         };
 
-        log::debug!("source_value: {}", source_value);
+        debug_expensive!("source_value: {}", source_value);
 
         let parent = match path.parent() {
           Some(p) => p,
           None => continue,
         };
 
+        debug_expensive!(
+          "path {} parent: {}",
+          path.to_string_lossy(),
+          parent.to_string_lossy()
+        );
+
         let resolved_path = match self.resolver.resolve(&parent, &source_value)
         {
           Ok(rp) => rp,
           Err(_) => continue,
         };
+
+        debug_expensive!(
+          "resolved {} {}",
+          source_value,
+          resolved_path.full_path().to_string_lossy(),
+        );
 
         // if resolved_path
         //   .full_path()
@@ -201,6 +216,8 @@ impl<'a> Graph<'a> {
           resolved_path.full_path().to_path_buf(),
         );
         let target_id = self.build_id(&target);
+
+        debug_expensive!("target {} {}", target, target_id);
 
         let edge = self.build_edge(source_id, target_id, span, loc);
         thread_edges.push(edge);
@@ -329,16 +346,16 @@ impl<'a> Graph<'a> {
       let bin_map = self.bi_map.lock().unwrap();
       let edges = self.edges.lock().unwrap();
 
-      log::debug!("bin_map: {:?}", bin_map);
+      debug_expensive!("bin_map: {:?}", bin_map);
 
-      log::debug!("edges: {:?}", edges.len());
+      debug_expensive!("edges: {:?}", edges.len());
 
       let phantom_deps: Vec<Edge> = edges
         .iter()
         .filter_map(|edge| {
           let target = bin_map.get_by_right(&edge.target)?;
 
-          log::debug!("target: {}", target);
+          debug_expensive!("target: {}", target);
 
           if !target.starts_with("node_modules") || END_ID == target {
             return None;
@@ -362,7 +379,7 @@ impl<'a> Graph<'a> {
       phantom_deps
     };
 
-    log::debug!("phantom_deps: {:?}", phantom_deps);
+    debug_expensive!("phantom_deps: {:?}", phantom_deps);
 
     if let Ok(invalid_syntax_files) = self.invalid_syntax_files.lock() {
       Ok(Graphics {
