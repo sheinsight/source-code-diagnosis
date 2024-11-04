@@ -147,8 +147,9 @@ impl<'a> Graph<'a> {
             invalid_syntax_files.push(
               path
                 .to_string_lossy()
-                .to_string()
-                .replace(&self.args.cwd, &String::from("")),
+                .strip_prefix(&self.args.cwd)
+                .unwrap_or_default()
+                .to_string(),
             );
           }
           return;
