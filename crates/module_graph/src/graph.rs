@@ -144,7 +144,12 @@ impl<'a> Graph<'a> {
           eprintln!("parse error: {} {}", e, path.to_string_lossy());
           if let Ok(mut invalid_syntax_files) = self.invalid_syntax_files.lock()
           {
-            invalid_syntax_files.push(path.to_string_lossy().to_string());
+            invalid_syntax_files.push(
+              path
+                .to_string_lossy()
+                .to_string()
+                .replace(&self.args.cwd, &String::from("")),
+            );
           }
           return;
         }
@@ -322,10 +327,15 @@ impl<'a> Graph<'a> {
       }
     }
 
-    Ok(GroupGraphics {
-      dictionaries: self.get_dictionaries(),
-      graph: result,
-    })
+    if let Ok(invalid_syntax_files) = self.invalid_syntax_files.lock() {
+      Ok(GroupGraphics {
+        dictionaries: self.get_dictionaries(),
+        graph: result,
+        invalid_syntax_files: invalid_syntax_files.clone(),
+      })
+    } else {
+      bail!("invalid_syntax_files lock failed");
+    }
   }
 
   pub fn check_dependents(&mut self, file: String) -> Result<Graphics> {
