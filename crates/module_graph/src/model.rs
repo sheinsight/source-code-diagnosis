@@ -56,6 +56,7 @@ pub struct Edge {
 pub struct GroupGraphics {
   pub dictionaries: HashMap<String, String>,
   pub graph: Vec<Vec<Edge>>,
+  pub invalid_syntax_files: Vec<String>,
 }
 
 #[napi(object)]
