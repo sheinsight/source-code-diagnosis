@@ -57,7 +57,7 @@ pub fn check_browser_supported_with_source_code(
 ) -> Result<Vec<CompatBox>> {
   debug!("User-specified browser target: {:?}", target);
 
-  let chrome_queries = format!("chrome >= {}", target.chrome);
+  let chrome_queries = format!("chrome > {}", target.chrome);
 
   let browser_list = resolve(&[chrome_queries], &Opts::default())
     .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))?;
@@ -175,7 +175,7 @@ pub fn check_browser_supported(
 ) -> Result<Vec<CompatBox>> {
   debug!("User-specified browser target: {:?}", target);
 
-  let chrome_queries = format!("chrome >= {}", target.chrome);
+  let chrome_queries = format!("chrome > {}", target.chrome);
 
   let browser_list = resolve(&[chrome_queries], &Opts::default())
     .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))?;
