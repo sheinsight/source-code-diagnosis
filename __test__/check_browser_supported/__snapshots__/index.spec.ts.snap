@@ -1,0 +1,128 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Multiple occurrences of the same syntax results in multiple calculations. 1`] = `
+[
+  {
+    "astNode": {
+      "loc": {
+        "end": {
+          "col": 18,
+          "line": 1,
+        },
+        "start": {
+          "col": 11,
+          "line": 1,
+        },
+      },
+      "span": {
+        "end": 17,
+        "start": 10,
+      },
+    },
+    "compat": {
+      "description": "空值合并运算符 (??)",
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator",
+      "name": "operators.nullish_coalescing",
+      "support": {
+        "chrome": "80",
+        "chromeAndroid": "80",
+        "deno": "1.0.0",
+        "edge": "80",
+        "firefox": "72",
+        "firefoxAndroid": "72",
+        "node": "14.0.0",
+        "safari": "13.1",
+        "safariIos": "13.1",
+      },
+      "tags": [
+        "web-features:snapshot:ecmascript-2020",
+      ],
+    },
+    "filePath": "",
+    "name": "operators.nullish_coalescing",
+  },
+]
+`;
+
+exports[`Multiple occurrences of the same syntax results in multiple calculations. 2`] = `
+[
+  {
+    "astNode": {
+      "loc": {
+        "end": {
+          "col": 18,
+          "line": 1,
+        },
+        "start": {
+          "col": 11,
+          "line": 1,
+        },
+      },
+      "span": {
+        "end": 17,
+        "start": 10,
+      },
+    },
+    "compat": {
+      "description": "空值合并运算符 (??)",
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator",
+      "name": "operators.nullish_coalescing",
+      "support": {
+        "chrome": "80",
+        "chromeAndroid": "80",
+        "deno": "1.0.0",
+        "edge": "80",
+        "firefox": "72",
+        "firefoxAndroid": "72",
+        "node": "14.0.0",
+        "safari": "13.1",
+        "safariIos": "13.1",
+      },
+      "tags": [
+        "web-features:snapshot:ecmascript-2020",
+      ],
+    },
+    "filePath": "",
+    "name": "operators.nullish_coalescing",
+  },
+  {
+    "astNode": {
+      "loc": {
+        "end": {
+          "col": 37,
+          "line": 1,
+        },
+        "start": {
+          "col": 30,
+          "line": 1,
+        },
+      },
+      "span": {
+        "end": 36,
+        "start": 29,
+      },
+    },
+    "compat": {
+      "description": "空值合并运算符 (??)",
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator",
+      "name": "operators.nullish_coalescing",
+      "support": {
+        "chrome": "80",
+        "chromeAndroid": "80",
+        "deno": "1.0.0",
+        "edge": "80",
+        "firefox": "72",
+        "firefoxAndroid": "72",
+        "node": "14.0.0",
+        "safari": "13.1",
+        "safariIos": "13.1",
+      },
+      "tags": [
+        "web-features:snapshot:ecmascript-2020",
+      ],
+    },
+    "filePath": "",
+    "name": "operators.nullish_coalescing",
+  },
+]
+`;
