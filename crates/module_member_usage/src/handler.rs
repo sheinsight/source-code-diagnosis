@@ -319,7 +319,7 @@ mod tests {
     let handler = ModuleMemberUsageHandler::new(
       vec!["react".to_string()],
       file_path_str,
-      semantic_handler,
+      semantic_handler.unwrap(),
     );
     let result = handler.handle();
 
@@ -345,7 +345,7 @@ mod tests {
     let handler = ModuleMemberUsageHandler::new(
       vec!["react".to_string()],
       file_path_str,
-      semantic_handler,
+      semantic_handler.unwrap(),
     );
     let result = handler.handle();
 
@@ -371,7 +371,7 @@ mod tests {
     let handler = ModuleMemberUsageHandler::new(
       vec!["react".to_string()],
       file_path_str,
-      semantic_handler,
+      semantic_handler.unwrap(),
     );
     let result = handler.handle();
 
@@ -394,7 +394,7 @@ mod tests {
     let handler = ModuleMemberUsageHandler::new(
       vec!["react".to_string()],
       file_path_str,
-      semantic_handler,
+      semantic_handler.unwrap(),
     );
     let result = handler.handle();
 
@@ -422,7 +422,7 @@ mod tests {
     let handler = ModuleMemberUsageHandler::new(
       vec!["react".to_string(), "react-dom".to_string()],
       file_path_str,
-      semantic_handler,
+      semantic_handler.unwrap(),
     );
     let result = handler.handle();
 

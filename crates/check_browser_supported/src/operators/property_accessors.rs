@@ -39,8 +39,8 @@ mod tests {
         console.log(car['brand']);
       "#,
       eq: [
-        r#"car['brand']"#,
         r#"console.log"#,
+        r#"car['brand']"#,
       ],
       ne: []
     },
@@ -52,8 +52,8 @@ mod tests {
         console.log(car.brand);
       "#,
       eq: [
-        r#"car.brand"#,
         r#"console.log"#,
+        r#"car.brand"#,
       ],
       ne: []
     }
