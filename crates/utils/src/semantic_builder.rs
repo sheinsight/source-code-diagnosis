@@ -81,7 +81,7 @@ impl<'a> SemanticBuilder<'a> {
     .parse();
 
     let program = self.allocator.alloc(parse.program);
-    OxcSemanticBuilder::new(&self.source_code, self.source_type)
+    OxcSemanticBuilder::new(&self.source_code)
       .with_check_syntax_error(true)
       .with_trivias(parse.trivias)
       // .with_cfg(self.cfg)
@@ -101,7 +101,7 @@ impl<'a> SemanticBuilder<'a> {
 
     let program = self.allocator.alloc(ret.program);
 
-    let semantic = OxcSemanticBuilder::new(&self.source_code, self.source_type)
+    let semantic = OxcSemanticBuilder::new(&self.source_code)
       .build(program)
       .semantic;
     if let Some(file_path) = &self.file_path {
@@ -140,8 +140,23 @@ impl<'a> SemanticHandler<'a> {
     offset: usize,
     source_text: &str,
   ) -> Position {
-    let rope = Rope::from_str(source_text);
+    // Unicode 换行符
+    // \u{000A}    // LF (Line Feed)
+    // \u{000B}    // VT (Vertical Tab)
+    // \u{000C}    // FF (Form Feed)
+    // \u{000D}    // CR (Carriage Return)
+    // \u{0085}    // NEL (Next Line)
+    // \u{2028}    // LS (Line Separator)
+    // \u{2029}    // PS (Paragraph Separator)
+
+    let normalized_text = source_text
+      .replace('\u{85}', " ") // NEL
+      .replace('\u{2028}', " ") // LS
+      .replace('\u{2029}', " "); // PS
+
+    let rope = Rope::from_str(&normalized_text);
     let line = rope.try_byte_to_line(offset).unwrap_or(0);
+
     let first_char_of_line = rope.try_line_to_char(line).unwrap_or(0);
     let offset = rope.try_byte_to_char(offset).unwrap_or(0);
     let col = offset - first_char_of_line;
