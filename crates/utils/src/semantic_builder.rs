@@ -1,6 +1,6 @@
-use std::{fs::read_to_string, path::PathBuf};
+use std::path::PathBuf;
 
-use anyhow::{bail, Error, Result};
+use anyhow::{bail, Result};
 use beans::{Location, Position};
 use oxc_allocator::Allocator;
 use oxc_ast::{ast::BindingIdentifier, AstKind};
@@ -135,6 +135,31 @@ impl<'a> SemanticHandler<'a> {
     }
   }
 
+  pub fn is_parent_node_match_with_depth<F>(
+    &self,
+    node: &AstNode,
+    max_depth: usize,
+    predicate: F,
+  ) -> bool
+  where
+    F: Fn(&AstKind) -> bool,
+  {
+    let mut depth = 0;
+    let mut current_node_id = node.id();
+    while let Some(pn) = self.semantic.nodes().parent_node(current_node_id) {
+      if depth >= max_depth {
+        return false;
+      }
+
+      if predicate(&pn.kind()) {
+        return true;
+      }
+      current_node_id = pn.id();
+      depth += 1;
+    }
+    false
+  }
+
   pub fn offset_to_position(
     &self,
     offset: usize,
@@ -215,22 +240,6 @@ impl<'a> SemanticHandler<'a> {
   pub fn parse_reference(&self, reference: &Reference) -> &AstNode {
     let reference_node = self.semantic.nodes().get_node(reference.node_id());
     reference_node
-  }
-
-  pub fn find_up_with_kind(
-    &self,
-    node: &AstNode,
-    kind: AstKind,
-  ) -> Option<&AstNode> {
-    if let Some(parent_node) = self.semantic.nodes().parent_node(node.id()) {
-      if matches!(parent_node.kind(), kind) {
-        return Some(parent_node);
-      } else {
-        self.find_up_with_kind(parent_node, kind)
-      }
-    } else {
-      None
-    }
   }
 
   pub fn find_up_with_dep<'b>(
