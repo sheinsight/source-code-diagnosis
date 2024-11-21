@@ -157,7 +157,8 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                     });
                   }
                   Expression::TemplateLiteral(_)
-                  | Expression::Identifier(_) => {
+                  | Expression::Identifier(_)
+                  | Expression::LogicalExpression(_) => {
                     inline_usages.push(Response {
                       lib_name: source_name.to_string(),
                       member_name: DYNAMIC_COMPUTED_MEMBER.to_string(),
@@ -166,11 +167,12 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                     });
                   }
                   _ => {
-                    eprintln!(
-                      "computed_member_expression: {:?}",
-                      computed_member_expression
-                    );
-                    unreachable!()
+                    inline_usages.push(Response {
+                      lib_name: source_name.to_string(),
+                      member_name: UNKNOWN.to_string(),
+                      file_path: self.path_str.clone(),
+                      ast_node: AstNode::new((span.start, span.end), loc),
+                    });
                   }
                 },
                 oxc_ast::ast::MemberExpression::StaticMemberExpression(
