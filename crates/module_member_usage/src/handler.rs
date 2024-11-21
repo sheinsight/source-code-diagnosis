@@ -1,7 +1,10 @@
 use std::{collections::HashMap, path::PathBuf};
 
 use beans::AstNode;
-use oxc_ast::{ast::ImportDeclarationSpecifier, AstKind};
+use oxc_ast::{
+  ast::{Expression, ImportDeclarationSpecifier},
+  AstKind,
+};
 
 use utils::SemanticHandler;
 
@@ -140,15 +143,47 @@ impl<'a> ModuleMemberUsageHandler<'a> {
             if let Some(AstKind::MemberExpression(member_expression)) =
               parent_node.map(|node| node.kind())
             {
-              let property_name =
-                member_expression.static_property_name().unwrap();
+              match member_expression {
+                oxc_ast::ast::MemberExpression::ComputedMemberExpression(
+                  computed_member_expression,
+                ) => {
+                  if let Expression::StringLiteral(ref string_literal) =
+                    computed_member_expression.expression
+                  {
+                    inline_usages.push(Response {
+                      lib_name: source_name.to_string(),
+                      member_name: string_literal.to_string(),
+                      file_path: self.path_str.clone(),
+                      ast_node: AstNode::new((span.start, span.end), loc),
+                    });
+                  }
+                }
+                oxc_ast::ast::MemberExpression::StaticMemberExpression(
+                  static_member_expression,
+                ) => {
+                  let property_name =
+                    static_member_expression.property.name.as_str();
 
-              inline_usages.push(Response {
-                lib_name: source_name.to_string(),
-                member_name: property_name.to_string(),
-                file_path: self.path_str.clone(),
-                ast_node: AstNode::new((span.start, span.end), loc),
-              });
+                  inline_usages.push(Response {
+                    lib_name: source_name.to_string(),
+                    member_name: property_name.to_string(),
+                    file_path: self.path_str.clone(),
+                    ast_node: AstNode::new((span.start, span.end), loc),
+                  });
+                }
+                oxc_ast::ast::MemberExpression::PrivateFieldExpression(
+                  private_field_expression,
+                ) => {
+                  let name = private_field_expression.field.name.as_str();
+
+                  inline_usages.push(Response {
+                    lib_name: source_name.to_string(),
+                    member_name: name.to_string(),
+                    file_path: self.path_str.clone(),
+                    ast_node: AstNode::new((span.start, span.end), loc),
+                  });
+                }
+              }
             }
           } else {
             inline_usages.push(Response {
@@ -171,6 +206,55 @@ mod tests {
   use super::ModuleMemberUsageHandler;
   use std::path::PathBuf;
   use utils::SemanticBuilder;
+
+  #[test]
+  fn test_private_field_expression() {
+    let file_path_str = PathBuf::from("file_path_str");
+
+    let semantic_builder = SemanticBuilder::js(
+      &r#"
+      import a from 'a';
+      const c = a.#name;
+      "#,
+    );
+    let semantic_handler = semantic_builder.build_handler();
+
+    let handler = ModuleMemberUsageHandler::new(
+      vec!["a".to_string()],
+      file_path_str,
+      semantic_handler.unwrap(),
+    );
+    let result = handler.handle();
+
+    assert_eq!(result.len(), 1);
+    assert_eq!(result[0].lib_name, "a");
+    assert_eq!(result[0].member_name, "name");
+  }
+
+  #[test]
+  #[test]
+  fn test_computed_member_expression() {
+    let file_path_str = PathBuf::from("file_path_str");
+
+    let semantic_builder = SemanticBuilder::js(
+      &r#"
+      import a from 'a';
+      const c = a["b"];
+      "#,
+    );
+    let semantic_handler = semantic_builder.build_handler();
+
+    let handler = ModuleMemberUsageHandler::new(
+      vec!["a".to_string()],
+      file_path_str,
+      semantic_handler.unwrap(),
+    );
+    let result = handler.handle();
+
+    assert_eq!(result.len(), 1);
+    assert_eq!(result[0].lib_name, "a");
+    assert_eq!(result[0].member_name, "b");
+  }
 
   #[test]
   fn test_import_specifier() {
