@@ -84,6 +84,14 @@ impl<'a> ModuleMemberUsageHandler<'a> {
           }
         };
 
+        let is_specifier = match specifier {
+          ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
+            !(import_specifier.imported.name() == "default")
+          }
+          ImportDeclarationSpecifier::ImportDefaultSpecifier(_)
+          | ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => false,
+        };
+
         mapper.insert(local_name, imported_name);
 
         let references = self
@@ -117,6 +125,16 @@ impl<'a> ModuleMemberUsageHandler<'a> {
             });
 
           if is_in_member_expr {
+            if is_specifier {
+              inline_usages.push(Response {
+                lib_name: source_name.to_string(),
+                member_name: imported_name.to_string(),
+                file_path: self.path_str.clone(),
+                ast_node: AstNode::new((span.start, span.end), loc),
+              });
+              continue;
+            }
+
             // JSXMemberExpressionObject
             let parent_node =
               self.semantic_handler.get_parent_node(reference_node);
@@ -222,6 +240,31 @@ mod tests {
   use super::ModuleMemberUsageHandler;
   use std::path::PathBuf;
   use utils::SemanticBuilder;
+
+  #[test]
+  fn test_form_item() {
+    let file_path_str = PathBuf::from("file_path_str");
+    let semantic_builder = SemanticBuilder::js(
+      &r#"
+            import {Form} from 'shineout';
+            function App(){
+              return (
+                <Form>
+                  <Form.Item></Form.Item>
+                </Form>
+              )
+            }
+            "#,
+    );
+    let semantic_handler = semantic_builder.build_handler();
+    let handler = ModuleMemberUsageHandler::new(
+      vec!["shineout".to_string()],
+      file_path_str,
+      semantic_handler.unwrap(),
+    );
+    let result = handler.handle();
+    assert_eq!(result.len(), 2);
+  }
 
   #[test]
   fn test_computed_member_with_template() {
