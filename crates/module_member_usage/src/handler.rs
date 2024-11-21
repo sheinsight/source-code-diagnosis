@@ -166,6 +166,10 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                     });
                   }
                   _ => {
+                    eprintln!(
+                      "computed_member_expression: {:?}",
+                      computed_member_expression
+                    );
                     unreachable!()
                   }
                 },
