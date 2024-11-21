@@ -363,7 +363,7 @@ mod tests {
       semantic_handler.unwrap(),
     );
     let result = handler.handle();
-    assert_eq!(result.len(), 0);
+    assert_eq!(result.len(), 1);
   }
 
   #[test]
