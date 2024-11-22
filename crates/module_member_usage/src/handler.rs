@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::path::PathBuf;
 
 use beans::AstNode;
 use oxc_ast::{
@@ -8,6 +8,8 @@ use oxc_ast::{
 
 use utils::SemanticHandler;
 
+use crate::response::JSXProps;
+
 use super::response::Response;
 
 static ES_NAMESPACE: &str = "ES:NAMESPACE";
@@ -15,6 +17,8 @@ static ES_DEFAULT: &str = "ES:DEFAULT";
 static SIDE_EFFECTS: &str = "ES:SIDE_EFFECTS";
 static DYNAMIC_COMPUTED_MEMBER: &str = "ES:DYNAMIC_COMPUTED_MEMBER";
 static UNKNOWN: &str = "UNKNOWN";
+static NOT_IMPLEMENTED: &str = "NOT_IMPLEMENTED";
+static SPREAD_ATTRIBUTE: &str = "SPREAD_ATTRIBUTE";
 
 pub struct ModuleMemberUsageHandler<'a> {
   npm_name_vec: Vec<String>,
@@ -36,7 +40,6 @@ impl<'a> ModuleMemberUsageHandler<'a> {
   }
 
   pub fn handle(&self) -> Vec<Response> {
-    let mut mapper = HashMap::new();
     let mut inline_usages: Vec<Response> = Vec::new();
 
     let nodes = self.semantic_handler.semantic.nodes();
@@ -63,6 +66,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
             member_name: SIDE_EFFECTS.to_string(),
             file_path: self.path_str.clone(),
             ast_node: AstNode::new((span.start, span.end), loc),
+            props: vec![],
           });
           continue;
         }
@@ -73,7 +77,6 @@ impl<'a> ModuleMemberUsageHandler<'a> {
       }
 
       for specifier in specifiers {
-        let local_name = specifier.name();
         let imported_name = match specifier {
           ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
             import_specifier.imported.name().as_str()
@@ -92,8 +95,6 @@ impl<'a> ModuleMemberUsageHandler<'a> {
           | ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => false,
         };
 
-        mapper.insert(local_name, imported_name);
-
         let references = self
           .semantic_handler
           .get_symbol_references(specifier.local());
@@ -102,131 +103,163 @@ impl<'a> ModuleMemberUsageHandler<'a> {
           let (reference_node, span, loc) =
             self.semantic_handler.get_reference_node_box(reference);
 
-          let is_in_jsx_closing_element = self
+          let is_in_closing = self
             .semantic_handler
-            .is_parent_node_match_with_depth(reference_node, 6, |kind| {
+            .is_in(reference_node, 6, |kind| {
               matches!(kind, AstKind::JSXClosingElement(_))
-            });
+            })
+            .is_some();
 
-          if is_in_jsx_closing_element {
+          if is_in_closing {
             continue;
           }
 
-          let is_in_member_expr = self
-            .semantic_handler
-            .is_parent_node_match_with_depth(reference_node, 3, |kind| {
-              matches!(kind, AstKind::JSXMemberExpression(_))
+          let opening_node =
+            self.semantic_handler.is_in(reference_node, 6, |kind| {
+              matches!(kind, AstKind::JSXOpeningElement(_))
             });
 
-          let is_in_static_member_expr = self
-            .semantic_handler
-            .is_parent_node_match_with_depth(reference_node, 2, |kind| {
+          // jsx opening element
+          if let Some(AstKind::JSXOpeningElement(kind)) =
+            opening_node.map(|node| node.kind())
+          {
+            let name = match &kind.name {
+              oxc_ast::ast::JSXElementName::Identifier(ident) => {
+                ident.name.to_string()
+              }
+              oxc_ast::ast::JSXElementName::IdentifierReference(ident_ref) => {
+                ident_ref.name.to_string()
+              }
+              oxc_ast::ast::JSXElementName::NamespacedName(namespace_name) => {
+                namespace_name.property.name.to_string()
+              }
+              oxc_ast::ast::JSXElementName::MemberExpression(
+                jsx_member_expr,
+              ) => {
+                if is_specifier {
+                  imported_name.to_string()
+                } else {
+                  match &jsx_member_expr.object {
+                    oxc_ast::ast::JSXMemberExpressionObject::IdentifierReference(_) => {
+                      jsx_member_expr.property.name.to_string()
+                    },
+                    oxc_ast::ast::JSXMemberExpressionObject::MemberExpression(jsx_member_expression) => {
+                      jsx_member_expression.property.name.to_string()
+                    },
+                    oxc_ast::ast::JSXMemberExpressionObject::ThisExpression(_) => continue,
+                  }
+                }
+              }
+              oxc_ast::ast::JSXElementName::ThisExpression(_) => {
+                continue;
+              }
+            };
+
+            let attributes = kind
+              .attributes
+              .iter()
+              .map(|item| match item {
+                oxc_ast::ast::JSXAttributeItem::Attribute(attr) => {
+                  let namespace = match &attr.name {
+                    oxc_ast::ast::JSXAttributeName::Identifier(_) => None,
+                    oxc_ast::ast::JSXAttributeName::NamespacedName(
+                      namespace,
+                    ) => Some(namespace.namespace.name.to_string()),
+                  };
+
+                  let name = match &attr.name {
+                    oxc_ast::ast::JSXAttributeName::Identifier(ident) => {
+                      ident.name.to_string()
+                    }
+                    oxc_ast::ast::JSXAttributeName::NamespacedName(
+                      namespace,
+                    ) => namespace.property.name.to_string(),
+                  };
+
+                  let value = attr.value.as_ref().map(|value| match value {
+                    oxc_ast::ast::JSXAttributeValue::StringLiteral(
+                      string_literal,
+                    ) => string_literal.value.to_string(),
+                    oxc_ast::ast::JSXAttributeValue::ExpressionContainer(_)
+                    | oxc_ast::ast::JSXAttributeValue::Element(_)
+                    | oxc_ast::ast::JSXAttributeValue::Fragment(_) => {
+                      NOT_IMPLEMENTED.to_string()
+                    }
+                  });
+
+                  return JSXProps {
+                    namespace,
+                    name,
+                    value: value,
+                  };
+                }
+                oxc_ast::ast::JSXAttributeItem::SpreadAttribute(_) => {
+                  return JSXProps {
+                    namespace: None,
+                    name: SPREAD_ATTRIBUTE.to_string(),
+                    value: None,
+                  }
+                }
+              })
+              .collect::<Vec<JSXProps>>();
+
+            inline_usages.push(Response {
+              lib_name: source_name.to_string(),
+              member_name: name.to_string(),
+              file_path: self.path_str.clone(),
+              ast_node: AstNode::new((span.start, span.end), loc),
+              props: attributes,
+            });
+            continue;
+          }
+
+          let member_parent_node =
+            self.semantic_handler.is_in(reference_node, 2, |kind| {
               matches!(kind, AstKind::MemberExpression(_))
             });
 
-          if is_in_member_expr {
-            if is_specifier {
-              inline_usages.push(Response {
-                lib_name: source_name.to_string(),
-                member_name: imported_name.to_string(),
-                file_path: self.path_str.clone(),
-                ast_node: AstNode::new((span.start, span.end), loc),
-              });
-              continue;
-            }
-
-            // JSXMemberExpressionObject
-            let parent_node =
-              self.semantic_handler.get_parent_node(reference_node);
-
-            // JSXMemberExpression
-            let parent_node = parent_node
-              .and_then(|item| self.semantic_handler.get_parent_node(item));
-
-            if let Some(AstKind::JSXMemberExpression(member_expression)) =
-              parent_node.map(|node| node.kind())
-            {
-              let property_name = member_expression.property.name.as_str();
-
-              inline_usages.push(Response {
-                lib_name: source_name.to_string(),
-                member_name: property_name.to_string(),
-                file_path: self.path_str.clone(),
-                ast_node: AstNode::new((span.start, span.end), loc),
-              });
-            }
-          } else if is_in_static_member_expr {
-            let parent_node =
-              self.semantic_handler.get_parent_node(reference_node);
-
-            if let Some(AstKind::MemberExpression(member_expression)) =
-              parent_node.map(|node| node.kind())
-            {
-              match member_expression {
-                oxc_ast::ast::MemberExpression::ComputedMemberExpression(
-                  computed_member_expression,
-                ) => match &computed_member_expression.expression {
-                  Expression::StringLiteral(string_literal) => {
-                    inline_usages.push(Response {
-                      lib_name: source_name.to_string(),
-                      member_name: string_literal.to_string(),
-                      file_path: self.path_str.clone(),
-                      ast_node: AstNode::new((span.start, span.end), loc),
-                    });
-                  }
-                  Expression::TemplateLiteral(_)
-                  | Expression::Identifier(_)
-                  | Expression::LogicalExpression(_) => {
-                    inline_usages.push(Response {
-                      lib_name: source_name.to_string(),
-                      member_name: DYNAMIC_COMPUTED_MEMBER.to_string(),
-                      file_path: self.path_str.clone(),
-                      ast_node: AstNode::new((span.start, span.end), loc),
-                    });
-                  }
-                  _ => {
-                    inline_usages.push(Response {
-                      lib_name: source_name.to_string(),
-                      member_name: UNKNOWN.to_string(),
-                      file_path: self.path_str.clone(),
-                      ast_node: AstNode::new((span.start, span.end), loc),
-                    });
-                  }
-                },
-                oxc_ast::ast::MemberExpression::StaticMemberExpression(
-                  static_member_expression,
-                ) => {
-                  let property_name =
-                    static_member_expression.property.name.as_str();
-                  inline_usages.push(Response {
-                    lib_name: source_name.to_string(),
-                    member_name: property_name.to_string(),
-                    file_path: self.path_str.clone(),
-                    ast_node: AstNode::new((span.start, span.end), loc),
-                  });
+          // member element
+          if let Some(AstKind::MemberExpression(kind)) =
+            member_parent_node.map(|node| node.kind())
+          {
+            let name = match kind {
+              oxc_ast::ast::MemberExpression::ComputedMemberExpression(
+                computed_member_expression,
+              ) => match &computed_member_expression.expression {
+                Expression::StringLiteral(string_literal) => {
+                  string_literal.to_string()
                 }
-                oxc_ast::ast::MemberExpression::PrivateFieldExpression(
-                  private_field_expression,
-                ) => {
-                  let name = private_field_expression.field.name.as_str();
-
-                  inline_usages.push(Response {
-                    lib_name: source_name.to_string(),
-                    member_name: name.to_string(),
-                    file_path: self.path_str.clone(),
-                    ast_node: AstNode::new((span.start, span.end), loc),
-                  });
+                Expression::TemplateLiteral(_)
+                | Expression::Identifier(_)
+                | Expression::LogicalExpression(_) => {
+                  DYNAMIC_COMPUTED_MEMBER.to_string()
                 }
-              }
-            }
-          } else {
+                _ => UNKNOWN.to_string(),
+              },
+              oxc_ast::ast::MemberExpression::StaticMemberExpression(
+                static_member_expression,
+              ) => static_member_expression.property.name.to_string(),
+              oxc_ast::ast::MemberExpression::PrivateFieldExpression(
+                private_field_expression,
+              ) => private_field_expression.field.name.to_string(),
+            };
             inline_usages.push(Response {
               lib_name: source_name.to_string(),
-              member_name: imported_name.to_string(),
+              member_name: name.to_string(),
               file_path: self.path_str.clone(),
               ast_node: AstNode::new((span.start, span.end), loc),
+              props: vec![],
             });
+            continue;
           }
+
+          inline_usages.push(Response {
+            lib_name: source_name.to_string(),
+            member_name: imported_name.to_string(),
+            file_path: self.path_str.clone(),
+            ast_node: AstNode::new((span.start, span.end), loc),
+            props: vec![],
+          });
         }
       }
     }
@@ -238,8 +271,48 @@ impl<'a> ModuleMemberUsageHandler<'a> {
 #[cfg(test)]
 mod tests {
   use super::ModuleMemberUsageHandler;
-  use std::path::PathBuf;
+  use itertools::Itertools;
+  use std::{collections::HashMap, path::PathBuf};
   use utils::SemanticBuilder;
+
+  #[test]
+  fn test_jsx_props() {
+    let file_path_str = PathBuf::from("file_path_str");
+    let semantic_builder = SemanticBuilder::js(
+      &r#"
+            import {Form} from 'shineout';
+            function App(){
+              return (
+                <Form>
+                  <Form.Item name="hello"></Form.Item>
+                </Form>
+              )
+            }
+            "#,
+    );
+    let semantic_handler = semantic_builder.build_handler();
+    let handler = ModuleMemberUsageHandler::new(
+      vec!["shineout".to_string()],
+      file_path_str,
+      semantic_handler.unwrap(),
+    );
+    let result = handler.handle();
+    let grouped = result
+      .iter()
+      .group_by(|item| item.member_name.clone())
+      .into_iter()
+      .map(|(key, group)| (key, group.count()))
+      .collect::<HashMap<String, usize>>();
+    assert_eq!(grouped.keys().len(), 1);
+    assert_eq!(grouped["Form"], 2);
+    let props_str = result
+      .into_iter()
+      .filter(|item| !item.props.is_empty())
+      .flat_map(|item| item.props)
+      .map(|item| item.name)
+      .join(",");
+    assert_eq!(props_str, "name");
+  }
 
   #[test]
   fn test_form_item() {
@@ -406,6 +479,42 @@ mod tests {
     );
     let result = handler.handle();
     assert_eq!(result.len(), 3);
+    assert_eq!(result[0].member_name, "method");
+    assert_eq!(result[1].member_name, "named1");
+    assert_eq!(result[2].member_name, "named2");
+  }
+
+  #[test]
+  fn test_jsx_member_expression_with_alias() {
+    let file_path_str = PathBuf::from("file_path_str");
+    let semantic_builder = SemanticBuilder::js(
+      &r#"
+            import def, { named1, named2 as alias } from 'module';
+            def.method();
+            named1();
+            function App(){
+              return <alias.div>{named1}</alias.div>
+            }
+            "#,
+    );
+    let semantic_handler = semantic_builder.build_handler();
+    let handler = ModuleMemberUsageHandler::new(
+      vec!["module".to_string()],
+      file_path_str,
+      semantic_handler.unwrap(),
+    );
+    let result = handler.handle();
+    let grouped = result
+      .into_iter()
+      .group_by(|item| item.member_name.clone())
+      .into_iter()
+      .map(|(key, group)| (key, group.count()))
+      .collect::<HashMap<String, usize>>();
+
+    assert_eq!(grouped.keys().len(), 3);
+    assert_eq!(grouped["method"], 1);
+    assert_eq!(grouped["named1"], 2);
+    assert_eq!(grouped["named2"], 1);
   }
 
   #[test]

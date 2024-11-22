@@ -16,3 +16,4 @@ oxc_semantic = { workspace = true }
 serde = { workspace = true }
 parking_lot = { workspace = true }
 anyhow = { workspace = true }
+itertools = { workspace = true }

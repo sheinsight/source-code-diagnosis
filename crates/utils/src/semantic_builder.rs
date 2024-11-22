@@ -135,12 +135,12 @@ impl<'a> SemanticHandler<'a> {
     }
   }
 
-  pub fn is_parent_node_match_with_depth<F>(
+  pub fn is_in<F>(
     &self,
     node: &AstNode,
     max_depth: usize,
     predicate: F,
-  ) -> bool
+  ) -> Option<&AstNode>
   where
     F: Fn(&AstKind) -> bool,
   {
@@ -148,16 +148,17 @@ impl<'a> SemanticHandler<'a> {
     let mut current_node_id = node.id();
     while let Some(pn) = self.semantic.nodes().parent_node(current_node_id) {
       if depth >= max_depth {
-        return false;
+        return None;
       }
 
       if predicate(&pn.kind()) {
-        return true;
+        return Some(pn);
       }
+
       current_node_id = pn.id();
       depth += 1;
     }
-    false
+    None
   }
 
   pub fn offset_to_position(
