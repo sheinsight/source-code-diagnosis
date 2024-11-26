@@ -1,7 +1,7 @@
 use std::{
   collections::{HashMap, HashSet},
   fs::read_to_string,
-  path::PathBuf,
+  path::{Path, PathBuf},
   sync::{
     atomic::{AtomicU32, Ordering},
     Arc, Mutex,
@@ -25,10 +25,7 @@ use rayon::prelude::*;
 use utils::SemanticBuilder;
 use wax::{Glob, WalkEntry, WalkError};
 
-use crate::{
-  debug_expensive,
-  model::{Args, Edge, Graphics, GroupGraphics},
-};
+use crate::model::{Args, Edge, Graphics, GroupGraphics};
 
 pub struct Graph<'a> {
   id_counter: Arc<AtomicU32>,
@@ -141,7 +138,7 @@ impl<'a> Graph<'a> {
       let handler = match builder.build_handler() {
         Ok(handler) => handler,
         Err(e) => {
-          eprintln!("parse error: {} {}", e, path.to_string_lossy());
+          // eprintln!("parse error: {} {}", e, path.to_string_lossy());
           if let Ok(mut invalid_syntax_files) = self.invalid_syntax_files.lock()
           {
             invalid_syntax_files.push(
@@ -161,51 +158,45 @@ impl<'a> Graph<'a> {
       let mut thread_edges: Vec<Edge> = Vec::new();
 
       for node in nodes.iter() {
-        let source = self.to_relative_path(&self.args.cwd, path.to_path_buf());
+        let source = self.to_relative_path(&self.args.cwd, path);
         let source_id = self.build_id(&source);
         let source_value = match node.kind() {
           AstKind::ImportDeclaration(id) => id.source.value.to_string(),
           AstKind::ExportAllDeclaration(id) => id.source.value.to_string(),
           _ => {
-            let span = Span { start: 0, end: 0 };
-            let loc = Location {
-              start: beans::Position { line: 0, col: 0 },
-              end: beans::Position { line: 0, col: 0 },
-            };
-            let edge = Edge {
-              source: source_id,
-              target: empty_id.clone(),
-              ast_node: AstNode { span, loc },
-            };
-            thread_edges.push(edge);
+            // debug_expensive!("______: {} {:?}", source, node.kind());
+            // let span = Span { start: 0, end: 0 };
+            // let loc = Location {
+            //   start: beans::Position { line: 0, col: 0 },
+            //   end: beans::Position { line: 0, col: 0 },
+            // };
+            // let edge = Edge {
+            //   source: source_id,
+            //   target: empty_id.clone(),
+            //   ast_node: AstNode { span, loc },
+            // };
+            // thread_edges.push(edge);
             continue;
           }
         };
-
-        debug_expensive!("source_value: {}", source_value);
 
         let parent = match path.parent() {
           Some(p) => p,
           None => continue,
         };
 
-        debug_expensive!(
-          "path {} parent: {}",
-          path.to_string_lossy(),
-          parent.to_string_lossy()
-        );
-
         let resolved_path = match self.resolver.resolve(&parent, &source_value)
         {
           Ok(rp) => rp,
-          Err(_) => continue,
+          Err(_) => {
+            eprintln!(
+              "resolve error: {} {}",
+              source_value,
+              path.to_string_lossy()
+            );
+            continue;
+          }
         };
-
-        debug_expensive!(
-          "resolved {} {}",
-          source_value,
-          resolved_path.full_path().to_string_lossy(),
-        );
 
         // if resolved_path
         //   .full_path()
@@ -217,20 +208,20 @@ impl<'a> Graph<'a> {
 
         let (span, loc) = handler.get_node_box(node);
 
-        let target = self.to_relative_path(
-          &self.args.cwd,
-          resolved_path.full_path().to_path_buf(),
-        );
+        let target =
+          self.to_relative_path(&self.args.cwd, resolved_path.full_path());
+
         let target_id = self.build_id(&target);
 
-        debug_expensive!("target {} {}", target, target_id);
-
         let edge = self.build_edge(source_id, target_id, span, loc);
+
         thread_edges.push(edge);
       }
 
       if let Ok(mut edges) = self.edges.lock() {
         edges.extend(thread_edges);
+      } else {
+        eprintln!("edges lock failed");
       }
     });
   }
@@ -357,18 +348,12 @@ impl<'a> Graph<'a> {
       let bin_map = self.bi_map.lock().unwrap();
       let edges = self.edges.lock().unwrap();
 
-      debug_expensive!("bin_map: {:?}", bin_map);
-
-      debug_expensive!("edges: {:?}", edges.len());
-
       let phantom_deps: Vec<Edge> = edges
         .iter()
         .filter_map(|edge| {
           let target = bin_map.get_by_right(&edge.target)?;
 
-          debug_expensive!("target: {}", target);
-
-          if !target.starts_with("node_modules") || END_ID == target {
+          if !target.contains("node_modules") || END_ID == target {
             return None;
           }
 
@@ -389,8 +374,6 @@ impl<'a> Graph<'a> {
         .collect();
       phantom_deps
     };
-
-    debug_expensive!("phantom_deps: {:?}", phantom_deps);
 
     if let Ok(invalid_syntax_files) = self.invalid_syntax_files.lock() {
       Ok(Graphics {
@@ -576,12 +559,13 @@ impl<'a> Graph<'a> {
   }
 
   fn build_id(&self, node: &str) -> String {
+    let node = node.replace("\\", "/");
     if let Ok(mut bin_map) = self.bi_map.lock() {
-      if let Some(id) = bin_map.get_by_left(node) {
+      if let Some(id) = bin_map.get_by_left(&node) {
         id.to_string()
       } else {
         let id = self.id_counter.fetch_add(1, Ordering::SeqCst);
-        bin_map.insert(node.to_string().replace("\\", "/"), id.to_string());
+        bin_map.insert(node, id.to_string());
         id.to_string()
       }
     } else {
@@ -590,16 +574,14 @@ impl<'a> Graph<'a> {
     }
   }
 
-  fn to_relative_path(
+  fn to_relative_path<P: AsRef<Path>>(
     &self,
     cwd: &String,
-    absolute_path_buf: PathBuf,
+    absolute_path_buf: P,
   ) -> String {
-    if let Ok(absolute_path) = Utf8PathBuf::from_path_buf(absolute_path_buf) {
-      absolute_path.to_string().replace(cwd, "")
-    } else {
-      "".to_string()
-    }
+    pathdiff::diff_paths(absolute_path_buf, cwd)
+      .map(|p| p.to_string_lossy().replace('\\', "/"))
+      .unwrap_or_default()
   }
 
   fn build_edge(

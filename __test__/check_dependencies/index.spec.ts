@@ -110,21 +110,22 @@ test("Get which files depend on the specified file with all-from", () => {
 	expect(normalizedPaths).toMatchSnapshot();
 });
 
-test("Test error syntax code", () => {
-	const cwd = path.resolve(dirname(__filename), "features", "error_syntax");
-	const current = "a.js";
-	const response = checkDependencies(current, {
-		cwd,
-	});
+// test("Test error syntax code", () => {
+// 	const cwd = path.resolve(dirname(__filename), "features", "error_syntax");
+// 	const current = "a.js";
+// 	const response = checkDependencies(current, {
+// 		cwd,
+// 	});
 
-	const normalizedPaths = normalizePaths(response);
+// 	const normalizedPaths = normalizePaths(response);
 
-	expect(normalizedPaths).toMatchSnapshot();
+// 	expect(normalizedPaths).toMatchSnapshot();
+// 	console.log("response-->", response);
 
-	for (const file of response.invalidSyntaxFiles) {
-		expect(winPath(file.replace(cwd, ""))).toMatchSnapshot();
-	}
-});
+// 	for (const file of response.invalidSyntaxFiles) {
+// 		expect(winPath(file.replace(cwd, ""))).toMatchSnapshot();
+// 	}
+// });
 
 test("Test error syntax code", () => {
 	const cwd = path.resolve(dirname(__filename), "features", "error_syntax");

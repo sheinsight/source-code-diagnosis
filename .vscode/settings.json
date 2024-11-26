@@ -21,6 +21,7 @@
 		"musleabihf",
 		"napi",
 		"newable",
+		"pathdiff",
 		"petgraph",
 		"ropey",
 		"RUSTFLAGS",
