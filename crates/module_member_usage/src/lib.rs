@@ -20,27 +20,29 @@ pub fn check_module_member_usage(
   let x = {
     let used = Arc::clone(&used);
     move |path: PathBuf| {
-      let source_code = read_to_string(&path).unwrap();
+      if let Ok(source_code) = read_to_string(&path) {
+        let source_type = SourceType::from_path(&path).unwrap();
 
-      let source_type = SourceType::from_path(&path).unwrap();
+        let builder = SemanticBuilder::code(&source_code, source_type);
+        let handler = match builder.build_handler() {
+          Ok(handler) => handler,
+          Err(e) => {
+            eprintln!("parse error: {}", e);
+            return;
+          }
+        };
 
-      let builder = SemanticBuilder::code(&source_code, source_type);
-      let handler = match builder.build_handler() {
-        Ok(handler) => handler,
-        Err(e) => {
-          eprintln!("parse error: {}", e);
-          return;
-        }
-      };
+        let inline_usages = ModuleMemberUsageHandler::new(
+          npm_name_vec.clone(),
+          path.clone(),
+          handler,
+        )
+        .handle();
 
-      let inline_usages = ModuleMemberUsageHandler::new(
-        npm_name_vec.clone(),
-        path.clone(),
-        handler,
-      )
-      .handle();
-
-      used.lock().extend(inline_usages);
+        used.lock().extend(inline_usages);
+      } else {
+        eprintln!("read file error: {}", path.display());
+      }
     }
   };
   glob(x, options)?;
