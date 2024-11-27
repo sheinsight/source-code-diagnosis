@@ -1,0 +1,7 @@
+---
+source: crates/check_syntax/tests/normal.rs
+assertion_line: 41
+expression: err_path
+snapshot_kind: text
+---
+"a.js"

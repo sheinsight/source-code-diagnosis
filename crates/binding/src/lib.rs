@@ -69,6 +69,15 @@ pub fn check_cycle(
 }
 
 #[napi]
+pub fn check_syntax(
+  args: check_syntax::JsArgs,
+) -> Result<Vec<check_syntax::Response>> {
+  let args = check_syntax::Args::from(args);
+  check_syntax::check_syntax(args)
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+}
+
+#[napi]
 pub fn check_dependents(
   file: String,
   args: module_graph::model::JsArgs,

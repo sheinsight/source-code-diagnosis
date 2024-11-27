@@ -1,7 +1,7 @@
 use std::{
   collections::{HashMap, HashSet},
   fs::read_to_string,
-  path::{Path, PathBuf},
+  path::Path,
   sync::{
     atomic::{AtomicU32, Ordering},
     Arc, Mutex,
@@ -11,7 +11,6 @@ use std::{
 use anyhow::{bail, Result};
 use beans::{AstNode, Location, Span};
 use bimap::BiMap;
-use camino::Utf8PathBuf;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
 use oxc_span::SourceType;

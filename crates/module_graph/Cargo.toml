@@ -10,9 +10,9 @@ utils = { path = "../utils" }
 beans = { path = "../beans" }
 petgraph = "0.6.5"
 bimap = "0.6.2"
-camino = "1.1.9"
+camino = { workspace = true }
 wax = "0.6.0"
-rayon = "1.10.0"
+rayon = { workspace = true }
 crossbeam = "0.8.4"
 napi-derive = { workspace = true }
 napi = { workspace = true }
@@ -23,4 +23,4 @@ log = { workspace = true }
 serde_json = { workspace = true }
 serde = { workspace = true }
 oxc_span = { workspace = true }
-pathdiff = "0.2"
+pathdiff = { workspace = true }
