@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use napi_derive::napi;
 use rayon::prelude::*;
 use wax::Glob;
@@ -34,7 +36,7 @@ impl From<JsArgs> for Args {
   }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[napi(object)]
 pub struct CheckFilenameCaseResponse {
   pub path: String,
@@ -49,7 +51,7 @@ pub fn check_filename_case(
     .walk(&args.cwd)
     .not(args.ignore.iter().map(|s| s.as_str()))?;
 
-  let res = files
+  let res: Vec<CheckFilenameCaseResponse> = files
     .par_bridge()
     .filter_map(|item| {
       let entry = item.ok()?;
@@ -57,36 +59,30 @@ pub fn check_filename_case(
 
       let path = pathdiff::diff_paths(path, &args.cwd)?;
 
-      let file_name = path.file_name()?.to_string_lossy();
+      let str = path.display().to_string();
 
-      if file_name.to_ascii_lowercase().eq(&file_name) {
-        None
-      } else {
-        Some(CheckFilenameCaseResponse {
-          path: path.to_string_lossy().to_string(),
-        })
+      let mut p = vec![];
+      let path_str = str.split("/").collect::<Vec<&str>>();
+      let len = path_str.len();
+      for (index, part) in path_str.into_iter().enumerate() {
+        p.push(part);
+        if !part.to_ascii_lowercase().eq(part) {
+          break;
+        }
+        if index == len - 1 {
+          p.clear();
+        }
       }
+
+      if !p.is_empty() {
+        return Some(CheckFilenameCaseResponse { path: p.join("/") });
+      }
+
+      return None;
     })
     .collect();
 
-  Ok(res)
+  let unique: Vec<_> = HashSet::<_>::from_iter(res).into_iter().collect();
+
+  Ok(unique)
 }
-
-// #[cfg(test)]
-// mod tests {
-//   use super::*;
-
-//   #[test]
-//   fn test_check_filename_case() {
-//     let args = Args::from(JsArgs {
-//       pattern: None,
-//       ignore: None,
-//     });
-//     let res = check_filename_case(args);
-//     if let Ok(res) = res {
-//       for item in res {
-//         println!("{}", item.path);
-//       }
-//     }
-//   }
-// }

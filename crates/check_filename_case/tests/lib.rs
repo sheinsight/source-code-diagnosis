@@ -12,7 +12,7 @@ fn test_check_filename_case() -> anyhow::Result<()> {
 
   let res = check_filename_case(args)?;
 
-  assert_eq!(res.len(), 1);
+  assert_eq!(res.len(), 2);
 
   Ok(())
 }
