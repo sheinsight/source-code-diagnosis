@@ -35,12 +35,12 @@ impl From<JsArgs> for Args {
 
 #[derive(Debug, Clone)]
 #[napi(object)]
-pub struct Response {
+pub struct CheckSyntaxResponse {
   pub path: String,
   pub errors: Vec<String>,
 }
 
-pub fn check_syntax(args: Args) -> anyhow::Result<Vec<Response>> {
+pub fn check_syntax(args: Args) -> anyhow::Result<Vec<CheckSyntaxResponse>> {
   let glob = Glob::new(&args.pattern)?;
 
   let files = glob
@@ -56,7 +56,7 @@ pub fn check_syntax(args: Args) -> anyhow::Result<Vec<Response>> {
         let path_string = path.to_string_lossy().to_string();
 
         match std::fs::read_to_string(path) {
-          Err(err) => Some(Response {
+          Err(err) => Some(CheckSyntaxResponse {
             path: path_string,
             errors: vec![err.to_string()],
           }),
@@ -70,7 +70,7 @@ pub fn check_syntax(args: Args) -> anyhow::Result<Vec<Response>> {
 
             let parse_response = parser.parse();
 
-            (!parse_response.errors.is_empty()).then(|| Response {
+            (!parse_response.errors.is_empty()).then(|| CheckSyntaxResponse {
               path: pathdiff::diff_paths(&path, &args.cwd)
                 .unwrap()
                 .to_string_lossy()
