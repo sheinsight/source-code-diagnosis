@@ -62,11 +62,18 @@ pub fn check_syntax(args: Args) -> anyhow::Result<Vec<CheckSyntaxResponse>> {
           }),
           Ok(content) => {
             let allocator = oxc_allocator::Allocator::default();
-            let parser = oxc_parser::Parser::new(
-              &allocator,
-              &content,
-              oxc_span::SourceType::default(),
-            );
+
+            let source_type =
+              match path.extension().and_then(|ext| ext.to_str()) {
+                Some("ts") => oxc_span::SourceType::ts(),
+                Some("tsx") => oxc_span::SourceType::tsx(),
+                Some("jsx") => oxc_span::SourceType::jsx(),
+                Some("cjs") => oxc_span::SourceType::cjs(),
+                _ => oxc_span::SourceType::default(),
+              };
+
+            let parser =
+              oxc_parser::Parser::new(&allocator, &content, source_type);
 
             let parse_response = parser.parse();
 
