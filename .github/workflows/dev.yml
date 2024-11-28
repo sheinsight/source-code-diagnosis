@@ -80,7 +80,7 @@ jobs:
           cache: pnpm
       
       - name: Install rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@nightly
         if: ${{ !matrix.settings.docker }}
         with:
           targets: ${{ matrix.settings.target }}
