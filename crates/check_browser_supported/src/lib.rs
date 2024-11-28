@@ -44,11 +44,11 @@ macro_rules! enabled_debug {
 #[napi[object]]
 pub struct Target {
   pub chrome: String,
-  // pub firefox: Option<String>,
-  // pub safari: Option<String>,
-  // pub edge: Option<String>,
-  // pub node: Option<String>,
-  // pub deno: Option<String>,
+  pub firefox: Option<String>,
+  pub safari: Option<String>,
+  pub edge: Option<String>,
+  pub node: Option<String>,
+  pub deno: Option<String>,
 }
 
 pub fn check_browser_supported_with_source_code(
@@ -332,6 +332,11 @@ mod tests {
     let result = check_browser_supported_with_source_code(
       Target {
         chrome: "40".to_string(),
+        firefox: None,
+        safari: None,
+        edge: None,
+        node: None,
+        deno: None,
       },
       source_code,
     );

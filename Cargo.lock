@@ -106,6 +106,7 @@ dependencies = [
  "beans",
  "check_browser_supported",
  "check_danger_string",
+ "check_filename_case",
  "check_syntax",
  "env_logger",
  "log",
@@ -186,6 +187,24 @@ dependencies = [
  "parking_lot",
  "serde",
  "utils",
+]
+
+[[package]]
+name = "check_filename_case"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "camino",
+ "insta",
+ "napi",
+ "napi-derive",
+ "oxc_allocator",
+ "oxc_parser",
+ "oxc_span",
+ "pathdiff",
+ "rayon",
+ "utils",
+ "wax",
 ]
 
 [[package]]

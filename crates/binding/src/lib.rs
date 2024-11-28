@@ -31,6 +31,15 @@ pub fn check_browser_supported(
 }
 
 #[napi]
+pub fn check_filename_case(
+  args: check_filename_case::JsArgs,
+) -> Result<Vec<check_filename_case::CheckFilenameCaseResponse>> {
+  let args = check_filename_case::Args::from(args);
+  check_filename_case::check_filename_case(args)
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+}
+
+#[napi]
 pub fn check_browser_supported_with_source_code(
   target: check_browser_supported::Target,
   source_code: String,

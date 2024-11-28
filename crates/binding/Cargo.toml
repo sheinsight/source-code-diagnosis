@@ -15,6 +15,7 @@ check_danger_string = { path = "../check_danger_string" }
 check_browser_supported = { path = "../check_browser_supported" }
 check_syntax = { path = "../check_syntax" }
 module_member_usage = { path = "../module_member_usage" }
+check_filename_case = { path = "../check_filename_case" }
 utils = { path = "../utils" }
 beans = { path = "../beans" }
 module_graph = { path = "../module_graph" }
