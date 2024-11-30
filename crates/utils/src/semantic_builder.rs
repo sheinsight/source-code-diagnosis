@@ -81,9 +81,16 @@ impl<'a> SemanticBuilder<'a> {
     .parse();
 
     let program = self.allocator.alloc(parse.program);
-    OxcSemanticBuilder::new(&self.source_code)
+
+    OxcSemanticBuilder::new()
       .with_check_syntax_error(true)
-      .with_trivias(parse.trivias)
+      // .with_trivias(parse.trivias)
+      // .with_cfg(self.cfg)
+      .build(program);
+
+    OxcSemanticBuilder::new()
+      .with_check_syntax_error(true)
+      // .with_trivias(parse.trivias)
       // .with_cfg(self.cfg)
       .build(program)
   }
@@ -101,7 +108,10 @@ impl<'a> SemanticBuilder<'a> {
 
     let program = self.allocator.alloc(ret.program);
 
-    let semantic = OxcSemanticBuilder::new(&self.source_code)
+    let semantic = OxcSemanticBuilder::new()
+      .with_check_syntax_error(true)
+      // .with_trivias(parse.trivias)
+      // .with_cfg(self.cfg)
       .build(program)
       .semantic;
     if let Some(file_path) = &self.file_path {

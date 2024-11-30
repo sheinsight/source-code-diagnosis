@@ -85,7 +85,7 @@ macro_rules! assert_source_seg {
                 let ret = oxc_parser::Parser::new(&allocator, source_code, source_type).parse();
                 let program = allocator.alloc(ret.program);
 
-                let semantic = oxc_semantic::SemanticBuilder::new(&source_code)
+                let semantic = oxc_semantic::SemanticBuilder::new()
                     .build(program)
                     .semantic;
 
