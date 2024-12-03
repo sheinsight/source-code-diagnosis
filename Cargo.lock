@@ -198,6 +198,7 @@ dependencies = [
  "ropey",
  "serde",
  "serde_json",
+ "utils",
  "wax",
 ]
 

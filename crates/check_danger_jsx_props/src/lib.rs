@@ -1,4 +1,4 @@
-use std::{fmt::Display, fs, io::Read};
+use std::{fmt::Display, fs};
 
 use napi_derive::napi;
 use oxc_ast::{AstKind, ast::JSXAttributeItem};
@@ -59,17 +59,6 @@ impl From<JsArgs> for Args {
   }
 }
 
-fn is_ts_video(path: &std::path::Path) -> bool {
-  if let Ok(mut file) = fs::File::open(path) {
-    let mut buffer = [0; 4];
-    if file.read_exact(&mut buffer).is_ok() {
-      // TS 视频文件的魔数是 0x47
-      return buffer[0] == 0x47;
-    }
-  }
-  false
-}
-
 pub fn check_danger_jsx_props(
   danger_jsx_props: Vec<String>,
   args: Args,
@@ -89,7 +78,7 @@ pub fn check_danger_jsx_props(
         return None;
       }
 
-      if is_ts_video(path) {
+      if utils::is_ts_video(path) {
         return None;
       }
 

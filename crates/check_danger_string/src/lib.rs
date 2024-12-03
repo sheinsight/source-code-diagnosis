@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, path::PathBuf, sync::Arc};
+use std::{path::PathBuf, sync::Arc};
 
 use anyhow::{Context, Result};
 use beans::AstNode;
@@ -7,7 +7,7 @@ use oxc_ast::AstKind;
 use oxc_span::SourceType;
 use parking_lot::Mutex;
 use serde::Serialize;
-use utils::{glob, GlobOptions, SemanticBuilder};
+use utils::{glob, read_file_content, GlobOptions, SemanticBuilder};
 
 #[napi(object)]
 #[derive(Debug, Serialize)]
@@ -29,7 +29,7 @@ pub fn check_danger_strings(
     move |path: PathBuf| {
       let mut inline_usages: Vec<Response> = Vec::new();
 
-      let source_code = read_to_string(&path).unwrap();
+      let source_code = read_file_content(&path).unwrap();
 
       let source_type = SourceType::from_path(&path).unwrap();
 
