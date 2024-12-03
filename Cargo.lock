@@ -90,6 +90,7 @@ version = "0.1.0"
 dependencies = [
  "napi",
  "napi-derive",
+ "ropey",
  "serde",
 ]
 
@@ -105,6 +106,7 @@ version = "0.1.0"
 dependencies = [
  "beans",
  "check_browser_supported",
+ "check_danger_jsx_props",
  "check_danger_string",
  "check_filename_case",
  "check_syntax",
@@ -172,6 +174,29 @@ dependencies = [
  "oxc_syntax",
  "serde",
  "utils",
+]
+
+[[package]]
+name = "check_danger_jsx_props"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "beans",
+ "camino",
+ "insta",
+ "napi",
+ "napi-derive",
+ "oxc_allocator",
+ "oxc_ast",
+ "oxc_parser",
+ "oxc_semantic",
+ "oxc_span",
+ "pathdiff",
+ "rayon",
+ "ropey",
+ "serde",
+ "serde_json",
+ "wax",
 ]
 
 [[package]]

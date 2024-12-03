@@ -1,0 +1,13 @@
+---
+source: crates/check_danger_jsx_props/tests/lib_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "path": "b.js",
+  "items": [],
+  "errors": [
+    "Missing initializer in const declaration",
+    "Expected a semicolon or an implicit semicolon after a statement, but found none"
+  ]
+}

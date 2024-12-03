@@ -13,6 +13,17 @@ pub struct AstNode {
 }
 
 impl AstNode {
+  pub fn with_source(source_text: &str, span: (u32, u32)) -> Self {
+    let loc = Location::with_source(source_text, span);
+    Self {
+      span: Span {
+        start: span.0,
+        end: span.1,
+      },
+      loc,
+    }
+  }
+
   pub fn new(span: (u32, u32), loc: Location) -> Self {
     Self {
       span: Span {

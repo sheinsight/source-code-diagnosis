@@ -18,7 +18,11 @@
 test:
     #!/usr/bin/env bash
     echo "Running tests..."
-    cargo test -- --nocapture
+    # cargo test -- --nocapture
+    cargo insta test --review
+
+ct:
+    INSTA_UPDATE=always cargo test
 
 
 create name:

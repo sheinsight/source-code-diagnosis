@@ -16,6 +16,7 @@
 		"gnueabihf",
 		"graphmap",
 		"hashbang",
+		"insta",
 		"instanceof",
 		"kosaraju",
 		"msvc",
@@ -26,6 +27,7 @@
 		"petgraph",
 		"ropey",
 		"RUSTFLAGS",
+		"serde",
 		"threadpool"
 	],
 	"[javascript]": {

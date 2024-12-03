@@ -2,6 +2,16 @@
   "nodes": [
     {
       "id": "1",
+      "name": "utils.js",
+      "symbolSize": 10,
+      "edgeSymbol": [
+        "circle",
+        "arrow"
+      ],
+      "itemStyle": {}
+    },
+    {
+      "id": "2",
       "name": "c.js",
       "symbolSize": 30,
       "edgeSymbol": [
@@ -11,16 +21,6 @@
       "itemStyle": {
         "color": "#3ba272"
       }
-    },
-    {
-      "id": "2",
-      "name": "utils.js",
-      "symbolSize": 10,
-      "edgeSymbol": [
-        "circle",
-        "arrow"
-      ],
-      "itemStyle": {}
     },
     {
       "id": "3",
@@ -45,20 +45,20 @@
   ],
   "links": [
     {
-      "source": "1",
+      "source": "2",
       "target": "3"
     },
     {
       "source": "3",
-      "target": "2"
+      "target": "1"
     },
     {
-      "source": "1",
+      "source": "2",
       "target": "4"
     },
     {
       "source": "4",
-      "target": "2"
+      "target": "1"
     }
   ],
   "categories": []
