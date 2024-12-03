@@ -69,7 +69,8 @@ pub fn check_syntax(args: Args) -> anyhow::Result<Vec<CheckSyntaxResponse>> {
                 Some("tsx") => oxc_span::SourceType::tsx(),
                 Some("jsx") => oxc_span::SourceType::jsx(),
                 Some("cjs") => oxc_span::SourceType::cjs(),
-                _ => oxc_span::SourceType::default(),
+                // _ => oxc_span::SourceType::default(),
+                _ => oxc_span::SourceType::mjs(),
               };
 
             let parser =
