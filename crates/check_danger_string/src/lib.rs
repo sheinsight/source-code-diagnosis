@@ -46,9 +46,11 @@ pub fn check_danger_strings(
       handler.each_node(|handler, node| {
         if let AstKind::StringLiteral(string_literal) = node.kind() {
           let value = string_literal.value.to_string();
-          let span = string_literal.span;
-          let loc =
-            handler.offset_to_location(handler.semantic.source_text(), span);
+
+          let ast_node = beans::AstNode::with_source_and_span(
+            handler.semantic.source_text(),
+            &string_literal.span,
+          );
 
           for danger_string in danger_strings.iter() {
             if value.contains(danger_string) {
@@ -56,7 +58,7 @@ pub fn check_danger_strings(
                 raw_value: value.clone(),
                 match_danger_string: danger_string.to_string(),
                 file_path: path.display().to_string(),
-                ast_node: AstNode::new((span.start, span.end), loc),
+                ast_node,
               });
             }
           }

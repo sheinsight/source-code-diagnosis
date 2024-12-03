@@ -221,7 +221,7 @@ impl<'a> SemanticHandler<'a> {
     reference: &Reference,
   ) -> (&AstNode, oxc_span::Span, Location) {
     let reference_node = self.parse_reference(reference);
-    let span = self.get_span(&reference_node);
+    let span = GetSpan::span(&reference_node.kind());
     let loc = self.offset_to_location(self.semantic.source_text(), span);
     (reference_node, span, loc)
   }
@@ -245,22 +245,6 @@ impl<'a> SemanticHandler<'a> {
   pub fn parse_reference(&self, reference: &Reference) -> &AstNode {
     let reference_node = self.semantic.nodes().get_node(reference.node_id());
     reference_node
-  }
-
-  pub fn find_up_with_dep<'b>(
-    &'b self,
-    node: &'b AstNode,
-    mut dep: usize,
-  ) -> Option<&'b AstNode> {
-    if dep == 0 {
-      return Some(node);
-    }
-    if let Some(parent_node) = self.semantic.nodes().parent_node(node.id()) {
-      dep -= 1;
-      self.find_up_with_dep(parent_node, dep)
-    } else {
-      None
-    }
   }
 
   pub fn get_parent_node(&self, node: &AstNode) -> Option<&AstNode> {
