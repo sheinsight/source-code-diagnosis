@@ -1,3 +1,5 @@
+use std::{fs, io::Read};
+
 use napi_derive::napi;
 use rayon::prelude::*;
 use wax::Glob;
@@ -40,6 +42,17 @@ pub struct CheckSyntaxResponse {
   pub errors: Vec<String>,
 }
 
+fn is_ts_video(path: &std::path::Path) -> bool {
+  if let Ok(mut file) = fs::File::open(path) {
+    let mut buffer = [0; 4];
+    if file.read_exact(&mut buffer).is_ok() {
+      // TS 视频文件的魔数是 0x47
+      return buffer[0] == 0x47;
+    }
+  }
+  false
+}
+
 pub fn check_syntax(args: Args) -> anyhow::Result<Vec<CheckSyntaxResponse>> {
   let glob = Glob::new(&args.pattern)?;
 
@@ -54,6 +67,23 @@ pub fn check_syntax(args: Args) -> anyhow::Result<Vec<CheckSyntaxResponse>> {
         let entry = item.ok()?;
         let path = entry.path();
         let path_string = path.to_string_lossy().to_string();
+
+        if !path.is_file() {
+          return None;
+        }
+
+        if is_ts_video(path) {
+          return None;
+        }
+
+        let metadata = fs::metadata(path).ok()?;
+
+        if metadata.len() > 1_000_000 {
+          return Some(CheckSyntaxResponse {
+            path: path_string,
+            errors: vec!["File is too large".to_owned()],
+          });
+        }
 
         match std::fs::read_to_string(path) {
           Err(err) => Some(CheckSyntaxResponse {
