@@ -123,7 +123,18 @@ impl<'a> Graph<'a> {
 
       let builder = SemanticBuilder::with_file(&path);
 
-      let semantic = builder.build().unwrap();
+      let semantic = match builder.build() {
+        Ok(semantic) => semantic,
+        Err(_) => {
+          println!("invalid syntax file: {}", path.to_string_lossy());
+          self
+            .invalid_syntax_files
+            .lock()
+            .unwrap()
+            .push(path.to_string_lossy().to_string());
+          return;
+        }
+      };
 
       let nodes = semantic.nodes();
 

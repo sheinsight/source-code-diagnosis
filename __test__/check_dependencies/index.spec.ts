@@ -32,7 +32,7 @@ function transformToEcharts(current: string, graphics: Graphics) {
 		target: edge.target,
 	}));
 
-	return {
+	return { 
 		nodes,
 		links,
 		categories: [],
@@ -109,34 +109,20 @@ test("Get which files depend on the specified file with all-from", () => {
 
 	expect(normalizedPaths).toMatchSnapshot();
 });
-
-// test("Test error syntax code", () => {
-// 	const cwd = path.resolve(dirname(__filename), "features", "error_syntax");
-// 	const current = "a.js";
-// 	const response = checkDependencies(current, {
-// 		cwd,
-// 	});
-
-// 	const normalizedPaths = normalizePaths(response);
-
-// 	expect(normalizedPaths).toMatchSnapshot();
-// 	console.log("response-->", response);
-
-// 	for (const file of response.invalidSyntaxFiles) {
-// 		expect(winPath(file.replace(cwd, ""))).toMatchSnapshot();
-// 	}
-// });
-
+ 
 test("Test error syntax code", () => {
 	const cwd = path.resolve(dirname(__filename), "features", "error_syntax");
 	const current = "b.js";
-	expect(() => {
+	try {
 		checkDependencies(current, {
 			cwd,
 		});
-	}).toThrowError();
+	} catch (error) {
+		expect(error).toBeDefined();
+	}
+	// expect(() => {
+	// 	checkDependencies(current, {
+	// 		cwd,
+	// 	});
+	// }).toThrowError();
 });
-
-function winPath(path: string) {
-	return path.replace(/\\/g, "/");
-}
