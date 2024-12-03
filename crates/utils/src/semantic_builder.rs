@@ -29,7 +29,7 @@ impl SemanticBuilder {
         Some("tsx") => oxc_span::SourceType::tsx(),
         Some("jsx") => oxc_span::SourceType::jsx(),
         Some("cjs") => oxc_span::SourceType::cjs(),
-        _ => SourceType::default(),
+        _ => SourceType::jsx(),
       };
     Self {
       source_code: read_file_content(path.as_ref()).unwrap(),
