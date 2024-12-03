@@ -13,9 +13,8 @@ use anyhow::Result;
 use log::debug;
 use napi::Error;
 use napi_derive::napi;
-use oxc_span::{GetSpan, SourceType};
+
 use std::{
-  fs::read_to_string,
   path::PathBuf,
   sync::{Arc, Mutex},
 };
@@ -261,33 +260,20 @@ pub fn check_browser_supported(
     let used = Arc::clone(&used);
     let clone = Arc::clone(&share);
     move |path: PathBuf| {
-      let source_code = read_to_string(&path).unwrap();
+      let builder = SemanticBuilder::with_file(&path);
+      let semantic = builder.build().unwrap();
 
-      let source_type = SourceType::from_path(&path).unwrap();
-
-      let builder = SemanticBuilder::code(&source_code, source_type);
-
-      let handler = match builder.build_handler() {
-        Ok(handler) => handler,
-        Err(e) => {
-          eprintln!("parse error: {} {}", e, path.to_string_lossy());
-          return;
-        }
-      };
-
-      handler.each_node(|handler, node| {
+      for node in semantic.nodes().iter() {
         for compat_handler in clone.iter() {
           if compat_handler.handle(
-            handler.semantic.source_text(),
+            semantic.source_text(),
             node,
-            handler.semantic.nodes(),
+            semantic.nodes(),
           ) {
             let ast_node = beans::AstNode::with_source_and_ast_node(
-              handler.semantic.source_text(),
+              semantic.source_text(),
               node,
             );
-
-            // let (span, loc) = handler.get_node_box(node);
 
             let mut used = used.lock().unwrap();
             used.push(CompatBox::new(
@@ -297,7 +283,7 @@ pub fn check_browser_supported(
             ));
           }
         }
-      })
+      }
     }
   };
 

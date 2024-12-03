@@ -1,6 +1,5 @@
 use std::{
   collections::{HashMap, HashSet},
-  fs::read_to_string,
   path::Path,
   sync::{
     atomic::{AtomicU32, Ordering},
@@ -9,11 +8,10 @@ use std::{
 };
 
 use anyhow::{bail, Result};
-use beans::{AstNode, Location, Span};
+use beans::AstNode;
 use bimap::BiMap;
 use oxc_ast::AstKind;
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
-use oxc_span::SourceType;
 use petgraph::{
   algo::kosaraju_scc,
   graph::{DiGraph, NodeIndex},
@@ -123,36 +121,11 @@ impl<'a> Graph<'a> {
         return;
       }
 
-      let source_code = match read_to_string(&path) {
-        Ok(code) => code,
-        Err(_) => return,
-      };
+      let builder = SemanticBuilder::with_file(&path);
 
-      let source_type = match SourceType::from_path(&path) {
-        Ok(st) => st,
-        Err(_) => return,
-      };
+      let semantic = builder.build().unwrap();
 
-      let builder = SemanticBuilder::code(&source_code, source_type);
-      let handler = match builder.build_handler() {
-        Ok(handler) => handler,
-        Err(e) => {
-          // eprintln!("parse error: {} {}", e, path.to_string_lossy());
-          if let Ok(mut invalid_syntax_files) = self.invalid_syntax_files.lock()
-          {
-            invalid_syntax_files.push(
-              path
-                .to_string_lossy()
-                .strip_prefix(&self.args.cwd)
-                .unwrap_or_default()
-                .to_string(),
-            );
-          }
-          return;
-        }
-      };
-
-      let nodes = handler.semantic.nodes();
+      let nodes = semantic.nodes();
 
       let mut thread_edges: Vec<Edge> = Vec::new();
 
@@ -206,7 +179,7 @@ impl<'a> Graph<'a> {
         // }
 
         let ast_node = beans::AstNode::with_source_and_ast_node(
-          handler.semantic.source_text(),
+          semantic.source_text(),
           node,
         );
 

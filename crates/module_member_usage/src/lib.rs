@@ -1,10 +1,8 @@
-use std::fs::read_to_string;
 use std::{path::PathBuf, sync::Arc};
 
 use anyhow::Context;
 use anyhow::Result;
 use handler::ModuleMemberUsageHandler;
-use oxc_span::SourceType;
 use parking_lot::Mutex;
 use utils::{glob, GlobOptions, SemanticBuilder};
 
@@ -20,29 +18,24 @@ pub fn check_module_member_usage(
   let x = {
     let used = Arc::clone(&used);
     move |path: PathBuf| {
-      if let Ok(source_code) = read_to_string(&path) {
-        let source_type = SourceType::from_path(&path).unwrap();
+      let builder = SemanticBuilder::with_file(&path);
 
-        let builder = SemanticBuilder::code(&source_code, source_type);
-        let handler = match builder.build_handler() {
-          Ok(handler) => handler,
-          Err(e) => {
-            eprintln!("parse error: {}", e);
-            return;
-          }
-        };
+      let handler = match builder.build_handler() {
+        Ok(handler) => handler,
+        Err(e) => {
+          eprintln!("parse error: {}", e);
+          return;
+        }
+      };
 
-        let inline_usages = ModuleMemberUsageHandler::new(
-          npm_name_vec.clone(),
-          path.clone(),
-          handler,
-        )
-        .handle();
+      let inline_usages = ModuleMemberUsageHandler::new(
+        npm_name_vec.clone(),
+        path.clone(),
+        handler,
+      )
+      .handle();
 
-        used.lock().extend(inline_usages);
-      } else {
-        eprintln!("read file error: {}", path.display());
-      }
+      used.lock().extend(inline_usages);
     }
   };
   glob(x, options)?;

@@ -4,10 +4,9 @@ use anyhow::{Context, Result};
 use beans::AstNode;
 use napi_derive::napi;
 use oxc_ast::AstKind;
-use oxc_span::SourceType;
 use parking_lot::Mutex;
 use serde::Serialize;
-use utils::{glob, read_file_content, GlobOptions, SemanticBuilder};
+use utils::{glob, GlobOptions, SemanticBuilder};
 
 #[napi(object)]
 #[derive(Debug, Serialize)]
@@ -29,26 +28,16 @@ pub fn check_danger_strings(
     move |path: PathBuf| {
       let mut inline_usages: Vec<Response> = Vec::new();
 
-      let source_code = read_file_content(&path).unwrap();
+      let builder = SemanticBuilder::with_file(&path);
 
-      let source_type = SourceType::from_path(&path).unwrap();
+      let semantic = builder.build().unwrap();
 
-      let builder = SemanticBuilder::code(&source_code, source_type);
-
-      let handler = match builder.build_handler() {
-        Ok(handler) => handler,
-        Err(e) => {
-          eprintln!("parse error: {} {}", e, path.to_string_lossy());
-          return;
-        }
-      };
-
-      handler.each_node(|handler, node| {
+      for node in semantic.nodes().iter() {
         if let AstKind::StringLiteral(string_literal) = node.kind() {
           let value = string_literal.value.to_string();
 
-          let ast_node = beans::AstNode::with_source_and_span(
-            handler.semantic.source_text(),
+          let ast_node = AstNode::with_source_and_span(
+            semantic.source_text(),
             &string_literal.span,
           );
 
@@ -63,7 +52,8 @@ pub fn check_danger_strings(
             }
           }
         }
-      });
+      }
+
       used.lock().extend(inline_usages);
     }
   };

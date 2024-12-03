@@ -12,16 +12,35 @@ use oxc_semantic::{
 use oxc_span::{GetSpan, SourceType};
 use ropey::Rope;
 
-pub struct SemanticBuilder<'a> {
-  pub source_code: &'a str,
+use crate::read_file_content;
+
+pub struct SemanticBuilder {
+  pub source_code: String,
   pub source_type: SourceType,
   pub allocator: Allocator,
   pub file_path: Option<PathBuf>,
 }
 
-impl<'a> SemanticBuilder<'a> {
+impl SemanticBuilder {
+  pub fn with_file<P: AsRef<Path>>(path: P) -> Self {
+    let source_type =
+      match path.as_ref().extension().and_then(|ext| ext.to_str()) {
+        Some("ts") => oxc_span::SourceType::ts(),
+        Some("tsx") => oxc_span::SourceType::tsx(),
+        Some("jsx") => oxc_span::SourceType::jsx(),
+        Some("cjs") => oxc_span::SourceType::cjs(),
+        _ => SourceType::default(),
+      };
+    Self {
+      source_code: read_file_content(path.as_ref()).unwrap(),
+      source_type,
+      allocator: Allocator::default(),
+      file_path: Some(path.as_ref().to_path_buf()),
+    }
+  }
+
   pub fn new(
-    source_code: &'a str,
+    source_code: String,
     source_type: SourceType,
     file_path: Option<PathBuf>,
   ) -> Self {
@@ -34,34 +53,35 @@ impl<'a> SemanticBuilder<'a> {
     }
   }
 
-  pub fn code(source_code: &'a str, source_type: SourceType) -> Self {
-    Self::new(source_code, source_type, None)
+  pub fn code(source_code: &str, source_type: SourceType) -> Self {
+    Self::new(source_code.to_string(), source_type, None)
   }
 
-  pub fn ts(source_code: &'a str) -> Self {
-    Self::new(
-      source_code,
-      SourceType::default()
-        .with_module(true)
-        .with_typescript(true)
-        .with_jsx(true),
-      None,
-    )
+  pub fn ts(source_code: &str) -> Self {
+    Self::new(source_code.to_string(), SourceType::ts(), None)
   }
 
-  pub fn js(source_text: &'a str) -> Self {
-    Self::new(
-      source_text,
-      SourceType::default().with_module(true).with_jsx(true),
-      None,
-    )
+  pub fn tsx(source_code: &str) -> Self {
+    Self::new(source_code.to_string(), SourceType::tsx(), None)
   }
 
-  pub fn build(&self) -> Semantic<'_> {
-    let semantic_ret = self.build_with_errors();
+  pub fn jsx(source_code: &str) -> Self {
+    Self::new(source_code.to_string(), SourceType::jsx(), None)
+  }
+
+  pub fn cjs(source_code: &str) -> Self {
+    Self::new(source_code.to_string(), SourceType::cjs(), None)
+  }
+
+  pub fn js(source_text: &str) -> Self {
+    Self::new(source_text.to_string(), SourceType::jsx(), None)
+  }
+
+  pub fn build(&self) -> anyhow::Result<Semantic<'_>> {
+    let semantic_ret = self.build_with_errors()?;
     if !semantic_ret.errors.is_empty() {
-      eprintln!(
-        "Semantic analysis failed:\n\n{}",
+      bail!(
+        "Semantic analysis failed {}",
         semantic_ret
           .errors
           .iter()
@@ -69,10 +89,10 @@ impl<'a> SemanticBuilder<'a> {
           .collect::<String>()
       );
     }
-    semantic_ret.semantic
+    Ok(semantic_ret.semantic)
   }
 
-  pub fn build_with_errors(&self) -> SemanticBuilderReturn<'_> {
+  pub fn build_with_errors(&self) -> anyhow::Result<SemanticBuilderReturn<'_>> {
     let parse = oxc_parser::Parser::new(
       &self.allocator,
       &self.source_code,
@@ -80,19 +100,24 @@ impl<'a> SemanticBuilder<'a> {
     )
     .parse();
 
+    if parse.errors.len() > 0 {
+      bail!(
+        "parse error: {}",
+        parse
+          .errors
+          .iter()
+          .map(|e| format!("{e}"))
+          .collect::<String>()
+      );
+    }
+
     let program = self.allocator.alloc(parse.program);
 
-    OxcSemanticBuilder::new()
-      .with_check_syntax_error(true)
-      // .with_trivias(parse.trivias)
-      // .with_cfg(self.cfg)
-      .build(program);
-
-    OxcSemanticBuilder::new()
-      .with_check_syntax_error(true)
-      // .with_trivias(parse.trivias)
-      // .with_cfg(self.cfg)
-      .build(program)
+    Ok(
+      OxcSemanticBuilder::new()
+        .with_check_syntax_error(true)
+        .build(program),
+    )
   }
 
   pub fn build_handler(&self) -> Result<SemanticHandler> {
