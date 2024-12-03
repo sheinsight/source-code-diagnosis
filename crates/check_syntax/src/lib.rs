@@ -1,4 +1,7 @@
-use std::{fs, io::Read};
+use std::{
+  fs,
+  io::{BufReader, Read},
+};
 
 use napi_derive::napi;
 use rayon::prelude::*;
@@ -53,6 +56,14 @@ fn is_ts_video(path: &std::path::Path) -> bool {
   false
 }
 
+fn read_file_content(path: &std::path::Path) -> anyhow::Result<String> {
+  let file = fs::File::open(path)?;
+  let mut reader = BufReader::with_capacity(1024 * 1024, file); // 1MB buffer
+  let mut content = String::new();
+  reader.read_to_string(&mut content)?;
+  Ok(content)
+}
+
 pub fn check_syntax(args: Args) -> anyhow::Result<Vec<CheckSyntaxResponse>> {
   let glob = Glob::new(&args.pattern)?;
 
@@ -85,7 +96,7 @@ pub fn check_syntax(args: Args) -> anyhow::Result<Vec<CheckSyntaxResponse>> {
           });
         }
 
-        match std::fs::read_to_string(path) {
+        match read_file_content(path) {
           Err(err) => Some(CheckSyntaxResponse {
             path: path_string,
             errors: vec![err.to_string()],
