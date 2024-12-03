@@ -54,15 +54,14 @@ pub struct CompatBox {
 
 impl CompatBox {
   pub fn new(
-    span: oxc_span::Span,
-    loc: beans::Location,
+    ast_node: beans::AstNode,
     compat: Compat,
     file_path: String,
   ) -> Self {
     Self {
       name: compat.name.clone(),
-      ast_node: beans::AstNode::new((span.start, span.end), loc),
-      compat: compat,
+      ast_node,
+      compat,
       file_path: file_path.to_string(),
     }
   }

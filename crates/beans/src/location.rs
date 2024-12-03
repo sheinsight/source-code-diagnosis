@@ -1,7 +1,7 @@
 use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 
-use crate::Position;
+use crate::{Position, Span};
 
 #[napi(object)]
 #[derive(
@@ -17,10 +17,9 @@ impl Location {
     Location { start, end }
   }
 
-  pub fn with_source(source_text: &str, span: (u32, u32)) -> Self {
-    let (start, end) = span;
-    let start = Position::with_source(source_text, start as usize);
-    let end = Position::with_source(source_text, end as usize);
+  pub fn with_source(source_text: &str, span: Span) -> Self {
+    let start = Position::with_source(source_text, span.start as usize);
+    let end = Position::with_source(source_text, span.end as usize);
     Self { start, end }
   }
 }

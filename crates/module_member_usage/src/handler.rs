@@ -60,12 +60,16 @@ impl<'a> ModuleMemberUsageHandler<'a> {
       let specifiers = match decl.specifiers {
         Some(ref specs) => specs,
         None => {
-          let (span, loc) = self.semantic_handler.get_node_box(node);
+          let ast_node = beans::AstNode::with_source_and_ast_node(
+            self.semantic_handler.semantic.source_text(),
+            node,
+          );
+
           inline_usages.push(Response {
             lib_name: source_name.to_string(),
             member_name: SIDE_EFFECTS.to_string(),
             file_path: self.path_str.clone(),
-            ast_node: AstNode::new((span.start, span.end), loc),
+            ast_node,
             props: vec![],
           });
           continue;

@@ -226,12 +226,6 @@ impl<'a> SemanticHandler<'a> {
     (reference_node, span, loc)
   }
 
-  pub fn get_node_box(&self, node: &AstNode) -> (oxc_span::Span, Location) {
-    let span = self.get_span(node);
-    let loc = self.offset_to_location(self.semantic.source_text(), span);
-    (span, loc)
-  }
-
   pub fn get_symbol_references(
     &self,
     binding: &BindingIdentifier,

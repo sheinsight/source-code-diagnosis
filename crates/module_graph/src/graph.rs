@@ -205,14 +205,17 @@ impl<'a> Graph<'a> {
         //   continue;
         // }
 
-        let (span, loc) = handler.get_node_box(node);
+        let ast_node = beans::AstNode::with_source_and_ast_node(
+          handler.semantic.source_text(),
+          node,
+        );
 
         let target =
           self.to_relative_path(&self.args.cwd, resolved_path.full_path());
 
         let target_id = self.build_id(&target);
 
-        let edge = self.build_edge(source_id, target_id, span, loc);
+        let edge = self.build_edge(source_id, target_id, ast_node);
 
         thread_edges.push(edge);
       }
@@ -587,19 +590,12 @@ impl<'a> Graph<'a> {
     &self,
     source_id: String,
     target_id: String,
-    span: oxc_span::Span,
-    loc: Location,
+    ast_node: beans::AstNode,
   ) -> Edge {
     Edge {
       source: source_id,
       target: target_id,
-      ast_node: AstNode {
-        span: Span {
-          start: span.start,
-          end: span.end,
-        },
-        loc,
-      },
+      ast_node,
     }
   }
 }

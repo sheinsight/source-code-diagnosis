@@ -13,7 +13,7 @@ use anyhow::Result;
 use log::debug;
 use napi::Error;
 use napi_derive::napi;
-use oxc_span::SourceType;
+use oxc_span::{GetSpan, SourceType};
 use std::{
   fs::read_to_string,
   path::PathBuf,
@@ -154,11 +154,13 @@ pub fn check_browser_supported_with_source_code(
         node,
         handler.semantic.nodes(),
       ) {
-        let (span, loc) = handler.get_node_box(node);
+        let ast_node = beans::AstNode::with_source_and_ast_node(
+          handler.semantic.source_text(),
+          node,
+        );
 
         used.push(CompatBox::new(
-          span,
-          loc,
+          ast_node,
           compat_handler.get_compat().clone(),
           String::new(),
         ));
@@ -280,12 +282,16 @@ pub fn check_browser_supported(
             node,
             handler.semantic.nodes(),
           ) {
-            let (span, loc) = handler.get_node_box(node);
+            let ast_node = beans::AstNode::with_source_and_ast_node(
+              handler.semantic.source_text(),
+              node,
+            );
+
+            // let (span, loc) = handler.get_node_box(node);
 
             let mut used = used.lock().unwrap();
             used.push(CompatBox::new(
-              span,
-              loc,
+              ast_node,
               compat_handler.get_compat().clone(),
               path.to_str().unwrap().to_string(),
             ));

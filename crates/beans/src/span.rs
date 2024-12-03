@@ -9,3 +9,12 @@ pub struct Span {
   pub start: u32,
   pub end: u32,
 }
+
+impl Span {
+  pub fn new(span: &oxc_span::Span) -> Self {
+    Self {
+      start: span.start,
+      end: span.end,
+    }
+  }
+}

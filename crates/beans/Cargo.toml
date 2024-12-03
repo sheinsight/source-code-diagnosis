@@ -10,3 +10,5 @@ napi-derive = { workspace = true }
 napi = { workspace = true }
 serde = { workspace = true }
 ropey = "1.0.0"
+oxc_span = { workspace = true }
+oxc_semantic = { workspace = true }

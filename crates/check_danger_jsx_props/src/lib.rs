@@ -166,9 +166,9 @@ pub fn check_danger_jsx_props(
                 ) {
                   items.push(Item {
                     name: jsx_attribute.name.get_identifier().name.to_string(),
-                    ast_node: beans::AstNode::with_source(
+                    ast_node: beans::AstNode::with_source_and_span(
                       &content,
-                      (jsx_attribute.span.start, jsx_attribute.span.end),
+                      &jsx_attribute.span,
                     ),
                   });
                 }

@@ -90,6 +90,8 @@ version = "0.1.0"
 dependencies = [
  "napi",
  "napi-derive",
+ "oxc_semantic",
+ "oxc_span",
  "ropey",
  "serde",
 ]

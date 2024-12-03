@@ -102,24 +102,12 @@ macro_rules! assert_source_seg {
                       node,
                       nodes,
                     ) {
-                        let span = oxc_span::GetSpan::span(&node.kind());
-                        // let start_position =
-                        // crate::utils::offset_to_position(span.start as usize, &source_code).unwrap();
-                        // let end_position =
-                        //   crate::utils::offset_to_position(span.end as usize, &source_code).unwrap();
+
+                        let ast_node = beans::AstNode::with_source_and_ast_node(source_code, node);
+
                         result.push(
                             crate::compat::CompatBox::new(
-                                span,
-                                beans::Location {
-                                    start: beans::Position{
-                                        line:0,
-                                        col:0,
-                                    },
-                                    end: beans::Position{
-                                        line:0,
-                                        col:0,
-                                    },
-                                },
+                                ast_node,
                                 crate::compat::CompatHandler::get_compat(&compat_handler).clone(),
                                 "".to_string(),
                             )
