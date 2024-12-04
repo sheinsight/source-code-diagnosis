@@ -132,9 +132,9 @@ pub fn init_logger() -> napi::Result<()> {
 #[napi]
 pub fn check_danger_jsx_props(
   danger_jsx_props: Vec<String>,
-  args: check_danger_jsx_props::JsArgs,
+  args: utils::GlobJsArgs,
 ) -> Result<Vec<check_danger_jsx_props::CheckDangerJsxPropsResponse>> {
-  let args = check_danger_jsx_props::Args::from(args);
+  let args = utils::GlobArgs::from(args);
   check_danger_jsx_props::check_danger_jsx_props(danger_jsx_props, args)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
