@@ -101,6 +101,11 @@ impl<'a> Graph<'a> {
 const END_ID: &str = "__END__";
 
 impl<'a> Graph<'a> {
+  pub fn get_edges(&mut self) -> Vec<Edge> {
+    self.build_edges();
+    self.edges.lock().unwrap().clone()
+  }
+
   fn build_edges(&mut self) {
     let empty_id = self.build_id(END_ID);
 

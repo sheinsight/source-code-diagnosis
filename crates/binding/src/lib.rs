@@ -4,6 +4,15 @@ use napi_derive::napi;
 use utils::{GlobArgs, GlobJsArgs};
 
 #[napi]
+pub fn get_graph(
+  args: module_graph::model::JsArgs,
+) -> Result<Vec<module_graph::model::Edge>> {
+  let args = module_graph::model::Args::from(args);
+  let mut graph = module_graph::graph::Graph::new(args);
+  Ok(graph.get_edges())
+}
+
+#[napi]
 pub fn check_danger_strings(
   danger_strings: Vec<String>,
   args: GlobJsArgs,
