@@ -7,7 +7,7 @@ use utils::{glob_by, GlobArgs, SemanticBuilder};
 
 #[napi(object)]
 #[derive(Debug, Serialize)]
-pub struct Response {
+pub struct CheckDangerResponse {
   pub raw_value: String,
   pub match_danger_string: String,
   pub file_path: String,
@@ -17,10 +17,10 @@ pub struct Response {
 pub fn check_danger_strings(
   danger_strings: Vec<String>,
   args: GlobArgs,
-) -> Result<Vec<Response>> {
+) -> Result<Vec<CheckDangerResponse>> {
   let responses = glob_by(
     |path| {
-      let mut inline_usages: Vec<Response> = Vec::new();
+      let mut inline_usages: Vec<CheckDangerResponse> = Vec::new();
 
       let builder = SemanticBuilder::with_file(path).unwrap();
 
@@ -37,7 +37,7 @@ pub fn check_danger_strings(
 
           for danger_string in danger_strings.iter() {
             if value.contains(danger_string) {
-              inline_usages.push(Response {
+              inline_usages.push(CheckDangerResponse {
                 raw_value: value.clone(),
                 match_danger_string: danger_string.to_string(),
                 file_path: path.display().to_string(),
@@ -50,7 +50,7 @@ pub fn check_danger_strings(
 
       Some(inline_usages)
     },
-    args,
+    &args,
   )?
   .into_iter()
   .flatten()

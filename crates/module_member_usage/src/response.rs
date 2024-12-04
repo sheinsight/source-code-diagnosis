@@ -4,7 +4,7 @@ use serde::Serialize;
 
 #[napi(object)]
 #[derive(Debug, Serialize, Clone)]
-pub struct Response {
+pub struct ModuleMemberUsageResponse {
   pub lib_name: String,
   pub member_name: String,
   pub file_path: String,
@@ -12,7 +12,7 @@ pub struct Response {
   pub props: Vec<JSXProps>,
 }
 
-#[napi(object)]
+#[napi(object, js_name = "JSXProps")]
 #[derive(Debug, Serialize, Clone)]
 pub struct JSXProps {
   pub namespace: Option<String>,

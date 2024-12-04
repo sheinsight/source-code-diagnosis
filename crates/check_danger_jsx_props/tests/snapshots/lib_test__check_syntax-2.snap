@@ -4,10 +4,7 @@ expression: response.to_string()
 snapshot_kind: text
 ---
 {
-  "path": "b.js",
+  "path": "b.tsx",
   "items": [],
-  "errors": [
-    "Missing initializer in const declaration",
-    "Expected a semicolon or an implicit semicolon after a statement, but found none"
-  ]
+  "errors": []
 }

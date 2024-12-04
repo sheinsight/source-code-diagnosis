@@ -5,12 +5,12 @@ use utils::{glob_by, SemanticBuilder};
 
 mod handler;
 mod response;
-pub use response::Response;
+pub use response::ModuleMemberUsageResponse;
 
 pub fn check_module_member_usage(
   npm_name_vec: Vec<String>,
   args: GlobArgs,
-) -> Result<Vec<Response>> {
+) -> Result<Vec<ModuleMemberUsageResponse>> {
   let responses = glob_by(
     |path| {
       let builder = SemanticBuilder::with_file(&path).unwrap();
@@ -29,7 +29,7 @@ pub fn check_module_member_usage(
 
       Some(inline_usages)
     },
-    args,
+    &args,
   )?
   .into_iter()
   .flatten()

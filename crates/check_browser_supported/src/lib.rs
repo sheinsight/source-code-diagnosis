@@ -277,7 +277,7 @@ pub fn check_browser_supported(
       }
       Some(used)
     },
-    args,
+    &args,
   )?
   .into_iter()
   .flatten()

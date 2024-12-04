@@ -101,9 +101,12 @@ impl<'a> Graph<'a> {
 const END_ID: &str = "__END__";
 
 impl<'a> Graph<'a> {
-  pub fn get_edges(&mut self) -> Vec<Edge> {
-    self.build_edges();
-    self.edges.lock().unwrap().clone()
+  pub fn get_edges(&mut self) -> Graphics {
+    Graphics {
+      dictionaries: self.get_dictionaries(),
+      graph: self.edges.lock().unwrap().clone(),
+      invalid_syntax_files: self.invalid_syntax_files.lock().unwrap().clone(),
+    }
   }
 
   fn build_edges(&mut self) {

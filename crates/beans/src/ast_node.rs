@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{Location, Span};
 
-#[napi(object)]
+#[napi(object, js_name = "AstNode")]
 #[derive(
   Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize, Copy,
 )]

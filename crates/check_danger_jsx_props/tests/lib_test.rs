@@ -1,11 +1,12 @@
-use check_danger_jsx_props::{Args, check_danger_jsx_props};
+use check_danger_jsx_props::check_danger_jsx_props;
 use std::env::current_dir;
+use utils::GlobArgs;
 
 #[test]
 fn test_check_syntax() -> anyhow::Result<()> {
   let curr = current_dir()?.join("tests").join("features").join("normal");
 
-  let args = Args {
+  let args = GlobArgs {
     cwd: curr.to_string_lossy().to_string(),
     pattern: "*.{js,ts,jsx,tsx}".to_owned(),
     ignore: vec![],

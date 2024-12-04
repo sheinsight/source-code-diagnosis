@@ -31,6 +31,8 @@ pub fn check_danger_jsx_props(
 ) -> anyhow::Result<Vec<CheckDangerJsxPropsResponse>> {
   let responses = utils::glob_by(
     |path| {
+      let relative_path = pathdiff::diff_paths(path, &args.cwd)?;
+
       let builder = utils::SemanticBuilder::with_file(path).unwrap();
 
       let semantic = builder.build().unwrap();
@@ -57,12 +59,12 @@ pub fn check_danger_jsx_props(
       }
 
       Some(CheckDangerJsxPropsResponse {
-        path: path.display().to_string(),
+        path: relative_path.display().to_string(),
         items,
         errors: vec![],
       })
     },
-    args,
+    &args,
   )?;
 
   Ok(responses)

@@ -10,7 +10,7 @@ use utils::SemanticHandler;
 
 use crate::response::JSXProps;
 
-use super::response::Response;
+use super::response::ModuleMemberUsageResponse;
 
 static ES_NAMESPACE: &str = "ES:NAMESPACE";
 static ES_DEFAULT: &str = "ES:DEFAULT";
@@ -39,8 +39,8 @@ impl<'a> ModuleMemberUsageHandler<'a> {
     }
   }
 
-  pub fn handle(&self) -> Vec<Response> {
-    let mut inline_usages: Vec<Response> = Vec::new();
+  pub fn handle(&self) -> Vec<ModuleMemberUsageResponse> {
+    let mut inline_usages: Vec<ModuleMemberUsageResponse> = Vec::new();
 
     let nodes = self.semantic_handler.semantic.nodes();
 
@@ -65,7 +65,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
             node,
           );
 
-          inline_usages.push(Response {
+          inline_usages.push(ModuleMemberUsageResponse {
             lib_name: source_name.to_string(),
             member_name: SIDE_EFFECTS.to_string(),
             file_path: self.path_str.clone(),
@@ -207,7 +207,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
               })
               .collect::<Vec<JSXProps>>();
 
-            inline_usages.push(Response {
+            inline_usages.push(ModuleMemberUsageResponse {
               lib_name: source_name.to_string(),
               member_name: name.to_string(),
               file_path: self.path_str.clone(),
@@ -247,7 +247,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                 private_field_expression,
               ) => private_field_expression.field.name.to_string(),
             };
-            inline_usages.push(Response {
+            inline_usages.push(ModuleMemberUsageResponse {
               lib_name: source_name.to_string(),
               member_name: name.to_string(),
               file_path: self.path_str.clone(),
@@ -257,7 +257,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
             continue;
           }
 
-          inline_usages.push(Response {
+          inline_usages.push(ModuleMemberUsageResponse {
             lib_name: source_name.to_string(),
             member_name: imported_name.to_string(),
             file_path: self.path_str.clone(),

@@ -6,7 +6,7 @@ use utils::{GlobArgs, GlobJsArgs};
 #[napi]
 pub fn get_graph(
   args: module_graph::model::JsArgs,
-) -> Result<Vec<module_graph::model::Edge>> {
+) -> Result<module_graph::model::Graphics> {
   let args = module_graph::model::Args::from(args);
   let mut graph = module_graph::graph::Graph::new(args);
   Ok(graph.get_edges())
@@ -16,7 +16,7 @@ pub fn get_graph(
 pub fn check_danger_strings(
   danger_strings: Vec<String>,
   args: GlobJsArgs,
-) -> Result<Vec<check_danger_string::Response>> {
+) -> Result<Vec<check_danger_string::CheckDangerResponse>> {
   let args = GlobArgs::from(args);
   check_danger_string::check_danger_strings(danger_strings, args)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
@@ -26,7 +26,7 @@ pub fn check_danger_strings(
 pub fn check_module_member_usage(
   npm_name_vec: Vec<String>,
   args: GlobJsArgs,
-) -> Result<Vec<module_member_usage::Response>> {
+) -> Result<Vec<module_member_usage::ModuleMemberUsageResponse>> {
   let args = GlobArgs::from(args);
   module_member_usage::check_module_member_usage(npm_name_vec, args)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
@@ -34,9 +34,9 @@ pub fn check_module_member_usage(
 
 #[napi]
 pub fn check_filename_case(
-  args: check_filename_case::JsArgs,
+  args: utils::GlobJsArgs,
 ) -> Result<Vec<check_filename_case::CheckFilenameCaseResponse>> {
-  let args = check_filename_case::Args::from(args);
+  let args = utils::GlobArgs::from(args);
   check_filename_case::check_filename_case(args)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
@@ -91,9 +91,9 @@ pub fn check_cycle(
 
 #[napi]
 pub fn check_syntax(
-  args: check_syntax::JsArgs,
+  args: utils::GlobJsArgs,
 ) -> Result<Vec<check_syntax::CheckSyntaxResponse>> {
-  let args = check_syntax::Args::from(args);
+  let args = utils::GlobArgs::from(args);
   check_syntax::check_syntax(args)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }

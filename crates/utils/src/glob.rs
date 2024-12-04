@@ -40,7 +40,7 @@ pub struct GlobJsArgs {
   pub cwd: String,
 }
 
-pub fn glob_by<'a, F, T>(handler_fn: F, args: GlobArgs) -> Result<Vec<T>>
+pub fn glob_by<'a, F, T>(handler_fn: F, args: &GlobArgs) -> Result<Vec<T>>
 where
   F: Fn(&Path) -> Option<T> + Send + Sync + 'a,
   T: Send + 'a,
