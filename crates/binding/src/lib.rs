@@ -1,32 +1,25 @@
 use env_logger::Env;
 use napi::Result;
 use napi_derive::napi;
-use utils::GlobOptions;
+use utils::{GlobArgs, GlobJsArgs};
 
 #[napi]
 pub fn check_danger_strings(
   danger_strings: Vec<String>,
-  options: Option<GlobOptions>,
+  args: GlobJsArgs,
 ) -> Result<Vec<check_danger_string::Response>> {
-  check_danger_string::check_danger_strings(danger_strings, options)
+  let args = GlobArgs::from(args);
+  check_danger_string::check_danger_strings(danger_strings, args)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
 #[napi]
 pub fn check_module_member_usage(
   npm_name_vec: Vec<String>,
-  options: Option<GlobOptions>,
+  args: GlobJsArgs,
 ) -> Result<Vec<module_member_usage::Response>> {
-  module_member_usage::check_module_member_usage(npm_name_vec, options)
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
-}
-
-#[napi]
-pub fn check_browser_supported(
-  target: check_browser_supported::Target,
-  options: Option<utils::GlobOptions>,
-) -> Result<Vec<check_browser_supported::CompatBox>> {
-  check_browser_supported::check_browser_supported(target, options)
+  let args = GlobArgs::from(args);
+  module_member_usage::check_module_member_usage(npm_name_vec, args)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
@@ -36,6 +29,16 @@ pub fn check_filename_case(
 ) -> Result<Vec<check_filename_case::CheckFilenameCaseResponse>> {
   let args = check_filename_case::Args::from(args);
   check_filename_case::check_filename_case(args)
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+}
+
+#[napi]
+pub fn check_browser_supported(
+  target: check_browser_supported::Target,
+  args: utils::GlobJsArgs,
+) -> Result<Vec<check_browser_supported::CompatBox>> {
+  let args = utils::GlobArgs::from(args);
+  check_browser_supported::check_browser_supported(target, args)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 

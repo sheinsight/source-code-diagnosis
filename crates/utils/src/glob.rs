@@ -1,70 +1,77 @@
 use anyhow::Result;
-use log::debug;
 use napi_derive::napi;
 use rayon::prelude::*;
-use std::{env::current_dir, path::PathBuf};
+use std::path::Path;
 use wax::Glob;
+
+use crate::is_ts_video;
+
+#[derive(Debug, Clone)]
+pub struct GlobArgs {
+  pub pattern: String,
+  pub ignore: Vec<String>,
+  pub cwd: String,
+}
+
+impl From<GlobJsArgs> for GlobArgs {
+  fn from(args: GlobJsArgs) -> Self {
+    let cwd = camino::Utf8PathBuf::from(&args.cwd).join("").to_string();
+
+    let pattern = args.pattern.unwrap_or("**/*.{js,ts,jsx,tsx}".to_owned());
+
+    let ignore = args.ignore.unwrap_or(vec![
+      "**/node_modules/**".to_owned(),
+      "**/*.d.ts".to_owned(),
+    ]);
+
+    Self {
+      cwd,
+      pattern,
+      ignore,
+    }
+  }
+}
 
 #[derive(Debug, Clone)]
 #[napi[object]]
-pub struct GlobOptions {
+pub struct GlobJsArgs {
   pub pattern: Option<String>,
   pub ignore: Option<Vec<String>>,
-  pub cwd: Option<String>,
+  pub cwd: String,
 }
 
-pub fn glob<'a, F>(handler_fn: F, options: Option<GlobOptions>) -> Result<()>
+pub fn glob_by<'a, F, T>(handler_fn: F, args: GlobArgs) -> Result<Vec<T>>
 where
-  F: Fn(PathBuf) + Send + Sync + 'a,
+  F: Fn(&Path) -> Option<T> + Send + Sync + 'a,
+  T: Send + 'a,
 {
-  let pattern = match &options {
-    Some(GlobOptions {
-      pattern: Some(pattern),
-      ..
-    }) => pattern,
-    _ => "**/*.{js,ts,jsx,tsx}",
-  };
+  let glob = Glob::new(&args.pattern.as_str())?;
 
-  debug!("pattern: {}", pattern);
+  let ignore_patterns = args
+    .ignore
+    .iter()
+    .map(|s| s.as_str())
+    .collect::<Vec<&str>>();
 
-  let ignore_patterns = match &options {
-    Some(GlobOptions {
-      ignore: Some(ignore),
-      ..
-    }) => ignore.into_iter().map(|x| x.as_str()).collect(),
-    _ => vec!["**/node_modules/**", "**/*.d.ts"],
-  };
+  let entries = glob.walk(args.cwd.as_str()).not(ignore_patterns)?;
 
-  debug!("ignore_patterns: {:?}", ignore_patterns);
+  let responses = entries
+    .par_bridge()
+    .filter_map(|item| {
+      let entry = item.ok()?;
+      let path = entry.path();
 
-  let cwd = match &options {
-    Some(GlobOptions { cwd: Some(cwd), .. }) => cwd.clone(),
-    _ => current_dir()?.display().to_string(),
-  };
-
-  debug!("cwd: {}", cwd);
-
-  let glob = Glob::new(pattern)?;
-
-  let entries: Vec<_> = glob.walk(&cwd).not(ignore_patterns)?.collect();
-
-  if log::log_enabled!(log::Level::Debug) {
-    entries.iter().try_for_each(|item| -> Result<()> {
-      if let Ok(entry) = item {
-        debug!("entry: {}", entry.path().display().to_string());
+      if !path.is_file() {
+        return None;
       }
-      Ok(())
-    })?;
-  }
 
-  entries.par_iter().try_for_each(|item| -> Result<()> {
-    if let Ok(entry) = item {
-      if entry.path().is_file() {
-        handler_fn(entry.path().to_path_buf());
+      if is_ts_video(path) {
+        return None;
       }
-    }
-    Ok(())
-  })?;
 
-  Ok(())
+      handler_fn(path)
+    })
+    .collect();
+
+  Ok(responses)
 }

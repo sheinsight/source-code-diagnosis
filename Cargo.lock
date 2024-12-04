@@ -208,13 +208,17 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "beans",
+ "camino",
  "napi",
  "napi-derive",
  "oxc_ast",
  "oxc_span",
  "parking_lot",
+ "pathdiff",
+ "rayon",
  "serde",
  "utils",
+ "wax",
 ]
 
 [[package]]
@@ -1483,6 +1487,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "beans",
+ "camino",
  "log",
  "napi",
  "napi-derive",

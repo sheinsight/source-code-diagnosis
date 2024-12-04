@@ -6,7 +6,7 @@ use std::{
   io::{BufReader, Read},
 };
 
-pub use glob::{glob, GlobOptions};
+pub use glob::{glob_by, GlobArgs, GlobJsArgs};
 pub use semantic_builder::{SemanticBuilder, SemanticHandler};
 
 pub fn read_file_content(path: &std::path::Path) -> anyhow::Result<String> {

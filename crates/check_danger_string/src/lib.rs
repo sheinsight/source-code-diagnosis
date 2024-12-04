@@ -1,12 +1,9 @@
-use std::{path::PathBuf, sync::Arc};
-
-use anyhow::{Context, Result};
+use anyhow::Result;
 use beans::AstNode;
 use napi_derive::napi;
 use oxc_ast::AstKind;
-use parking_lot::Mutex;
 use serde::Serialize;
-use utils::{glob, GlobOptions, SemanticBuilder};
+use utils::{glob_by, GlobArgs, SemanticBuilder};
 
 #[napi(object)]
 #[derive(Debug, Serialize)]
@@ -19,16 +16,13 @@ pub struct Response {
 
 pub fn check_danger_strings(
   danger_strings: Vec<String>,
-  options: Option<GlobOptions>,
+  args: GlobArgs,
 ) -> Result<Vec<Response>> {
-  let used = Arc::new(Mutex::new(Vec::new()));
-
-  let handler = {
-    let used = Arc::clone(&used);
-    move |path: PathBuf| {
+  let responses = glob_by(
+    |path| {
       let mut inline_usages: Vec<Response> = Vec::new();
 
-      let builder = SemanticBuilder::with_file(&path);
+      let builder = SemanticBuilder::with_file(path).unwrap();
 
       let semantic = builder.build().unwrap();
 
@@ -54,16 +48,13 @@ pub fn check_danger_strings(
         }
       }
 
-      used.lock().extend(inline_usages);
-    }
-  };
+      Some(inline_usages)
+    },
+    args,
+  )?
+  .into_iter()
+  .flatten()
+  .collect();
 
-  glob(handler, options)?;
-
-  let used = Arc::try_unwrap(used)
-    .ok()
-    .context("Arc has more than one strong reference")?
-    .into_inner();
-
-  Ok(used)
+  Ok(responses)
 }

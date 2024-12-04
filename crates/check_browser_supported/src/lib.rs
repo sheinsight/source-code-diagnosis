@@ -14,11 +14,7 @@ use log::debug;
 use napi::Error;
 use napi_derive::napi;
 
-use std::{
-  path::PathBuf,
-  sync::{Arc, Mutex},
-};
-use utils::{glob, SemanticBuilder};
+use utils::{glob_by, SemanticBuilder};
 
 fn get_version_list<'a>(
   browser_list: &'a Vec<Distrib>,
@@ -172,7 +168,7 @@ pub fn check_browser_supported_with_source_code(
 
 pub fn check_browser_supported(
   target: Target,
-  options: Option<utils::GlobOptions>,
+  args: utils::GlobArgs,
 ) -> Result<Vec<CompatBox>> {
   debug!("User-specified browser target: {:?}", target);
 
@@ -254,17 +250,13 @@ pub fn check_browser_supported(
     }
   }
 
-  let share = Arc::new(compat_handlers);
-  let used: Arc<Mutex<Vec<CompatBox>>> = Arc::new(Mutex::new(Vec::new()));
-  let handler = {
-    let used = Arc::clone(&used);
-    let clone = Arc::clone(&share);
-    move |path: PathBuf| {
-      let builder = SemanticBuilder::with_file(&path);
+  let responses = glob_by(
+    |path| {
+      let mut used: Vec<CompatBox> = Vec::new();
+      let builder = SemanticBuilder::with_file(&path).unwrap();
       let semantic = builder.build().unwrap();
-
       for node in semantic.nodes().iter() {
-        for compat_handler in clone.iter() {
+        for compat_handler in compat_handlers.iter() {
           if compat_handler.handle(
             semantic.source_text(),
             node,
@@ -275,7 +267,6 @@ pub fn check_browser_supported(
               node,
             );
 
-            let mut used = used.lock().unwrap();
             used.push(CompatBox::new(
               ast_node,
               compat_handler.get_compat().clone(),
@@ -284,19 +275,15 @@ pub fn check_browser_supported(
           }
         }
       }
-    }
-  };
+      Some(used)
+    },
+    args,
+  )?
+  .into_iter()
+  .flatten()
+  .collect();
 
-  glob(handler, options)
-    .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))?;
-
-  let used = Arc::try_unwrap(used)
-    .ok()
-    .expect("Arc has more than one strong reference")
-    .into_inner()
-    .expect("Mutex cannot be locked");
-
-  Ok(used)
+  Ok(responses)
 }
 
 #[cfg(test)]

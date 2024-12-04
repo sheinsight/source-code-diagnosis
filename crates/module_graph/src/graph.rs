@@ -121,7 +121,7 @@ impl<'a> Graph<'a> {
         return;
       }
 
-      let builder = SemanticBuilder::with_file(&path);
+      let builder = SemanticBuilder::with_file(&path).unwrap();
 
       let semantic = match builder.build() {
         Ok(semantic) => semantic,

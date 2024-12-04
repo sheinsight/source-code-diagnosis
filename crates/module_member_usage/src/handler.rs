@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::Path;
 
 use beans::AstNode;
 use oxc_ast::{
@@ -27,15 +27,15 @@ pub struct ModuleMemberUsageHandler<'a> {
 }
 
 impl<'a> ModuleMemberUsageHandler<'a> {
-  pub fn new(
+  pub fn new<P: AsRef<Path>>(
     npm_name_vec: Vec<String>,
-    path: PathBuf,
+    path: P,
     semantic_handler: SemanticHandler<'a>,
   ) -> Self {
     Self {
       npm_name_vec,
       semantic_handler,
-      path_str: path.display().to_string(),
+      path_str: path.as_ref().display().to_string(),
     }
   }
 

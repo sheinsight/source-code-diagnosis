@@ -1,10 +1,7 @@
-use std::{path::PathBuf, sync::Arc};
-
-use anyhow::Context;
 use anyhow::Result;
 use handler::ModuleMemberUsageHandler;
-use parking_lot::Mutex;
-use utils::{glob, GlobOptions, SemanticBuilder};
+use utils::GlobArgs;
+use utils::{glob_by, SemanticBuilder};
 
 mod handler;
 mod response;
@@ -12,38 +9,31 @@ pub use response::Response;
 
 pub fn check_module_member_usage(
   npm_name_vec: Vec<String>,
-  options: Option<GlobOptions>,
+  args: GlobArgs,
 ) -> Result<Vec<Response>> {
-  let used = Arc::new(Mutex::new(Vec::new()));
-  let x = {
-    let used = Arc::clone(&used);
-    move |path: PathBuf| {
-      let builder = SemanticBuilder::with_file(&path);
+  let responses = glob_by(
+    |path| {
+      let builder = SemanticBuilder::with_file(&path).unwrap();
 
       let handler = match builder.build_handler() {
         Ok(handler) => handler,
         Err(e) => {
           eprintln!("parse error: {}", e);
-          return;
+          return None;
         }
       };
 
-      let inline_usages = ModuleMemberUsageHandler::new(
-        npm_name_vec.clone(),
-        path.clone(),
-        handler,
-      )
-      .handle();
+      let inline_usages =
+        ModuleMemberUsageHandler::new(npm_name_vec.clone(), path, handler)
+          .handle();
 
-      used.lock().extend(inline_usages);
-    }
-  };
-  glob(x, options)?;
+      Some(inline_usages)
+    },
+    args,
+  )?
+  .into_iter()
+  .flatten()
+  .collect();
 
-  let used = Arc::try_unwrap(used)
-    .ok()
-    .context("Arc has more than one strong reference")?
-    .into_inner();
-
-  Ok(used)
+  Ok(responses)
 }

@@ -22,7 +22,7 @@ pub struct SemanticBuilder {
 }
 
 impl SemanticBuilder {
-  pub fn with_file<P: AsRef<Path>>(path: P) -> Self {
+  pub fn with_file<P: AsRef<Path>>(path: P) -> anyhow::Result<Self> {
     let source_type =
       match path.as_ref().extension().and_then(|ext| ext.to_str()) {
         Some("ts") => oxc_span::SourceType::ts(),
@@ -31,12 +31,12 @@ impl SemanticBuilder {
         Some("cjs") => oxc_span::SourceType::cjs(),
         _ => SourceType::jsx(),
       };
-    Self {
-      source_code: read_file_content(path.as_ref()).unwrap(),
+    Ok(Self {
+      source_code: read_file_content(path.as_ref())?,
       source_type,
       allocator: Allocator::default(),
       file_path: Some(path.as_ref().to_path_buf()),
-    }
+    })
   }
 
   pub fn new(

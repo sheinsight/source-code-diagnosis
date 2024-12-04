@@ -15,3 +15,7 @@ beans = { path = "../beans" }
 anyhow = { workspace = true }
 parking_lot = { workspace = true }
 oxc_span = {workspace = true}
+pathdiff = { workspace = true }
+camino = { workspace = true }
+wax = { workspace = true }
+rayon = { workspace = true }
