@@ -18,7 +18,10 @@ pub fn check_syntax(
       if builder.is_err() {
         return Some(CheckSyntaxResponse {
           path: path.display().to_string(),
-          errors: vec!["File is not a valid JavaScript file".to_owned()],
+          errors: vec![
+            "File is not a valid JavaScript file, Please check the file syntax"
+              .to_owned(),
+          ],
         });
       }
 
@@ -29,7 +32,10 @@ pub fn check_syntax(
       if semantic.is_err() {
         return Some(CheckSyntaxResponse {
           path: path.display().to_string(),
-          errors: vec!["File is not a valid JavaScript file".to_owned()],
+          errors: vec![
+            "File is not a valid JavaScript file, Please check the file syntax"
+              .to_owned(),
+          ],
         });
       }
 

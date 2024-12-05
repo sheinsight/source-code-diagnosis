@@ -115,7 +115,7 @@ impl SemanticBuilder {
 
     Ok(
       OxcSemanticBuilder::new()
-        .with_check_syntax_error(true)
+        .with_check_syntax_error(false)
         .build(program),
     )
   }
