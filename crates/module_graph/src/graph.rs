@@ -102,6 +102,7 @@ const END_ID: &str = "__END__";
 
 impl<'a> Graph<'a> {
   pub fn get_edges(&mut self) -> Graphics {
+    self.build_edges();
     Graphics {
       dictionaries: self.get_dictionaries(),
       graph: self.edges.lock().unwrap().clone(),
