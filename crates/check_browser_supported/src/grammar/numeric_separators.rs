@@ -25,7 +25,9 @@ create_compat! {
   },
   fn handle<'a>(&self, _source_code: &str, node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
     if let AstKind::NumericLiteral(numeric_literal) = node.kind() {
-      return numeric_literal.raw.contains('_');
+      if let Some(raw) = &numeric_literal.raw {
+        return raw.contains('_');
+      }
     }
     false
   }

@@ -25,9 +25,9 @@ create_compat! {
   },
   fn handle<'a>(&self, _source_code: &str, node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
     if let AstKind::NumericLiteral(numeric_literal) = node.kind() {
-      return vec!["0b", "0B"]
-        .iter()
-        .any(|item| numeric_literal.raw.starts_with(*item))
+      if let Some(raw) = &numeric_literal.raw {
+        return vec!["0b", "0B"].iter().any(|item| raw.starts_with(item));
+      }
     }
     false
   }

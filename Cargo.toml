@@ -7,15 +7,28 @@ resolver = "2"
 napi-derive = "2.16.12"
 napi = { version = "2.16.13", default-features = false, features = ["napi4"] }
 serde ={ version = "1.0.121", features = ["derive"] }
-oxc_allocator = {version = "0.38.0"}
-oxc_parser = {version = "0.38.0"}
-oxc_span = {version = "0.38.0"}
-oxc_ast = {version = "0.38.0"}
-oxc_syntax = {version = "0.38.0"}
-oxc_semantic = {version = "0.38.0"}
-oxc_sourcemap = {version = "0.38.0"}
+
+# oxc_allocator = {version = "0.39.0"}
+# oxc_parser = {version = "0.39.0"}
+# oxc_span = {version = "0.39.0"}
+# oxc_ast = {version = "0.39.0"}
+# oxc_syntax = {version = "0.39.0"}
+# oxc_semantic = {version = "0.39.0"}
+
+oxc_diagnostics = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_diagnostics" }
+oxc_allocator = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_allocator" }
+oxc_parser = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_parser" }
+oxc_span = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_span" }
+oxc_ast = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_ast" }
+oxc_syntax = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_syntax" }
+oxc_semantic = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_semantic" }
+oxc_linter = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_linter" }
+
+
 oxc-browserslist = "1.0.3"
-oxc_resolver = "1.11.0"
+oxc_resolver = "2.1.1"
+
+
 log = "0.4.22"
 env_logger = "0.11.5"
 anyhow = "1.0.80"
