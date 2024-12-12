@@ -1,0 +1,27 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-dupe-else-if.js",
+  "help": "This branch can never execute. Its condition is a duplicate or covered by previous conditions in the if-else-if chain",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-dupe-else-if.html",
+  "severity": "error",
+  "code": "eslint(no-dupe-else-if)",
+  "message": "duplicate conditions in if-else-if chains",
+  "labels": [
+    {
+      "span": {
+        "offset": 20,
+        "length": 1
+      }
+    },
+    {
+      "span": {
+        "offset": 4,
+        "length": 1
+      }
+    }
+  ]
+}

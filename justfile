@@ -21,7 +21,7 @@ test:
     # cargo test -- --nocapture
     cargo insta test --review
 
-ct:
+ci-test:
     INSTA_UPDATE=always cargo test
 
 

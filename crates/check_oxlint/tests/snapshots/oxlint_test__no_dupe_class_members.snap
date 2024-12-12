@@ -1,0 +1,27 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-dupe-class-members.js",
+  "help": "The last declaration overwrites previous ones, remove one of them or rename if both should be retained",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-dupe-class-members.html",
+  "severity": "error",
+  "code": "eslint(no-dupe-class-members)",
+  "message": "Duplicate class member: \"foo\"",
+  "labels": [
+    {
+      "span": {
+        "offset": 11,
+        "length": 3
+      }
+    },
+    {
+      "span": {
+        "offset": 21,
+        "length": 3
+      }
+    }
+  ]
+}

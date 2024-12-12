@@ -1,0 +1,21 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-console.js",
+  "help": "Delete this console statement.",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-console.html",
+  "severity": "error",
+  "code": "eslint(no-console)",
+  "message": "eslint(no-console): Unexpected console statement.",
+  "labels": [
+    {
+      "span": {
+        "offset": 0,
+        "length": 11
+      }
+    }
+  ]
+}

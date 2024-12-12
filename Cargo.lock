@@ -121,6 +121,7 @@ dependencies = [
  "check_danger_jsx_props",
  "check_danger_string",
  "check_filename_case",
+ "check_oxlint",
  "check_syntax",
  "env_logger",
  "log",
@@ -263,6 +264,29 @@ dependencies = [
  "rayon",
  "utils",
  "wax",
+]
+
+[[package]]
+name = "check_oxlint"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "beans",
+ "insta",
+ "napi",
+ "napi-derive",
+ "oxc_allocator",
+ "oxc_ast",
+ "oxc_diagnostics",
+ "oxc_linter",
+ "oxc_parser",
+ "oxc_semantic",
+ "oxc_span",
+ "oxc_syntax",
+ "pathdiff",
+ "serde",
+ "serde_json",
+ "utils",
 ]
 
 [[package]]

@@ -1,0 +1,27 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-dupe-keys.js",
+  "help": "Consider removing the duplicated key",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-dupe-keys.html",
+  "severity": "error",
+  "code": "eslint(no-dupe-keys)",
+  "message": "Duplicate key 'foo'",
+  "labels": [
+    {
+      "span": {
+        "offset": 15,
+        "length": 3
+      }
+    },
+    {
+      "span": {
+        "offset": 24,
+        "length": 3
+      }
+    }
+  ]
+}

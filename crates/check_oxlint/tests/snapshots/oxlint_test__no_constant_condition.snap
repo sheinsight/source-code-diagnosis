@@ -1,0 +1,21 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-constant-condition.js",
+  "help": "Constant expression as a test condition is not allowed",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-constant-condition.html",
+  "severity": "error",
+  "code": "eslint(no-constant-condition)",
+  "message": "Unexpected constant condition",
+  "labels": [
+    {
+      "span": {
+        "offset": 4,
+        "length": 4
+      }
+    }
+  ]
+}

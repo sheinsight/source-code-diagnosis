@@ -1,0 +1,21 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-case-declarations.js",
+  "help": "",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-case-declarations.html",
+  "severity": "error",
+  "code": "eslint(no-case-declarations)",
+  "message": "Unexpected lexical declaration in case block.",
+  "labels": [
+    {
+      "span": {
+        "offset": 26,
+        "length": 3
+      }
+    }
+  ]
+}

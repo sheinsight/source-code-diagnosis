@@ -22,6 +22,7 @@ oxc_span = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15
 oxc_ast = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_ast" }
 oxc_syntax = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_syntax" }
 oxc_semantic = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_semantic" }
+
 oxc_linter = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_linter" }
 
 

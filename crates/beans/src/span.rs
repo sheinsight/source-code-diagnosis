@@ -1,7 +1,7 @@
 use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 
-#[napi(object)]
+#[napi(object, js_name = "Span")]
 #[derive(
   Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize, Copy,
 )]

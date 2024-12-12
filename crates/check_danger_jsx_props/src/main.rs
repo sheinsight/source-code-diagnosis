@@ -3,16 +3,17 @@ use std::{path::Path, rc::Rc, sync::Arc};
 use oxc_allocator::Allocator;
 use oxc_diagnostics::DiagnosticService;
 use oxc_diagnostics::OxcDiagnostic;
-use oxc_linter::{
-  AllowWarnDeny, FixKind, LintFilter, LinterBuilder, RuleCategory,
-};
+use oxc_linter::AllowWarnDeny;
+use oxc_linter::{FixKind, LintFilter, LinterBuilder};
 use oxc_parser::Parser;
 use oxc_semantic::SemanticBuilder;
 use oxc_span::GetSpan;
 use oxc_span::SourceType;
 
-fn main() -> std::io::Result<()> {
-  let path = Path::new("view.jsx");
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+  let path = Path::new(
+    "/Users/10015448/Git/metric-main-server/src/modules/queues/validate-es-lint.service.ts",
+  );
   let source_text = std::fs::read_to_string(path)?;
 
   let allocator = Allocator::default();
@@ -32,11 +33,65 @@ fn main() -> std::io::Result<()> {
 
   let semantic = Rc::new(semantic_ret.semantic);
 
-  let linter = LinterBuilder::default()
+  // let x = LintFilterKind::try_from("no-debugger")?;
+
+  // let x = LintFilter::deny("no-debugger");
+
+  let linter = LinterBuilder::empty()
     .with_filters(vec![
-      LintFilter::new(AllowWarnDeny::Deny, "no-debugger").unwrap(),
-      LintFilter::new(AllowWarnDeny::Deny, "no-console").unwrap(),
-      LintFilter::new(AllowWarnDeny::Deny, "no-commonjs").unwrap(),
+      LintFilter::new(AllowWarnDeny::Deny, "no-debugger")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-console")?,
+      LintFilter::new(AllowWarnDeny::Deny, "constructor-super")?,
+      LintFilter::new(AllowWarnDeny::Deny, "for-direction")?,
+      LintFilter::new(AllowWarnDeny::Deny, "getter-return")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-async-promise-executor")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-case-declarations")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-class-assign")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-compare-neg-zero")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-cond-assign")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-const-assign")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-constant-binary-expression")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-constant-condition")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-control-regex")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-delete-var")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-dupe-class-members")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-dupe-else-if")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-dupe-keys")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-duplicate-case")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-empty")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-empty-character-class")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-empty-pattern")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-ex-assign")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-fallthrough")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-func-assign")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-global-assign")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-import-assign")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-inner-declarations")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-invalid-regexp")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-irregular-whitespace")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-loss-of-precision")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-new-native-nonconstructor")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-nonoctal-decimal-escape")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-obj-calls")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-prototype-builtins")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-redeclare")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-regex-spaces")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-self-assign")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-setter-return")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-shadow-restricted-names")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-sparse-arrays")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-this-before-super")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-unexpected-multiline")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-unreachable")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-unsafe-finally")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-unsafe-negation")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-unsafe-optional-chaining")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-unused-labels")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-useless-catch")?,
+      LintFilter::new(AllowWarnDeny::Deny, "no-useless-escape")?,
+      LintFilter::new(AllowWarnDeny::Deny, "use-isnan")?,
+      LintFilter::new(AllowWarnDeny::Deny, "valid-typeof")?,
+      // LintFilter::new(AllowWarnDeny::Deny, "no-commonjs").unwrap(),
       // LintFilter::new(AllowWarnDeny::Warn, RuleCategory::Correctness).unwrap(),
     ])
     .with_fix(FixKind::None)

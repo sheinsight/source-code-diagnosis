@@ -1,0 +1,27 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-duplicate-case.js",
+  "help": "Remove the duplicated case",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-duplicate-case.html",
+  "severity": "error",
+  "code": "eslint(no-duplicate-case)",
+  "message": "Duplicate case label",
+  "labels": [
+    {
+      "span": {
+        "offset": 19,
+        "length": 1
+      }
+    },
+    {
+      "span": {
+        "offset": 37,
+        "length": 1
+      }
+    }
+  ]
+}

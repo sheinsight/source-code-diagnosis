@@ -1,0 +1,21 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-delete-var.js",
+  "help": "",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-delete-var.html",
+  "severity": "error",
+  "code": "eslint(no-delete-var)",
+  "message": "variables should not be deleted",
+  "labels": [
+    {
+      "span": {
+        "offset": 7,
+        "length": 8
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-const-assign.js",
+  "help": "",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-const-assign.html",
+  "severity": "error",
+  "code": "eslint(no-const-assign)",
+  "message": "eslint(no-const-assign): Unexpected re-assignment of const variable a",
+  "labels": [
+    {
+      "span": {
+        "offset": 6,
+        "length": 1
+      }
+    },
+    {
+      "span": {
+        "offset": 13,
+        "length": 1
+      }
+    }
+  ]
+}

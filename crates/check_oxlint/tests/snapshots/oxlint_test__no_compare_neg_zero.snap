@@ -1,0 +1,21 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-compare-neg-zero.js",
+  "help": "Use Object.is(x, -0) to test equality with -0 and use 0 for other cases",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-compare-neg-zero.html",
+  "severity": "error",
+  "code": "eslint(no-compare-neg-zero)",
+  "message": "Do not use the === operator to compare against -0.",
+  "labels": [
+    {
+      "span": {
+        "offset": 4,
+        "length": 8
+      }
+    }
+  ]
+}

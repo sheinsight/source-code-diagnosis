@@ -1,0 +1,21 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-debugger.js",
+  "help": "Delete this code.",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-debugger.html",
+  "severity": "error",
+  "code": "eslint(no-debugger)",
+  "message": "`debugger` statement is not allowed",
+  "labels": [
+    {
+      "span": {
+        "offset": 0,
+        "length": 9
+      }
+    }
+  ]
+}

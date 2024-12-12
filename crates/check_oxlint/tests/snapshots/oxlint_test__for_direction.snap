@@ -1,0 +1,27 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "for-direction.js",
+  "help": "Use while loop for intended infinite loop",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/for-direction.html",
+  "severity": "error",
+  "code": "eslint(for-direction)",
+  "message": "The update clause in this loop moves the variable in the wrong direction",
+  "labels": [
+    {
+      "span": {
+        "offset": 16,
+        "length": 6
+      }
+    },
+    {
+      "span": {
+        "offset": 24,
+        "length": 3
+      }
+    }
+  ]
+}

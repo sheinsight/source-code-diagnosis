@@ -12,6 +12,105 @@ pub fn get_graph(
   Ok(graph.get_edges())
 }
 
+#[napi(ts_args_type = "
+  rules: Array<
+          | 'no-debugger'
+          | 'no-console'
+          | 'constructor-super'
+          | 'for-direction'
+          | 'getter-return'
+          | 'no-async-promise-executor'
+          | 'no-case-declarations'
+          | 'no-class-assign'
+          | 'no-compare-neg-zero'
+          | 'no-cond-assign'
+          | 'no-const-assign'
+          | 'no-constant-binary-expression'
+          | 'no-constant-condition'
+          | 'no-control-regex'
+          | 'no-delete-var'
+          | 'no-dupe-class-members'
+          | 'no-dupe-else-if'
+          | 'no-dupe-keys'
+          | 'no-duplicate-case'
+          | 'no-empty'
+          | 'no-empty-character-class'
+          | 'no-empty-pattern'
+          | 'no-ex-assign'
+          | 'no-fallthrough'
+          | 'no-func-assign'
+          | 'no-global-assign'
+          | 'no-import-assign'
+          | 'no-inner-declarations'
+          | 'no-invalid-regexp'
+          | 'no-irregular-whitespace'
+          | 'no-loss-of-precision'
+          | 'no-new-native-nonconstructor'
+          | 'no-nonoctal-decimal-escape'
+          | 'no-obj-calls'
+          | 'no-prototype-builtins'
+          | 'no-redeclare'
+          | 'no-regex-spaces'
+          | 'no-self-assign'
+          | 'no-setter-return'
+          | 'no-shadow-restricted-names'
+          | 'no-sparse-arrays'
+          | 'no-this-before-super'
+          | 'no-undef'
+          | 'no-unexpected-multiline'
+          | 'no-unreachable'
+          | 'no-unsafe-finally'
+          | 'no-unsafe-negation'
+          | 'no-unused-labels'
+          | 'no-unused-vars'
+          | 'no-useless-catch'
+          | 'no-useless-escape'
+          | 'no-with'
+          | 'require-atomic-updates'
+          | 'use-before-define'
+          | 'valid-typeof'
+          | 'react/jsx-no-comment-textnodes'
+          | 'react/jsx-no-duplicate-props'
+          | 'react/jsx-no-target-blank'
+          | 'react/jsx-no-undef'
+          | 'react/no-children-prop'
+          | 'react/no-danger-with-children'
+          | 'react/no-direct-mutation-state'
+          | 'react/no-find-dom-node'
+          | 'react/no-is-mounted'
+          | 'react/no-render-return-value'
+          | 'react/no-string-refs'
+          | 'react/no-unescaped-entities'
+          | 'react/react-in-jsx-scope'
+          | 'react/require-render-return'
+          | 'import/export'
+          | 'unicorn/new-for-builtins'
+          | 'unicorn/no-instanceof-array'
+          | 'unicorn/no-invalid-remove-event-listener'
+          | 'unicorn/no-thenable'
+          | 'unicorn/no-unreadable-array-destructuring'
+          | 'unicorn/require-array-join-separator'
+          | 'unicorn/require-number-to-fixed-digits-argument'
+          | '@ts/no-duplicate-enum-values'
+          | '@ts/no-extra-non-null-assertion'
+          | '@ts/no-misused-new'
+          | '@ts/no-non-null-asserted-optional-chain'
+          | '@ts/no-unsafe-declaration-merging'
+          | '@ts/no-unsafe-function-type'
+          | '@ts/no-wrapper-object-types'
+          | '@ts/prefer-namespace-keyword'
+        >,
+  args: GlobJsArgs
+")]
+pub fn check_oxlint(
+  rules: Vec<&'static str>,
+  args: utils::GlobJsArgs,
+) -> Result<Vec<check_oxlint::CheckOxlintResponse>> {
+  let args = utils::GlobArgs::from(args);
+  check_oxlint::check_oxlint(rules, args)
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+}
+
 #[napi]
 pub fn check_danger_strings(
   danger_strings: Vec<String>,

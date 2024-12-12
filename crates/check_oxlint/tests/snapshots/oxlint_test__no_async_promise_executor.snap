@@ -1,0 +1,21 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-async-promise-executor.js",
+  "help": "",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-async-promise-executor.html",
+  "severity": "error",
+  "code": "eslint(no-async-promise-executor)",
+  "message": "Promise executor functions should not be `async`.",
+  "labels": [
+    {
+      "span": {
+        "offset": 12,
+        "length": 5
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@ use napi_derive::napi;
 use utils::{glob_by, GlobArgs};
 
 #[derive(Debug, Clone)]
-#[napi(object)]
+#[napi(object, js_name = "CheckSyntaxResponse")]
 pub struct CheckSyntaxResponse {
   pub path: String,
   pub errors: Vec<String>,

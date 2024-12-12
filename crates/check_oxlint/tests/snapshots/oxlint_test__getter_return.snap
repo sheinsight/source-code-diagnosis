@@ -1,0 +1,21 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "getter-return.js",
+  "help": "Return a value from all code paths in getter.",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/getter-return.html",
+  "severity": "error",
+  "code": "eslint(getter-return)",
+  "message": "Expected to always return a value in getter.",
+  "labels": [
+    {
+      "span": {
+        "offset": 23,
+        "length": 44
+      }
+    }
+  ]
+}

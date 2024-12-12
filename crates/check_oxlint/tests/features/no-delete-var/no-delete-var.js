@@ -1,0 +1,2 @@
+let x;
+delete x; 

@@ -1,0 +1,27 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-class-assign.js",
+  "help": "",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-class-assign.html",
+  "severity": "error",
+  "code": "eslint(no-class-assign)",
+  "message": "Unexpected re-assignment of class A",
+  "labels": [
+    {
+      "span": {
+        "offset": 6,
+        "length": 1
+      }
+    },
+    {
+      "span": {
+        "offset": 11,
+        "length": 1
+      }
+    }
+  ]
+}

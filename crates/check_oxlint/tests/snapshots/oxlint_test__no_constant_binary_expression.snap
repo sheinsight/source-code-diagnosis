@@ -1,0 +1,21 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "no-constant-binary-expression.js",
+  "help": "This expression always evaluates to the constant on the left-hand side",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-constant-binary-expression.html",
+  "severity": "error",
+  "code": "eslint(no-constant-binary-expression)",
+  "message": "Unexpected constant \"truthiness\" on the left-hand side of a \"||\" expression",
+  "labels": [
+    {
+      "span": {
+        "offset": 4,
+        "length": 13
+      }
+    }
+  ]
+}
