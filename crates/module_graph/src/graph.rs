@@ -1,5 +1,6 @@
 use std::{
   collections::{HashMap, HashSet},
+  env,
   path::Path,
   sync::{
     atomic::{AtomicU32, Ordering},
@@ -181,11 +182,15 @@ impl<'a> Graph<'a> {
         {
           Ok(rp) => rp,
           Err(_) => {
-            eprintln!(
-              "resolve error: {} {}",
-              source_value,
-              path.to_string_lossy()
-            );
+            let error_log =
+              env::var("ERROR_LOG").unwrap_or_else(|_| "1".to_string());
+            if error_log == "1" {
+              eprintln!(
+                "resolve error: {} {}",
+                source_value,
+                path.to_string_lossy()
+              );
+            }
             continue;
           }
         };
