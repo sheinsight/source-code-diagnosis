@@ -2,9 +2,10 @@ use std::{fmt::Display, rc::Rc, sync::Arc};
 
 use napi_derive::napi;
 use oxc_diagnostics::Severity;
-use oxc_linter::{AllowWarnDeny, FixKind, LintFilter, LinterBuilder};
+use oxc_linter::{AllowWarnDeny, FixKind, LintFilter, LinterBuilder, Oxlintrc};
 use oxc_semantic::SemanticBuilder;
 use serde::Serialize;
+use serde_json::json;
 
 #[napi(object)]
 #[derive(Debug, Clone, Serialize)]
@@ -120,26 +121,49 @@ pub fn check_oxlint(
       //   "valid-typeof",
       // ];
 
-      let filter: Vec<LintFilter> = rules
-        .iter()
-        .map(|r| LintFilter::new(AllowWarnDeny::Deny, r.to_string()).unwrap())
-        .collect::<Vec<_>>();
+      // let filter: Vec<LintFilter> = rules
+      //   .iter()
+      //   .map(|r| LintFilter::new(AllowWarnDeny::Deny, r.to_string()).unwrap())
+      //   .collect::<Vec<_>>();
 
-      let linter = LinterBuilder::empty()
-        .with_filters(filter)
+      // let rules_str = rules
+      //   .iter()
+      //   .map(|item| format!(r#""{}": "error""#, item))
+      //   .collect::<Vec<_>>()
+      //   .join(",");
+
+      let rules: serde_json::Value = rules
+        .iter()
+        .map(|&rule| {
+          (
+            rule.to_string(),
+            serde_json::Value::String("error".to_string()),
+          )
+        })
+        .collect::<serde_json::Map<String, serde_json::Value>>()
+        .into();
+
+      let config: Oxlintrc = serde_json::from_value(json!({
+          // "plugins": ["react", "oxc"],
+          "rules": rules,
+          "globals":{
+            "ROOT_REDUCER": "readonly",
+            "ROOT_ROUTER": "readonly",
+          }
+      }))
+      .unwrap();
+      let linter = LinterBuilder::from_oxlintrc(true, config)
         .with_fix(FixKind::None)
         .build();
+
+      // let linter = LinterBuilder::empty()
+      //   .with_filters(filter)
+      //   .with_fix(FixKind::None)
+      //   .build();
 
       let semantic = Rc::new(semantic.semantic);
 
       let diagnostics = linter.run(path, semantic, module_record);
-
-      for message in &diagnostics {
-        eprintln!(
-          "------>>> {} {:?}",
-          message.error.code, message.error.severity
-        );
-      }
 
       let responses = diagnostics
         .into_iter()

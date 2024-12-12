@@ -66,3 +66,5 @@ test_oxlint!(test_no_dupe_else_if, "no-dupe-else-if");
 test_oxlint!(test_no_dupe_keys, "no-dupe-keys");
 
 test_oxlint!(test_no_duplicate_case, "no-duplicate-case");
+
+test_oxlint!(test_no_new_for_builtins, "unicorn/new-for-builtins");

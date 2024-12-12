@@ -1,0 +1,21 @@
+---
+source: crates/check_oxlint/tests/oxlint_test.rs
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_name": "new-for-builtins.js",
+  "help": "",
+  "url": "https://oxc.rs/docs/guide/usage/linter/rules/unicorn/new-for-builtins.html",
+  "severity": "error",
+  "code": "eslint-plugin-unicorn(new-for-builtins)",
+  "message": "Use `new Array()` instead of `Array()`",
+  "labels": [
+    {
+      "span": {
+        "offset": 13,
+        "length": 9
+      }
+    }
+  ]
+}
