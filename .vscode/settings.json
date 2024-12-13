@@ -26,6 +26,7 @@
 		"newable",
 		"nonconstructor",
 		"oxlint",
+		"Oxlintrc",
 		"pathdiff",
 		"petgraph",
 		"ropey",

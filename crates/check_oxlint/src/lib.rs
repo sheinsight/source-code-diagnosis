@@ -1,11 +1,12 @@
 use std::{fmt::Display, rc::Rc, sync::Arc};
 
+use napi::JsObject;
 use napi_derive::napi;
 use oxc_diagnostics::Severity;
 use oxc_linter::{AllowWarnDeny, FixKind, LintFilter, LinterBuilder, Oxlintrc};
 use oxc_semantic::SemanticBuilder;
 use serde::Serialize;
-use serde_json::json;
+use serde_json::{Value, json};
 
 #[napi(object)]
 #[derive(Debug, Clone, Serialize)]
@@ -31,6 +32,12 @@ pub struct CheckOxlintResponse {
   pub message: String,
   pub labels: Vec<CheckOxlintLabelsResponse>,
 }
+
+// #[napi(object, js_name = "CheckOxlintArgs")]
+// pub struct CheckOxlintArgs {
+//   pub globals: Option<JsObject>,
+//   pub rules: Vec<Value>,
+// }
 
 impl Display for CheckOxlintResponse {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -147,8 +154,12 @@ pub fn check_oxlint(
           // "plugins": ["react", "oxc"],
           "rules": rules,
           "globals":{
-            "ROOT_REDUCER": "readonly",
-            "ROOT_ROUTER": "readonly",
+            "__webpack_public_path__": "readonly",
+            "ROOT_PATH": "readonly",
+            "__ROOT_SAGA__":"readonly",
+            "__ROOT_REDUCER__":"readonly",
+            "__ROOT_ROUTE__":"readonly",
+            "__ROOT_REDUX_DEVTOOLS__":"readonly"
           }
       }))
       .unwrap();
