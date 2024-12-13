@@ -1,12 +1,11 @@
 use std::{fmt::Display, rc::Rc, sync::Arc};
 
-use napi::JsObject;
 use napi_derive::napi;
 use oxc_diagnostics::Severity;
-use oxc_linter::{AllowWarnDeny, FixKind, LintFilter, LinterBuilder, Oxlintrc};
+use oxc_linter::{FixKind, LinterBuilder, Oxlintrc};
 use oxc_semantic::SemanticBuilder;
 use serde::Serialize;
-use serde_json::{Value, json};
+use serde_json::json;
 
 #[napi(object)]
 #[derive(Debug, Clone, Serialize)]
@@ -73,72 +72,6 @@ pub fn check_oxlint(
         &semantic.semantic,
       ));
 
-      // let rule: Vec<&'static str> = vec![
-      //   "no-debugger",
-      //   "no-console",
-      //   "constructor-super",
-      //   "for-direction",
-      //   "getter-return",
-      //   "no-async-promise-executor",
-      //   "no-case-declarations",
-      //   "no-class-assign",
-      //   "no-compare-neg-zero",
-      //   "no-cond-assign",
-      //   "no-const-assign",
-      //   "no-constant-binary-expression",
-      //   "no-constant-condition",
-      //   "no-control-regex",
-      //   "no-delete-var",
-      //   "no-dupe-class-members",
-      //   "no-dupe-else-if",
-      //   "no-dupe-keys",
-      //   "no-duplicate-case",
-      //   "no-empty",
-      //   "no-empty-character-class",
-      //   "no-empty-pattern",
-      //   "no-ex-assign",
-      //   "no-fallthrough",
-      //   "no-func-assign",
-      //   "no-global-assign",
-      //   "no-import-assign",
-      //   "no-inner-declarations",
-      //   "no-invalid-regexp",
-      //   "no-irregular-whitespace",
-      //   "no-loss-of-precision",
-      //   "no-new-native-nonconstructor",
-      //   "no-nonoctal-decimal-escape",
-      //   "no-obj-calls",
-      //   "no-prototype-builtins",
-      //   "no-redeclare",
-      //   "no-regex-spaces",
-      //   "no-self-assign",
-      //   "no-setter-return",
-      //   "no-shadow-restricted-names",
-      //   "no-sparse-arrays",
-      //   "no-this-before-super",
-      //   "no-unexpected-multiline",
-      //   "no-unreachable",
-      //   "no-unsafe-finally",
-      //   "no-unsafe-negation",
-      //   "no-unsafe-optional-chaining",
-      //   "no-unused-labels",
-      //   "no-useless-catch",
-      //   "no-useless-escape",
-      //   "use-isnan",
-      //   "valid-typeof",
-      // ];
-
-      // let filter: Vec<LintFilter> = rules
-      //   .iter()
-      //   .map(|r| LintFilter::new(AllowWarnDeny::Deny, r.to_string()).unwrap())
-      //   .collect::<Vec<_>>();
-
-      // let rules_str = rules
-      //   .iter()
-      //   .map(|item| format!(r#""{}": "error""#, item))
-      //   .collect::<Vec<_>>()
-      //   .join(",");
-
       let rules: serde_json::Value = rules
         .iter()
         .map(|&rule| {
@@ -151,7 +84,13 @@ pub fn check_oxlint(
         .into();
 
       let config: Oxlintrc = serde_json::from_value(json!({
-          // "plugins": ["react", "oxc"],
+          "env":{
+            "browser": true,
+            "node": true,
+            "es6": true,
+            "jest": true,
+            "shared-node-browser": true
+          },
           "rules": rules,
           "globals":{
             "__webpack_public_path__": "readonly",
@@ -166,11 +105,6 @@ pub fn check_oxlint(
       let linter = LinterBuilder::from_oxlintrc(true, config)
         .with_fix(FixKind::None)
         .build();
-
-      // let linter = LinterBuilder::empty()
-      //   .with_filters(filter)
-      //   .with_fix(FixKind::None)
-      //   .build();
 
       let semantic = Rc::new(semantic.semantic);
 
