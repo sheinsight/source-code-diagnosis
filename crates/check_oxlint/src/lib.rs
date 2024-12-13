@@ -5,7 +5,6 @@ use oxc_diagnostics::Severity;
 use oxc_linter::{FixKind, LinterBuilder, Oxlintrc};
 use oxc_semantic::SemanticBuilder;
 use serde::Serialize;
-use serde_json::json;
 
 #[napi(object)]
 #[derive(Debug, Clone, Serialize)]
@@ -32,12 +31,6 @@ pub struct CheckOxlintResponse {
   pub labels: Vec<CheckOxlintLabelsResponse>,
 }
 
-// #[napi(object, js_name = "CheckOxlintArgs")]
-// pub struct CheckOxlintArgs {
-//   pub globals: Option<JsObject>,
-//   pub rules: Vec<Value>,
-// }
-
 impl Display for CheckOxlintResponse {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     write!(f, "{}", serde_json::to_string_pretty(self).unwrap())
@@ -45,9 +38,15 @@ impl Display for CheckOxlintResponse {
 }
 
 pub fn check_oxlint(
-  rules: Vec<&'static str>,
+  oxlint_config: String,
   args: utils::GlobArgs,
 ) -> anyhow::Result<Vec<CheckOxlintResponse>> {
+  let cx_args: Oxlintrc = serde_json::from_str(&oxlint_config)?;
+
+  let linter = LinterBuilder::from_oxlintrc(true, cx_args.clone())
+    .with_fix(FixKind::None)
+    .build();
+
   let responses = utils::glob_by(
     |path| {
       let builder = utils::SemanticBuilder::with_file(path).unwrap();
@@ -72,40 +71,6 @@ pub fn check_oxlint(
         &semantic.semantic,
       ));
 
-      let rules: serde_json::Value = rules
-        .iter()
-        .map(|&rule| {
-          (
-            rule.to_string(),
-            serde_json::Value::String("error".to_string()),
-          )
-        })
-        .collect::<serde_json::Map<String, serde_json::Value>>()
-        .into();
-
-      let config: Oxlintrc = serde_json::from_value(json!({
-          "env":{
-            "browser": true,
-            "node": true,
-            "es6": true,
-            "jest": true,
-            "shared-node-browser": true
-          },
-          "rules": rules,
-          "globals":{
-            "__webpack_public_path__": "readonly",
-            "ROOT_PATH": "readonly",
-            "__ROOT_SAGA__":"readonly",
-            "__ROOT_REDUCER__":"readonly",
-            "__ROOT_ROUTE__":"readonly",
-            "__ROOT_REDUX_DEVTOOLS__":"readonly"
-          }
-      }))
-      .unwrap();
-      let linter = LinterBuilder::from_oxlintrc(true, config)
-        .with_fix(FixKind::None)
-        .build();
-
       let semantic = Rc::new(semantic.semantic);
 
       let diagnostics = linter.run(path, semantic, module_record);
@@ -124,12 +89,12 @@ pub fn check_oxlint(
             .help
             .as_ref()
             .map(|h| h.to_string())
-            .unwrap_or("".to_string());
+            .unwrap_or_default();
           let url = error
             .url
             .as_ref()
             .map(|u| u.to_string())
-            .unwrap_or("".to_string());
+            .unwrap_or_default();
 
           let severity = match error.severity {
             Severity::Advice => "advice".to_string(),

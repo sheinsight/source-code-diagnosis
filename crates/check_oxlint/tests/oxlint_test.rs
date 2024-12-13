@@ -14,7 +14,17 @@ macro_rules! test_oxlint {
       };
 
       let args = utils::GlobArgs::from(js_args);
-      let mut responses = check_oxlint(vec![$rule], args)?;
+      let mut responses = check_oxlint(
+        format!(
+          r#"{{
+        "rules":{{
+          "{}":"error"
+        }}
+      }}"#,
+          $rule
+        ),
+        args,
+      )?;
 
       responses.sort_by(|a, b| a.file_name.cmp(&b.file_name));
 
