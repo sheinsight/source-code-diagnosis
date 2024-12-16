@@ -54,7 +54,6 @@ where
     .collect::<Vec<&str>>();
 
   let entries = glob.walk(args.cwd.as_str()).not(ignore_patterns)?;
-
   let responses = entries
     .par_bridge()
     .filter_map(|item| {

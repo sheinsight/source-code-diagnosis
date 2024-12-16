@@ -18,9 +18,14 @@ napi-derive = { workspace = true }
 napi = { workspace = true }
 oxc_ast = { workspace = true }
 oxc_resolver = { workspace = true }
+oxc_parser = { workspace = true }
+oxc_allocator = { workspace = true }
 anyhow = { workspace = true }
 log = { workspace = true }
 serde_json = { workspace = true }
 serde = { workspace = true }
 oxc_span = { workspace = true }
 pathdiff = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread","test-util","macros"] }
+pprof = { version = "0.12", features = ["flamegraph"] }
+parking_lot = "0.12.1"
