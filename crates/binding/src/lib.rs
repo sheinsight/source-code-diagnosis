@@ -1,15 +1,67 @@
-use env_logger::Env;
+use env_logger::Builder;
 use napi::Result;
 use napi_derive::napi;
+use std::{
+  str::FromStr,
+  sync::atomic::{AtomicBool, Ordering},
+};
 use utils::{GlobArgs, GlobJsArgs};
 
+static LOGGER_INITIALIZED: AtomicBool = AtomicBool::new(false);
+
 #[napi]
-pub fn get_graph(
+pub fn enable_log(level: Option<String>) -> Result<()> {
+  if LOGGER_INITIALIZED.load(Ordering::Relaxed) {
+    return Ok(());
+  }
+
+  let level = level.unwrap_or_else(|| "info".to_string());
+
+  Builder::new()
+    .filter_level(
+      log::LevelFilter::from_str(&level).unwrap_or(log::LevelFilter::Info),
+    )
+    .try_init()
+    .map_err(|e| {
+      napi::Error::new(napi::Status::GenericFailure, e.to_string())
+    })?;
+
+  LOGGER_INITIALIZED.store(true, Ordering::Relaxed);
+  Ok(())
+}
+
+#[napi]
+pub async fn get_graph(
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::Graphics> {
-  let args = module_graph::model::Args::from(args);
-  let mut graph = module_graph::graph::Graph::new(args);
-  Ok(graph.get_edges())
+  module_graph::edges::get_graph(args.into())
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+}
+
+#[napi]
+pub async fn check_cycle(
+  args: module_graph::model::JsArgs,
+) -> Result<module_graph::model::GroupGraphics> {
+  let graphics = module_graph::edges::get_graph(args.into()).map_err(|e| {
+    napi::Error::new(napi::Status::GenericFailure, e.to_string())
+  })?;
+  module_graph::cycle::check_cycle(graphics)
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+}
+
+#[napi]
+pub async fn check_phantom_dependencies(
+  dependencies: Vec<String>,
+  args: module_graph::model::JsArgs,
+) -> Result<module_graph::model::Graphics> {
+  let graphics = module_graph::edges::get_graph(args.into()).map_err(|e| {
+    napi::Error::new(napi::Status::GenericFailure, e.to_string())
+  })?;
+  module_graph::phantom_dependencies::check_phantom_dependencies(
+    dependencies,
+    graphics,
+  )
+  .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
 #[napi]
@@ -17,18 +69,16 @@ pub fn check_oxlint(
   oxlint_config: String,
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_oxlint::CheckOxlintResponse>> {
-  let args = utils::GlobArgs::from(args);
-  check_oxlint::check_oxlint(oxlint_config, args)
+  check_oxlint::check_oxlint(oxlint_config, args.into())
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
 #[napi]
 pub fn check_danger_strings(
   danger_strings: Vec<String>,
-  args: GlobJsArgs,
+  args: utils::GlobJsArgs,
 ) -> Result<Vec<check_danger_string::CheckDangerResponse>> {
-  let args = GlobArgs::from(args);
-  check_danger_string::check_danger_strings(danger_strings, args)
+  check_danger_string::check_danger_strings(danger_strings, args.into())
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
@@ -37,8 +87,7 @@ pub fn check_module_member_usage(
   npm_name_vec: Vec<String>,
   args: GlobJsArgs,
 ) -> Result<Vec<module_member_usage::ModuleMemberUsageResponse>> {
-  let args = GlobArgs::from(args);
-  module_member_usage::check_module_member_usage(npm_name_vec, args)
+  module_member_usage::check_module_member_usage(npm_name_vec, args.into())
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
@@ -46,8 +95,7 @@ pub fn check_module_member_usage(
 pub fn check_filename_case(
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_filename_case::CheckFilenameCaseResponse>> {
-  let args = utils::GlobArgs::from(args);
-  check_filename_case::check_filename_case(args)
+  check_filename_case::check_filename_case(args.into())
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
@@ -56,8 +104,7 @@ pub fn check_browser_supported(
   target: check_browser_supported::Target,
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_browser_supported::CompatBox>> {
-  let args = utils::GlobArgs::from(args);
-  check_browser_supported::check_browser_supported(target, args)
+  check_browser_supported::check_browser_supported(target, args.into())
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
@@ -74,37 +121,10 @@ pub fn check_browser_supported_with_source_code(
 }
 
 #[napi]
-pub fn check_phantom_dependencies(
-  dependencies: Vec<String>,
-  args: module_graph::model::JsArgs,
-) -> Result<module_graph::model::Graphics> {
-  let _ = env_logger::Builder::from_env(
-    Env::default().filter_or("SHINED_LOG", "info"),
-  )
-  .try_init();
-  let args = module_graph::model::Args::from(args);
-  let mut graph = module_graph::graph::Graph::new(args);
-  graph
-    .check_phantom_dependencies(dependencies)
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
-}
-
-#[napi]
-pub fn check_cycle(
-  args: module_graph::model::JsArgs,
-) -> Result<module_graph::model::GroupGraphics> {
-  let args = module_graph::model::Args::from(args);
-  let mut graph = module_graph::graph::Graph::new(args);
-  let res = graph.check_cycle();
-  res.map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
-}
-
-#[napi]
 pub fn check_syntax(
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_syntax::CheckSyntaxResponse>> {
-  let args = utils::GlobArgs::from(args);
-  check_syntax::check_syntax(args)
+  check_syntax::check_syntax(args.into())
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
@@ -113,8 +133,7 @@ pub fn check_dependents(
   file: String,
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::Graphics> {
-  let args = module_graph::model::Args::from(args);
-  let mut graph = module_graph::graph::Graph::new(args);
+  let mut graph = module_graph::graph::Graph::new(args.into());
   graph
     .check_dependents(file)
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
@@ -125,17 +144,9 @@ pub fn check_dependencies(
   file: String,
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::Graphics> {
-  let args = module_graph::model::Args::from(args);
-  let mut graph = module_graph::graph::Graph::new(args);
+  let mut graph = module_graph::graph::Graph::new(args.into());
   graph
     .check_dependencies(file)
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
-}
-
-#[napi]
-pub fn init_logger() -> napi::Result<()> {
-  env_logger::Builder::from_env(Env::default().filter_or("SHINED_LOG", "info"))
-    .try_init()
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
@@ -144,7 +155,6 @@ pub fn check_danger_jsx_props(
   danger_jsx_props: Vec<String>,
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_danger_jsx_props::CheckDangerJsxPropsResponse>> {
-  let args = utils::GlobArgs::from(args);
-  check_danger_jsx_props::check_danger_jsx_props(danger_jsx_props, args)
+  check_danger_jsx_props::check_danger_jsx_props(danger_jsx_props, args.into())
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }

@@ -1,21 +1,25 @@
-use std::sync::{
-  atomic::{AtomicU32, Ordering},
-  Arc,
+use std::{
+  fs::read_to_string,
+  path::Path,
+  sync::{
+    atomic::{AtomicU32, Ordering},
+    Arc,
+  },
 };
 
-use anyhow::Context;
 use beans::AstNode;
 use bimap::BiMap;
 use oxc_allocator::Allocator;
 use oxc_parser::Parser;
 use oxc_resolver::{AliasValue, ResolveContext, ResolveOptions, Resolver};
-use oxc_span::SourceType;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use utils::{glob_by, read_file_content, GlobArgs};
+use utils::{glob_by, source_type_from_path, GlobArgs};
 
 use crate::model::{Args, Edge, Graphics};
 
-pub async fn get_edges(args: Args) -> anyhow::Result<Graphics> {
+pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
+  let cwd_path = Path::new(&args.cwd);
+
   let glob_args = GlobArgs {
     cwd: args.cwd.clone(),
     pattern: args.pattern,
@@ -24,7 +28,6 @@ pub async fn get_edges(args: Args) -> anyhow::Result<Graphics> {
 
   let resolver_alias: Vec<(String, Vec<AliasValue>)> = args
     .alias
-    .clone()
     .into_iter()
     .map(|(key, values)| {
       (key, values.into_iter().map(AliasValue::Path).collect())
@@ -34,12 +37,28 @@ pub async fn get_edges(args: Args) -> anyhow::Result<Graphics> {
   let resolve_options = ResolveOptions {
     alias: resolver_alias,
     modules: args.modules,
+    main_files: vec!["index".into()],
+    builtin_modules: true,
+    fully_specified: false,
+    condition_names: vec![
+      "import".into(),  // 支持 ESM imports
+      "require".into(), // 支持 CommonJS require
+      "default".into(), // 默认导出
+      "types".into(),   // TypeScript 类型
+    ],
+    symlinks: false,
+    main_fields: vec!["module".into(), "main".into()],
     extensions: vec![
-      ".ts".into(),
       ".js".into(),
       ".jsx".into(),
+      ".ts".into(),
       ".tsx".into(),
       ".json".into(),
+      ".node".into(),
+      ".css".into(),
+      ".scss".into(),
+      ".less".into(),
+      ".d.ts".into(),
     ],
     ..ResolveOptions::default()
   };
@@ -49,136 +68,189 @@ pub async fn get_edges(args: Args) -> anyhow::Result<Graphics> {
   let shared_context =
     Arc::new(parking_lot::Mutex::new(ResolveContext::default()));
 
-  let responses = tokio::task::spawn_blocking({
-    let context = shared_context.clone();
-    move || {
-      glob_by(
-        |path| {
-          let allocator = Allocator::default();
-          let source_text = read_file_content(path).unwrap();
-          let source_type = SourceType::from_path(path).unwrap();
-          let ret = Parser::new(&allocator, &source_text, source_type).parse();
-          let source = path.display().to_string();
-          let source_dir = path.parent();
+  let syntax_errors = Arc::new(parking_lot::Mutex::new(Vec::new()));
 
-          let res: Vec<Edge> = ret
-            .module_record
-            .import_entries
-            .par_iter()
-            // .iter()
-            // .map(|item| &item.module_request)
-            .filter_map(|item| {
-              let item = &item.module_request;
-              let name_str = item.name.to_string();
-              // let bi_map_guard = bi_map.blocking_lock();
+  let responses = glob_by(
+    |path| {
+      let allocator = Allocator::default();
 
-              // let source_id = match bi_map_guard.get_by_left(&path_str) {
-              //   Some(source_id) => source_id.to_string(),
-              //   None => {
-              //     let id = id_counter.fetch_add(1, Ordering::SeqCst);
-              //     let mut bi_map_guard = bi_map.blocking_lock();
-              //     bi_map_guard.insert(id.to_string(), path_str.clone());
-              //     id.to_string()
-              //   }
-              // };
+      if let Ok(source_text) = read_to_string(path) {
+        let source_type = source_type_from_path(path);
+        let ret = Parser::new(&allocator, &source_text, source_type).parse();
 
-              if let Some(source_dir) = source_dir {
-                let resolved = resolver.resolve_with_context(
-                  &source_dir,
-                  &name_str,
-                  &mut context.lock(),
-                );
-                if let Ok(resolved) = resolved {
-                  let target =
-                    resolved.full_path().to_string_lossy().to_string();
+        let source_path = pathdiff::diff_paths(path, cwd_path)?;
 
+        let source_dir_path = path.parent();
+
+        let source = source_path.to_string_lossy().to_string();
+
+        if !ret.errors.is_empty() {
+          syntax_errors
+            .lock()
+            .push(path.to_string_lossy().to_string());
+          return None;
+        }
+
+        let res: Vec<Edge> = ret
+          .module_record
+          .import_entries
+          .par_iter()
+          .filter_map(|item| {
+            let item = &item.module_request;
+            let name_str = item.name.to_string();
+
+            if let Some(source_dir_path) = source_dir_path {
+              let resolved = resolver.resolve_with_context(
+                &source_dir_path,
+                &name_str,
+                &mut shared_context.lock(),
+              );
+
+              if let Ok(resolved) = resolved {
+                let target_path =
+                  pathdiff::diff_paths(resolved.full_path(), cwd_path)?;
+
+                let target = target_path.to_string_lossy().to_string();
+
+                let is_node_modules = target.contains("node_modules");
+
+                let module_name = if is_node_modules {
+                  Some(name_str)
+                } else {
+                  None
+                };
+
+                return Some(Edge {
+                  source: source.clone(),
+                  target: target,
+                  missing: false,
+                  target_module_name: module_name,
+                  ast_node: AstNode::with_source_and_span(
+                    &source_text,
+                    &item.span,
+                  ),
+                });
+              } else {
+                if might_be_node_modules(&name_str) {
+                  let main_module = get_main_module_name(&name_str);
                   return Some(Edge {
                     source: source.clone(),
-                    target: target,
+                    target: name_str,
+                    missing: true,
+                    target_module_name: Some(main_module),
                     ast_node: AstNode::with_source_and_span(
                       &source_text,
                       &item.span,
                     ),
                   });
                 }
-              }
 
-              return None;
-            })
-            .collect();
-          Some(res)
-        },
-        &glob_args,
-      )
-    }
-  })
-  .await
-  .with_context(|| "get edges failed")?;
+                return Some(Edge {
+                  source: source.clone(),
+                  target: name_str,
+                  missing: true,
+                  target_module_name: None,
+                  ast_node: AstNode::with_source_and_span(
+                    &source_text,
+                    &item.span,
+                  ),
+                });
+              }
+            }
+
+            return Some(Edge {
+              source: source.clone(),
+              target: name_str,
+              missing: true,
+              target_module_name: None,
+              ast_node: AstNode::with_source_and_span(&source_text, &item.span),
+            });
+          })
+          .collect();
+        Some(res)
+      } else {
+        None
+      }
+    },
+    &glob_args,
+  )?
+  .into_iter()
+  .flatten()
+  .collect::<Vec<_>>();
 
   let id_counter: Arc<AtomicU32> = Arc::new(AtomicU32::new(0));
-  let mut bi_map: BiMap<String, String> = BiMap::new();
 
-  let edges = responses?
-    .into_iter()
-    .map(|x| x.clone())
-    .flatten()
-    .map(|x| {
-      let source_id = if let Some(source_id) = bi_map.get_by_left(&x.source) {
-        source_id.to_string()
-      } else {
-        let id = id_counter.fetch_add(1, Ordering::SeqCst);
-        bi_map.insert(id.to_string(), x.source.clone());
-        id.to_string()
+  let bi_map =
+    Arc::new(parking_lot::Mutex::new(BiMap::<String, String>::new()));
+
+  let edges = responses
+    .par_iter()
+    .filter_map(|x| {
+      // 提取获取或创建 ID 的逻辑为一个闭包
+      let mut bi_map = bi_map.lock();
+
+      let mut get_or_create_id = |path: &str| -> String {
+        bi_map
+          .get_by_right(path)
+          .map(String::from)
+          .unwrap_or_else(|| {
+            let id = id_counter.fetch_add(1, Ordering::SeqCst).to_string();
+            bi_map.insert(id.clone(), path.to_string());
+            id
+          })
       };
 
-      let target_id = if let Some(target_id) = bi_map.get_by_left(&x.target) {
-        target_id.to_string()
+      let source_id = get_or_create_id(&x.source);
+      let target_id = get_or_create_id(&x.target);
+      let module_id = if let Some(module_name) = &x.target_module_name {
+        Some(get_or_create_id(module_name))
       } else {
-        let id = id_counter.fetch_add(1, Ordering::SeqCst);
-        bi_map.insert(id.to_string(), x.target.clone());
-        id.to_string()
+        None
       };
 
-      Edge {
+      Some(Edge {
         source: source_id,
         target: target_id,
-        ast_node: x.ast_node.clone(),
-      }
+        target_module_name: module_id,
+        ..x.clone()
+      })
     })
     .collect::<Vec<_>>();
 
-  Ok(Graphics {
-    dictionaries: bi_map.into_iter().collect(),
-    graph: edges,
-    invalid_syntax_files: vec![],
-  })
+  let syntax_errors = syntax_errors.lock().to_vec();
 
-  // responses.unwrap().iter().for_each(|x| {
-  //   println!("{:?}", x);
-  // });
+  let bi_map = bi_map.lock();
+
+  Ok(Graphics {
+    dictionaries: bi_map.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+    graph: edges,
+    invalid_syntax_files: syntax_errors.clone(),
+    syntax_errors: syntax_errors,
+  })
 }
 
-#[cfg(test)]
-mod tests {
-  use std::collections::HashMap;
-  use std::time::Instant;
+fn might_be_node_modules(target: &str) -> bool {
+  const LOCAL_PATTERNS: [&str; 5] = ["./", "../", "/", "node_modules", "@/"];
 
-  use super::*;
+  if target.starts_with('@') {
+    return !target.starts_with("@/");
+  }
 
-  #[tokio::test]
-  async fn test_get_edges() {
-    let start = Instant::now();
+  !LOCAL_PATTERNS
+    .iter()
+    .any(|pattern| target.contains(pattern))
+}
 
-    let x = get_edges(Args {
-      cwd: "/Users/10015448/Git/gtms".to_string(),
-      pattern: "**/*.{js,ts,jsx,tsx}".to_string(),
-      ignore: vec![],
-      alias: HashMap::new(),
-      modules: vec!["node_modules".to_string()],
-    })
-    .await;
-
-    let duration = start.elapsed();
-    println!("执行耗时: {:?}", duration);
+fn get_main_module_name(module_name: &str) -> String {
+  if module_name.starts_with('@') && !module_name.starts_with("@/") {
+    // e.g. @babel/core/lib/something
+    module_name.split('/').take(2).collect::<Vec<_>>().join("/")
+  } else {
+    // e.g. lodash/cloneDeep
+    module_name
+      .split('/')
+      .next()
+      .unwrap_or(module_name)
+      .to_string()
   }
 }

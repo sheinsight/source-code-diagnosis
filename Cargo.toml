@@ -4,7 +4,7 @@ resolver = "2"
  
 
 [workspace.dependencies]
-napi-derive = "2.16.12"
+napi-derive = "2.16.13"
 napi = { version = "2.16.13", default-features = false, features = ["napi4"] }
 serde ={ version = "1.0.121", features = ["derive"] }
 

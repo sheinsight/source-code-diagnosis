@@ -32,6 +32,7 @@
 		"ropey",
 		"RUSTFLAGS",
 		"serde",
+		"tarjan",
 		"threadpool"
 	],
 	"[javascript]": {

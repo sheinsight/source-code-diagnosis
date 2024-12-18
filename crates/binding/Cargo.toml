@@ -9,8 +9,8 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-napi = {workspace = true}
-napi-derive = {workspace = true}
+napi = { workspace = true, features = ["tokio_rt"] }
+napi-derive = { workspace = true }
 check_danger_string = { path = "../check_danger_string" }
 check_browser_supported = { path = "../check_browser_supported" }
 check_syntax = { path = "../check_syntax" }

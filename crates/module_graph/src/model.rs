@@ -48,6 +48,8 @@ impl From<JsArgs> for Args {
 pub struct Edge {
   pub source: String,
   pub target: String,
+  pub missing: bool,
+  pub target_module_name: Option<String>,
   pub ast_node: beans::AstNode,
 }
 
@@ -64,4 +66,5 @@ pub struct Graphics {
   pub dictionaries: HashMap<String, String>,
   pub graph: Vec<Edge>,
   pub invalid_syntax_files: Vec<String>,
+  pub syntax_errors: Vec<String>,
 }

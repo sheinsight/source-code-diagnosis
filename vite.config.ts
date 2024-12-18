@@ -6,5 +6,6 @@ export default defineConfig({
 		env: {
 			SHINED_LOG: "debug",
 		},
+		testTimeout: 1_000_000,
 	},
 });

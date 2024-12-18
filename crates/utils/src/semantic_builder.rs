@@ -14,6 +14,16 @@ use ropey::Rope;
 
 use crate::read_file_content;
 
+pub fn source_type_from_path(path: &std::path::Path) -> oxc_span::SourceType {
+  match path.extension().and_then(|ext| ext.to_str()) {
+    Some("ts") => oxc_span::SourceType::ts(),
+    Some("tsx") => oxc_span::SourceType::tsx(),
+    Some("jsx") => oxc_span::SourceType::jsx(),
+    Some("cjs") => oxc_span::SourceType::cjs(),
+    _ => oxc_span::SourceType::jsx(),
+  }
+}
+
 pub struct SemanticBuilder {
   pub source_code: String,
   pub source_type: SourceType,
@@ -23,14 +33,7 @@ pub struct SemanticBuilder {
 
 impl SemanticBuilder {
   pub fn with_file<P: AsRef<Path>>(path: P) -> anyhow::Result<Self> {
-    let source_type =
-      match path.as_ref().extension().and_then(|ext| ext.to_str()) {
-        Some("ts") => oxc_span::SourceType::ts(),
-        Some("tsx") => oxc_span::SourceType::tsx(),
-        Some("jsx") => oxc_span::SourceType::jsx(),
-        Some("cjs") => oxc_span::SourceType::cjs(),
-        _ => SourceType::jsx(),
-      };
+    let source_type = source_type_from_path(path.as_ref());
     Ok(Self {
       source_code: read_file_content(path.as_ref())?,
       source_type,

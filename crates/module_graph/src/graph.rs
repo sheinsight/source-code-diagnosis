@@ -108,6 +108,7 @@ impl<'a> Graph<'a> {
       dictionaries: self.get_dictionaries(),
       graph: self.edges.lock().unwrap().clone(),
       invalid_syntax_files: self.invalid_syntax_files.lock().unwrap().clone(),
+      syntax_errors: self.invalid_syntax_files.lock().unwrap().clone(),
     }
   }
 
@@ -283,12 +284,16 @@ impl<'a> Graph<'a> {
                       source: source.clone(),
                       target: target.clone(),
                       ast_node: edge.ast_node.clone(),
+                      missing: edge.missing,
+                      target_module_name: edge.target_module_name.clone(),
                     }
                   } else {
                     Edge {
                       source: source.clone(),
                       target: target.clone(),
                       ast_node: AstNode::default(),
+                      missing: true,
+                      target_module_name: None,
                     }
                   }
                 })
@@ -302,6 +307,8 @@ impl<'a> Graph<'a> {
                     [&(graph[*node].clone(), graph[neighbor].clone())]
                     .ast_node
                     .clone(),
+                  missing: true,
+                  target_module_name: None,
                 });
               }
 
@@ -380,6 +387,7 @@ impl<'a> Graph<'a> {
         dictionaries: self.get_dictionaries(),
         graph: phantom_deps,
         invalid_syntax_files: invalid_syntax_files.to_vec(),
+        syntax_errors: invalid_syntax_files.to_vec(),
       })
     } else {
       bail!("invalid_syntax_files lock failed");
@@ -442,6 +450,7 @@ impl<'a> Graph<'a> {
         dictionaries,
         graph: result,
         invalid_syntax_files: invalid_syntax_files.clone(),
+        syntax_errors: invalid_syntax_files.clone(),
       })
     } else {
       bail!("invalid_syntax_files lock failed");
@@ -497,6 +506,8 @@ impl<'a> Graph<'a> {
         source: source.clone(),
         target: target.clone(),
         ast_node: edge.ast_node.clone(),
+        missing: edge.missing,
+        target_module_name: edge.target_module_name.clone(),
       });
 
       self.traverse_neighbors(
@@ -594,6 +605,8 @@ impl<'a> Graph<'a> {
       source: source_id,
       target: target_id,
       ast_node,
+      missing: false,
+      target_module_name: None,
     }
   }
 }

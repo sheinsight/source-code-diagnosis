@@ -7,7 +7,9 @@ use std::{
 };
 
 pub use glob::{glob_by, GlobArgs, GlobJsArgs};
-pub use semantic_builder::{SemanticBuilder, SemanticHandler};
+pub use semantic_builder::{
+  source_type_from_path, SemanticBuilder, SemanticHandler,
+};
 
 pub fn read_file_content(path: &std::path::Path) -> anyhow::Result<String> {
   let file = fs::File::open(path)?;
