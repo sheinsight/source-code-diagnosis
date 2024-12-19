@@ -3,7 +3,17 @@ use serde::{Deserialize, Serialize};
 
 #[napi(object)]
 #[derive(
-  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize, Copy,
+  Debug,
+  Default,
+  PartialEq,
+  Eq,
+  Hash,
+  Clone,
+  Serialize,
+  Deserialize,
+  Copy,
+  PartialOrd,
+  Ord,
 )]
 pub struct Position {
   pub line: u32,

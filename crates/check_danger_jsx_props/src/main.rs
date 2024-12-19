@@ -31,6 +31,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     &semantic_ret.semantic,
   ));
 
+  // println!("{:?}", ret.module_record.requested_modules);
+
+  ret.module_record.import_entries.iter().for_each(|value| {
+    println!(
+      "--> {:?} {:?} {:?}",
+      value.import_name, value.local_name, value.module_request.name
+    );
+  });
+
   let semantic = Rc::new(semantic_ret.semantic);
 
   // let x = LintFilterKind::try_from("no-debugger")?;

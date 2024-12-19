@@ -9,18 +9,15 @@ use module_graph::{
 fn test_check_phantom_dependencies() -> anyhow::Result<()> {
   let current = current_dir()?
     .join("tests")
-    .join("features")
+    .join("fixtures")
     .join("phantom_dependencies");
 
   let args = JsArgs {
     cwd: current.to_string_lossy().to_string(),
-    pattern: None,
-    ignore: None,
-    alias: None,
-    modules: None,
+    ..Default::default()
   };
 
-  let graphics = get_graph(args.into())?;
+  let graphics = get_graph(args.try_into().unwrap())?;
 
   let responses =
     check_phantom_dependencies(vec!["react".to_string()], graphics)?;
@@ -29,10 +26,14 @@ fn test_check_phantom_dependencies() -> anyhow::Result<()> {
     .graph
     .iter()
     .filter_map(|edge| {
-      if let Some(target_module_name) = &edge.target_module_name {
+      if let Some(target_metadata) = &edge.target_metadata {
         return Some(format!(
-          "{:?}",
-          responses.dictionaries.get(target_module_name).unwrap()
+          r#"name: {}  may_be: {}"#,
+          responses
+            .dictionaries
+            .get(&target_metadata.module_id)
+            .unwrap(),
+          target_metadata.may_be
         ));
       }
 

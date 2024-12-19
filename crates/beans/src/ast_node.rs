@@ -5,7 +5,17 @@ use crate::{Location, Span};
 
 #[napi(object, js_name = "AstNode")]
 #[derive(
-  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize, Copy,
+  Debug,
+  Default,
+  PartialEq,
+  Eq,
+  Hash,
+  Clone,
+  Serialize,
+  Deserialize,
+  Copy,
+  PartialOrd,
+  Ord,
 )]
 pub struct AstNode {
   pub span: Span,

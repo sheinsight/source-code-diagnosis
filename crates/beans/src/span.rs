@@ -3,7 +3,17 @@ use serde::{Deserialize, Serialize};
 
 #[napi(object, js_name = "Span")]
 #[derive(
-  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize, Copy,
+  Debug,
+  Default,
+  PartialEq,
+  Eq,
+  Hash,
+  Clone,
+  Serialize,
+  Deserialize,
+  Copy,
+  PartialOrd,
+  Ord,
 )]
 pub struct Span {
   pub start: u32,

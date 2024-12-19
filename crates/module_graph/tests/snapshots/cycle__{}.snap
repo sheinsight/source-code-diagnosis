@@ -1,0 +1,12 @@
+---
+source: crates/module_graph/tests/cycle.rs
+expression: "snap.join(\"\\n -------------------- \\n\")"
+snapshot_kind: text
+---
+( a.js -> b.js )
+( b.js -> a.js )
+( b.js -> h/c.ts )
+( h/c.ts -> b.js )
+ -------------------- 
+( k/a.js -> k/b.jsx )
+( k/b.jsx -> k/a.js )

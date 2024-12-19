@@ -5,9 +5,14 @@ use std::{
   str::FromStr,
   sync::atomic::{AtomicBool, Ordering},
 };
-use utils::{GlobArgs, GlobJsArgs};
+use tap::Pipe;
+use utils::GlobJsArgs;
 
 static LOGGER_INITIALIZED: AtomicBool = AtomicBool::new(false);
+
+fn to_napi_error<E: ToString>(e: E) -> napi::Error {
+  napi::Error::new(napi::Status::GenericFailure, e.to_string())
+}
 
 #[napi]
 pub fn enable_log(level: Option<String>) -> Result<()> {
@@ -34,19 +39,22 @@ pub fn enable_log(level: Option<String>) -> Result<()> {
 pub async fn get_graph(
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::Graphics> {
-  module_graph::edges::get_graph(args.into())
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+  TryInto::<module_graph::model::Args>::try_into(args)
+    .map_err(|_| to_napi_error("Invalid arguments"))?
+    .pipe(module_graph::edges::get_graph)
+    .map_err(to_napi_error)
 }
 
 #[napi]
 pub async fn check_cycle(
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::GroupGraphics> {
-  let graphics = module_graph::edges::get_graph(args.into()).map_err(|e| {
-    napi::Error::new(napi::Status::GenericFailure, e.to_string())
-  })?;
-  module_graph::cycle::check_cycle(graphics)
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+  TryInto::<module_graph::model::Args>::try_into(args)
+    .map_err(|_| to_napi_error("Invalid arguments"))?
+    .pipe(module_graph::edges::get_graph)
+    .map_err(to_napi_error)?
+    .pipe(module_graph::cycle::check_cycle)
+    .map_err(to_napi_error)
 }
 
 #[napi]
@@ -54,14 +62,17 @@ pub async fn check_phantom_dependencies(
   dependencies: Vec<String>,
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::Graphics> {
-  let graphics = module_graph::edges::get_graph(args.into()).map_err(|e| {
-    napi::Error::new(napi::Status::GenericFailure, e.to_string())
-  })?;
-  module_graph::phantom_dependencies::check_phantom_dependencies(
-    dependencies,
-    graphics,
-  )
-  .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+  TryInto::<module_graph::model::Args>::try_into(args)
+    .map_err(|_| to_napi_error("Invalid arguments"))?
+    .pipe(module_graph::edges::get_graph)
+    .map_err(to_napi_error)?
+    .pipe(|graph| {
+      module_graph::phantom_dependencies::check_phantom_dependencies(
+        dependencies,
+        graph,
+      )
+    })
+    .map_err(to_napi_error)
 }
 
 #[napi]
@@ -128,27 +139,27 @@ pub fn check_syntax(
     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
 }
 
-#[napi]
-pub fn check_dependents(
-  file: String,
-  args: module_graph::model::JsArgs,
-) -> Result<module_graph::model::Graphics> {
-  let mut graph = module_graph::graph::Graph::new(args.into());
-  graph
-    .check_dependents(file)
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
-}
+// #[napi]
+// pub fn check_dependents(
+//   file: String,
+//   args: module_graph::model::JsArgs,
+// ) -> Result<module_graph::model::Graphics> {
+//   let mut graph = module_graph::graph::Graph::new(args.into());
+//   graph
+//     .check_dependents(file)
+//     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+// }
 
-#[napi]
-pub fn check_dependencies(
-  file: String,
-  args: module_graph::model::JsArgs,
-) -> Result<module_graph::model::Graphics> {
-  let mut graph = module_graph::graph::Graph::new(args.into());
-  graph
-    .check_dependencies(file)
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
-}
+// #[napi]
+// pub fn check_dependencies(
+//   file: String,
+//   args: module_graph::model::JsArgs,
+// ) -> Result<module_graph::model::Graphics> {
+//   let mut graph = module_graph::graph::Graph::new(args.into());
+//   graph
+//     .check_dependencies(file)
+//     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+// }
 
 #[napi]
 pub fn check_danger_jsx_props(

@@ -15,7 +15,7 @@ use oxc_resolver::{AliasValue, ResolveContext, ResolveOptions, Resolver};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use utils::{glob_by, source_type_from_path, GlobArgs};
 
-use crate::model::{Args, Edge, Graphics};
+use crate::model::{Args, Edge, Graphics, TargetMetadata};
 
 pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
   let cwd_path = Path::new(&args.cwd);
@@ -27,6 +27,7 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
   };
 
   let resolver_alias: Vec<(String, Vec<AliasValue>)> = args
+    .resolve
     .alias
     .into_iter()
     .map(|(key, values)| {
@@ -36,7 +37,7 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
 
   let resolve_options = ResolveOptions {
     alias: resolver_alias,
-    modules: args.modules,
+    modules: args.resolve.modules,
     main_files: vec!["index".into()],
     builtin_modules: true,
     fully_specified: false,
@@ -82,7 +83,8 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
 
         let source_dir_path = path.parent();
 
-        let source = source_path.to_string_lossy().to_string();
+        let source =
+          source_path.to_string_lossy().replace('\\', "/").to_string();
 
         if !ret.errors.is_empty() {
           syntax_errors
@@ -112,44 +114,26 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
 
                 let target = target_path.to_string_lossy().to_string();
 
-                let is_node_modules = target.contains("node_modules");
-
-                let module_name = if is_node_modules {
-                  Some(name_str)
-                } else {
-                  None
-                };
+                let target_metadata = may_be_node_modules(&target);
 
                 return Some(Edge {
-                  source: source.clone(),
-                  target: target,
+                  source_id: source.clone(),
+                  target_id: target,
                   missing: false,
-                  target_module_name: module_name,
+                  target_metadata,
                   ast_node: AstNode::with_source_and_span(
                     &source_text,
                     &item.span,
                   ),
                 });
               } else {
-                if might_be_node_modules(&name_str) {
-                  let main_module = get_main_module_name(&name_str);
-                  return Some(Edge {
-                    source: source.clone(),
-                    target: name_str,
-                    missing: true,
-                    target_module_name: Some(main_module),
-                    ast_node: AstNode::with_source_and_span(
-                      &source_text,
-                      &item.span,
-                    ),
-                  });
-                }
+                let target_metadata = may_be_node_modules(&name_str);
 
                 return Some(Edge {
-                  source: source.clone(),
-                  target: name_str,
+                  source_id: source.clone(),
+                  target_id: name_str,
                   missing: true,
-                  target_module_name: None,
+                  target_metadata,
                   ast_node: AstNode::with_source_and_span(
                     &source_text,
                     &item.span,
@@ -159,10 +143,10 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
             }
 
             return Some(Edge {
-              source: source.clone(),
-              target: name_str,
+              source_id: source.clone(),
+              target_id: name_str,
               missing: true,
-              target_module_name: None,
+              target_metadata: None,
               ast_node: AstNode::with_source_and_span(&source_text, &item.span),
             });
           })
@@ -200,18 +184,24 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
           })
       };
 
-      let source_id = get_or_create_id(&x.source);
-      let target_id = get_or_create_id(&x.target);
-      let module_id = if let Some(module_name) = &x.target_module_name {
-        Some(get_or_create_id(module_name))
-      } else {
-        None
-      };
+      let source_id = get_or_create_id(&x.source_id);
+      let target_id = get_or_create_id(&x.target_id);
+
+      let target_metadata =
+        if let Some(metadata) = may_be_node_modules(&x.target_id) {
+          let module_id = get_or_create_id(&metadata.module_id);
+          Some(TargetMetadata {
+            module_id,
+            may_be: false,
+          })
+        } else {
+          None
+        };
 
       Some(Edge {
-        source: source_id,
-        target: target_id,
-        target_module_name: module_id,
+        source_id,
+        target_id,
+        target_metadata,
         ..x.clone()
       })
     })
@@ -224,24 +214,49 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
   Ok(Graphics {
     dictionaries: bi_map.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
     graph: edges,
-    invalid_syntax_files: syntax_errors.clone(),
     syntax_errors: syntax_errors,
   })
 }
 
-fn might_be_node_modules(target: &str) -> bool {
+fn may_be_node_modules(target: &str) -> Option<TargetMetadata> {
   const LOCAL_PATTERNS: [&str; 5] = ["./", "../", "/", "node_modules", "@/"];
 
-  if target.starts_with('@') {
-    return !target.starts_with("@/");
+  let module_name = get_main_module_name(target);
+
+  if target.contains("node_modules") {
+    return Some(TargetMetadata {
+      module_id: module_name,
+      may_be: false,
+    });
   }
 
-  !LOCAL_PATTERNS
+  let may_be = true;
+
+  if target.starts_with('@') && !target.starts_with("@/") {
+    return Some(TargetMetadata {
+      module_id: module_name,
+      may_be,
+    });
+  }
+
+  let my_be = !LOCAL_PATTERNS
     .iter()
-    .any(|pattern| target.contains(pattern))
+    .any(|pattern| target.contains(pattern));
+
+  if my_be {
+    return Some(TargetMetadata {
+      module_id: module_name,
+      may_be,
+    });
+  }
+
+  None
 }
 
 fn get_main_module_name(module_name: &str) -> String {
+  // e.g. node_modules/antd/lib/Button
+  let module_name = module_name.trim_start_matches("node_modules/");
+
   if module_name.starts_with('@') && !module_name.starts_with("@/") {
     // e.g. @babel/core/lib/something
     module_name.split('/').take(2).collect::<Vec<_>>().join("/")

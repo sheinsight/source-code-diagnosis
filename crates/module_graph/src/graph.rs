@@ -39,8 +39,10 @@ pub struct Graph<'a> {
 
 impl<'a> Graph<'a> {
   pub fn new(args: Args) -> Self {
-    let resolver =
-      Self::build_resolver(args.alias.clone(), args.modules.clone());
+    let resolver = Self::build_resolver(
+      args.resolve.alias.clone(),
+      args.resolve.modules.clone(),
+    );
     let entries =
       Self::build_entries(&args.cwd, &args.pattern, args.ignore.clone());
     Self {
@@ -107,7 +109,6 @@ impl<'a> Graph<'a> {
     Graphics {
       dictionaries: self.get_dictionaries(),
       graph: self.edges.lock().unwrap().clone(),
-      invalid_syntax_files: self.invalid_syntax_files.lock().unwrap().clone(),
       syntax_errors: self.invalid_syntax_files.lock().unwrap().clone(),
     }
   }
@@ -281,19 +282,19 @@ impl<'a> Graph<'a> {
                     self.edge_map.get(&(source.clone(), target.clone()))
                   {
                     Edge {
-                      source: source.clone(),
-                      target: target.clone(),
+                      source_id: source.clone(),
+                      target_id: target.clone(),
                       ast_node: edge.ast_node.clone(),
                       missing: edge.missing,
-                      target_module_name: edge.target_module_name.clone(),
+                      target_metadata: edge.target_metadata.clone(),
                     }
                   } else {
                     Edge {
-                      source: source.clone(),
-                      target: target.clone(),
+                      source_id: source.clone(),
+                      target_id: target.clone(),
                       ast_node: AstNode::default(),
                       missing: true,
-                      target_module_name: None,
+                      target_metadata: None,
                     }
                   }
                 })
@@ -301,14 +302,14 @@ impl<'a> Graph<'a> {
 
               if let Some(node) = stack.last() {
                 cycle.push(Edge {
-                  source: graph[*node].clone(),
-                  target: graph[neighbor].clone(),
+                  source_id: graph[*node].clone(),
+                  target_id: graph[neighbor].clone(),
                   ast_node: self.edge_map
                     [&(graph[*node].clone(), graph[neighbor].clone())]
                     .ast_node
                     .clone(),
                   missing: true,
-                  target_module_name: None,
+                  target_metadata: None,
                 });
               }
 
@@ -330,7 +331,7 @@ impl<'a> Graph<'a> {
       Ok(GroupGraphics {
         dictionaries: self.get_dictionaries(),
         graph: result,
-        invalid_syntax_files: invalid_syntax_files.clone(),
+        syntax_errors: invalid_syntax_files.clone(),
       })
     } else {
       bail!("invalid_syntax_files lock failed");
@@ -358,7 +359,7 @@ impl<'a> Graph<'a> {
       let phantom_deps: Vec<Edge> = edges
         .iter()
         .filter_map(|edge| {
-          let target = bin_map.get_by_right(&edge.target)?;
+          let target = bin_map.get_by_right(&edge.target_id)?;
 
           if !target.contains("node_modules") || END_ID == target {
             return None;
@@ -367,6 +368,7 @@ impl<'a> Graph<'a> {
           let res = deps_set.iter().any(|dep| {
             self
               .args
+              .resolve
               .modules
               .iter()
               .any(|m| target.starts_with(&format!("{}/{}/", m, dep)))
@@ -386,7 +388,6 @@ impl<'a> Graph<'a> {
       Ok(Graphics {
         dictionaries: self.get_dictionaries(),
         graph: phantom_deps,
-        invalid_syntax_files: invalid_syntax_files.to_vec(),
         syntax_errors: invalid_syntax_files.to_vec(),
       })
     } else {
@@ -449,7 +450,6 @@ impl<'a> Graph<'a> {
       Ok(Graphics {
         dictionaries,
         graph: result,
-        invalid_syntax_files: invalid_syntax_files.clone(),
         syntax_errors: invalid_syntax_files.clone(),
       })
     } else {
@@ -503,11 +503,11 @@ impl<'a> Graph<'a> {
         .unwrap();
 
       result.push(Edge {
-        source: source.clone(),
-        target: target.clone(),
+        source_id: source.clone(),
+        target_id: target.clone(),
         ast_node: edge.ast_node.clone(),
         missing: edge.missing,
-        target_module_name: edge.target_module_name.clone(),
+        target_metadata: edge.target_metadata.clone(),
       });
 
       self.traverse_neighbors(
@@ -533,7 +533,7 @@ impl<'a> Graph<'a> {
     if let Some(min_pos) = cycle
       .iter()
       .enumerate()
-      .min_by_key(|(_, c)| &c.source)
+      .min_by_key(|(_, c)| &c.source_id)
       .map(|(i, _)| i)
     {
       cycle.rotate_left(min_pos);
@@ -548,19 +548,20 @@ impl<'a> Graph<'a> {
       for edge in edges.iter() {
         let source_node = *self
           .node_index_map
-          .entry(edge.source.clone())
+          .entry(edge.source_id.clone())
           .or_insert_with_key(|key| graph.add_node(key.clone()));
 
         let target_node = *self
           .node_index_map
-          .entry(edge.target.clone())
+          .entry(edge.target_id.clone())
           .or_insert_with_key(|key| graph.add_node(key.clone()));
 
         graph.add_edge(source_node, target_node, ());
 
-        self
-          .edge_map
-          .insert((edge.source.clone(), edge.target.clone()), edge.clone());
+        self.edge_map.insert(
+          (edge.source_id.clone(), edge.target_id.clone()),
+          edge.clone(),
+        );
       }
 
       Ok(graph)
@@ -602,11 +603,11 @@ impl<'a> Graph<'a> {
     ast_node: beans::AstNode,
   ) -> Edge {
     Edge {
-      source: source_id,
-      target: target_id,
+      source_id,
+      target_id,
       ast_node,
       missing: false,
-      target_module_name: None,
+      target_metadata: None,
     }
   }
 }

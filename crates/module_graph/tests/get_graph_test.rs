@@ -6,25 +6,22 @@ use module_graph::{edges::get_graph, model::JsArgs};
 async fn test_get_graph() -> anyhow::Result<()> {
   let current = current_dir()?
     .join("tests")
-    .join("features")
+    .join("fixtures")
     .join("get_graph");
 
   let args = JsArgs {
     cwd: current.to_string_lossy().to_string(),
-    pattern: None,
-    ignore: None,
-    alias: None,
-    modules: None,
+    ..Default::default()
   };
 
-  let graphics = get_graph(args.into())?;
+  let graphics = get_graph(args.try_into().unwrap())?;
 
   let mut edges = graphics
     .graph
     .iter()
     .map(|edges| {
-      let source = graphics.dictionaries.get(&edges.source).unwrap();
-      let target = graphics.dictionaries.get(&edges.target).unwrap();
+      let source = graphics.dictionaries.get(&edges.source_id).unwrap();
+      let target = graphics.dictionaries.get(&edges.target_id).unwrap();
       format!("{} -> {}", source, target)
     })
     .collect::<Vec<_>>();

@@ -5,34 +5,34 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::model::{Graphics, GroupGraphics};
 
-fn rebuild_cycle_order(
-  graph: &DiGraph<String, &crate::model::Edge>,
-  component: &[petgraph::prelude::NodeIndex],
-) -> Vec<petgraph::prelude::NodeIndex> {
-  let mut ordered = Vec::new();
-  let mut current = component[0];
+// fn rebuild_cycle_order(
+//   graph: &DiGraph<String, &crate::model::Edge>,
+//   component: &[petgraph::prelude::NodeIndex],
+// ) -> Vec<petgraph::prelude::NodeIndex> {
+//   let mut ordered = Vec::new();
+//   let mut current = component[0];
 
-  // 使用边的连接关系重建顺序
-  while ordered.len() < component.len() {
-    ordered.push(current);
+//   // 使用边的连接关系重建顺序
+//   while ordered.len() < component.len() {
+//     ordered.push(current);
 
-    // 找到下一个在组件中的邻居节点
-    for edge in graph.edges(current) {
-      let next = edge.target();
-      if component.contains(&next) && !ordered.contains(&next) {
-        current = next;
-        break;
-      }
-    }
-  }
+//     // 找到下一个在组件中的邻居节点
+//     for edge in graph.edges(current) {
+//       let next = edge.target();
+//       if component.contains(&next) && !ordered.contains(&next) {
+//         current = next;
+//         break;
+//       }
+//     }
+//   }
 
-  // 确保循环完整
-  if ordered.len() > 1 {
-    ordered.push(ordered[0]);
-  }
+//   // 确保循环完整
+//   if ordered.len() > 1 {
+//     ordered.push(ordered[0]);
+//   }
 
-  ordered
-}
+//   ordered
+// }
 
 pub fn check_cycle(graphics: Graphics) -> anyhow::Result<GroupGraphics> {
   let len = graphics.graph.len();
@@ -43,20 +43,20 @@ pub fn check_cycle(graphics: Graphics) -> anyhow::Result<GroupGraphics> {
 
   // 1. 添加所有节点
   for edge in graphics.graph.iter() {
-    if !node_indices.contains_key(&edge.source) {
-      let idx = graph.add_node(edge.source.clone());
-      node_indices.insert(edge.source.clone(), idx);
+    if !node_indices.contains_key(&edge.source_id) {
+      let idx = graph.add_node(edge.source_id.clone());
+      node_indices.insert(edge.source_id.clone(), idx);
     }
-    if !node_indices.contains_key(&edge.target) {
-      let idx = graph.add_node(edge.target.clone());
-      node_indices.insert(edge.target.clone(), idx);
+    if !node_indices.contains_key(&edge.target_id) {
+      let idx = graph.add_node(edge.target_id.clone());
+      node_indices.insert(edge.target_id.clone(), idx);
     }
   }
 
   // 2. 添加所有边，同时存储 Edge 引用
   for edge in graphics.graph.iter() {
-    let source_idx = node_indices[&edge.source];
-    let target_idx = node_indices[&edge.target];
+    let source_idx = node_indices[&edge.source_id];
+    let target_idx = node_indices[&edge.target_id];
     graph.add_edge(source_idx, target_idx, edge);
   }
 
@@ -90,8 +90,8 @@ pub fn check_cycle(graphics: Graphics) -> anyhow::Result<GroupGraphics> {
     .collect::<Vec<_>>();
 
   Ok(GroupGraphics {
-    dictionaries: graphics.dictionaries,
     graph: responses,
-    invalid_syntax_files: graphics.invalid_syntax_files,
+    dictionaries: graphics.dictionaries,
+    syntax_errors: graphics.syntax_errors,
   })
 }

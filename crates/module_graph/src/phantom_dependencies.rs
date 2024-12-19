@@ -11,9 +11,9 @@ pub fn check_phantom_dependencies(
     .graph
     .into_iter()
     .filter_map(|edge| {
-      if let Some(target_module_name) = &edge.target_module_name {
+      if let Some(target_metadata) = &edge.target_metadata {
         if let Some(target_module_name) =
-          graphics.dictionaries.get(target_module_name)
+          graphics.dictionaries.get(&target_metadata.module_id)
         {
           if !deps.contains(target_module_name) {
             return Some(edge);
@@ -28,7 +28,6 @@ pub fn check_phantom_dependencies(
   Ok(Graphics {
     dictionaries: graphics.dictionaries,
     graph: edges,
-    invalid_syntax_files: graphics.invalid_syntax_files,
     syntax_errors: graphics.syntax_errors,
   })
 }

@@ -5,7 +5,17 @@ use crate::{Position, Span};
 
 #[napi(object, js_name = "Location")]
 #[derive(
-  Debug, Default, PartialEq, Eq, Hash, Clone, Serialize, Deserialize, Copy,
+  Debug,
+  Default,
+  PartialEq,
+  Eq,
+  Hash,
+  Clone,
+  Serialize,
+  Deserialize,
+  Copy,
+  PartialOrd,
+  Ord,
 )]
 pub struct Location {
   pub start: Position,
