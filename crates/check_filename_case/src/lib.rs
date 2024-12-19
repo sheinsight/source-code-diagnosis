@@ -16,7 +16,7 @@ pub fn check_filename_case(
     |path| {
       let path = pathdiff::diff_paths(path, &args.cwd)?;
 
-      let str = path.display().to_string();
+      let str = utils::win_path_to_unix(path.display().to_string().as_str());
 
       let mut p = vec![];
       let path_str = str.split("/").collect::<Vec<&str>>();
