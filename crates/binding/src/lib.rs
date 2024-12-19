@@ -76,7 +76,7 @@ pub async fn check_phantom_dependencies(
 }
 
 #[napi]
-pub fn check_oxlint(
+pub async fn check_oxlint(
   oxlint_config: String,
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_oxlint::CheckOxlintResponse>> {

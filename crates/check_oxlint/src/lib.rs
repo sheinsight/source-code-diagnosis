@@ -89,6 +89,7 @@ pub fn check_oxlint(
             let file_name = utils::win_path_to_unix(file_name.as_str());
 
             let help = error.help.as_deref().unwrap_or_default().to_string();
+
             let url = error.url.as_deref().unwrap_or_default().to_string();
 
             let severity = match error.severity {
