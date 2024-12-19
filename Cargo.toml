@@ -30,7 +30,6 @@ oxc-browserslist = "1.0.3"
 oxc_resolver = "2.1.1"
 
 tokio = "1.42.0"
-pprof = { version = "0.12", features = ["flamegraph"] }
 log = "0.4.22"
 env_logger = "0.11.5"
 anyhow = "1.0.80"

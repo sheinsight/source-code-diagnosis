@@ -27,6 +27,5 @@ serde = { workspace = true }
 oxc_span = { workspace = true }
 pathdiff = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread","test-util","macros"] }
-pprof = { version = "0.12", features = ["flamegraph"] }
 parking_lot = "0.12.1"
 insta = { workspace = true }
