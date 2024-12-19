@@ -1,10 +1,12 @@
-use std::{fmt::Display, rc::Rc, sync::Arc};
+use std::{fmt::Display, fs::read_to_string, rc::Rc, sync::Arc};
 
 use napi_derive::napi;
+use oxc_allocator::Allocator;
 use oxc_diagnostics::Severity;
 use oxc_linter::{FixKind, LinterBuilder, Oxlintrc};
 use oxc_semantic::SemanticBuilder;
 use serde::Serialize;
+use utils::source_type_from_path;
 
 #[napi(object)]
 #[derive(Debug, Clone, Serialize)]
@@ -49,87 +51,83 @@ pub fn check_oxlint(
 
   let responses = utils::glob_by(
     |path| {
-      let builder = utils::SemanticBuilder::with_file(path).unwrap();
+      if let Ok(source_code) = read_to_string(path) {
+        let allocator = Allocator::default();
 
-      let parse = oxc_parser::Parser::new(
-        &builder.allocator,
-        &builder.source_code,
-        builder.source_type,
-      )
-      .parse();
+        let source_type = source_type_from_path(path);
 
-      let program = builder.allocator.alloc(parse.program);
+        let parse =
+          oxc_parser::Parser::new(&allocator, &source_code, source_type)
+            .parse();
 
-      let semantic = SemanticBuilder::new()
-        .with_check_syntax_error(false)
-        .with_cfg(true)
-        .build(program);
+        let program = allocator.alloc(parse.program);
 
-      let module_record = Arc::new(oxc_linter::ModuleRecord::new(
-        &path,
-        &parse.module_record,
-        &semantic.semantic,
-      ));
+        let semantic = SemanticBuilder::new()
+          .with_check_syntax_error(false)
+          .with_cfg(true)
+          .build(program);
 
-      let semantic = Rc::new(semantic.semantic);
+        let module_record = Arc::new(oxc_linter::ModuleRecord::new(
+          &path,
+          &parse.module_record,
+          &semantic.semantic,
+        ));
 
-      let diagnostics = linter.run(path, semantic, module_record);
+        let semantic = Rc::new(semantic.semantic);
 
-      let responses = diagnostics
-        .into_iter()
-        .map(|d| {
-          let error = d.error;
+        let diagnostics = linter.run(path, semantic, module_record);
 
-          let file_name = pathdiff::diff_paths(path, &args.cwd)
-            .unwrap()
-            .display()
-            .to_string();
+        let responses = diagnostics
+          .into_iter()
+          .map(|d| {
+            let error = d.error;
 
-          let help = error
-            .help
-            .as_ref()
-            .map(|h| h.to_string())
-            .unwrap_or_default();
-          let url = error
-            .url
-            .as_ref()
-            .map(|u| u.to_string())
-            .unwrap_or_default();
+            let file_name = pathdiff::diff_paths(path, &args.cwd)
+              .map(|p| p.display().to_string())
+              .unwrap_or_else(|| path.display().to_string());
 
-          let severity = match error.severity {
-            Severity::Advice => "advice".to_string(),
-            Severity::Warning => "warning".to_string(),
-            Severity::Error => "error".to_string(),
-          };
+            let file_name = utils::win_path_to_unix(file_name.as_str());
 
-          let labels = error
-            .labels
-            .as_ref()
-            .map(|v| {
-              v.iter()
-                .map(|l| CheckOxlintLabelsResponse {
-                  span: CheckOxlintLabelsSpan {
-                    offset: l.offset() as u32,
-                    length: l.len() as u32,
-                  },
-                })
-                .collect::<Vec<_>>()
-            })
-            .unwrap_or_default();
+            let help = error.help.as_deref().unwrap_or_default().to_string();
+            let url = error.url.as_deref().unwrap_or_default().to_string();
 
-          return CheckOxlintResponse {
-            file_name,
-            help,
-            url,
-            severity,
-            code: error.code.to_string(),
-            message: error.message.to_string(),
-            labels: labels,
-          };
-        })
-        .collect::<Vec<_>>();
+            let severity = match error.severity {
+              Severity::Advice => "advice".to_string(),
+              Severity::Warning => "warning".to_string(),
+              Severity::Error => "error".to_string(),
+            };
 
-      Some(responses)
+            let labels = error
+              .labels
+              .as_ref()
+              .map(|v| {
+                v.iter()
+                  .map(|l| CheckOxlintLabelsResponse {
+                    span: CheckOxlintLabelsSpan {
+                      offset: l.offset() as u32,
+                      length: l.len() as u32,
+                    },
+                  })
+                  .collect::<Vec<_>>()
+              })
+              .unwrap_or_default();
+
+            return CheckOxlintResponse {
+              file_name,
+              help,
+              url,
+              severity,
+              code: error.code.to_string(),
+              message: error.message.to_string(),
+              labels: labels,
+            };
+          })
+          .collect::<Vec<_>>();
+
+        Some(responses)
+      }
+
+      None
     },
     &args,
   )?;

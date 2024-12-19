@@ -29,3 +29,7 @@ pub fn is_ts_video(path: &std::path::Path) -> bool {
   }
   false
 }
+
+pub fn win_path_to_unix(path: &str) -> String {
+  path.replace('\\', "/")
+}

@@ -84,7 +84,7 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
         let source_dir_path = path.parent();
 
         let source =
-          win_path_to_unix(&source_path.to_string_lossy().to_string());
+          utils::win_path_to_unix(&source_path.to_string_lossy().to_string());
 
         if !ret.errors.is_empty() {
           syntax_errors
@@ -112,8 +112,9 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
                 let target_path =
                   pathdiff::diff_paths(resolved.full_path(), cwd_path)?;
 
-                let target =
-                  win_path_to_unix(&target_path.to_string_lossy().to_string());
+                let target = utils::win_path_to_unix(
+                  &target_path.to_string_lossy().to_string(),
+                );
 
                 let target_metadata = may_be_node_modules(&target);
 
@@ -252,10 +253,6 @@ fn may_be_node_modules(target: &str) -> Option<TargetMetadata> {
   }
 
   None
-}
-
-fn win_path_to_unix(path: &str) -> String {
-  path.replace('\\', "/")
 }
 
 fn get_main_module_name(module_name: &str) -> String {
