@@ -80,8 +80,7 @@ pub async fn check_oxlint(
   oxlint_config: String,
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_oxlint::CheckOxlintResponse>> {
-  check_oxlint::check_oxlint(oxlint_config, args.into())
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+  check_oxlint::check_oxlint(oxlint_config, args.into()).map_err(to_napi_error)
 }
 
 #[napi]
@@ -90,7 +89,7 @@ pub fn check_danger_strings(
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_danger_string::CheckDangerResponse>> {
   check_danger_string::check_danger_strings(danger_strings, args.into())
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+    .map_err(to_napi_error)
 }
 
 #[napi]
@@ -99,15 +98,14 @@ pub fn check_module_member_usage(
   args: GlobJsArgs,
 ) -> Result<Vec<module_member_usage::ModuleMemberUsageResponse>> {
   module_member_usage::check_module_member_usage(npm_name_vec, args.into())
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+    .map_err(to_napi_error)
 }
 
 #[napi]
 pub fn check_filename_case(
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_filename_case::CheckFilenameCaseResponse>> {
-  check_filename_case::check_filename_case(args.into())
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+  check_filename_case::check_filename_case(args.into()).map_err(to_napi_error)
 }
 
 #[napi]
@@ -116,7 +114,7 @@ pub fn check_browser_supported(
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_browser_supported::CompatBox>> {
   check_browser_supported::check_browser_supported(target, args.into())
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+    .map_err(to_napi_error)
 }
 
 #[napi]
@@ -128,15 +126,14 @@ pub fn check_browser_supported_with_source_code(
     target,
     source_code,
   )
-  .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+  .map_err(to_napi_error)
 }
 
 #[napi]
 pub fn check_syntax(
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_syntax::CheckSyntaxResponse>> {
-  check_syntax::check_syntax(args.into())
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+  check_syntax::check_syntax(args.into()).map_err(to_napi_error)
 }
 
 // #[napi]
@@ -167,5 +164,5 @@ pub fn check_danger_jsx_props(
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_danger_jsx_props::CheckDangerJsxPropsResponse>> {
   check_danger_jsx_props::check_danger_jsx_props(danger_jsx_props, args.into())
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
+    .map_err(to_napi_error)
 }
