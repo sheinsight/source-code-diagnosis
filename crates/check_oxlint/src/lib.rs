@@ -125,9 +125,9 @@ pub fn check_oxlint(
           .collect::<Vec<_>>();
 
         Some(responses)
+      } else {
+        None
       }
-
-      None
     },
     &args,
   )?;
