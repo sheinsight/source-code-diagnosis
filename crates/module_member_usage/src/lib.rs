@@ -1,7 +1,7 @@
 use anyhow::Result;
 use handler::ModuleMemberUsageHandler;
-use utils::GlobArgs;
 use utils::{glob_by_path, SemanticBuilder};
+use utils::{glob_by_semantic, GlobArgs};
 
 mod handler;
 mod response;

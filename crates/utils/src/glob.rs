@@ -1,8 +1,7 @@
-use anyhow::Result;
 use napi_derive::napi;
 use oxc_allocator::Allocator;
 use oxc_parser::{Parser, ParserReturn};
-use oxc_semantic::{Semantic, SemanticBuilder, SemanticBuilderReturn};
+use oxc_semantic::{Semantic, SemanticBuilder};
 use rayon::prelude::*;
 use std::path::{Path, PathBuf};
 use wax::Glob;
@@ -43,7 +42,10 @@ pub struct GlobJsArgs {
   pub cwd: String,
 }
 
-pub fn glob_by_path<'a, F, T>(handler_fn: F, args: &GlobArgs) -> Result<Vec<T>>
+pub fn glob_by_path<'a, F, T>(
+  handler_fn: F,
+  args: &GlobArgs,
+) -> anyhow::Result<Vec<T>>
 where
   F: Fn(&Path) -> Option<T> + Send + Sync + 'a,
   T: Send + 'a,
@@ -82,6 +84,7 @@ pub struct GlobSuccessHandler<'a> {
   pub semantic: Semantic<'a>,
   pub parse: ParserReturn<'a>,
   pub path: PathBuf,
+  pub dir: PathBuf,
   pub absolute_path: String,
   pub relative_path: String,
 }
@@ -97,7 +100,7 @@ pub fn glob_by_semantic<'a, F, E, T>(
   handler_fn: F,
   err_handler_fn: E,
   args: &GlobArgs,
-) -> Result<Vec<T>>
+) -> anyhow::Result<Vec<T>>
 where
   F: Fn(GlobSuccessHandler) -> Option<T> + Send + Sync + 'a,
   E: Fn(GlobErrorHandler) -> Option<T> + Send + Sync + 'a,
@@ -127,7 +130,7 @@ where
       }
 
       let relative_path = pathdiff::diff_paths(path, &args.cwd)?;
-      let absolute_path = path.display().to_string();
+      let absolute_path = win_path_to_unix(path.display().to_string().as_str());
 
       let relative_path_str =
         win_path_to_unix(relative_path.display().to_string().as_str());
@@ -165,6 +168,8 @@ where
 
       let semantic_return = SemanticBuilder::new()
         .with_check_syntax_error(false)
+        // TODO 很多场景下是不需要开启的，只有 oxlint 下需要开启，这可能对性能会产生一定的影响
+        .with_cfg(true)
         .build(program);
 
       if !semantic_return.errors.is_empty() {
@@ -176,9 +181,22 @@ where
         });
       }
 
+      let dir = match path.parent() {
+        Some(parent) => parent.to_path_buf(),
+        None => {
+          return err_handler_fn(GlobErrorHandler {
+            path: path.to_path_buf(),
+            absolute_path,
+            relative_path: relative_path_str,
+            error: format!("获取父目录失败: {:?}", path),
+          })
+        }
+      };
+
       let handler = GlobSuccessHandler {
         parse,
         path: path.to_path_buf(),
+        dir,
         semantic: semantic_return.semantic,
         absolute_path,
         relative_path: relative_path_str,

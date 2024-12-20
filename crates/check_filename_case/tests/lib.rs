@@ -3,7 +3,7 @@ use utils::{GlobArgs, GlobJsArgs};
 
 #[test]
 fn test_check_filename_case() -> anyhow::Result<()> {
-  let cwd = std::env::current_dir()?;
+  let cwd = std::env::current_dir()?.join("tests").join("fixtures");
 
   let args = GlobArgs::from(GlobJsArgs {
     cwd: cwd.to_string_lossy().to_string(),

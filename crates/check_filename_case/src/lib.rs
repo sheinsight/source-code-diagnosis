@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use napi_derive::napi;
-use utils::glob_by_path;
+use utils::{glob_by_semantic, GlobErrorHandler, GlobSuccessHandler};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[napi(object)]
@@ -12,14 +12,10 @@ pub struct CheckFilenameCaseResponse {
 pub fn check_filename_case(
   args: utils::GlobArgs,
 ) -> anyhow::Result<Vec<CheckFilenameCaseResponse>> {
-  let res = glob_by_path(
-    |path| {
-      let path = pathdiff::diff_paths(path, &args.cwd)?;
-
-      let str = utils::win_path_to_unix(path.display().to_string().as_str());
-
+  let res = glob_by_semantic(
+    |GlobSuccessHandler { relative_path, .. }| {
       let mut p = vec![];
-      let path_str = str.split("/").collect::<Vec<&str>>();
+      let path_str = relative_path.split("/").collect::<Vec<&str>>();
       let len = path_str.len();
       for (index, part) in path_str.into_iter().enumerate() {
         p.push(part);
@@ -37,6 +33,7 @@ pub fn check_filename_case(
 
       return None;
     },
+    |GlobErrorHandler { .. }| None,
     &args,
   )?;
 

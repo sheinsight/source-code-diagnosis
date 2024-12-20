@@ -14,7 +14,9 @@ use log::debug;
 use napi::Error;
 use napi_derive::napi;
 
-use utils::{glob_by_path, SemanticBuilder};
+use utils::{
+  glob_by_semantic, GlobErrorHandler, GlobSuccessHandler, SemanticBuilder,
+};
 
 fn get_version_list<'a>(
   browser_list: &'a Vec<Distrib>,
@@ -250,11 +252,13 @@ pub fn check_browser_supported(
     }
   }
 
-  let responses = glob_by_path(
-    |path| {
+  let responses = glob_by_semantic(
+    |GlobSuccessHandler {
+       relative_path,
+       semantic,
+       ..
+     }| {
       let mut used: Vec<CompatBox> = Vec::new();
-      let builder = SemanticBuilder::with_file(&path).unwrap();
-      let semantic = builder.build().unwrap();
       for node in semantic.nodes().iter() {
         for compat_handler in compat_handlers.iter() {
           if compat_handler.handle(
@@ -270,18 +274,52 @@ pub fn check_browser_supported(
             used.push(CompatBox::new(
               ast_node,
               compat_handler.get_compat().clone(),
-              path.to_str().unwrap().to_string(),
+              relative_path.to_string(),
             ));
           }
         }
       }
       Some(used)
     },
+    |GlobErrorHandler { .. }| None,
     &args,
   )?
   .into_iter()
   .flatten()
   .collect();
+
+  // let responses = glob_by_path(
+  //   |path| {
+  //     let mut used: Vec<CompatBox> = Vec::new();
+  //     let builder = SemanticBuilder::with_file(&path).unwrap();
+  //     let semantic = builder.build().unwrap();
+  //     for node in semantic.nodes().iter() {
+  //       for compat_handler in compat_handlers.iter() {
+  //         if compat_handler.handle(
+  //           semantic.source_text(),
+  //           node,
+  //           semantic.nodes(),
+  //         ) {
+  //           let ast_node = beans::AstNode::with_source_and_ast_node(
+  //             semantic.source_text(),
+  //             node,
+  //           );
+
+  //           used.push(CompatBox::new(
+  //             ast_node,
+  //             compat_handler.get_compat().clone(),
+  //             path.to_str().unwrap().to_string(),
+  //           ));
+  //         }
+  //       }
+  //     }
+  //     Some(used)
+  //   },
+  //   &args,
+  // )?
+  // .into_iter()
+  // .flatten()
+  // .collect();
 
   Ok(responses)
 }

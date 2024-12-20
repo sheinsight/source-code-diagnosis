@@ -32,6 +32,8 @@ fn test_check_cycle() -> anyhow::Result<()> {
     })
     .collect::<Vec<_>>();
 
+  println!("snap----->>> : {:?}", snap);
+
   snap.sort();
 
   insta::assert_snapshot!("{}", snap.join("\n -------------------- \n"));

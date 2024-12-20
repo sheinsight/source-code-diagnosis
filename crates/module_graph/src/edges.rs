@@ -1,5 +1,4 @@
 use std::{
-  fs::read_to_string,
   path::Path,
   sync::{
     atomic::{AtomicU32, Ordering},
@@ -9,11 +8,9 @@ use std::{
 
 use beans::AstNode;
 use bimap::BiMap;
-use oxc_allocator::Allocator;
-use oxc_parser::Parser;
 use oxc_resolver::{AliasValue, ResolveContext, ResolveOptions, Resolver};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use utils::{glob_by_path, source_type_from_path, GlobArgs};
+use utils::{glob_by_semantic, GlobArgs, GlobErrorHandler, GlobSuccessHandler};
 
 use crate::model::{Args, Edge, Graphics, TargetMetadata};
 
@@ -49,18 +46,7 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
     ],
     symlinks: false,
     main_fields: vec!["module".into(), "main".into()],
-    extensions: vec![
-      ".js".into(),
-      ".jsx".into(),
-      ".ts".into(),
-      ".tsx".into(),
-      ".json".into(),
-      ".node".into(),
-      ".css".into(),
-      ".scss".into(),
-      ".less".into(),
-      ".d.ts".into(),
-    ],
+    extensions: args.resolve.extensions,
     ..ResolveOptions::default()
   };
 
@@ -71,92 +57,64 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
 
   let syntax_errors = Arc::new(parking_lot::Mutex::new(Vec::new()));
 
-  let responses = glob_by_path(
-    |path| {
-      let allocator = Allocator::default();
+  let responses = glob_by_semantic(
+    |GlobSuccessHandler {
+       parse,
+       dir,
+       relative_path,
+       semantic,
+       ..
+     }| {
+      let source_text = semantic.source_text();
 
-      if let Ok(source_text) = read_to_string(path) {
-        let source_type = source_type_from_path(path);
-        let ret = Parser::new(&allocator, &source_text, source_type).parse();
+      let res: Vec<Edge> = parse
+        .module_record
+        .import_entries
+        .par_iter()
+        .filter_map(|item| {
+          let item = &item.module_request;
+          let name_str = item.name.to_string();
 
-        let source_path = pathdiff::diff_paths(path, cwd_path)?;
+          let resolved = resolver.resolve_with_context(
+            &dir,
+            &name_str,
+            &mut shared_context.lock(),
+          );
 
-        let source_dir_path = path.parent();
+          if let Ok(resolved) = resolved {
+            let target_path =
+              pathdiff::diff_paths(resolved.full_path(), cwd_path)?;
 
-        let source =
-          utils::win_path_to_unix(&source_path.to_string_lossy().to_string());
+            let target = utils::win_path_to_unix(
+              &target_path.to_string_lossy().to_string(),
+            );
 
-        if !ret.errors.is_empty() {
-          syntax_errors
-            .lock()
-            .push(path.to_string_lossy().to_string());
-          return None;
-        }
-
-        let res: Vec<Edge> = ret
-          .module_record
-          .import_entries
-          .par_iter()
-          .filter_map(|item| {
-            let item = &item.module_request;
-            let name_str = item.name.to_string();
-
-            if let Some(source_dir_path) = source_dir_path {
-              let resolved = resolver.resolve_with_context(
-                &source_dir_path,
-                &name_str,
-                &mut shared_context.lock(),
-              );
-
-              if let Ok(resolved) = resolved {
-                let target_path =
-                  pathdiff::diff_paths(resolved.full_path(), cwd_path)?;
-
-                let target = utils::win_path_to_unix(
-                  &target_path.to_string_lossy().to_string(),
-                );
-
-                let target_metadata = may_be_node_modules(&target);
-
-                return Some(Edge {
-                  source_id: source.clone(),
-                  target_id: target,
-                  missing: false,
-                  target_metadata,
-                  ast_node: AstNode::with_source_and_span(
-                    &source_text,
-                    &item.span,
-                  ),
-                });
-              } else {
-                let target_metadata = may_be_node_modules(&name_str);
-
-                return Some(Edge {
-                  source_id: source.clone(),
-                  target_id: name_str,
-                  missing: true,
-                  target_metadata,
-                  ast_node: AstNode::with_source_and_span(
-                    &source_text,
-                    &item.span,
-                  ),
-                });
-              }
-            }
+            let target_metadata = may_be_node_modules(&target);
 
             return Some(Edge {
-              source_id: source.clone(),
-              target_id: name_str,
-              missing: true,
-              target_metadata: None,
+              source_id: relative_path.clone(),
+              target_id: target,
+              missing: false,
+              target_metadata,
               ast_node: AstNode::with_source_and_span(&source_text, &item.span),
             });
-          })
-          .collect();
-        Some(res)
-      } else {
-        None
-      }
+          } else {
+            let target_metadata = may_be_node_modules(&name_str);
+
+            return Some(Edge {
+              source_id: relative_path.clone(),
+              target_id: name_str,
+              missing: true,
+              target_metadata,
+              ast_node: AstNode::with_source_and_span(&source_text, &item.span),
+            });
+          }
+        })
+        .collect();
+      Some(res)
+    },
+    |GlobErrorHandler { .. }| {
+      return None;
     },
     &glob_args,
   )?
