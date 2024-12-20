@@ -1,0 +1,33 @@
+---
+source: crates/check_danger_string/tests/lib_test.rs
+expression: result
+snapshot_kind: text
+---
+[
+    CheckDangerResponse {
+        file_path: "index.jsx",
+        items: [
+            CheckDangerResponseItem {
+                raw_value: "taobao.com",
+                match_danger_string: "taobao.com",
+                ast_node: AstNode {
+                    span: Span {
+                        start: 0,
+                        end: 12,
+                    },
+                    loc: Location {
+                        start: Position {
+                            line: 1,
+                            col: 1,
+                        },
+                        end: Position {
+                            line: 1,
+                            col: 13,
+                        },
+                    },
+                },
+            },
+        ],
+        errors: [],
+    },
+]

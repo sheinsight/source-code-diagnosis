@@ -4,7 +4,7 @@ expression: response.to_string()
 snapshot_kind: text
 ---
 {
-  "path": "a.jsx",
+  "file_path": "a.jsx",
   "items": [
     {
       "name": "data-if",

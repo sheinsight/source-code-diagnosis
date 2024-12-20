@@ -84,7 +84,16 @@ pub async fn check_oxlint(
 }
 
 #[napi]
-pub fn check_danger_strings(
+pub async fn check_danger_jsx_props(
+  danger_jsx_props: Vec<String>,
+  args: utils::GlobJsArgs,
+) -> Result<Vec<check_danger_jsx_props::CheckDangerJsxPropsResponse>> {
+  check_danger_jsx_props::check_danger_jsx_props(danger_jsx_props, args.into())
+    .map_err(to_napi_error)
+}
+
+#[napi]
+pub async fn check_danger_strings(
   danger_strings: Vec<String>,
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_danger_string::CheckDangerResponse>> {
@@ -134,35 +143,4 @@ pub fn check_syntax(
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_syntax::CheckSyntaxResponse>> {
   check_syntax::check_syntax(args.into()).map_err(to_napi_error)
-}
-
-// #[napi]
-// pub fn check_dependents(
-//   file: String,
-//   args: module_graph::model::JsArgs,
-// ) -> Result<module_graph::model::Graphics> {
-//   let mut graph = module_graph::graph::Graph::new(args.into());
-//   graph
-//     .check_dependents(file)
-//     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
-// }
-
-// #[napi]
-// pub fn check_dependencies(
-//   file: String,
-//   args: module_graph::model::JsArgs,
-// ) -> Result<module_graph::model::Graphics> {
-//   let mut graph = module_graph::graph::Graph::new(args.into());
-//   graph
-//     .check_dependencies(file)
-//     .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e.to_string()))
-// }
-
-#[napi]
-pub fn check_danger_jsx_props(
-  danger_jsx_props: Vec<String>,
-  args: utils::GlobJsArgs,
-) -> Result<Vec<check_danger_jsx_props::CheckDangerJsxPropsResponse>> {
-  check_danger_jsx_props::check_danger_jsx_props(danger_jsx_props, args.into())
-    .map_err(to_napi_error)
 }
