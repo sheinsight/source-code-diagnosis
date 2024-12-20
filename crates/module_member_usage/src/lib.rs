@@ -1,7 +1,7 @@
 use anyhow::Result;
 use handler::ModuleMemberUsageHandler;
 use utils::GlobArgs;
-use utils::{glob_by, SemanticBuilder};
+use utils::{glob_by_path, SemanticBuilder};
 
 mod handler;
 mod response;
@@ -11,7 +11,7 @@ pub fn check_module_member_usage(
   npm_name_vec: Vec<String>,
   args: GlobArgs,
 ) -> Result<Vec<ModuleMemberUsageResponse>> {
-  let responses = glob_by(
+  let responses = glob_by_path(
     |path| {
       let builder = SemanticBuilder::with_file(&path).unwrap();
 

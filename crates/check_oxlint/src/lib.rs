@@ -49,7 +49,7 @@ pub fn check_oxlint(
     .with_fix(FixKind::None)
     .build();
 
-  let responses = utils::glob_by(
+  let responses = utils::glob_by_path(
     |path| {
       if let Ok(source_code) = read_to_string(path) {
         let allocator = Allocator::default();

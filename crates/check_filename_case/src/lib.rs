@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use napi_derive::napi;
-use utils::glob_by;
+use utils::glob_by_path;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[napi(object)]
@@ -12,7 +12,7 @@ pub struct CheckFilenameCaseResponse {
 pub fn check_filename_case(
   args: utils::GlobArgs,
 ) -> anyhow::Result<Vec<CheckFilenameCaseResponse>> {
-  let res = glob_by(
+  let res = glob_by_path(
     |path| {
       let path = pathdiff::diff_paths(path, &args.cwd)?;
 

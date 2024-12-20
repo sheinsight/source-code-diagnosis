@@ -1,5 +1,5 @@
 use napi_derive::napi;
-use utils::{glob_by, GlobArgs};
+use utils::{glob_by_path, GlobArgs};
 
 #[derive(Debug, Clone)]
 #[napi(object, js_name = "CheckSyntaxResponse")]
@@ -11,7 +11,7 @@ pub struct CheckSyntaxResponse {
 pub fn check_syntax(
   args: GlobArgs,
 ) -> anyhow::Result<Vec<CheckSyntaxResponse>> {
-  let responses = glob_by(
+  let responses = glob_by_path(
     |path| {
       let builder = utils::SemanticBuilder::with_file(path);
 

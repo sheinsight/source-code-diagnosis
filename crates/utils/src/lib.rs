@@ -6,7 +6,10 @@ use std::{
   io::{BufReader, Read},
 };
 
-pub use glob::{glob_by, GlobArgs, GlobJsArgs};
+pub use glob::{
+  glob_by_path, glob_by_semantic, GlobArgs, GlobErrorHandler, GlobJsArgs,
+  GlobSuccessHandler,
+};
 pub use semantic_builder::{
   source_type_from_path, SemanticBuilder, SemanticHandler,
 };

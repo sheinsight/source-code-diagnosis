@@ -2078,6 +2078,7 @@ dependencies = [
  "oxc_parser",
  "oxc_semantic",
  "oxc_span",
+ "pathdiff",
  "rayon",
  "ropey",
  "wax",

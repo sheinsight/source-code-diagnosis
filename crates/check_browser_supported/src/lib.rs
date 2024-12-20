@@ -14,7 +14,7 @@ use log::debug;
 use napi::Error;
 use napi_derive::napi;
 
-use utils::{glob_by, SemanticBuilder};
+use utils::{glob_by_path, SemanticBuilder};
 
 fn get_version_list<'a>(
   browser_list: &'a Vec<Distrib>,
@@ -250,7 +250,7 @@ pub fn check_browser_supported(
     }
   }
 
-  let responses = glob_by(
+  let responses = glob_by_path(
     |path| {
       let mut used: Vec<CompatBox> = Vec::new();
       let builder = SemanticBuilder::with_file(&path).unwrap();

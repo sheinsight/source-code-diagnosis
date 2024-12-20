@@ -13,7 +13,7 @@ use oxc_allocator::Allocator;
 use oxc_parser::Parser;
 use oxc_resolver::{AliasValue, ResolveContext, ResolveOptions, Resolver};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use utils::{glob_by, source_type_from_path, GlobArgs};
+use utils::{glob_by_path, source_type_from_path, GlobArgs};
 
 use crate::model::{Args, Edge, Graphics, TargetMetadata};
 
@@ -71,7 +71,7 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
 
   let syntax_errors = Arc::new(parking_lot::Mutex::new(Vec::new()));
 
-  let responses = glob_by(
+  let responses = glob_by_path(
     |path| {
       let allocator = Allocator::default();
 

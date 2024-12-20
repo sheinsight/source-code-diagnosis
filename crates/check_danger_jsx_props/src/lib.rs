@@ -1,12 +1,9 @@
 use std::fmt::Display;
 
 use napi_derive::napi;
-use oxc_allocator::Allocator;
 use oxc_ast::{AstKind, ast::JSXAttributeItem};
-use oxc_parser::Parser;
-use oxc_semantic::SemanticBuilder;
 use serde::Serialize;
-use utils::source_type_from_path;
+use utils::{GlobErrorHandler, GlobSuccessHandler};
 
 #[derive(Debug, Clone, Serialize)]
 #[napi(object)]
@@ -33,47 +30,12 @@ pub fn check_danger_jsx_props(
   danger_jsx_props: Vec<String>,
   args: utils::GlobArgs,
 ) -> anyhow::Result<Vec<CheckDangerJsxPropsResponse>> {
-  let responses = utils::glob_by(
-    |path| {
-      let relative_path = pathdiff::diff_paths(path, &args.cwd)?;
-
-      let relative_path_str =
-        utils::win_path_to_unix(relative_path.display().to_string().as_str());
-
-      let source_code = match std::fs::read_to_string(path) {
-        Ok(content) => content,
-        Err(err) => {
-          return Some(CheckDangerJsxPropsResponse {
-            file_path: relative_path_str,
-            items: vec![],
-            errors: vec![format!("文件读取错误: {}", err)],
-          });
-        }
-      };
-
-      let allocator = Allocator::default();
-      let source_type = source_type_from_path(path);
-
-      let parser = Parser::new(&allocator, &source_code, source_type);
-      let parse = parser.parse();
-
-      if !parse.errors.is_empty() {
-        eprintln!("parse error: {:?}", parse.errors);
-        return Some(CheckDangerJsxPropsResponse {
-          file_path: relative_path_str,
-          items: vec![],
-          errors: vec![format!("解析错误: {:?}", parse.errors)],
-        });
-      }
-
-      let program = allocator.alloc(parse.program);
-
-      let semantic_return = SemanticBuilder::new()
-        .with_check_syntax_error(false)
-        .build(program);
-
-      let semantic = semantic_return.semantic;
-
+  let responses = utils::glob_by_semantic(
+    |GlobSuccessHandler {
+       semantic,
+       relative_path,
+       ..
+     }| {
       let responses = semantic
         .nodes()
         .into_iter()
@@ -99,10 +61,21 @@ pub fn check_danger_jsx_props(
         })
         .collect::<Vec<_>>();
       Some(CheckDangerJsxPropsResponse {
-        file_path: relative_path_str,
+        file_path: relative_path,
         items: responses,
         errors: vec![],
       })
+    },
+    |GlobErrorHandler {
+       relative_path,
+       error,
+       ..
+     }| {
+      return Some(CheckDangerJsxPropsResponse {
+        file_path: relative_path,
+        items: vec![],
+        errors: vec![error],
+      });
     },
     &args,
   )?;
