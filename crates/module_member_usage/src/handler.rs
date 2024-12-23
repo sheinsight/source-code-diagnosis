@@ -2,7 +2,10 @@ use std::path::Path;
 
 use beans::AstNode;
 use oxc_ast::{
-  ast::{Expression, ImportDeclarationSpecifier, JSXOpeningElement},
+  ast::{
+    BindingIdentifier, Expression, ImportDeclarationSpecifier,
+    JSXOpeningElement,
+  },
   AstKind,
 };
 
@@ -16,6 +19,7 @@ use super::response::ModuleMemberUsageResponse;
 static ES_NAMESPACE: &str = "ES:NAMESPACE";
 static ES_DEFAULT: &str = "ES:DEFAULT";
 static SIDE_EFFECTS: &str = "ES:SIDE_EFFECTS";
+static EMPTY_SPECIFIERS: &str = "EMPTY_SPECIFIERS";
 static DYNAMIC_COMPUTED_MEMBER: &str = "ES:DYNAMIC_COMPUTED_MEMBER";
 static UNKNOWN: &str = "UNKNOWN";
 static NOT_IMPLEMENTED: &str = "NOT_IMPLEMENTED";
@@ -41,144 +45,135 @@ impl<'a> ModuleMemberUsageHandler<'a> {
   }
 
   pub fn handle(&self) -> Vec<ModuleMemberUsageResponse> {
-    let mut inline_usages: Vec<ModuleMemberUsageResponse> = Vec::new();
+    process(
+      &self.semantic_handler.semantic,
+      &self.npm_name_vec,
+      &self.path_str,
+    )
+  }
+}
 
-    let nodes = self.semantic_handler.semantic.nodes();
-
-    for node in nodes.iter() {
-      let kind = node.kind();
-      let decl = match kind {
+pub fn process<'a>(
+  semantic: &'a Semantic,
+  npm_name_vec: &Vec<String>,
+  relative_path: &str,
+) -> Vec<ModuleMemberUsageResponse> {
+  semantic
+    .nodes()
+    .iter()
+    .filter_map(|node| {
+      let decl = match node.kind() {
         AstKind::ImportDeclaration(decl) => decl,
-        _ => continue,
+        _ => {
+          return None;
+        }
       };
 
-      let source_name = decl.source.value.as_str();
+      let source_name = decl.source.value.as_str().to_string();
 
-      if !self.npm_name_vec.contains(&source_name.to_string()) {
-        continue;
+      if !npm_name_vec.contains(&source_name) {
+        return None;
       }
+
+      let ast_node =
+        beans::AstNode::with_source_and_ast_node(semantic.source_text(), node);
 
       let specifiers = match decl.specifiers {
         Some(ref specs) => specs,
         None => {
-          let ast_node = beans::AstNode::with_source_and_ast_node(
-            self.semantic_handler.semantic.source_text(),
-            node,
-          );
-
-          inline_usages.push(ModuleMemberUsageResponse {
-            lib_name: source_name.to_string(),
+          return Some(vec![ModuleMemberUsageResponse {
+            lib_name: source_name,
             member_name: SIDE_EFFECTS.to_string(),
-            file_path: self.path_str.clone(),
+            file_path: relative_path.to_string(),
             ast_node,
             props: vec![],
-          });
-          continue;
+          }]);
         }
       };
 
       if specifiers.is_empty() {
-        continue;
+        return Some(vec![ModuleMemberUsageResponse {
+          lib_name: source_name,
+          member_name: EMPTY_SPECIFIERS.to_string(),
+          file_path: relative_path.to_string(),
+          ast_node,
+          props: vec![],
+        }]);
       }
 
-      for specifier in specifiers {
-        let imported_name = match specifier {
-          ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
-            import_specifier.imported.name().as_str()
-          }
-          ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => ES_DEFAULT,
-          ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => {
-            ES_NAMESPACE
-          }
-        };
+      let responses =
+        each_specifiers(semantic, &source_name, &relative_path, specifiers);
 
-        let is_specifier = is_default_specifier(specifier);
+      Some(responses)
+    })
+    .flatten()
+    .collect()
+}
 
-        let references = self
-          .semantic_handler
-          .get_symbol_references(specifier.local());
-
-        for reference in references {
-          // let (reference_node, span, loc) =
-          //   self.semantic_handler.get_reference_node_box(reference);
-
-          let reference_node =
-            get_reference_node(&self.semantic_handler.semantic, reference);
-
+fn each_specifiers<'a>(
+  semantic: &'a Semantic,
+  source_name: &str,
+  relative_path: &str,
+  specifiers: &oxc_allocator::Vec<ImportDeclarationSpecifier<'a>>,
+) -> Vec<ModuleMemberUsageResponse> {
+  let responses = specifiers
+    .iter()
+    .map(|spec| {
+      let imported_name = match spec {
+        ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
+          import_specifier.imported.name().as_str()
+        }
+        ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => ES_DEFAULT,
+        ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => ES_NAMESPACE,
+      };
+      let is_default_specifier = is_default_specifier(spec);
+      let references = get_symbol_references(semantic, spec.local());
+      let responses = references
+        .iter()
+        .filter_map(|refer| {
+          let reference_node = get_reference_node(semantic, refer);
           let ast_node = AstNode::with_source_and_ast_node(
-            self.semantic_handler.semantic.source_text(),
+            semantic.source_text(),
             reference_node,
           );
-
-          let is_in_closing =
-            is_in(&self.semantic_handler.semantic, reference_node, 6, |kind| {
-              matches!(kind, AstKind::JSXClosingElement(_))
-            })
-            .is_some();
+          let is_in_closing = is_in(&semantic, reference_node, 6, |kind| {
+            matches!(kind, AstKind::JSXClosingElement(_))
+          })
+          .is_some();
 
           if is_in_closing {
-            continue;
+            return None;
           }
 
-          let opening_node =
-            is_in(&self.semantic_handler.semantic, reference_node, 6, |kind| {
-              matches!(kind, AstKind::JSXOpeningElement(_))
-            });
+          let opening_node = is_in(&semantic, reference_node, 6, |kind| {
+            matches!(kind, AstKind::JSXOpeningElement(_))
+          });
 
-          // jsx opening element
           if let Some(AstKind::JSXOpeningElement(kind)) =
             opening_node.map(|node| node.kind())
           {
-            let name = match &kind.name {
-              oxc_ast::ast::JSXElementName::Identifier(ident) => {
-                ident.name.to_string()
-              }
-              oxc_ast::ast::JSXElementName::IdentifierReference(ident_ref) => {
-                ident_ref.name.to_string()
-              }
-              oxc_ast::ast::JSXElementName::NamespacedName(namespace_name) => {
-                namespace_name.property.name.to_string()
-              }
-              oxc_ast::ast::JSXElementName::MemberExpression(
-                jsx_member_expr,
-              ) => {
-                if is_specifier {
-                  imported_name.to_string()
-                } else {
-                  match &jsx_member_expr.object {
-                    oxc_ast::ast::JSXMemberExpressionObject::IdentifierReference(_) => {
-                      jsx_member_expr.property.name.to_string()
-                    },
-                    oxc_ast::ast::JSXMemberExpressionObject::MemberExpression(jsx_member_expression) => {
-                      jsx_member_expression.property.name.to_string()
-                    },
-                    oxc_ast::ast::JSXMemberExpressionObject::ThisExpression(_) => continue,
-                  }
-                }
-              }
-              oxc_ast::ast::JSXElementName::ThisExpression(_) => {
-                continue;
-              }
-            };
+            let name = get_jsx_opening_element_name(
+              kind,
+              is_default_specifier,
+              imported_name,
+            );
 
             let attributes = get_jsx_props(kind);
 
-            inline_usages.push(ModuleMemberUsageResponse {
+            return Some(ModuleMemberUsageResponse {
               lib_name: source_name.to_string(),
               member_name: name.to_string(),
-              file_path: self.path_str.clone(),
+              file_path: relative_path.to_string(),
               ast_node: ast_node,
               props: attributes,
             });
-            continue;
           }
 
           let member_parent_node =
-            is_in(&self.semantic_handler.semantic, reference_node, 2, |kind| {
+            is_in(&semantic, reference_node, 2, |kind| {
               matches!(kind, AstKind::MemberExpression(_))
             });
 
-          // member element
           if let Some(AstKind::MemberExpression(kind)) =
             member_parent_node.map(|node| node.kind())
           {
@@ -203,28 +198,73 @@ impl<'a> ModuleMemberUsageHandler<'a> {
                 private_field_expression,
               ) => private_field_expression.field.name.to_string(),
             };
-            inline_usages.push(ModuleMemberUsageResponse {
+            return Some(ModuleMemberUsageResponse {
               lib_name: source_name.to_string(),
               member_name: name.to_string(),
-              file_path: self.path_str.clone(),
+              file_path: relative_path.to_string(),
               ast_node: ast_node,
               props: vec![],
             });
-            continue;
           }
 
-          inline_usages.push(ModuleMemberUsageResponse {
+          return Some(ModuleMemberUsageResponse {
             lib_name: source_name.to_string(),
             member_name: imported_name.to_string(),
-            file_path: self.path_str.clone(),
+            file_path: relative_path.to_string(),
             ast_node: ast_node,
             props: vec![],
           });
+        })
+        .collect::<Vec<_>>();
+      return responses;
+    })
+    .flatten()
+    .collect::<Vec<_>>();
+  return responses;
+}
+
+fn get_jsx_opening_element_name(
+  kind: &JSXOpeningElement,
+  is_default_specifier: bool,
+  imported_name: &str,
+) -> String {
+  match &kind.name {
+    oxc_ast::ast::JSXElementName::Identifier(ident) => ident.name.to_string(),
+    oxc_ast::ast::JSXElementName::IdentifierReference(ident_ref) => {
+      ident_ref.name.to_string()
+    }
+    oxc_ast::ast::JSXElementName::NamespacedName(namespace_name) => {
+      namespace_name.property.name.to_string()
+    }
+    oxc_ast::ast::JSXElementName::MemberExpression(jsx_member_expr) => {
+      if is_default_specifier {
+        imported_name.to_string()
+      } else {
+        match &jsx_member_expr.object {
+          oxc_ast::ast::JSXMemberExpressionObject::IdentifierReference(_) => {
+            jsx_member_expr.property.name.to_string()
+          }
+          oxc_ast::ast::JSXMemberExpressionObject::MemberExpression(
+            jsx_member_expression,
+          ) => jsx_member_expression.property.name.to_string(),
+          oxc_ast::ast::JSXMemberExpressionObject::ThisExpression(_) => {
+            "this".to_string()
+          }
         }
       }
     }
+    oxc_ast::ast::JSXElementName::ThisExpression(_) => "This".to_string(),
+  }
+}
 
-    inline_usages.clone()
+fn get_symbol_references<'a>(
+  semantic: &'a Semantic,
+  binding: &BindingIdentifier,
+) -> Vec<&'a Reference> {
+  if let Some(symbol_id) = binding.symbol_id.get() {
+    semantic.symbol_references(symbol_id).into_iter().collect()
+  } else {
+    vec![]
   }
 }
 
@@ -467,7 +507,7 @@ mod tests {
       semantic_handler.unwrap(),
     );
     let result = handler.handle();
-    assert_eq!(result.len(), 0);
+    assert_eq!(result.len(), 1);
   }
 
   #[test]

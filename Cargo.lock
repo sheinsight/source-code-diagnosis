@@ -965,6 +965,7 @@ dependencies = [
  "itertools 0.12.1",
  "napi",
  "napi-derive",
+ "oxc_allocator",
  "oxc_ast",
  "oxc_semantic",
  "oxc_span",
