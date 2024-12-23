@@ -2,10 +2,11 @@ use std::path::Path;
 
 use beans::AstNode;
 use oxc_ast::{
-  ast::{Expression, ImportDeclarationSpecifier},
+  ast::{Expression, ImportDeclarationSpecifier, JSXOpeningElement},
   AstKind,
 };
 
+use oxc_semantic::{Reference, Semantic};
 use utils::SemanticHandler;
 
 use crate::response::JSXProps;
@@ -91,25 +92,26 @@ impl<'a> ModuleMemberUsageHandler<'a> {
           }
         };
 
-        let is_specifier = match specifier {
-          ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
-            !(import_specifier.imported.name() == "default")
-          }
-          ImportDeclarationSpecifier::ImportDefaultSpecifier(_)
-          | ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => false,
-        };
+        let is_specifier = is_default_specifier(specifier);
 
         let references = self
           .semantic_handler
           .get_symbol_references(specifier.local());
 
         for reference in references {
-          let (reference_node, span, loc) =
-            self.semantic_handler.get_reference_node_box(reference);
+          // let (reference_node, span, loc) =
+          //   self.semantic_handler.get_reference_node_box(reference);
 
-          let is_in_closing = self
-            .semantic_handler
-            .is_in(reference_node, 6, |kind| {
+          let reference_node =
+            get_reference_node(&self.semantic_handler.semantic, reference);
+
+          let ast_node = AstNode::with_source_and_ast_node(
+            self.semantic_handler.semantic.source_text(),
+            reference_node,
+          );
+
+          let is_in_closing =
+            is_in(&self.semantic_handler.semantic, reference_node, 6, |kind| {
               matches!(kind, AstKind::JSXClosingElement(_))
             })
             .is_some();
@@ -119,7 +121,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
           }
 
           let opening_node =
-            self.semantic_handler.is_in(reference_node, 6, |kind| {
+            is_in(&self.semantic_handler.semantic, reference_node, 6, |kind| {
               matches!(kind, AstKind::JSXOpeningElement(_))
             });
 
@@ -159,66 +161,20 @@ impl<'a> ModuleMemberUsageHandler<'a> {
               }
             };
 
-            let attributes = kind
-              .attributes
-              .iter()
-              .map(|item| match item {
-                oxc_ast::ast::JSXAttributeItem::Attribute(attr) => {
-                  let namespace = match &attr.name {
-                    oxc_ast::ast::JSXAttributeName::Identifier(_) => None,
-                    oxc_ast::ast::JSXAttributeName::NamespacedName(
-                      namespace,
-                    ) => Some(namespace.namespace.name.to_string()),
-                  };
-
-                  let name = match &attr.name {
-                    oxc_ast::ast::JSXAttributeName::Identifier(ident) => {
-                      ident.name.to_string()
-                    }
-                    oxc_ast::ast::JSXAttributeName::NamespacedName(
-                      namespace,
-                    ) => namespace.property.name.to_string(),
-                  };
-
-                  let value = attr.value.as_ref().map(|value| match value {
-                    oxc_ast::ast::JSXAttributeValue::StringLiteral(
-                      string_literal,
-                    ) => string_literal.value.to_string(),
-                    oxc_ast::ast::JSXAttributeValue::ExpressionContainer(_)
-                    | oxc_ast::ast::JSXAttributeValue::Element(_)
-                    | oxc_ast::ast::JSXAttributeValue::Fragment(_) => {
-                      NOT_IMPLEMENTED.to_string()
-                    }
-                  });
-
-                  return JSXProps {
-                    namespace,
-                    name,
-                    value: value,
-                  };
-                }
-                oxc_ast::ast::JSXAttributeItem::SpreadAttribute(_) => {
-                  return JSXProps {
-                    namespace: None,
-                    name: SPREAD_ATTRIBUTE.to_string(),
-                    value: None,
-                  }
-                }
-              })
-              .collect::<Vec<JSXProps>>();
+            let attributes = get_jsx_props(kind);
 
             inline_usages.push(ModuleMemberUsageResponse {
               lib_name: source_name.to_string(),
               member_name: name.to_string(),
               file_path: self.path_str.clone(),
-              ast_node: AstNode::new((span.start, span.end), loc),
+              ast_node: ast_node,
               props: attributes,
             });
             continue;
           }
 
           let member_parent_node =
-            self.semantic_handler.is_in(reference_node, 2, |kind| {
+            is_in(&self.semantic_handler.semantic, reference_node, 2, |kind| {
               matches!(kind, AstKind::MemberExpression(_))
             });
 
@@ -251,7 +207,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
               lib_name: source_name.to_string(),
               member_name: name.to_string(),
               file_path: self.path_str.clone(),
-              ast_node: AstNode::new((span.start, span.end), loc),
+              ast_node: ast_node,
               props: vec![],
             });
             continue;
@@ -261,7 +217,7 @@ impl<'a> ModuleMemberUsageHandler<'a> {
             lib_name: source_name.to_string(),
             member_name: imported_name.to_string(),
             file_path: self.path_str.clone(),
-            ast_node: AstNode::new((span.start, span.end), loc),
+            ast_node: ast_node,
             props: vec![],
           });
         }
@@ -270,6 +226,97 @@ impl<'a> ModuleMemberUsageHandler<'a> {
 
     inline_usages.clone()
   }
+}
+
+fn get_reference_node<'a>(
+  semantic: &'a Semantic,
+  reference: &'a Reference,
+) -> &'a oxc_semantic::AstNode<'a> {
+  semantic.nodes().get_node(reference.node_id())
+}
+
+fn is_in<'a>(
+  semantic: &'a Semantic,
+  node: &'a oxc_semantic::AstNode<'a>,
+  max_depth: usize,
+  predicate: impl Fn(&AstKind) -> bool,
+) -> Option<&'a oxc_semantic::AstNode<'a>> {
+  let mut depth = 0;
+  let mut current_node_id = node.id();
+  while let Some(pn) = semantic.nodes().parent_node(current_node_id) {
+    if depth >= max_depth {
+      return None;
+    }
+
+    if predicate(&pn.kind()) {
+      return Some(pn);
+    }
+
+    current_node_id = pn.id();
+    depth += 1;
+  }
+  None
+}
+
+fn is_default_specifier(specifier: &ImportDeclarationSpecifier) -> bool {
+  match specifier {
+    ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
+      !(import_specifier.imported.name() == "default")
+    }
+    ImportDeclarationSpecifier::ImportDefaultSpecifier(_)
+    | ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => false,
+  }
+}
+
+fn get_jsx_props<'a>(kind: &JSXOpeningElement) -> Vec<JSXProps> {
+  let props = kind
+    .attributes
+    .iter()
+    .map(|item| match item {
+      oxc_ast::ast::JSXAttributeItem::Attribute(attr) => {
+        let namespace = match &attr.name {
+          oxc_ast::ast::JSXAttributeName::Identifier(_) => None,
+          oxc_ast::ast::JSXAttributeName::NamespacedName(namespace) => {
+            Some(namespace.namespace.name.to_string())
+          }
+        };
+
+        let name = match &attr.name {
+          oxc_ast::ast::JSXAttributeName::Identifier(ident) => {
+            ident.name.to_string()
+          }
+          oxc_ast::ast::JSXAttributeName::NamespacedName(namespace) => {
+            namespace.property.name.to_string()
+          }
+        };
+
+        let value = attr.value.as_ref().map(|value| match value {
+          oxc_ast::ast::JSXAttributeValue::StringLiteral(string_literal) => {
+            string_literal.value.to_string()
+          }
+          oxc_ast::ast::JSXAttributeValue::ExpressionContainer(_)
+          | oxc_ast::ast::JSXAttributeValue::Element(_)
+          | oxc_ast::ast::JSXAttributeValue::Fragment(_) => {
+            NOT_IMPLEMENTED.to_string()
+          }
+        });
+
+        return JSXProps {
+          namespace,
+          name,
+          value: value,
+        };
+      }
+      oxc_ast::ast::JSXAttributeItem::SpreadAttribute(_) => {
+        return JSXProps {
+          namespace: None,
+          name: SPREAD_ATTRIBUTE.to_string(),
+          value: None,
+        }
+      }
+    })
+    .collect();
+  props
 }
 
 #[cfg(test)]
