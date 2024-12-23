@@ -111,7 +111,7 @@ pub fn check_module_member_usage(
 }
 
 #[napi]
-pub fn check_filename_case(
+pub async fn check_filename_case(
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_filename_case::CheckFilenameCaseResponse>> {
   check_filename_case::check_filename_case(args.into()).map_err(to_napi_error)
@@ -139,7 +139,7 @@ pub fn check_browser_supported_with_source_code(
 }
 
 #[napi]
-pub fn check_syntax(
+pub async fn check_syntax(
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_syntax::CheckSyntaxResponse>> {
   check_syntax::check_syntax(args.into()).map_err(to_napi_error)
