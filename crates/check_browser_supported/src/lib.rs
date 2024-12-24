@@ -6,6 +6,8 @@ mod macros;
 mod operators;
 mod statements;
 
+use std::path::Path;
+
 use browserslist::{resolve, Distrib, Opts};
 pub use compat::{CompatBox, CompatHandler};
 
@@ -14,8 +16,11 @@ use log::debug;
 use napi::Error;
 use napi_derive::napi;
 
+use oxc_allocator::Allocator;
+use oxc_parser::Parser;
+use oxc_semantic::SemanticBuilder;
 use utils::{
-  glob_by_semantic, GlobErrorHandler, GlobSuccessHandler, SemanticBuilder,
+  glob_by_semantic, source_type_from_path, GlobErrorHandler, GlobSuccessHandler,
 };
 
 fn get_version_list<'a>(
@@ -51,6 +56,7 @@ pub struct Target {
 pub fn check_browser_supported_with_source_code(
   target: Target,
   source_code: String,
+  file_path: String,
 ) -> Result<Vec<CompatBox>> {
   debug!("User-specified browser target: {:?}", target);
 
@@ -132,40 +138,52 @@ pub fn check_browser_supported_with_source_code(
     }
   }
 
-  let mut used: Vec<CompatBox> = Vec::new();
+  let allocator = Allocator::default();
 
-  let builder = SemanticBuilder::js(&source_code);
+  let source_type = source_type_from_path(&Path::new(&file_path));
 
-  let handler = match builder.build_handler() {
-    Ok(handler) => handler,
-    Err(e) => {
-      eprintln!("parse error: {}", e);
-      return Err(e);
-    }
-  };
+  let parser = Parser::new(&allocator, &source_code, source_type);
 
-  handler.each_node(|handler, node| {
-    for compat_handler in compat_handlers.iter() {
-      if compat_handler.handle(
-        handler.semantic.source_text(),
-        node,
-        handler.semantic.nodes(),
-      ) {
-        let ast_node = beans::AstNode::with_source_and_ast_node(
-          handler.semantic.source_text(),
-          node,
-        );
+  let parse = parser.parse();
 
-        used.push(CompatBox::new(
-          ast_node,
-          compat_handler.get_compat().clone(),
-          String::new(),
-        ));
-      }
-    }
-  });
+  let program = allocator.alloc(&parse.program);
 
-  Ok(used)
+  let semantic_return = SemanticBuilder::new()
+    .with_check_syntax_error(false)
+    // TODO 很多场景下是不需要开启的，只有 oxlint 下需要开启，这可能对性能会产生一定的影响
+    .with_cfg(true)
+    .build(program);
+
+  let nodes = semantic_return.semantic.nodes();
+
+  let nodes = nodes
+    .iter()
+    .map(|item| {
+      return compat_handlers
+        .iter()
+        .filter_map(|compat_handler| {
+          if compat_handler.handle(
+            semantic_return.semantic.source_text(),
+            item,
+            nodes,
+          ) {
+            let ast_node =
+              beans::AstNode::with_source_and_ast_node(&source_code, item);
+            Some(CompatBox::new(
+              ast_node,
+              compat_handler.get_compat().clone(),
+              String::new(),
+            ))
+          } else {
+            None
+          }
+        })
+        .collect::<Vec<_>>();
+    })
+    .flatten()
+    .collect::<Vec<_>>();
+
+  Ok(nodes)
 }
 
 pub fn check_browser_supported(
@@ -288,39 +306,6 @@ pub fn check_browser_supported(
   .flatten()
   .collect();
 
-  // let responses = glob_by_path(
-  //   |path| {
-  //     let mut used: Vec<CompatBox> = Vec::new();
-  //     let builder = SemanticBuilder::with_file(&path).unwrap();
-  //     let semantic = builder.build().unwrap();
-  //     for node in semantic.nodes().iter() {
-  //       for compat_handler in compat_handlers.iter() {
-  //         if compat_handler.handle(
-  //           semantic.source_text(),
-  //           node,
-  //           semantic.nodes(),
-  //         ) {
-  //           let ast_node = beans::AstNode::with_source_and_ast_node(
-  //             semantic.source_text(),
-  //             node,
-  //           );
-
-  //           used.push(CompatBox::new(
-  //             ast_node,
-  //             compat_handler.get_compat().clone(),
-  //             path.to_str().unwrap().to_string(),
-  //           ));
-  //         }
-  //       }
-  //     }
-  //     Some(used)
-  //   },
-  //   &args,
-  // )?
-  // .into_iter()
-  // .flatten()
-  // .collect();
-
   Ok(responses)
 }
 
@@ -356,6 +341,7 @@ mod tests {
         deno: None,
       },
       source_code,
+      "test.ts".to_string(),
     );
 
     // Assert the result

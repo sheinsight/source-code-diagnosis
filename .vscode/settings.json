@@ -19,6 +19,7 @@
 		"insta",
 		"instanceof",
 		"isnan",
+		"itertools",
 		"kosaraju",
 		"msvc",
 		"musleabihf",

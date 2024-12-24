@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use beans::AstNode;
 use oxc_ast::{
   ast::{
@@ -10,11 +8,10 @@ use oxc_ast::{
 };
 
 use oxc_semantic::{Reference, Semantic};
-use utils::SemanticHandler;
 
 use crate::response::JSXProps;
 
-use super::response::ModuleMemberUsageResponse;
+use super::response::ModuleMemberUsageResponseItem;
 
 static ES_NAMESPACE: &str = "ES:NAMESPACE";
 static ES_DEFAULT: &str = "ES:DEFAULT";
@@ -25,39 +22,10 @@ static UNKNOWN: &str = "UNKNOWN";
 static NOT_IMPLEMENTED: &str = "NOT_IMPLEMENTED";
 static SPREAD_ATTRIBUTE: &str = "SPREAD_ATTRIBUTE";
 
-pub struct ModuleMemberUsageHandler<'a> {
-  npm_name_vec: Vec<String>,
-  semantic_handler: SemanticHandler<'a>,
-  path_str: String,
-}
-
-impl<'a> ModuleMemberUsageHandler<'a> {
-  pub fn new<P: AsRef<Path>>(
-    npm_name_vec: Vec<String>,
-    path: P,
-    semantic_handler: SemanticHandler<'a>,
-  ) -> Self {
-    Self {
-      npm_name_vec,
-      semantic_handler,
-      path_str: path.as_ref().display().to_string(),
-    }
-  }
-
-  pub fn handle(&self) -> Vec<ModuleMemberUsageResponse> {
-    process(
-      &self.semantic_handler.semantic,
-      &self.npm_name_vec,
-      &self.path_str,
-    )
-  }
-}
-
 pub fn process<'a>(
   semantic: &'a Semantic,
   npm_name_vec: &Vec<String>,
-  relative_path: &str,
-) -> Vec<ModuleMemberUsageResponse> {
+) -> Vec<ModuleMemberUsageResponseItem> {
   semantic
     .nodes()
     .iter()
@@ -81,10 +49,9 @@ pub fn process<'a>(
       let specifiers = match decl.specifiers {
         Some(ref specs) => specs,
         None => {
-          return Some(vec![ModuleMemberUsageResponse {
+          return Some(vec![ModuleMemberUsageResponseItem {
             lib_name: source_name,
             member_name: SIDE_EFFECTS.to_string(),
-            file_path: relative_path.to_string(),
             ast_node,
             props: vec![],
           }]);
@@ -92,17 +59,15 @@ pub fn process<'a>(
       };
 
       if specifiers.is_empty() {
-        return Some(vec![ModuleMemberUsageResponse {
+        return Some(vec![ModuleMemberUsageResponseItem {
           lib_name: source_name,
           member_name: EMPTY_SPECIFIERS.to_string(),
-          file_path: relative_path.to_string(),
           ast_node,
           props: vec![],
         }]);
       }
 
-      let responses =
-        each_specifiers(semantic, &source_name, &relative_path, specifiers);
+      let responses = each_specifiers(semantic, &source_name, specifiers);
 
       Some(responses)
     })
@@ -113,9 +78,8 @@ pub fn process<'a>(
 fn each_specifiers<'a>(
   semantic: &'a Semantic,
   source_name: &str,
-  relative_path: &str,
   specifiers: &oxc_allocator::Vec<ImportDeclarationSpecifier<'a>>,
-) -> Vec<ModuleMemberUsageResponse> {
+) -> Vec<ModuleMemberUsageResponseItem> {
   let responses = specifiers
     .iter()
     .map(|spec| {
@@ -160,10 +124,9 @@ fn each_specifiers<'a>(
 
             let attributes = get_jsx_props(kind);
 
-            return Some(ModuleMemberUsageResponse {
+            return Some(ModuleMemberUsageResponseItem {
               lib_name: source_name.to_string(),
               member_name: name.to_string(),
-              file_path: relative_path.to_string(),
               ast_node: ast_node,
               props: attributes,
             });
@@ -198,19 +161,17 @@ fn each_specifiers<'a>(
                 private_field_expression,
               ) => private_field_expression.field.name.to_string(),
             };
-            return Some(ModuleMemberUsageResponse {
+            return Some(ModuleMemberUsageResponseItem {
               lib_name: source_name.to_string(),
               member_name: name.to_string(),
-              file_path: relative_path.to_string(),
               ast_node: ast_node,
               props: vec![],
             });
           }
 
-          return Some(ModuleMemberUsageResponse {
+          return Some(ModuleMemberUsageResponseItem {
             lib_name: source_name.to_string(),
             member_name: imported_name.to_string(),
-            file_path: relative_path.to_string(),
             ast_node: ast_node,
             props: vec![],
           });
@@ -361,33 +322,54 @@ fn get_jsx_props<'a>(kind: &JSXOpeningElement) -> Vec<JSXProps> {
 
 #[cfg(test)]
 mod tests {
-  use super::ModuleMemberUsageHandler;
   use itertools::Itertools;
-  use std::{collections::HashMap, path::PathBuf};
-  use utils::SemanticBuilder;
+  use oxc_allocator::Allocator;
+  use oxc_parser::Parser;
+  use oxc_semantic::SemanticBuilder;
+  use oxc_span::SourceType;
+  use std::collections::HashMap;
+
+  use crate::{process::process, response::ModuleMemberUsageResponseItem};
+
+  fn util(
+    npm_name_vec: Vec<String>,
+    source_code: &str,
+  ) -> Vec<ModuleMemberUsageResponseItem> {
+    let allocator = Allocator::default();
+
+    let parser = Parser::new(&allocator, source_code, SourceType::jsx());
+
+    let parse = parser.parse();
+
+    let program = allocator.alloc(&parse.program);
+
+    let semantic_return = SemanticBuilder::new()
+      .with_check_syntax_error(false)
+      // TODO 很多场景下是不需要开启的，只有 oxlint 下需要开启，这可能对性能会产生一定的影响
+      .with_cfg(true)
+      .build(program);
+
+    let result = process(&semantic_return.semantic, &npm_name_vec);
+
+    result
+  }
 
   #[test]
   fn test_jsx_props() {
-    let file_path_str = PathBuf::from("file_path_str");
-    let semantic_builder = SemanticBuilder::js(
-      &r#"
-            import {Form} from 'shineout';
-            function App(){
-              return (
-                <Form>
-                  <Form.Item name="hello"></Form.Item>
-                </Form>
-              )
-            }
-            "#,
-    );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
+    let result = util(
       vec!["shineout".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
+      &r#"
+          import {Form} from 'shineout';
+          function App(){
+            return (
+              <Form>
+                <Form.Item name="hello"></Form.Item>
+              </Form>
+            )
+          }
+      "#,
     );
-    let result = handler.handle();
+
     let grouped = result
       .iter()
       .group_by(|item| item.member_name.clone())
@@ -407,145 +389,97 @@ mod tests {
 
   #[test]
   fn test_form_item() {
-    let file_path_str = PathBuf::from("file_path_str");
-    let semantic_builder = SemanticBuilder::js(
-      &r#"
-            import {Form} from 'shineout';
-            function App(){
-              return (
-                <Form>
-                  <Form.Item></Form.Item>
-                </Form>
-              )
-            }
-            "#,
-    );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
+    let result = util(
       vec!["shineout".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
+      &r#"
+      import {Form} from 'shineout';
+      function App(){
+        return (
+          <Form>
+            <Form.Item></Form.Item>
+          </Form>
+        )
+      }
+      "#,
     );
-    let result = handler.handle();
     assert_eq!(result.len(), 2);
   }
 
   #[test]
   fn test_computed_member_with_template() {
-    let file_path_str = PathBuf::from("file_path_str");
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["lib".to_string()],
       &r#"
-            import lib from 'lib';
+      import lib from 'lib';
             const name = 'method';
             lib[`get${name}`]();
-            "#,
+      "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["lib".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
+
     assert_eq!(result.len(), 1);
   }
 
   #[test]
   fn test_jsx_self_closing() {
-    let file_path_str = PathBuf::from("file_path_str");
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["lib".to_string()],
       &r#"
             import { Component } from 'lib';
             function App() {
                 return <Component />;
             }
-            "#,
+      "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["lib".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
     assert_eq!(result.len(), 1);
   }
 
   #[test]
   fn test_multiple_references() {
-    let file_path_str = PathBuf::from("file_path_str");
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["lib".to_string()],
       &r#"
             import { method } from 'lib';
             method();
             method();
             method();
-            "#,
+      "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["lib".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
     assert_eq!(result.len(), 3);
   }
 
   #[test]
   fn test_empty_import_specifiers() {
-    let file_path_str = PathBuf::from("file_path_str");
-    let semantic_builder = SemanticBuilder::js(
-      &r#"
-          import {} from 'react';
-          "#,
-    );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
+    let result = util(
       vec!["react".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
+      &r#"
+            import {} from 'react';
+      "#,
     );
-    let result = handler.handle();
     assert_eq!(result.len(), 1);
   }
 
   #[test]
   fn test_dynamic_computed_member() {
-    let file_path_str = PathBuf::from("file_path_str");
-    let semantic_builder = SemanticBuilder::js(
-      &r#"
-          import lib from 'lib';
-          const prop = 'method';
-          const result = lib[prop]();
-          "#,
-    );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
+    let result = util(
       vec!["lib".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
+      &r#"
+            import lib from 'lib';
+            const prop = 'method';
+            const result = lib[prop]();
+      "#,
     );
-    let result = handler.handle();
     assert_eq!(result.len(), 1);
   }
 
   #[test]
   fn test_nested_member_expression() {
-    let file_path_str = PathBuf::from("file_path_str");
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["lib".to_string()],
       &r#"
             import lib from 'lib';
             const result = lib.a.b.c;
-            "#,
+      "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["lib".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "lib");
     assert_eq!(result[0].member_name, "a");
@@ -553,22 +487,15 @@ mod tests {
 
   #[test]
   fn test_mixed_import_types() {
-    let file_path_str = PathBuf::from("file_path_str");
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["module".to_string()],
       &r#"
             import def, { named1, named2 as alias } from 'module';
             def.method();
             named1();
             alias();
-            "#,
+      "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["module".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
     assert_eq!(result.len(), 3);
     assert_eq!(result[0].member_name, "method");
     assert_eq!(result[1].member_name, "named1");
@@ -577,8 +504,8 @@ mod tests {
 
   #[test]
   fn test_jsx_member_expression_with_alias() {
-    let file_path_str = PathBuf::from("file_path_str");
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["module".to_string()],
       &r#"
             import def, { named1, named2 as alias } from 'module';
             def.method();
@@ -586,15 +513,8 @@ mod tests {
             function App(){
               return <alias.div>{named1}</alias.div>
             }
-            "#,
+      "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["module".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
     let grouped = result
       .into_iter()
       .group_by(|item| item.member_name.clone())
@@ -610,44 +530,28 @@ mod tests {
 
   #[test]
   fn test_jsx_nested_member_expression() {
-    let file_path_str = PathBuf::from("file_path_str");
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["lib".to_string()],
       &r#"
             import * as Lib from 'lib';
             function Component() {
                 return <Lib.Nested.Component prop={true} />;
             }
-            "#,
+      "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["lib".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].member_name, "Nested");
   }
 
   #[test]
   fn test_private_field_expression() {
-    let file_path_str = PathBuf::from("file_path_str");
-
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["a".to_string()],
       &r#"
-      import a from 'a';
+           import a from 'a';
       const c = a.#name;
       "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["a".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
 
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "a");
@@ -656,22 +560,13 @@ mod tests {
 
   #[test]
   fn test_computed_member_expression() {
-    let file_path_str = PathBuf::from("file_path_str");
-
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["a".to_string()],
       &r#"
-      import a from 'a';
-      const c = a["b"];
+           import a from 'a';
+           const c = a["b"];
       "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["a".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
 
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "a");
@@ -680,25 +575,16 @@ mod tests {
 
   #[test]
   fn test_import_specifier() {
-    let file_path_str = PathBuf::from("file_path_str");
-
-    let semantic_builder = SemanticBuilder::js(
-      &r#"
-      import { useState } from 'react';
-      function Component() {
-          const [state, setState] = useState(0);
-          return <div>{state}</div>;
-      }
-    "#,
-    );
-    let semantic_handler = semantic_builder.build_handler();
-
-    let handler = ModuleMemberUsageHandler::new(
+    let result = util(
       vec!["react".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
+      &r#"
+           import { useState } from 'react';
+            function Component() {
+                const [state, setState] = useState(0);
+                return <div>{state}</div>;
+            }
+      "#,
     );
-    let result = handler.handle();
 
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "react");
@@ -707,25 +593,15 @@ mod tests {
 
   #[test]
   fn test_import_default_specifier() {
-    let file_path_str = PathBuf::from("file_path_str");
-
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["react".to_string()],
       &r#"
-        import React from 'react';
-        function Component() {
-            return <React.Fragment>Hello</React.Fragment>;
-        }
+            import React from 'react';
+            function Component() {
+                return <React.Fragment>Hello</React.Fragment>;
+            }
       "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["react".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
-
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "react");
     assert_eq!(result[0].member_name, "Fragment");
@@ -733,24 +609,15 @@ mod tests {
 
   #[test]
   fn test_import_namespace_specifier() {
-    let file_path_str = PathBuf::from("file_path_str");
-
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["react".to_string()],
       &r#"
-        import * as React from 'react';
-        function Component() {
-            return <React.Fragment>Hello</React.Fragment>;
-        }
+             import * as React from 'react';
+            function Component() {
+                return <React.Fragment>Hello</React.Fragment>;
+            }
       "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["react".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
 
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "react");
@@ -759,21 +626,12 @@ mod tests {
 
   #[test]
   fn test_side_effects_import() {
-    let file_path_str = PathBuf::from("file_path_str");
-
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["react".to_string()],
       &r#"
-        import 'react';
+           import 'react';
       "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["react".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
 
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "react");
@@ -782,11 +640,10 @@ mod tests {
 
   #[test]
   fn test_multiple_imports() {
-    let file_path_str = PathBuf::from("file_path_str");
-
-    let semantic_builder = SemanticBuilder::js(
+    let result = util(
+      vec!["react".to_string(), "react-dom".to_string()],
       &r#"
-        import React, { useState } from 'react';
+           import React, { useState } from 'react';
         import * as ReactDOM from 'react-dom';
         function Component() {
             const [state, setState] = useState(0);
@@ -795,13 +652,6 @@ mod tests {
         ReactDOM.render(<Component />, document.getElementById('root'));
       "#,
     );
-    let semantic_handler = semantic_builder.build_handler();
-    let handler = ModuleMemberUsageHandler::new(
-      vec!["react".to_string(), "react-dom".to_string()],
-      file_path_str,
-      semantic_handler.unwrap(),
-    );
-    let result = handler.handle();
 
     assert_eq!(result.len(), 3);
     assert!(result

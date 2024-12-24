@@ -105,7 +105,7 @@ pub async fn check_danger_strings(
 pub fn check_module_member_usage(
   npm_name_vec: Vec<String>,
   args: GlobJsArgs,
-) -> Result<Vec<module_member_usage::ModuleMemberUsageResponse>> {
+) -> Result<Vec<module_member_usage::response::ModuleMemberUsageResponse>> {
   module_member_usage::check_module_member_usage(npm_name_vec, args.into())
     .map_err(to_napi_error)
 }
@@ -118,7 +118,7 @@ pub async fn check_filename_case(
 }
 
 #[napi]
-pub fn check_browser_supported(
+pub async fn check_browser_supported(
   target: check_browser_supported::Target,
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_browser_supported::CompatBox>> {
@@ -127,13 +127,15 @@ pub fn check_browser_supported(
 }
 
 #[napi]
-pub fn check_browser_supported_with_source_code(
+pub async fn check_browser_supported_with_source_code(
   target: check_browser_supported::Target,
   source_code: String,
+  file_path: String,
 ) -> Result<Vec<check_browser_supported::CompatBox>> {
   check_browser_supported::check_browser_supported_with_source_code(
     target,
     source_code,
+    file_path,
   )
   .map_err(to_napi_error)
 }

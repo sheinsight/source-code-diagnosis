@@ -967,6 +967,7 @@ dependencies = [
  "napi-derive",
  "oxc_allocator",
  "oxc_ast",
+ "oxc_parser",
  "oxc_semantic",
  "oxc_span",
  "parking_lot",

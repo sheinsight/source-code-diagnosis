@@ -5,9 +5,16 @@ use serde::Serialize;
 #[napi(object)]
 #[derive(Debug, Serialize, Clone)]
 pub struct ModuleMemberUsageResponse {
+  pub file_path: String,
+  pub items: Vec<ModuleMemberUsageResponseItem>,
+  pub errors: Vec<String>,
+}
+
+#[napi(object)]
+#[derive(Debug, Serialize, Clone)]
+pub struct ModuleMemberUsageResponseItem {
   pub lib_name: String,
   pub member_name: String,
-  pub file_path: String,
   pub ast_node: AstNode,
   pub props: Vec<JSXProps>,
 }

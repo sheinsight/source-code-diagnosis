@@ -1,39 +1,38 @@
 use anyhow::Result;
-use handler::ModuleMemberUsageHandler;
-use utils::{glob_by_path, SemanticBuilder};
+use process::process;
+use response::ModuleMemberUsageResponse;
 use utils::{glob_by_semantic, GlobArgs};
+use utils::{GlobErrorHandler, GlobSuccessHandler};
 
-mod handler;
-mod response;
-pub use response::ModuleMemberUsageResponse;
+mod process;
+pub mod response;
 
 pub fn check_module_member_usage(
   npm_name_vec: Vec<String>,
   args: GlobArgs,
 ) -> Result<Vec<ModuleMemberUsageResponse>> {
-  let responses = glob_by_path(
-    |path| {
-      let builder = SemanticBuilder::with_file(&path).unwrap();
-
-      let handler = match builder.build_handler() {
-        Ok(handler) => handler,
-        Err(e) => {
-          eprintln!("parse error: {}", e);
-          return None;
-        }
-      };
-
-      let inline_usages =
-        ModuleMemberUsageHandler::new(npm_name_vec.clone(), path, handler)
-          .handle();
-
-      Some(inline_usages)
+  let responses = glob_by_semantic(
+    |GlobSuccessHandler {
+       semantic,
+       relative_path,
+       ..
+     }| {
+      let responses = process(&semantic, &npm_name_vec);
+      Some(ModuleMemberUsageResponse {
+        file_path: relative_path.clone(),
+        items: responses,
+        errors: vec![],
+      })
+    },
+    |GlobErrorHandler { relative_path, .. }| {
+      Some(ModuleMemberUsageResponse {
+        file_path: relative_path.clone(),
+        items: vec![],
+        errors: vec![],
+      })
     },
     &args,
-  )?
-  .into_iter()
-  .flatten()
-  .collect();
+  )?;
 
   Ok(responses)
 }
