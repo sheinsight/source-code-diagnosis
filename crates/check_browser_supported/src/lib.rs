@@ -6,14 +6,13 @@ mod macros;
 mod operators;
 mod statements;
 
-use std::path::Path;
+use std::{collections::HashMap, path::Path};
 
 use browserslist::{resolve, Distrib, Opts};
 pub use compat::{CompatBox, CompatHandler};
 
 use anyhow::Result;
 use log::debug;
-use napi::Error;
 use napi_derive::napi;
 
 use oxc_allocator::Allocator;
@@ -22,17 +21,6 @@ use oxc_semantic::SemanticBuilder;
 use utils::{
   glob_by_semantic, source_type_from_path, GlobErrorHandler, GlobSuccessHandler,
 };
-
-fn get_version_list<'a>(
-  browser_list: &'a Vec<Distrib>,
-  name: &str,
-) -> Vec<&'a str> {
-  browser_list
-    .iter()
-    .filter(|x| x.name() == name)
-    .map(|x| x.version())
-    .collect()
-}
 
 macro_rules! enabled_debug {
   ($($body:tt)*) => {
@@ -53,56 +41,65 @@ pub struct Target {
   pub deno: Option<String>,
 }
 
+struct BrowserVersions {
+  versions: HashMap<String, Vec<String>>,
+}
+
+impl BrowserVersions {
+  fn new(target: Target) -> anyhow::Result<Self> {
+    let browser_list = Self::get_queries(target)?;
+    let mut versions = HashMap::new();
+    browser_list.into_iter().for_each(|distrib| {
+      versions
+        .entry(distrib.name().to_string())
+        .or_insert_with(Vec::new)
+        .push(distrib.version().to_string());
+    });
+    Ok(Self { versions })
+  }
+
+  fn get_queries(target: Target) -> anyhow::Result<Vec<Distrib>> {
+    let mut queries = vec![format!("chrome > {}", target.chrome)];
+    if let Some(firefox) = &target.firefox {
+      queries.push(format!("firefox > {}", firefox));
+    }
+
+    if let Some(safari) = &target.safari {
+      queries.push(format!("safari > {}", safari));
+    }
+
+    if let Some(edge) = &target.edge {
+      queries.push(format!("edge > {}", edge));
+    }
+
+    if let Some(node) = &target.node {
+      queries.push(format!("node > {}", node));
+    }
+
+    if let Some(deno) = &target.deno {
+      queries.push(format!("deno > {}", deno));
+    }
+
+    let browser_list = resolve(&queries, &Opts::default())?;
+
+    Ok(browser_list)
+  }
+
+  pub fn contains_version(&self, browser: &str, version: &str) -> bool {
+    self
+      .versions
+      .get(browser)
+      .map(|versions| versions.contains(&version.to_string()))
+      .unwrap_or(false) // 如果浏览器不在列表中，默认返回 true
+  }
+}
+
 pub fn check_browser_supported_with_source_code(
   target: Target,
   source_code: String,
   file_path: String,
 ) -> Result<Vec<CompatBox>> {
-  debug!("User-specified browser target: {:?}", target);
-
-  let chrome_queries = format!("chrome > {}", target.chrome);
-
-  let browser_list = resolve(&[chrome_queries], &Opts::default())
-    .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))?;
-
-  let chrome_version_list = get_version_list(&browser_list, "chrome");
-
-  enabled_debug! {
-    for version in chrome_version_list.iter() {
-      debug!("Resolved Chrome version: {}", version);
-    }
-  }
-
-  let firefox_version_list = get_version_list(&browser_list, "firefox");
-  enabled_debug! {
-    for version in firefox_version_list.iter() {
-      debug!("Resolved Firefox versions: {:?}", version);
-    }
-  }
-
-  let edge_version_list = get_version_list(&browser_list, "edge");
-
-  enabled_debug! {
-    for version in edge_version_list.iter() {
-      debug!("Resolved Edge versions: {:?}", version);
-    }
-  }
-
-  let safari_version_list = get_version_list(&browser_list, "safari");
-
-  enabled_debug! {
-    for version in safari_version_list.iter() {
-      debug!("Resolved Safari versions: {:?}", version);
-    }
-  }
-
-  let node_version_list = get_version_list(&browser_list, "node");
-
-  enabled_debug! {
-    for version in node_version_list.iter() {
-      debug!("Resolved Node versions: {:?}", version);
-    }
-  }
+  let versions = BrowserVersions::new(target)?;
 
   let compat_handlers: Vec<Box<dyn CompatHandler>> = vec![
     classes::setup(),
@@ -116,18 +113,20 @@ pub fn check_browser_supported_with_source_code(
   .filter(|item| {
     let compat = item.get_compat();
     let compat_support = &compat.support;
-    return browser_list.iter().any(|x| match x.name() {
-      "chrome" => chrome_version_list.contains(&compat_support.chrome.as_str()),
-      "firefox" => {
-        firefox_version_list.contains(&compat_support.firefox.as_str())
-      }
-      "edge" => edge_version_list.contains(&compat_support.edge.as_str()),
-      "safari" => safari_version_list.contains(&compat_support.safari.as_str()),
-      "node" => node_version_list.contains(&compat_support.node.as_str()),
-      _ => true,
-    });
+    versions.contains_version("chrome", &compat_support.chrome)
+      || versions.contains_version("firefox", &compat_support.firefox)
+      || versions.contains_version("safari", &compat_support.safari)
+      || versions.contains_version("edge", &compat_support.edge)
+      || versions.contains_version("node", &compat_support.node)
   })
   .collect();
+
+  for compat_handler in compat_handlers.iter() {
+    println!(
+      "Compat handler: {:?}",
+      compat_handler.get_compat().name.clone()
+    );
+  }
 
   enabled_debug! {
     for compat_handler in compat_handlers.iter() {
@@ -190,51 +189,7 @@ pub fn check_browser_supported(
   target: Target,
   args: utils::GlobArgs,
 ) -> Result<Vec<CompatBox>> {
-  debug!("User-specified browser target: {:?}", target);
-
-  let chrome_queries = format!("chrome > {}", target.chrome);
-
-  let browser_list = resolve(&[chrome_queries], &Opts::default())
-    .map_err(|err| Error::new(napi::Status::GenericFailure, err.to_string()))?;
-
-  let chrome_version_list = get_version_list(&browser_list, "chrome");
-
-  enabled_debug! {
-    for version in chrome_version_list.iter() {
-      debug!("Resolved Chrome version: {}", version);
-    }
-  }
-
-  let firefox_version_list = get_version_list(&browser_list, "firefox");
-  enabled_debug! {
-    for version in firefox_version_list.iter() {
-      debug!("Resolved Firefox versions: {:?}", version);
-    }
-  }
-
-  let edge_version_list = get_version_list(&browser_list, "edge");
-
-  enabled_debug! {
-    for version in edge_version_list.iter() {
-      debug!("Resolved Edge versions: {:?}", version);
-    }
-  }
-
-  let safari_version_list = get_version_list(&browser_list, "safari");
-
-  enabled_debug! {
-    for version in safari_version_list.iter() {
-      debug!("Resolved Safari versions: {:?}", version);
-    }
-  }
-
-  let node_version_list = get_version_list(&browser_list, "node");
-
-  enabled_debug! {
-    for version in node_version_list.iter() {
-      debug!("Resolved Node versions: {:?}", version);
-    }
-  }
+  let versions = BrowserVersions::new(target)?;
 
   let compat_handlers: Vec<Box<dyn CompatHandler>> = vec![
     classes::setup(),
@@ -248,16 +203,11 @@ pub fn check_browser_supported(
   .filter(|item| {
     let compat = item.get_compat();
     let compat_support = &compat.support;
-    return browser_list.iter().any(|x| match x.name() {
-      "chrome" => chrome_version_list.contains(&compat_support.chrome.as_str()),
-      "firefox" => {
-        firefox_version_list.contains(&compat_support.firefox.as_str())
-      }
-      "edge" => edge_version_list.contains(&compat_support.edge.as_str()),
-      "safari" => safari_version_list.contains(&compat_support.safari.as_str()),
-      "node" => node_version_list.contains(&compat_support.node.as_str()),
-      _ => true,
-    });
+    versions.contains_version("chrome", &compat_support.chrome)
+      || versions.contains_version("firefox", &compat_support.firefox)
+      || versions.contains_version("safari", &compat_support.safari)
+      || versions.contains_version("edge", &compat_support.edge)
+      || versions.contains_version("node", &compat_support.node)
   })
   .collect();
 
