@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-oxc-browserslist = "1.0.3"
+oxc-browserslist = "1.1.1"
 oxc_ast = { workspace = true }
 oxc_semantic = { workspace = true }
 oxc_span = { workspace = true }
@@ -20,3 +20,7 @@ log = { workspace = true }
 beans = { path = "../beans" }
 utils = { path = "../utils" }
 anyhow = { workspace = true }
+insta = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }

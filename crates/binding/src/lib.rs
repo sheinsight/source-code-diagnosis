@@ -102,7 +102,7 @@ pub async fn check_danger_strings(
 }
 
 #[napi]
-pub fn check_module_member_usage(
+pub async fn check_module_member_usage(
   npm_name_vec: Vec<String>,
   args: GlobJsArgs,
 ) -> Result<Vec<module_member_usage::response::ModuleMemberUsageResponse>> {
@@ -119,7 +119,7 @@ pub async fn check_filename_case(
 
 #[napi]
 pub async fn check_browser_supported(
-  target: check_browser_supported::Target,
+  target: check_browser_supported::target::Target,
   args: utils::GlobJsArgs,
 ) -> Result<Vec<check_browser_supported::CompatBox>> {
   check_browser_supported::check_browser_supported(target, args.into())
@@ -128,7 +128,7 @@ pub async fn check_browser_supported(
 
 #[napi]
 pub async fn check_browser_supported_with_source_code(
-  target: check_browser_supported::Target,
+  target: check_browser_supported::target::Target,
   source_code: String,
   file_path: String,
 ) -> Result<Vec<check_browser_supported::CompatBox>> {

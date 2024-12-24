@@ -38,7 +38,7 @@ exports[`Multiple occurrences of the same syntax results in multiple calculation
         "web-features:snapshot:ecmascript-2020",
       ],
     },
-    "filePath": "",
+    "filePath": "test.ts",
     "name": "operators.nullish_coalescing",
   },
 ]
@@ -82,7 +82,7 @@ exports[`Multiple occurrences of the same syntax results in multiple calculation
         "web-features:snapshot:ecmascript-2020",
       ],
     },
-    "filePath": "",
+    "filePath": "test.ts",
     "name": "operators.nullish_coalescing",
   },
   {
@@ -121,7 +121,7 @@ exports[`Multiple occurrences of the same syntax results in multiple calculation
         "web-features:snapshot:ecmascript-2020",
       ],
     },
-    "filePath": "",
+    "filePath": "test.ts",
     "name": "operators.nullish_coalescing",
   },
 ]

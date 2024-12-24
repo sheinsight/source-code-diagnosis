@@ -10,7 +10,7 @@ pub struct ModuleMemberUsageResponse {
   pub errors: Vec<String>,
 }
 
-#[napi(object)]
+#[napi(object, js_name = "ModuleMemberUsageResponseItem")]
 #[derive(Debug, Serialize, Clone)]
 pub struct ModuleMemberUsageResponseItem {
   pub lib_name: String,
