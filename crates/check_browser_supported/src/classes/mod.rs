@@ -6,6 +6,7 @@ use private_class_methods::ClassesPrivateClassMethods;
 use public_class_fields::ClassesPublicClassFields;
 use r#static::ClassesStatic;
 use static_class_fields::ClassesStaticClassFields;
+use static_initialization_blocks::ClassesStaticInitializationBlocks;
 
 use super::compat::CompatHandler;
 
@@ -30,5 +31,6 @@ pub fn setup() -> Vec<Box<dyn CompatHandler>> {
     Box::new(ClassesPublicClassFields::default()),
     Box::new(ClassesStaticClassFields::default()),
     Box::new(ClassesStatic::default()),
+    Box::new(ClassesStaticInitializationBlocks::default()),
   ]
 }
