@@ -6,7 +6,7 @@ import { checkBrowserSupportedWithSourceCode, checkBrowserSupported } from "../.
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 test("There are 4 syntaxes under normal that are incompatible under chrome 40", async () => {
-	const cwd = path.resolve(__dirname, "features", "normal");
+	const cwd = path.resolve(__dirname, "fixtures", "normal");
 
 	const response = await checkBrowserSupported({ chrome: "40" }, { cwd });
 
@@ -14,7 +14,7 @@ test("There are 4 syntaxes under normal that are incompatible under chrome 40", 
 });
 
 test("There are 3 syntaxes under normal that are incompatible under chrome 45", async () => {
-	const cwd = path.resolve(__dirname, "features", "normal");
+	const cwd = path.resolve(__dirname, "fixtures", "normal");
 
 	const response = await checkBrowserSupported({ chrome: "45" }, { cwd });
 

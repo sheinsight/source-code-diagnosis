@@ -18,6 +18,7 @@ module_member_usage = { path = "../module_member_usage" }
 check_filename_case = { path = "../check_filename_case" }
 check_danger_jsx_props = { path = "../check_danger_jsx_props" }
 check_oxlint = { path = "../check_oxlint" }
+check_cloc = { path = "../check_cloc" }
 utils = { path = "../utils" }
 beans = { path = "../beans" }
 module_graph = { path = "../module_graph" }

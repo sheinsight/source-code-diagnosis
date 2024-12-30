@@ -10,6 +10,7 @@
 		"browserslist",
 		"Builtins",
 		"camino",
+		"cloc",
 		"deno",
 		"Deque",
 		"Distrib",
@@ -34,7 +35,8 @@
 		"RUSTFLAGS",
 		"serde",
 		"tarjan",
-		"threadpool"
+		"threadpool",
+		"tokei"
 	],
 	"[javascript]": {
 		"editor.defaultFormatter": "biomejs.biome"

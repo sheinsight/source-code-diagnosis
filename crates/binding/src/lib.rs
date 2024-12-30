@@ -46,6 +46,13 @@ pub async fn get_graph(
 }
 
 #[napi]
+pub async fn check_cloc(
+  args: utils::GlobJsArgs,
+) -> Result<Vec<check_cloc::CheckCLOCResponse>> {
+  check_cloc::check_cloc(args.into()).map_err(to_napi_error)
+}
+
+#[napi]
 pub async fn check_cycle(
   args: module_graph::model::JsArgs,
 ) -> Result<module_graph::model::GroupGraphics> {
