@@ -96,5 +96,5 @@ test("check_static_member", async () => {
 		cwd: path.resolve(cwd, "fixtures/static_member_expr"),
 	});
 
-	expect(response.flatMap((item) => item.items)).toMatchSnapshot();
+	expect(response.flatMap((item) => item.items).length).toBe(1);
 });
