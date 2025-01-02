@@ -89,3 +89,12 @@ test("should return 1 result when module member used in tsx with tree-fold", asy
 
 	expect(response.flatMap((item) => item.items).length).toBe(4);
 });
+
+test("check_static_member", async () => {
+	const cwd = dirname(__filename);
+	const response = await checkModuleMemberUsage(["antd"], {
+		cwd: path.resolve(cwd, "fixtures/static_member_expr"),
+	});
+
+	expect(response.flatMap((item) => item.items)).toMatchSnapshot();
+});

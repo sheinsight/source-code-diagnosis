@@ -90,6 +90,7 @@ fn each_specifiers<'a>(
         ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => ES_DEFAULT,
         ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => ES_NAMESPACE,
       };
+
       let is_default_specifier = is_default_specifier(spec);
       let references = get_symbol_references(semantic, spec.local());
       let responses = references
@@ -156,11 +157,15 @@ fn each_specifiers<'a>(
               },
               oxc_ast::ast::MemberExpression::StaticMemberExpression(
                 static_member_expression,
-              ) => static_member_expression.property.name.to_string(),
+              ) => match &static_member_expression.object {
+                Expression::Identifier(ident) => ident.name.to_string(),
+                _ => UNKNOWN.to_string(),
+              },
               oxc_ast::ast::MemberExpression::PrivateFieldExpression(
                 private_field_expression,
               ) => private_field_expression.field.name.to_string(),
             };
+
             return Some(ModuleMemberUsageResponseItem {
               lib_name: source_name.to_string(),
               member_name: name.to_string(),

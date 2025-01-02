@@ -1,0 +1,27 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`check_static_member 1`] = `
+[
+  {
+    "astNode": {
+      "loc": {
+        "end": {
+          "col": 10,
+          "line": 6,
+        },
+        "start": {
+          "col": 3,
+          "line": 6,
+        },
+      },
+      "span": {
+        "end": 163,
+        "start": 156,
+      },
+    },
+    "libName": "antd",
+    "memberName": "Message",
+    "props": [],
+  },
+]
+`;
