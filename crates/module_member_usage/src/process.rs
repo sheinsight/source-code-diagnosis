@@ -2,7 +2,7 @@ use beans::AstNode;
 use oxc_ast::{
   ast::{
     BindingIdentifier, Expression, ImportDeclarationSpecifier,
-    JSXOpeningElement,
+    JSXMemberExpression, JSXOpeningElement,
   },
   AstKind,
 };
@@ -83,105 +83,24 @@ fn each_specifiers<'a>(
   let responses = specifiers
     .iter()
     .map(|spec| {
-      let imported_name = match spec {
-        ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
-          import_specifier.imported.name().as_str()
-        }
-        ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => ES_DEFAULT,
-        ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => ES_NAMESPACE,
-      };
+      // .e.g import {a as b} from 'test' -> a
+      let imported_name = get_imported_name(spec);
 
       let is_default_specifier = is_default_specifier(spec);
+
+      let is_namespace_specifier = is_namespace_specifier(spec);
+
       let references = get_symbol_references(semantic, spec.local());
-      let responses = references
-        .iter()
-        .filter_map(|refer| {
-          let reference_node = get_reference_node(semantic, refer);
-          let ast_node = AstNode::with_source_and_ast_node(
-            semantic.source_text(),
-            reference_node,
-          );
-          let is_in_closing = is_in(&semantic, reference_node, 6, |kind| {
-            matches!(kind, AstKind::JSXClosingElement(_))
-          })
-          .is_some();
 
-          if is_in_closing {
-            return None;
-          }
+      let responses = each_reference(
+        semantic,
+        source_name,
+        imported_name,
+        is_default_specifier,
+        is_namespace_specifier,
+        references,
+      );
 
-          let opening_node = is_in(&semantic, reference_node, 6, |kind| {
-            matches!(kind, AstKind::JSXOpeningElement(_))
-          });
-
-          if let Some(AstKind::JSXOpeningElement(kind)) =
-            opening_node.map(|node| node.kind())
-          {
-            let name = get_jsx_opening_element_name(
-              kind,
-              is_default_specifier,
-              imported_name,
-            );
-
-            let attributes = get_jsx_props(kind);
-
-            return Some(ModuleMemberUsageResponseItem {
-              lib_name: source_name.to_string(),
-              member_name: name.to_string(),
-              ast_node: ast_node,
-              props: attributes,
-            });
-          }
-
-          let member_parent_node =
-            is_in(&semantic, reference_node, 2, |kind| {
-              matches!(kind, AstKind::MemberExpression(_))
-            });
-
-          if let Some(AstKind::MemberExpression(kind)) =
-            member_parent_node.map(|node| node.kind())
-          {
-            let name = match kind {
-              oxc_ast::ast::MemberExpression::ComputedMemberExpression(
-                computed_member_expression,
-              ) => match &computed_member_expression.expression {
-                Expression::StringLiteral(string_literal) => {
-                  string_literal.to_string()
-                }
-                Expression::TemplateLiteral(_)
-                | Expression::Identifier(_)
-                | Expression::LogicalExpression(_) => {
-                  DYNAMIC_COMPUTED_MEMBER.to_string()
-                }
-                _ => UNKNOWN.to_string(),
-              },
-              oxc_ast::ast::MemberExpression::StaticMemberExpression(
-                static_member_expression,
-              ) => match &static_member_expression.object {
-                Expression::Identifier(ident) => ident.name.to_string(),
-                _ => UNKNOWN.to_string(),
-              },
-              oxc_ast::ast::MemberExpression::PrivateFieldExpression(
-                private_field_expression,
-              ) => private_field_expression.field.name.to_string(),
-            };
-
-            return Some(ModuleMemberUsageResponseItem {
-              lib_name: source_name.to_string(),
-              member_name: name.to_string(),
-              ast_node: ast_node,
-              props: vec![],
-            });
-          }
-
-          return Some(ModuleMemberUsageResponseItem {
-            lib_name: source_name.to_string(),
-            member_name: imported_name.to_string(),
-            ast_node: ast_node,
-            props: vec![],
-          });
-        })
-        .collect::<Vec<_>>();
       return responses;
     })
     .flatten()
@@ -189,9 +108,117 @@ fn each_specifiers<'a>(
   return responses;
 }
 
+fn each_reference<'a>(
+  semantic: &'a Semantic,
+  source_name: &str,
+  imported_name: String,
+  is_default_specifier: bool,
+  is_namespace_specifier: bool,
+  references: Vec<&'a Reference>,
+) -> Vec<ModuleMemberUsageResponseItem> {
+  references
+    .iter()
+    .filter_map(|refer| {
+      let reference_node = get_reference_node(semantic, refer);
+
+      let is_in_closing = is_in(&semantic, reference_node, 6, |kind| {
+        matches!(kind, AstKind::JSXClosingElement(_))
+      })
+      .is_some();
+
+      if is_in_closing {
+        return None;
+      }
+
+      let ast_node = AstNode::with_source_and_ast_node(
+        semantic.source_text(),
+        reference_node,
+      );
+
+      let opening_node = is_in(&semantic, reference_node, 10, |kind| {
+        matches!(kind, AstKind::JSXOpeningElement(_))
+      });
+
+      if let Some(AstKind::JSXOpeningElement(kind)) =
+        opening_node.map(|node| node.kind())
+      {
+        let name = get_jsx_opening_element_name(
+          kind,
+          is_default_specifier,
+          is_namespace_specifier,
+          imported_name.as_str(),
+        );
+
+        let attributes = get_jsx_props(kind);
+
+        return Some(ModuleMemberUsageResponseItem {
+          lib_name: source_name.to_string(),
+          member_name: name.to_string(),
+          ast_node: ast_node,
+          props: attributes,
+        });
+      }
+
+      let member_parent_node = is_in(&semantic, reference_node, 2, |kind| {
+        matches!(kind, AstKind::MemberExpression(_))
+      });
+
+      if let Some(AstKind::MemberExpression(kind)) =
+        member_parent_node.map(|node| node.kind())
+      {
+        let name = match kind {
+          oxc_ast::ast::MemberExpression::ComputedMemberExpression(
+            computed_member_expression,
+          ) => match &computed_member_expression.expression {
+            Expression::StringLiteral(string_literal) => {
+              string_literal.to_string()
+            }
+            Expression::TemplateLiteral(_)
+            | Expression::Identifier(_)
+            | Expression::LogicalExpression(_) => {
+              DYNAMIC_COMPUTED_MEMBER.to_string()
+            }
+            _ => UNKNOWN.to_string(),
+          },
+          oxc_ast::ast::MemberExpression::StaticMemberExpression(
+            static_member_expression,
+          ) => {
+            if is_default_specifier || is_namespace_specifier {
+              static_member_expression.property.name.to_string()
+            } else {
+              match &static_member_expression.object {
+                Expression::Identifier(ident) => ident.name.to_string(),
+                _ => UNKNOWN.to_string(),
+              }
+            }
+          }
+          oxc_ast::ast::MemberExpression::PrivateFieldExpression(
+            private_field_expression,
+          ) => private_field_expression.field.name.to_string(),
+        };
+
+        return Some(ModuleMemberUsageResponseItem {
+          lib_name: source_name.to_string(),
+          member_name: name.to_string(),
+          ast_node: ast_node,
+          props: vec![],
+        });
+      }
+
+      return Some(ModuleMemberUsageResponseItem {
+        lib_name: source_name.to_string(),
+        member_name: imported_name.to_string(),
+        ast_node: ast_node,
+        props: vec![],
+      });
+    })
+    .collect::<Vec<_>>()
+}
+
 fn get_jsx_opening_element_name(
   kind: &JSXOpeningElement,
   is_default_specifier: bool,
+  is_namespace_specifier: bool,
   imported_name: &str,
 ) -> String {
   match &kind.name {
@@ -203,23 +230,45 @@ fn get_jsx_opening_element_name(
       namespace_name.property.name.to_string()
     }
     oxc_ast::ast::JSXElementName::MemberExpression(jsx_member_expr) => {
-      if is_default_specifier {
-        imported_name.to_string()
+      if is_default_specifier || is_namespace_specifier {
+        let mut path = vec![];
+        get_member_expression_name(&jsx_member_expr, &mut path);
+        path
+          .last()
+          .map_or(UNKNOWN.to_string(), |last| last.to_string())
       } else {
         match &jsx_member_expr.object {
           oxc_ast::ast::JSXMemberExpressionObject::IdentifierReference(_) => {
-            jsx_member_expr.property.name.to_string()
+            imported_name.to_string()
           }
           oxc_ast::ast::JSXMemberExpressionObject::MemberExpression(
             jsx_member_expression,
           ) => jsx_member_expression.property.name.to_string(),
           oxc_ast::ast::JSXMemberExpressionObject::ThisExpression(_) => {
-            "this".to_string()
+            "This".to_string()
           }
         }
       }
     }
     oxc_ast::ast::JSXElementName::ThisExpression(_) => "This".to_string(),
+  }
+}
+
+fn get_member_expression_name(
+  jsx_member_expr: &JSXMemberExpression,
+  path: &mut Vec<String>,
+) -> String {
+  path.push(jsx_member_expr.property.name.to_string());
+  match &jsx_member_expr.object {
+    oxc_ast::ast::JSXMemberExpressionObject::IdentifierReference(
+      identifier_reference,
+    ) => identifier_reference.name.to_string(),
+    oxc_ast::ast::JSXMemberExpressionObject::MemberExpression(
+      jsxmember_expression,
+    ) => get_member_expression_name(&jsxmember_expression, path),
+    oxc_ast::ast::JSXMemberExpressionObject::ThisExpression(_) => {
+      "This".to_string()
+    }
   }
 }
 
@@ -264,13 +313,34 @@ fn is_in<'a>(
   None
 }
 
+fn get_imported_name(specifier: &ImportDeclarationSpecifier) -> String {
+  match specifier {
+    ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
+      import_specifier.imported.name().as_str().to_string()
+    }
+    ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => {
+      ES_DEFAULT.to_string()
+    }
+    ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => {
+      ES_NAMESPACE.to_string()
+    }
+  }
+}
+
 fn is_default_specifier(specifier: &ImportDeclarationSpecifier) -> bool {
   match specifier {
     ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
-      !(import_specifier.imported.name() == "default")
+      import_specifier.imported.name() == "default"
     }
-    ImportDeclarationSpecifier::ImportDefaultSpecifier(_)
-    | ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => false,
+    ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => true,
+    _ => false,
+  }
+}
+
+fn is_namespace_specifier(specifier: &ImportDeclarationSpecifier) -> bool {
+  match specifier {
+    ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => true,
+    _ => false,
   }
 }
 
@@ -527,6 +597,8 @@ mod tests {
       .map(|(key, group)| (key, group.count()))
       .collect::<HashMap<String, usize>>();
 
+    println!("grouped: {:?}", grouped);
+
     assert_eq!(grouped.keys().len(), 3);
     assert_eq!(grouped["method"], 1);
     assert_eq!(grouped["named1"], 2);
@@ -540,7 +612,7 @@ mod tests {
       &r#"
             import * as Lib from 'lib';
             function Component() {
-                return <Lib.Nested.Component prop={true} />;
+                return <Lib.Nested.Component.D prop={true} />;
             }
       "#,
     );
@@ -607,6 +679,7 @@ mod tests {
             }
       "#,
     );
+
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "react");
     assert_eq!(result[0].member_name, "Fragment");
@@ -619,10 +692,15 @@ mod tests {
       &r#"
              import * as React from 'react';
             function Component() {
-                return <React.Fragment>Hello</React.Fragment>;
+                return <React.Fragment>
+                <div>world</div>
+                Hello
+                </React.Fragment>;
             }
       "#,
     );
+
+    println!("result: {:?}", result);
 
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "react");
@@ -657,6 +735,10 @@ mod tests {
         ReactDOM.render(<Component />, document.getElementById('root'));
       "#,
     );
+
+    // for item in result.iter() {
+    //   println!("item: {:?} {:?}", item.lib_name, item.member_name);
+    // }
 
     assert_eq!(result.len(), 3);
     assert!(result

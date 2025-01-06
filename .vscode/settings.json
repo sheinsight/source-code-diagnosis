@@ -21,6 +21,7 @@
 		"instanceof",
 		"isnan",
 		"itertools",
+		"jsxmember",
 		"kosaraju",
 		"msvc",
 		"musleabihf",
