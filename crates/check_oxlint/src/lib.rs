@@ -1,5 +1,6 @@
 use std::{fmt::Display, rc::Rc, sync::Arc};
 
+use beans::{Location, Span};
 use napi_derive::napi;
 use oxc_diagnostics::Severity;
 use oxc_linter::{FixKind, LinterBuilder, Oxlintrc};
@@ -17,6 +18,7 @@ pub struct CheckOxlintLabelsSpan {
 #[derive(Debug, Clone, Serialize)]
 pub struct CheckOxlintLabelsResponse {
   pub span: CheckOxlintLabelsSpan,
+  pub loc: Location,
 }
 
 #[napi(object)]
@@ -62,6 +64,8 @@ pub fn check_oxlint(
       ));
       let semantic = Rc::new(semantic);
 
+      let source_text = semantic.source_text();
+
       let diagnostics = linter.run(&path, semantic, module_record);
 
       let responses = diagnostics
@@ -84,11 +88,19 @@ pub fn check_oxlint(
             .as_ref()
             .map(|v| {
               v.iter()
-                .map(|l| CheckOxlintLabelsResponse {
-                  span: CheckOxlintLabelsSpan {
-                    offset: l.offset() as u32,
-                    length: l.len() as u32,
-                  },
+                .map(|l| {
+                  let loc = Location::with_source(&source_text, Span {
+                    start: l.offset() as u32,
+                    end: l.offset() as u32 + l.len() as u32,
+                  });
+
+                  return CheckOxlintLabelsResponse {
+                    span: CheckOxlintLabelsSpan {
+                      offset: l.offset() as u32,
+                      length: l.len() as u32,
+                    },
+                    loc,
+                  };
                 })
                 .collect::<Vec<_>>()
             })

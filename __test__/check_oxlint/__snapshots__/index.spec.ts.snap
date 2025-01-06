@@ -1,0 +1,32 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`No phantom dependencies 1`] = `
+[
+  {
+    "code": "eslint-plugin-unicorn(no-instanceof-array)",
+    "fileName": "index.js",
+    "help": "The instanceof Array check doesn't work across realms/contexts, for example, frames/windows in browsers or the vm module in Node.js.",
+    "labels": [
+      {
+        "loc": {
+          "end": {
+            "col": 27,
+            "line": 2,
+          },
+          "start": {
+            "col": 5,
+            "line": 2,
+          },
+        },
+        "span": {
+          "length": 22,
+          "offset": 14,
+        },
+      },
+    ],
+    "message": "Use \`Array.isArray()\` instead of \`instanceof Array\`.",
+    "severity": "error",
+    "url": "https://oxc.rs/docs/guide/usage/linter/rules/unicorn/no-instanceof-array.html",
+  },
+]
+`;

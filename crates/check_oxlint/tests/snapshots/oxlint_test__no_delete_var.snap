@@ -15,6 +15,16 @@ snapshot_kind: text
       "span": {
         "offset": 7,
         "length": 8
+      },
+      "loc": {
+        "start": {
+          "line": 2,
+          "col": 1
+        },
+        "end": {
+          "line": 2,
+          "col": 9
+        }
       }
     }
   ]
