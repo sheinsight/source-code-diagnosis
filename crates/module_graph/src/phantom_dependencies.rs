@@ -11,13 +11,11 @@ pub fn check_phantom_dependencies(
     .graph
     .into_iter()
     .filter_map(|edge| {
-      if let Some(target_metadata) = &edge.target_metadata {
-        if let Some(target_module_name) =
-          graphics.dictionaries.get(&target_metadata.module_id)
-        {
-          if !deps.contains(target_module_name) {
-            return Some(edge);
-          }
+      if let Some(target_module_name) =
+        graphics.dictionaries.get(&edge.target_metadata.module_id)
+      {
+        if !deps.contains(target_module_name) {
+          return Some(edge);
         }
       }
 

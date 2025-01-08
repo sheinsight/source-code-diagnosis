@@ -14,6 +14,12 @@ use utils::{glob_by_semantic, GlobArgs, GlobErrorHandler, GlobSuccessHandler};
 
 use crate::model::{Args, Edge, Graphics, TargetMetadata};
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ModuleRecord {
+  name: String,
+  span: oxc_span::Span,
+}
+
 pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
   let cwd_path = Path::new(&args.cwd);
 
@@ -67,12 +73,33 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
      }| {
       let source_text = semantic.source_text();
 
-      let res: Vec<Edge> = parse
-        .module_record
+      let module_record = parse.module_record;
+
+      let mr = module_record
         .import_entries
+        .iter()
+        .map(|item| item.module_request.clone())
+        .chain(
+          module_record
+            .star_export_entries
+            .iter()
+            .filter_map(|item| item.module_request.clone()),
+        )
+        .chain(
+          module_record
+            .indirect_export_entries
+            .iter()
+            .filter_map(|item| item.module_request.clone()),
+        )
+        .map(|record| ModuleRecord {
+          name: record.name.to_string(),
+          span: record.span,
+        })
+        .collect::<Vec<_>>();
+
+      let res: Vec<Edge> = mr
         .par_iter()
         .filter_map(|item| {
-          let item = &item.module_request;
           let name_str = item.name.to_string();
 
           let resolved = resolver.resolve_with_context(
@@ -147,16 +174,8 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
       let source_id = get_or_create_id(&x.source_id);
       let target_id = get_or_create_id(&x.target_id);
 
-      let target_metadata =
-        if let Some(metadata) = may_be_node_modules(&x.target_id) {
-          let module_id = get_or_create_id(&metadata.module_id);
-          Some(TargetMetadata {
-            module_id,
-            may_be: false,
-          })
-        } else {
-          None
-        };
+      let mut target_metadata = may_be_node_modules(&x.target_id);
+      target_metadata.module_id = get_or_create_id(&target_metadata.module_id);
 
       Some(Edge {
         source_id,
@@ -178,39 +197,40 @@ pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {
   })
 }
 
-fn may_be_node_modules(target: &str) -> Option<TargetMetadata> {
-  const LOCAL_PATTERNS: [&str; 5] = ["./", "../", "/", "node_modules", "@/"];
+fn may_be_node_modules(target: &str) -> TargetMetadata {
+  const LOCAL_PATTERNS: [&str; 4] = ["./", "../", "/", "@/"];
 
   let module_name = get_main_module_name(target);
 
   if target.contains("node_modules") {
-    return Some(TargetMetadata {
+    return TargetMetadata {
       module_id: module_name,
-      may_be: false,
-    });
+      may_be: true,
+    };
   }
-
-  let may_be = true;
 
   if target.starts_with('@') && !target.starts_with("@/") {
-    return Some(TargetMetadata {
+    return TargetMetadata {
       module_id: module_name,
-      may_be,
-    });
+      may_be: true,
+    };
   }
 
-  let my_be = !LOCAL_PATTERNS
+  let may_be = !LOCAL_PATTERNS
     .iter()
     .any(|pattern| target.contains(pattern));
 
-  if my_be {
-    return Some(TargetMetadata {
+  if may_be {
+    return TargetMetadata {
       module_id: module_name,
-      may_be,
-    });
+      may_be: true,
+    };
   }
 
-  None
+  return TargetMetadata {
+    module_id: module_name,
+    may_be: false,
+  };
 }
 
 fn get_main_module_name(module_name: &str) -> String {
@@ -227,5 +247,91 @@ fn get_main_module_name(module_name: &str) -> String {
       .next()
       .unwrap_or(module_name)
       .to_string()
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[macro_export]
+  macro_rules! assert_may_be_node_modules {
+    {
+        #[$test_attr:tt]
+        $fn_name:ident,
+        $target:expr => $expected:expr
+    } => {
+        #[$test_attr]
+        fn $fn_name() {
+            let resp = may_be_node_modules($target);
+            assert_eq!(
+                resp.may_be, $expected,
+                "For target '{}': expected {}, got {}",
+                $target, $expected, resp.may_be
+            );
+        }
+    };
+  }
+
+  #[macro_export]
+  macro_rules! assert_main_module_name {
+    {
+        #[$test_attr:tt]
+        $fn_name:ident,
+        $target:expr => $expected:expr
+    } => {
+        #[$test_attr]
+        fn $fn_name() {
+            assert_eq!(get_main_module_name($target), $expected);
+        }
+    };
+  }
+
+  assert_main_module_name! {
+    #[test]
+    test_get_main_module_name_with_node_modules_prefix,
+    "node_modules/antd/lib/Button" => "antd"
+  }
+
+  assert_main_module_name! {
+    #[test]
+    test_get_main_module_name_with_scope_prefix,
+    "@babel/core/lib/something" => "@babel/core"
+  }
+
+  assert_main_module_name! {
+    #[test]
+    test_get_main_module_name_with_at_prefix_and_slash,
+    "lodash/cloneDeep" => "lodash"
+  }
+
+  assert_may_be_node_modules! {
+    #[test]
+    test_may_be_node_modules_with_node_modules_prefix,
+    "node_modules/antd/lib/Button" => true
+  }
+
+  assert_may_be_node_modules! {
+    #[test]
+    test_may_be_node_modules_with_node_modules_prefix_in_alias,
+    "demo/node_modules/antd/lib/Button" => true
+  }
+
+  assert_may_be_node_modules! {
+    #[test]
+    test_may_be_node_modules_with_scope_prefix,
+    "@babel/core/lib/something" => true
+  }
+
+  assert_may_be_node_modules! {
+    #[test]
+    test_may_be_node_modules_with_alias_prefix,
+    "@/src/index.ts" => false
+  }
+
+  assert_may_be_node_modules! {
+    #[test]
+    test_may_be_node_modules_with_at_prefix_and_slash,
+    "lodash/cloneDeep" => false
   }
 }

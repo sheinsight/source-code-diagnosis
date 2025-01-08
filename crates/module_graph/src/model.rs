@@ -141,7 +141,7 @@ pub struct Edge {
   /// - this is node_modules lib , but node_modules is not installed
   pub missing: bool,
   /// target metadata
-  pub target_metadata: Option<TargetMetadata>,
+  pub target_metadata: TargetMetadata,
   /// ast node
   pub ast_node: beans::AstNode,
 }
