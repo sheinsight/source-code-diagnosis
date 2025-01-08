@@ -26,18 +26,14 @@ fn test_check_phantom_dependencies() -> anyhow::Result<()> {
     .graph
     .iter()
     .filter_map(|edge| {
-      if let Some(target_metadata) = &edge.target_metadata {
-        return Some(format!(
-          r#"name: {}  may_be: {}"#,
-          responses
-            .dictionaries
-            .get(&target_metadata.module_id)
-            .unwrap(),
-          target_metadata.may_be
-        ));
-      }
-
-      None
+      return Some(format!(
+        r#"name: {}  may_be: {}"#,
+        responses
+          .dictionaries
+          .get(&edge.target_metadata.module_id)
+          .unwrap(),
+        edge.target_metadata.may_be
+      ));
     })
     .collect::<Vec<_>>();
 

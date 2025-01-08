@@ -3,4 +3,4 @@ source: crates/module_graph/tests/phantom_dependencies_test.rs
 expression: "snap.join(\"\\n\")"
 snapshot_kind: text
 ---
-name: antd  may_be: false
+name: antd  may_be: true

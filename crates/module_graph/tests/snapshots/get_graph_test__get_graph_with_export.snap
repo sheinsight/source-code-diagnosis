@@ -1,0 +1,9 @@
+---
+source: crates/module_graph/tests/get_graph_test.rs
+expression: "edges.join(\"\\n\")"
+snapshot_kind: text
+---
+a.js -> b.js
+b-1.js -> c.js
+b-2.js -> c.js
+b.js -> c.js
