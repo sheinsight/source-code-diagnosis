@@ -1,3 +1,30 @@
+# 0.0.88
+
+## 🐞 fix
+
+fix: module_member_usage
+
+```jsx
+import React, { useState } from "react";
+import { Upload as Up } from "antd";
+export function Upload({ getRes, image, ...props }) {
+  const [value, setValue] = useState("");
+  const Comp = image ? Up.Image : Up;
+  const children = image ? null : (
+    <ButtonWithIcon name="upload">{t("上传")}</ButtonWithIcon>
+  );
+  return <Comp>{children}</Comp>;
+}
+```
+
+before the result member name is `Up` , but now is `Updoad`;
+
+## 🔥 refactor
+
+other
+
+`is_in` remove max_depth args, i think it's ok.
+
 # 0.0.87
 
 ## 🐞 fix

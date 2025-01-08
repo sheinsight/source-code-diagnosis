@@ -1390,6 +1390,7 @@ dependencies = [
  "oxc_span",
  "parking_lot 0.12.3",
  "serde",
+ "serde_json",
  "utils",
 ]
 

@@ -1,3 +1,5 @@
+use std::collections::{HashMap, HashSet};
+
 use beans::AstNode;
 use oxc_ast::{
   ast::{
@@ -7,7 +9,7 @@ use oxc_ast::{
   AstKind,
 };
 
-use oxc_semantic::{Reference, Semantic};
+use oxc_semantic::{NodeId, Reference, Semantic};
 
 use crate::response::JSXProps;
 
@@ -121,9 +123,12 @@ fn each_reference<'a>(
     .filter_map(|refer| {
       let reference_node = get_reference_node(semantic, refer);
 
-      let is_in_closing = is_in(&semantic, reference_node, 6, |kind| {
-        matches!(kind, AstKind::JSXClosingElement(_))
-      })
+      let is_in_closing = is_in(
+        &semantic,
+        reference_node,
+        /**6,*/
+        |kind| matches!(kind, AstKind::JSXClosingElement(_)),
+      )
       .is_some();
 
       if is_in_closing {
@@ -135,9 +140,12 @@ fn each_reference<'a>(
         reference_node,
       );
 
-      let opening_node = is_in(&semantic, reference_node, 10, |kind| {
-        matches!(kind, AstKind::JSXOpeningElement(_))
-      });
+      let opening_node = is_in(
+        &semantic,
+        reference_node,
+        /**10,*/
+        |kind| matches!(kind, AstKind::JSXOpeningElement(_)),
+      );
 
       if let Some(AstKind::JSXOpeningElement(kind)) =
         opening_node.map(|node| node.kind())
@@ -159,9 +167,12 @@ fn each_reference<'a>(
         });
       }
 
-      let member_parent_node = is_in(&semantic, reference_node, 2, |kind| {
-        matches!(kind, AstKind::MemberExpression(_))
-      });
+      let member_parent_node = is_in(
+        &semantic,
+        reference_node,
+        /**2,*/
+        |kind| matches!(kind, AstKind::MemberExpression(_)),
+      );
 
       if let Some(AstKind::MemberExpression(kind)) =
         member_parent_node.map(|node| node.kind())
@@ -187,7 +198,7 @@ fn each_reference<'a>(
               static_member_expression.property.name.to_string()
             } else {
               match &static_member_expression.object {
-                Expression::Identifier(ident) => ident.name.to_string(),
+                Expression::Identifier(ident) => imported_name.to_string(),
                 _ => UNKNOWN.to_string(),
               }
             }
@@ -293,22 +304,22 @@ fn get_reference_node<'a>(
 fn is_in<'a>(
   semantic: &'a Semantic,
   node: &'a oxc_semantic::AstNode<'a>,
-  max_depth: usize,
+  // max_depth: usize,
   predicate: impl Fn(&AstKind) -> bool,
 ) -> Option<&'a oxc_semantic::AstNode<'a>> {
-  let mut depth = 0;
+  // let mut depth = 0;
   let mut current_node_id = node.id();
   while let Some(pn) = semantic.nodes().parent_node(current_node_id) {
-    if depth >= max_depth {
-      return None;
-    }
+    // if depth >= max_depth {
+    //   return None;
+    // }
 
     if predicate(&pn.kind()) {
       return Some(pn);
     }
 
     current_node_id = pn.id();
-    depth += 1;
+    // depth += 1;
   }
   None
 }
@@ -750,5 +761,34 @@ mod tests {
     assert!(result
       .iter()
       .any(|r| r.lib_name == "react-dom" && r.member_name == "render"));
+  }
+
+  #[test]
+  fn test_alias() {
+    let result = util(
+      vec!["antd".to_string()],
+      &r#"
+        import React, { useState } from 'react';
+        import {
+          Upload as Up,
+        } from 'antd';
+        export function Upload({ getRes, image, ...props }) {
+          const [value, setValue] = useState('');
+          const Comp = image ? Up.Image : Up;
+          const children = image ? null : (
+            <ButtonWithIcon name="upload">{t('上传')}</ButtonWithIcon>
+          );
+          return (
+            <Comp>
+              {children}
+            </Comp>
+          );
+        }
+      "#,
+    );
+
+    for item in result.iter() {
+      assert_eq!(item.member_name, "Upload")
+    }
   }
 }
