@@ -1,3 +1,30 @@
+# 0.0.89
+
+## 🐞 fix
+
+fix: module_member_usage
+
+```jsx
+import { Table as STable } from "antd";
+class View extends React.Component {
+  render() {
+    return (
+      <div className={style.wrap}>
+        <STable
+          keygen="id"
+          columns={columns}
+          data={modalInfo.details}
+          style={{ minHeight: 100, maxHeight: 400 }}
+          size="small"
+        />
+      </div>
+    );
+  }
+}
+```
+
+before the result member name is `STable` , but now is `Table`;
+
 # 0.0.88
 
 ## 🐞 fix
