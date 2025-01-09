@@ -140,33 +140,6 @@ fn each_reference<'a>(
         reference_node,
       );
 
-      let opening_node = is_in(
-        &semantic,
-        reference_node,
-        /**10,*/
-        |kind| matches!(kind, AstKind::JSXOpeningElement(_)),
-      );
-
-      if let Some(AstKind::JSXOpeningElement(kind)) =
-        opening_node.map(|node| node.kind())
-      {
-        let name = get_jsx_opening_element_name(
-          kind,
-          is_default_specifier,
-          is_namespace_specifier,
-          imported_name.as_str(),
-        );
-
-        let attributes = get_jsx_props(kind);
-
-        return Some(ModuleMemberUsageResponseItem {
-          lib_name: source_name.to_string(),
-          member_name: name.to_string(),
-          ast_node: ast_node,
-          props: attributes,
-        });
-      }
-
       let member_parent_node = is_in(
         &semantic,
         reference_node,
@@ -213,6 +186,33 @@ fn each_reference<'a>(
           member_name: name.to_string(),
           ast_node: ast_node,
           props: vec![],
+        });
+      }
+
+      let opening_node = is_in(
+        &semantic,
+        reference_node,
+        /**10,*/
+        |kind| matches!(kind, AstKind::JSXOpeningElement(_)),
+      );
+
+      if let Some(AstKind::JSXOpeningElement(kind)) =
+        opening_node.map(|node| node.kind())
+      {
+        let name = get_jsx_opening_element_name(
+          kind,
+          is_default_specifier,
+          is_namespace_specifier,
+          imported_name.as_str(),
+        );
+
+        let attributes = get_jsx_props(kind);
+
+        return Some(ModuleMemberUsageResponseItem {
+          lib_name: source_name.to_string(),
+          member_name: name.to_string(),
+          ast_node: ast_node,
+          props: attributes,
         });
       }
 
@@ -817,6 +817,39 @@ mod tests {
     );
     for item in result.iter() {
       assert_eq!(item.member_name, "Table");
+    }
+  }
+
+  #[test]
+  fn test_in_event_handler() {
+    let result = util(
+      vec!["antd".to_string()],
+      &r#"
+           import { Message } from "antd";
+export default () => {
+  return [
+    {
+      render: (d) => {
+        if (d.status === 2 && d.filePath) {
+          return (
+            <a
+              onClick={async () => {
+                Message.success("xxx", 5);
+              }}
+            >
+              hello
+            </a>
+          );
+        }
+        return <div>{d.exportName}</div>;
+      },
+    },
+  ];
+};
+      "#,
+    );
+    for item in result.iter() {
+      assert_eq!(item.member_name, "Message");
     }
   }
 }
