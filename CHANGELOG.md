@@ -1,3 +1,37 @@
+# 0.0.90
+
+## 🐞 fix
+
+fix: module_member_usage
+
+```jsx
+import { Message } from "antd";
+export default () => {
+  return [
+    {
+      render: (d) => {
+        if (d.status === 2 && d.filePath) {
+          return (
+            <a
+              onClick={async () => {
+                Message.success("xxx", 5);
+              }}
+            >
+              hello
+            </a>
+          );
+        }
+        return <div>{d.exportName}</div>;
+      },
+    },
+  ];
+};
+```
+
+before because the `Message` is in `<a>` , so the result member name is `a`.
+
+but now because the `Message` is in `event handler` , so the result member name is `Message`;
+
 # 0.0.89
 
 ## 🐞 fix
