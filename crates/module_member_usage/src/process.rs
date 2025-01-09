@@ -234,11 +234,11 @@ fn get_jsx_opening_element_name(
 ) -> String {
   match &kind.name {
     oxc_ast::ast::JSXElementName::Identifier(ident) => ident.name.to_string(),
-    oxc_ast::ast::JSXElementName::IdentifierReference(ident_ref) => {
-      ident_ref.name.to_string()
+    oxc_ast::ast::JSXElementName::IdentifierReference(_) => {
+      imported_name.to_string()
     }
-    oxc_ast::ast::JSXElementName::NamespacedName(namespace_name) => {
-      namespace_name.property.name.to_string()
+    oxc_ast::ast::JSXElementName::NamespacedName(_) => {
+      imported_name.to_string()
     }
     oxc_ast::ast::JSXElementName::MemberExpression(jsx_member_expr) => {
       if is_default_specifier || is_namespace_specifier {
@@ -764,7 +764,7 @@ mod tests {
   }
 
   #[test]
-  fn test_alias() {
+  fn test_alias_not_in_render() {
     let result = util(
       vec!["antd".to_string()],
       &r#"
@@ -789,6 +789,34 @@ mod tests {
 
     for item in result.iter() {
       assert_eq!(item.member_name, "Upload")
+    }
+  }
+
+  #[test]
+  fn test_alias_in_render() {
+    let result = util(
+      vec!["antd".to_string()],
+      &r#"
+          import { Table as STable } from 'antd';
+          class View extends React.Component {
+            render() {
+              return (
+                <div className={style.wrap}>
+                  <STable
+                    keygen="id"
+                    columns={columns}
+                    data={modalInfo.details}
+                    style={{ minHeight: 100, maxHeight: 400 }}
+                    size="small"
+                  />
+                </div>
+              );
+            }
+          }
+      "#,
+    );
+    for item in result.iter() {
+      assert_eq!(item.member_name, "Table");
     }
   }
 }
