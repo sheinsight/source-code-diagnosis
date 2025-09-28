@@ -794,7 +794,7 @@ export default () => {
 
     println!("result----->>>>: {:#?}", result);
 
-    assert_eq!(result.len(), 1);
+    assert_eq!(result.len(), 2);
     assert_eq!(result[0].lib_name, "antd");
     assert_eq!(result[0].module_value, "antd/lib/hashHistory");
     assert_eq!(result[0].member_name, "ES:DEFAULT");
