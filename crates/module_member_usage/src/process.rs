@@ -1,69 +1,24 @@
-use std::ops::Not;
-
 use beans::AstNode;
 use oxc_ast::{
   ast::{
-    BindingIdentifier, Expression, ImportDeclarationSpecifier,
-    JSXMemberExpression, JSXOpeningElement, MemberExpression,
+    BindingIdentifier, ImportDeclarationSpecifier, JSXMemberExpression,
+    JSXOpeningElement,
   },
   AstKind,
 };
 
 use oxc_semantic::{Reference, Semantic};
 
-use crate::response::JSXProps;
+use crate::{
+  import_declaration_specifier_expand::ImportDeclarationSpecifierExpand,
+  member_expression::MemberExpressionExpand,
+  r#const::{
+    EMPTY_SPECIFIERS, NOT_IMPLEMENTED, SIDE_EFFECTS, SPREAD_ATTRIBUTE, UNKNOWN,
+  },
+  response::JSXProps,
+};
 
 use super::response::ModuleMemberUsageResponseItem;
-
-pub trait ImportDeclarationSpecifierExpand<'a> {
-  fn is_default_specifier(&self) -> bool;
-  fn is_namespace_specifier(&self) -> bool;
-  fn get_imported_name(&self) -> String;
-}
-
-impl<'a> ImportDeclarationSpecifierExpand<'a>
-  for ImportDeclarationSpecifier<'a>
-{
-  fn is_default_specifier(&self) -> bool {
-    match self {
-      ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
-        import_specifier.imported.name() == "default"
-      }
-      ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => true,
-      _ => false,
-    }
-  }
-
-  fn is_namespace_specifier(&self) -> bool {
-    match self {
-      ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => true,
-      _ => false,
-    }
-  }
-
-  fn get_imported_name(&self) -> String {
-    match self {
-      ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
-        import_specifier.imported.name().as_str().to_string()
-      }
-      ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => {
-        ES_DEFAULT.to_string()
-      }
-      ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => {
-        ES_NAMESPACE.to_string()
-      }
-    }
-  }
-}
-
-static ES_NAMESPACE: &str = "ES:NAMESPACE";
-static ES_DEFAULT: &str = "ES:DEFAULT";
-static SIDE_EFFECTS: &str = "ES:SIDE_EFFECTS";
-static EMPTY_SPECIFIERS: &str = "EMPTY_SPECIFIERS";
-static DYNAMIC_COMPUTED_MEMBER: &str = "ES:DYNAMIC_COMPUTED_MEMBER";
-static UNKNOWN: &str = "UNKNOWN";
-static NOT_IMPLEMENTED: &str = "NOT_IMPLEMENTED";
-static SPREAD_ATTRIBUTE: &str = "SPREAD_ATTRIBUTE";
 
 pub fn process<'a>(
   semantic: &'a Semantic,
@@ -140,24 +95,9 @@ fn each_specifiers<'a>(
   let responses = specifiers
     .iter()
     .map(|spec| {
-      let imported_name = spec.get_imported_name();
-
-      let is_default_specifier = spec.is_default_specifier();
-
-      let is_namespace_specifier = spec.is_namespace_specifier();
-
       let references = get_symbol_references(semantic, spec.local());
-
-      let responses = each_reference(
-        semantic,
-        library_name,
-        module_name,
-        imported_name,
-        is_default_specifier,
-        is_namespace_specifier,
-        references,
-      );
-
+      let responses =
+        each_reference(semantic, library_name, module_name, spec, references);
       return responses;
     })
     .flatten()
@@ -169,9 +109,7 @@ fn each_reference<'a>(
   semantic: &'a Semantic,
   library_name: &str,
   module_name: &str,
-  imported_name: String,
-  is_default_specifier: bool,
-  is_namespace_specifier: bool,
+  specifier: &ImportDeclarationSpecifier<'a>,
   references: Vec<&'a Reference>,
 ) -> Vec<ModuleMemberUsageResponseItem> {
   references
@@ -200,36 +138,7 @@ fn each_reference<'a>(
       if let Some(AstKind::MemberExpression(kind)) =
         member_parent_node.map(|node| node.kind())
       {
-        let name = match kind {
-          MemberExpression::ComputedMemberExpression(
-            computed_member_expression,
-          ) => match &computed_member_expression.expression {
-            Expression::StringLiteral(string_literal) => {
-              string_literal.to_string()
-            }
-            Expression::TemplateLiteral(_)
-            | Expression::Identifier(_)
-            | Expression::LogicalExpression(_) => {
-              DYNAMIC_COMPUTED_MEMBER.to_string()
-            }
-            _ => UNKNOWN.to_string(),
-          },
-          MemberExpression::StaticMemberExpression(
-            static_member_expression,
-          ) => {
-            if is_default_specifier || is_namespace_specifier {
-              static_member_expression.property.name.to_string()
-            } else {
-              match &static_member_expression.object {
-                Expression::Identifier(_ident) => imported_name.to_string(),
-                _ => UNKNOWN.to_string(),
-              }
-            }
-          }
-          MemberExpression::PrivateFieldExpression(
-            private_field_expression,
-          ) => private_field_expression.field.name.to_string(),
-        };
+        let name = kind.get_member_name(specifier);
 
         return Some(ModuleMemberUsageResponseItem {
           lib_name: library_name.to_string(),
@@ -249,9 +158,9 @@ fn each_reference<'a>(
       {
         let name = get_jsx_opening_element_name(
           kind,
-          is_default_specifier,
-          is_namespace_specifier,
-          imported_name.as_str(),
+          specifier.is_default_specifier(),
+          specifier.is_namespace_specifier(),
+          specifier.get_imported_name().as_str(),
         );
 
         let attributes = get_jsx_props(kind);
@@ -268,7 +177,7 @@ fn each_reference<'a>(
       return Some(ModuleMemberUsageResponseItem {
         lib_name: library_name.to_string(),
         module_name: module_name.to_string(),
-        member_name: imported_name.to_string(),
+        member_name: specifier.get_imported_name().to_string(),
         ast_node: ast_node,
         props: vec![],
       });
@@ -373,37 +282,6 @@ fn is_in<'a>(
   }
   None
 }
-
-// fn get_imported_name(specifier: &ImportDeclarationSpecifier) -> String {
-//   match specifier {
-//     ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
-//       import_specifier.imported.name().as_str().to_string()
-//     }
-//     ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => {
-//       ES_DEFAULT.to_string()
-//     }
-//     ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => {
-//       ES_NAMESPACE.to_string()
-//     }
-//   }
-// }
-
-// fn is_default_specifier(specifier: &ImportDeclarationSpecifier) -> bool {
-//   match specifier {
-//     ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
-//       import_specifier.imported.name() == "default"
-//     }
-//     ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => true,
-//     _ => false,
-//   }
-// }
-
-// fn is_namespace_specifier(specifier: &ImportDeclarationSpecifier) -> bool {
-//   match specifier {
-//     ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => true,
-//     _ => false,
-//   }
-// }
 
 fn get_jsx_props<'a>(kind: &JSXOpeningElement) -> Vec<JSXProps> {
   let props = kind
@@ -912,6 +790,7 @@ export default () => {
         console.log(history);
       "#,
     );
+    println!("result----->>>>: {:#?}", result);
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "antd");
     assert_eq!(result[0].module_name, "antd/lib/hashHistory");

@@ -4,7 +4,10 @@ use response::ModuleMemberUsageResponse;
 use utils::{glob_by_semantic, GlobArgs};
 use utils::{GlobErrorHandler, GlobSuccessHandler};
 
-mod process;
+pub mod r#const;
+pub mod import_declaration_specifier_expand;
+pub mod member_expression;
+pub mod process;
 pub mod response;
 
 pub fn check_module_member_usage(
