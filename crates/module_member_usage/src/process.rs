@@ -1,19 +1,60 @@
-use std::collections::{HashMap, HashSet};
+use std::ops::Not;
 
 use beans::AstNode;
 use oxc_ast::{
   ast::{
     BindingIdentifier, Expression, ImportDeclarationSpecifier,
-    JSXMemberExpression, JSXOpeningElement,
+    JSXMemberExpression, JSXOpeningElement, MemberExpression,
   },
   AstKind,
 };
 
-use oxc_semantic::{NodeId, Reference, Semantic};
+use oxc_semantic::{Reference, Semantic};
 
 use crate::response::JSXProps;
 
 use super::response::ModuleMemberUsageResponseItem;
+
+pub trait ImportDeclarationSpecifierExpand<'a> {
+  fn is_default_specifier(&self) -> bool;
+  fn is_namespace_specifier(&self) -> bool;
+  fn get_imported_name(&self) -> String;
+}
+
+impl<'a> ImportDeclarationSpecifierExpand<'a>
+  for ImportDeclarationSpecifier<'a>
+{
+  fn is_default_specifier(&self) -> bool {
+    match self {
+      ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
+        import_specifier.imported.name() == "default"
+      }
+      ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => true,
+      _ => false,
+    }
+  }
+
+  fn is_namespace_specifier(&self) -> bool {
+    match self {
+      ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => true,
+      _ => false,
+    }
+  }
+
+  fn get_imported_name(&self) -> String {
+    match self {
+      ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
+        import_specifier.imported.name().as_str().to_string()
+      }
+      ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => {
+        ES_DEFAULT.to_string()
+      }
+      ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => {
+        ES_NAMESPACE.to_string()
+      }
+    }
+  }
+}
 
 static ES_NAMESPACE: &str = "ES:NAMESPACE";
 static ES_DEFAULT: &str = "ES:DEFAULT";
@@ -41,9 +82,19 @@ pub fn process<'a>(
 
       let source_name = decl.source.value.as_str().to_string();
 
-      if !npm_name_vec.contains(&source_name) {
+      let lib_name = npm_name_vec.iter().find_map(|name| {
+        let is_start_with = source_name.starts_with(&format!("{}/", name));
+        let is_equal = name == &source_name;
+        if is_start_with || is_equal {
+          Some(name)
+        } else {
+          None
+        }
+      });
+
+      let Some(lib_name) = lib_name else {
         return None;
-      }
+      };
 
       let ast_node =
         beans::AstNode::with_source_and_ast_node(semantic.source_text(), node);
@@ -52,7 +103,8 @@ pub fn process<'a>(
         Some(ref specs) => specs,
         None => {
           return Some(vec![ModuleMemberUsageResponseItem {
-            lib_name: source_name,
+            lib_name: lib_name.clone(),
+            module_name: source_name.clone(),
             member_name: SIDE_EFFECTS.to_string(),
             ast_node,
             props: vec![],
@@ -62,14 +114,16 @@ pub fn process<'a>(
 
       if specifiers.is_empty() {
         return Some(vec![ModuleMemberUsageResponseItem {
-          lib_name: source_name,
+          lib_name: lib_name.clone(),
+          module_name: source_name.clone(),
           member_name: EMPTY_SPECIFIERS.to_string(),
           ast_node,
           props: vec![],
         }]);
       }
 
-      let responses = each_specifiers(semantic, &source_name, specifiers);
+      let responses =
+        each_specifiers(semantic, &source_name, &lib_name, specifiers);
 
       Some(responses)
     })
@@ -79,24 +133,25 @@ pub fn process<'a>(
 
 fn each_specifiers<'a>(
   semantic: &'a Semantic,
-  source_name: &str,
+  module_name: &str,
+  library_name: &str,
   specifiers: &oxc_allocator::Vec<ImportDeclarationSpecifier<'a>>,
 ) -> Vec<ModuleMemberUsageResponseItem> {
   let responses = specifiers
     .iter()
     .map(|spec| {
-      // .e.g import {a as b} from 'test' -> a
-      let imported_name = get_imported_name(spec);
+      let imported_name = spec.get_imported_name();
 
-      let is_default_specifier = is_default_specifier(spec);
+      let is_default_specifier = spec.is_default_specifier();
 
-      let is_namespace_specifier = is_namespace_specifier(spec);
+      let is_namespace_specifier = spec.is_namespace_specifier();
 
       let references = get_symbol_references(semantic, spec.local());
 
       let responses = each_reference(
         semantic,
-        source_name,
+        library_name,
+        module_name,
         imported_name,
         is_default_specifier,
         is_namespace_specifier,
@@ -112,7 +167,8 @@ fn each_specifiers<'a>(
 
 fn each_reference<'a>(
   semantic: &'a Semantic,
-  source_name: &str,
+  library_name: &str,
+  module_name: &str,
   imported_name: String,
   is_default_specifier: bool,
   is_namespace_specifier: bool,
@@ -123,12 +179,9 @@ fn each_reference<'a>(
     .filter_map(|refer| {
       let reference_node = get_reference_node(semantic, refer);
 
-      let is_in_closing = is_in(
-        &semantic,
-        reference_node,
-        /**6,*/
-        |kind| matches!(kind, AstKind::JSXClosingElement(_)),
-      )
+      let is_in_closing = is_in(&semantic, reference_node, |kind| {
+        matches!(kind, AstKind::JSXClosingElement(_))
+      })
       .is_some();
 
       if is_in_closing {
@@ -140,18 +193,15 @@ fn each_reference<'a>(
         reference_node,
       );
 
-      let member_parent_node = is_in(
-        &semantic,
-        reference_node,
-        /**2,*/
-        |kind| matches!(kind, AstKind::MemberExpression(_)),
-      );
+      let member_parent_node = is_in(&semantic, reference_node, |kind| {
+        matches!(kind, AstKind::MemberExpression(_))
+      });
 
       if let Some(AstKind::MemberExpression(kind)) =
         member_parent_node.map(|node| node.kind())
       {
         let name = match kind {
-          oxc_ast::ast::MemberExpression::ComputedMemberExpression(
+          MemberExpression::ComputedMemberExpression(
             computed_member_expression,
           ) => match &computed_member_expression.expression {
             Expression::StringLiteral(string_literal) => {
@@ -164,37 +214,35 @@ fn each_reference<'a>(
             }
             _ => UNKNOWN.to_string(),
           },
-          oxc_ast::ast::MemberExpression::StaticMemberExpression(
+          MemberExpression::StaticMemberExpression(
             static_member_expression,
           ) => {
             if is_default_specifier || is_namespace_specifier {
               static_member_expression.property.name.to_string()
             } else {
               match &static_member_expression.object {
-                Expression::Identifier(ident) => imported_name.to_string(),
+                Expression::Identifier(_ident) => imported_name.to_string(),
                 _ => UNKNOWN.to_string(),
               }
             }
           }
-          oxc_ast::ast::MemberExpression::PrivateFieldExpression(
+          MemberExpression::PrivateFieldExpression(
             private_field_expression,
           ) => private_field_expression.field.name.to_string(),
         };
 
         return Some(ModuleMemberUsageResponseItem {
-          lib_name: source_name.to_string(),
+          lib_name: library_name.to_string(),
+          module_name: module_name.to_string(),
           member_name: name.to_string(),
           ast_node: ast_node,
           props: vec![],
         });
       }
 
-      let opening_node = is_in(
-        &semantic,
-        reference_node,
-        /**10,*/
-        |kind| matches!(kind, AstKind::JSXOpeningElement(_)),
-      );
+      let opening_node = is_in(&semantic, reference_node, |kind| {
+        matches!(kind, AstKind::JSXOpeningElement(_))
+      });
 
       if let Some(AstKind::JSXOpeningElement(kind)) =
         opening_node.map(|node| node.kind())
@@ -209,7 +257,8 @@ fn each_reference<'a>(
         let attributes = get_jsx_props(kind);
 
         return Some(ModuleMemberUsageResponseItem {
-          lib_name: source_name.to_string(),
+          lib_name: library_name.to_string(),
+          module_name: module_name.to_string(),
           member_name: name.to_string(),
           ast_node: ast_node,
           props: attributes,
@@ -217,7 +266,8 @@ fn each_reference<'a>(
       }
 
       return Some(ModuleMemberUsageResponseItem {
-        lib_name: source_name.to_string(),
+        lib_name: library_name.to_string(),
+        module_name: module_name.to_string(),
         member_name: imported_name.to_string(),
         ast_node: ast_node,
         props: vec![],
@@ -324,36 +374,36 @@ fn is_in<'a>(
   None
 }
 
-fn get_imported_name(specifier: &ImportDeclarationSpecifier) -> String {
-  match specifier {
-    ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
-      import_specifier.imported.name().as_str().to_string()
-    }
-    ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => {
-      ES_DEFAULT.to_string()
-    }
-    ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => {
-      ES_NAMESPACE.to_string()
-    }
-  }
-}
+// fn get_imported_name(specifier: &ImportDeclarationSpecifier) -> String {
+//   match specifier {
+//     ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
+//       import_specifier.imported.name().as_str().to_string()
+//     }
+//     ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => {
+//       ES_DEFAULT.to_string()
+//     }
+//     ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => {
+//       ES_NAMESPACE.to_string()
+//     }
+//   }
+// }
 
-fn is_default_specifier(specifier: &ImportDeclarationSpecifier) -> bool {
-  match specifier {
-    ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
-      import_specifier.imported.name() == "default"
-    }
-    ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => true,
-    _ => false,
-  }
-}
+// fn is_default_specifier(specifier: &ImportDeclarationSpecifier) -> bool {
+//   match specifier {
+//     ImportDeclarationSpecifier::ImportSpecifier(import_specifier) => {
+//       import_specifier.imported.name() == "default"
+//     }
+//     ImportDeclarationSpecifier::ImportDefaultSpecifier(_) => true,
+//     _ => false,
+//   }
+// }
 
-fn is_namespace_specifier(specifier: &ImportDeclarationSpecifier) -> bool {
-  match specifier {
-    ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => true,
-    _ => false,
-  }
-}
+// fn is_namespace_specifier(specifier: &ImportDeclarationSpecifier) -> bool {
+//   match specifier {
+//     ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => true,
+//     _ => false,
+//   }
+// }
 
 fn get_jsx_props<'a>(kind: &JSXOpeningElement) -> Vec<JSXProps> {
   let props = kind
@@ -851,5 +901,20 @@ export default () => {
     for item in result.iter() {
       assert_eq!(item.member_name, "Message");
     }
+  }
+
+  #[test]
+  fn test_fix_sub_file() {
+    let result = util(
+      vec!["antd".to_string()],
+      &r#"
+        import history from 'antd/lib/hashHistory';
+        console.log(history);
+      "#,
+    );
+    assert_eq!(result.len(), 1);
+    assert_eq!(result[0].lib_name, "antd");
+    assert_eq!(result[0].module_name, "antd/lib/hashHistory");
+    assert_eq!(result[0].member_name, "ES:DEFAULT");
   }
 }

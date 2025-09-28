@@ -98,3 +98,13 @@ test("check_static_member", async () => {
 
 	expect(response.flatMap((item) => item.items).length).toBe(1);
 });
+
+
+test("fix-div", async () => {
+	const cwd = dirname(__filename);
+	const response = await checkModuleMemberUsage(["antd"], {
+		cwd: path.resolve(cwd, "fixtures/fix-sub-file"),
+	});
+
+	expect(response.flatMap((item) => item.items).length).toBe(1);
+});
