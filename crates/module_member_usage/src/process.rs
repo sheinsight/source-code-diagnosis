@@ -28,11 +28,8 @@ pub fn process<'a>(
     .nodes()
     .iter()
     .filter_map(|node| {
-      let decl = match node.kind() {
-        AstKind::ImportDeclaration(decl) => decl,
-        _ => {
-          return None;
-        }
+      let AstKind::ImportDeclaration(decl) = node.kind() else {
+        return None;
       };
 
       let module_value = decl.source.value.as_str().to_string();
@@ -54,17 +51,14 @@ pub fn process<'a>(
       let ast_node =
         AstNode::with_source_and_ast_node(semantic.source_text(), node);
 
-      let specifiers = match decl.specifiers {
-        Some(ref specs) => specs,
-        None => {
-          return Some(vec![ModuleMemberUsageResponseItem {
-            lib_name: library_name.clone(),
-            module_value: module_value.clone(),
-            member_name: SIDE_EFFECTS.to_string(),
-            ast_node,
-            props: vec![],
-          }]);
-        }
+      let Some(specifiers) = &decl.specifiers else {
+        return Some(vec![ModuleMemberUsageResponseItem {
+          lib_name: library_name.clone(),
+          module_value: module_value.clone(),
+          member_name: SIDE_EFFECTS.to_string(),
+          ast_node,
+          props: vec![],
+        }]);
       };
 
       if specifiers.is_empty() {
@@ -792,7 +786,7 @@ export default () => {
       "#,
     );
 
-    println!("result----->>>>: {:#?}", result);
+    // println!("result----->>>>: {:#?}", result);
 
     assert_eq!(result.len(), 2);
     assert_eq!(result[0].lib_name, "antd");

@@ -31,6 +31,10 @@ impl<'a> MemberExpressionExpand<'a> for MemberExpression<'a> {
       },
       MemberExpression::StaticMemberExpression(static_member_expression) => {
         if specifier.is_default() || specifier.is_namespace() {
+          println!(
+            "static_member_expression.property.name: {:#?}",
+            static_member_expression
+          );
           static_member_expression.property.name.to_string()
         } else {
           match &static_member_expression.object {
