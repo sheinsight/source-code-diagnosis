@@ -35,11 +35,11 @@ pub fn process<'a>(
         }
       };
 
-      let source_name = decl.source.value.as_str().to_string();
+      let module_value = decl.source.value.as_str().to_string();
 
-      let lib_name = npm_name_vec.iter().find_map(|name| {
-        let is_start_with = source_name.starts_with(&format!("{}/", name));
-        let is_equal = name == &source_name;
+      let library_name = npm_name_vec.iter().find_map(|name| {
+        let is_start_with = module_value.starts_with(&format!("{}/", name));
+        let is_equal = name == &module_value;
         if is_start_with || is_equal {
           Some(name)
         } else {
@@ -47,19 +47,19 @@ pub fn process<'a>(
         }
       });
 
-      let Some(lib_name) = lib_name else {
+      let Some(library_name) = library_name else {
         return None;
       };
 
       let ast_node =
-        beans::AstNode::with_source_and_ast_node(semantic.source_text(), node);
+        AstNode::with_source_and_ast_node(semantic.source_text(), node);
 
       let specifiers = match decl.specifiers {
         Some(ref specs) => specs,
         None => {
           return Some(vec![ModuleMemberUsageResponseItem {
-            lib_name: lib_name.clone(),
-            module_name: source_name.clone(),
+            lib_name: library_name.clone(),
+            module_value: module_value.clone(),
             member_name: SIDE_EFFECTS.to_string(),
             ast_node,
             props: vec![],
@@ -69,8 +69,8 @@ pub fn process<'a>(
 
       if specifiers.is_empty() {
         return Some(vec![ModuleMemberUsageResponseItem {
-          lib_name: lib_name.clone(),
-          module_name: source_name.clone(),
+          lib_name: library_name.clone(),
+          module_value: module_value.clone(),
           member_name: EMPTY_SPECIFIERS.to_string(),
           ast_node,
           props: vec![],
@@ -78,7 +78,7 @@ pub fn process<'a>(
       }
 
       let responses =
-        each_specifiers(semantic, &source_name, &lib_name, specifiers);
+        each_specifiers(semantic, &module_value, &library_name, specifiers);
 
       Some(responses)
     })
@@ -142,7 +142,7 @@ fn each_reference<'a>(
 
         return Some(ModuleMemberUsageResponseItem {
           lib_name: library_name.to_string(),
-          module_name: module_name.to_string(),
+          module_value: module_name.to_string(),
           member_name: name.to_string(),
           ast_node: ast_node,
           props: vec![],
@@ -158,8 +158,8 @@ fn each_reference<'a>(
       {
         let name = get_jsx_opening_element_name(
           kind,
-          specifier.is_default_specifier(),
-          specifier.is_namespace_specifier(),
+          specifier.is_default(),
+          specifier.is_namespace(),
           specifier.get_imported_name().as_str(),
         );
 
@@ -167,7 +167,7 @@ fn each_reference<'a>(
 
         return Some(ModuleMemberUsageResponseItem {
           lib_name: library_name.to_string(),
-          module_name: module_name.to_string(),
+          module_value: module_name.to_string(),
           member_name: name.to_string(),
           ast_node: ast_node,
           props: attributes,
@@ -176,7 +176,7 @@ fn each_reference<'a>(
 
       return Some(ModuleMemberUsageResponseItem {
         lib_name: library_name.to_string(),
-        module_name: module_name.to_string(),
+        module_value: module_name.to_string(),
         member_name: specifier.get_imported_name().to_string(),
         ast_node: ast_node,
         props: vec![],
@@ -788,12 +788,15 @@ export default () => {
       &r#"
         import history from 'antd/lib/hashHistory';
         console.log(history);
+        history.push('/');
       "#,
     );
+
     println!("result----->>>>: {:#?}", result);
+
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].lib_name, "antd");
-    assert_eq!(result[0].module_name, "antd/lib/hashHistory");
+    assert_eq!(result[0].module_value, "antd/lib/hashHistory");
     assert_eq!(result[0].member_name, "ES:DEFAULT");
   }
 }

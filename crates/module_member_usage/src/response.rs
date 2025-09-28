@@ -14,7 +14,7 @@ pub struct ModuleMemberUsageResponse {
 #[derive(Debug, Serialize, Clone)]
 pub struct ModuleMemberUsageResponseItem {
   pub lib_name: String,
-  pub module_name: String,
+  pub module_value: String,
   pub member_name: String,
   pub ast_node: AstNode,
   pub props: Vec<JSXProps>,
