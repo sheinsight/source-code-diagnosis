@@ -133,3 +133,4 @@ target
 source-code-diagnosis.darwin-arm64.node
 index.d.ts
 /index.js
+node_modules
