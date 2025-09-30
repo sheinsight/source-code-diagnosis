@@ -21,7 +21,7 @@ create_compat! {
       deno: "1.0.0",
     }
   },
-  fn handle<'a>(&self, _source_code: &str, node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
+  fn handle<'a>(&self, _source_code: &str, _node: &AstNode<'a>, _nodes: &AstNodes<'a>) -> bool {
     // matches!(node.kind(), AstKind::TaggedTemplateExpression(_))
     // TODO
     false

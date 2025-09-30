@@ -29,11 +29,7 @@ create_compat! {
         return prop.method;
     }
 
-    if let AstKind::MethodDefinition(method) = node.kind() {
-        return true;
-    }
-
-    false
+    matches!(node.kind(), AstKind::MethodDefinition(_))
   }
 }
 

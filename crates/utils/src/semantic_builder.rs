@@ -126,7 +126,7 @@ impl SemanticBuilder {
     )
   }
 
-  pub fn build_handler(&self) -> Result<SemanticHandler> {
+  pub fn build_handler(&'_ self) -> Result<SemanticHandler<'_>> {
     let ret =
       Parser::new(&self.allocator, &self.source_code, self.source_type).parse();
 
@@ -177,11 +177,11 @@ impl<'a> SemanticHandler<'a> {
   }
 
   pub fn is_in<F>(
-    &self,
+    &'_ self,
     node: &AstNode,
     max_depth: usize,
     predicate: F,
-  ) -> Option<&AstNode>
+  ) -> Option<&'_ AstNode>
   where
     F: Fn(&AstKind) -> bool,
   {
@@ -248,7 +248,7 @@ impl<'a> SemanticHandler<'a> {
   }
 
   pub fn get_reference_node_box(
-    &self,
+    &'_ self,
     reference: &oxc::semantic::Reference,
   ) -> (&AstNode, oxc::span::Span, Location) {
     let reference_node = self.parse_reference(reference);
@@ -274,14 +274,14 @@ impl<'a> SemanticHandler<'a> {
 
   // 解析 reference
   pub fn parse_reference(
-    &self,
+    &'_ self,
     reference: &oxc::semantic::Reference,
   ) -> &AstNode {
     let reference_node = self.semantic.nodes().get_node(reference.node_id());
     reference_node
   }
 
-  pub fn get_parent_node(&self, node: &AstNode) -> Option<&AstNode> {
+  pub fn get_parent_node(&'_ self, node: &AstNode) -> Option<&AstNode<'_>> {
     self.semantic.nodes().parent_node(node.id())
   }
 }
