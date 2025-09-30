@@ -12,7 +12,9 @@ napi = { workspace = true }
 camino = { workspace = true }
 rayon = { workspace = true }
 insta = { workspace = true }
-oxc_allocator = { workspace = true }
-oxc_parser = { workspace = true }
-oxc_span = { workspace = true }
 pathdiff = { workspace = true }
+
+# oxc_allocator = { workspace = true }
+# oxc_parser = { workspace = true }
+# oxc_span = { workspace = true }
+# oxc = { workspace = true }

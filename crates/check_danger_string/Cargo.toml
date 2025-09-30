@@ -9,17 +9,14 @@ edition = "2021"
 napi-derive = { workspace = true }
 napi = { workspace = true }
 serde = { workspace = true }
-oxc_ast = { workspace = true }
 utils = { path = "../utils" }
 beans = { path = "../beans" }
 anyhow = { workspace = true }
 parking_lot = { workspace = true }
-oxc_span = {workspace = true}
 pathdiff = { workspace = true }
 camino = { workspace = true }
 wax = { workspace = true }
 rayon = { workspace = true }
-oxc_allocator = { workspace = true }
-oxc_parser = { workspace = true }
-oxc_semantic = { workspace = true }
 insta = { workspace = true }
+
+oxc = { workspace = true }

@@ -2,7 +2,7 @@ use std::{fmt::Display, rc::Rc, sync::Arc};
 
 use beans::{Location, Span};
 use napi_derive::napi;
-use oxc_diagnostics::Severity;
+use oxc::diagnostics::Severity;
 use oxc_linter::{FixKind, LinterBuilder, Oxlintrc};
 use serde::Serialize;
 use utils::{GlobErrorHandler, GlobSuccessHandler, glob_by_semantic};
@@ -89,10 +89,13 @@ pub fn check_oxlint(
             .map(|v| {
               v.iter()
                 .map(|l| {
-                  let loc = Location::with_source(&source_text, Span {
-                    start: l.offset() as u32,
-                    end: l.offset() as u32 + l.len() as u32,
-                  });
+                  let loc = Location::with_source(
+                    &source_text,
+                    Span {
+                      start: l.offset() as u32,
+                      end: l.offset() as u32 + l.len() as u32,
+                    },
+                  );
 
                   return CheckOxlintLabelsResponse {
                     span: CheckOxlintLabelsSpan {

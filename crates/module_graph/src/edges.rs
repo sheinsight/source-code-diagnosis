@@ -17,7 +17,7 @@ use crate::model::{Args, Edge, Graphics, TargetMetadata};
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ModuleRecord {
   name: String,
-  span: oxc_span::Span,
+  span: oxc::span::Span,
 }
 
 pub fn get_graph(args: Args) -> anyhow::Result<Graphics> {

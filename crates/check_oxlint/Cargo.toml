@@ -6,14 +6,6 @@ edition = "2024"
 
 [dependencies]
 anyhow = { workspace = true }
-oxc_allocator = { workspace = true }
-oxc_parser = { workspace = true }
-oxc_span = { workspace = true }
-oxc_linter = { workspace = true }
-oxc_semantic = { workspace = true }
-oxc_ast = { workspace = true }
-oxc_diagnostics = { workspace = true }
-oxc_syntax = { workspace = true }
 napi-derive = { workspace = true }
 napi = { workspace = true }
 utils = { path = "../utils" }
@@ -22,3 +14,6 @@ insta = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 pathdiff = { workspace = true }
+
+oxc_linter = { workspace = true }
+oxc = { workspace = true }

@@ -1,4 +1,4 @@
-use oxc_ast::ast::ImportDeclarationSpecifier;
+use oxc::ast::ast::ImportDeclarationSpecifier;
 
 use crate::r#const::{ES_DEFAULT, ES_NAMESPACE};
 

@@ -1,4 +1,4 @@
-use oxc_ast::ast::{Expression, ImportDeclarationSpecifier, MemberExpression};
+use oxc::ast::ast::{Expression, ImportDeclarationSpecifier, MemberExpression};
 
 use crate::{
   import_declaration_specifier_expand::ImportDeclarationSpecifierExpand,

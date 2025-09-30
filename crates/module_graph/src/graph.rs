@@ -11,8 +11,8 @@
 // use anyhow::{bail, Result};
 // use beans::AstNode;
 // use bimap::BiMap;
-// use oxc_ast::AstKind;
-// use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
+// use oxc::ast::AstKind;
+// use oxc::resolver::{AliasValue, ResolveOptions, Resolver};
 // use petgraph::{
 //   algo::kosaraju_scc,
 //   graph::{DiGraph, NodeIndex},

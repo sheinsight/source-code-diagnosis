@@ -1,7 +1,7 @@
 use anyhow::Result;
 use beans::AstNode;
 use napi_derive::napi;
-use oxc_ast::AstKind;
+use oxc::ast::AstKind;
 use serde::Serialize;
 use utils::{GlobArgs, GlobErrorHandler, GlobSuccessHandler};
 

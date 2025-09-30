@@ -17,9 +17,4 @@ beans = { path = "../beans" }
 log = { workspace = true }
 camino = { workspace = true }
 
-# oxc_ast = {workspace = true}
-# oxc_span = {workspace = true}
-# oxc_parser = {workspace = true}
-# oxc_semantic = {workspace = true}
-# oxc_allocator = {workspace = true}
 oxc = {workspace = true}

@@ -1,13 +1,14 @@
 use beans::AstNode;
-use oxc_ast::{
+use oxc::ast::{
   ast::{
-    BindingIdentifier, ImportDeclarationSpecifier, JSXMemberExpression,
-    JSXOpeningElement,
+    BindingIdentifier, ImportDeclarationSpecifier, JSXAttributeItem,
+    JSXAttributeName, JSXAttributeValue, JSXElementName, JSXMemberExpression,
+    JSXMemberExpressionObject, JSXOpeningElement,
   },
   AstKind,
 };
 
-use oxc_semantic::{Reference, Semantic};
+use oxc::semantic::{Reference, Semantic};
 
 use crate::{
   import_declaration_specifier_expand::ImportDeclarationSpecifierExpand,
@@ -84,7 +85,7 @@ fn each_specifiers<'a>(
   semantic: &'a Semantic,
   module_name: &str,
   library_name: &str,
-  specifiers: &oxc_allocator::Vec<ImportDeclarationSpecifier<'a>>,
+  specifiers: &oxc::allocator::Vec<ImportDeclarationSpecifier<'a>>,
 ) -> Vec<ModuleMemberUsageResponseItem> {
   let responses = specifiers
     .iter()
@@ -186,14 +187,10 @@ fn get_jsx_opening_element_name(
   imported_name: &str,
 ) -> String {
   match &kind.name {
-    oxc_ast::ast::JSXElementName::Identifier(ident) => ident.name.to_string(),
-    oxc_ast::ast::JSXElementName::IdentifierReference(_) => {
-      imported_name.to_string()
-    }
-    oxc_ast::ast::JSXElementName::NamespacedName(_) => {
-      imported_name.to_string()
-    }
-    oxc_ast::ast::JSXElementName::MemberExpression(jsx_member_expr) => {
+    JSXElementName::Identifier(ident) => ident.name.to_string(),
+    JSXElementName::IdentifierReference(_) => imported_name.to_string(),
+    JSXElementName::NamespacedName(_) => imported_name.to_string(),
+    JSXElementName::MemberExpression(jsx_member_expr) => {
       if is_default_specifier || is_namespace_specifier {
         let mut path = vec![];
         get_member_expression_name(&jsx_member_expr, &mut path);
@@ -202,19 +199,17 @@ fn get_jsx_opening_element_name(
           .map_or(UNKNOWN.to_string(), |last| last.to_string())
       } else {
         match &jsx_member_expr.object {
-          oxc_ast::ast::JSXMemberExpressionObject::IdentifierReference(_) => {
+          JSXMemberExpressionObject::IdentifierReference(_) => {
             imported_name.to_string()
           }
-          oxc_ast::ast::JSXMemberExpressionObject::MemberExpression(
+          JSXMemberExpressionObject::MemberExpression(
             jsx_member_expression,
           ) => jsx_member_expression.property.name.to_string(),
-          oxc_ast::ast::JSXMemberExpressionObject::ThisExpression(_) => {
-            "This".to_string()
-          }
+          JSXMemberExpressionObject::ThisExpression(_) => "This".to_string(),
         }
       }
     }
-    oxc_ast::ast::JSXElementName::ThisExpression(_) => "This".to_string(),
+    JSXElementName::ThisExpression(_) => "This".to_string(),
   }
 }
 
@@ -224,15 +219,13 @@ fn get_member_expression_name(
 ) -> String {
   path.push(jsx_member_expr.property.name.to_string());
   match &jsx_member_expr.object {
-    oxc_ast::ast::JSXMemberExpressionObject::IdentifierReference(
-      identifier_reference,
-    ) => identifier_reference.name.to_string(),
-    oxc_ast::ast::JSXMemberExpressionObject::MemberExpression(
-      jsxmember_expression,
-    ) => get_member_expression_name(&jsxmember_expression, path),
-    oxc_ast::ast::JSXMemberExpressionObject::ThisExpression(_) => {
-      "This".to_string()
+    JSXMemberExpressionObject::IdentifierReference(identifier_reference) => {
+      identifier_reference.name.to_string()
     }
+    JSXMemberExpressionObject::MemberExpression(jsxmember_expression) => {
+      get_member_expression_name(&jsxmember_expression, path)
+    }
+    JSXMemberExpressionObject::ThisExpression(_) => "This".to_string(),
   }
 }
 
@@ -250,16 +243,16 @@ fn get_symbol_references<'a>(
 fn get_reference_node<'a>(
   semantic: &'a Semantic,
   reference: &'a Reference,
-) -> &'a oxc_semantic::AstNode<'a> {
+) -> &'a oxc::semantic::AstNode<'a> {
   semantic.nodes().get_node(reference.node_id())
 }
 
 fn is_in<'a>(
   semantic: &'a Semantic,
-  node: &'a oxc_semantic::AstNode<'a>,
+  node: &'a oxc::semantic::AstNode<'a>,
   // max_depth: usize,
   predicate: impl Fn(&AstKind) -> bool,
-) -> Option<&'a oxc_semantic::AstNode<'a>> {
+) -> Option<&'a oxc::semantic::AstNode<'a>> {
   // let mut depth = 0;
   let mut current_node_id = node.id();
   while let Some(pn) = semantic.nodes().parent_node(current_node_id) {
@@ -282,32 +275,28 @@ fn get_jsx_props<'a>(kind: &JSXOpeningElement) -> Vec<JSXProps> {
     .attributes
     .iter()
     .map(|item| match item {
-      oxc_ast::ast::JSXAttributeItem::Attribute(attr) => {
+      JSXAttributeItem::Attribute(attr) => {
         let namespace = match &attr.name {
-          oxc_ast::ast::JSXAttributeName::Identifier(_) => None,
-          oxc_ast::ast::JSXAttributeName::NamespacedName(namespace) => {
+          JSXAttributeName::Identifier(_) => None,
+          JSXAttributeName::NamespacedName(namespace) => {
             Some(namespace.namespace.name.to_string())
           }
         };
 
         let name = match &attr.name {
-          oxc_ast::ast::JSXAttributeName::Identifier(ident) => {
-            ident.name.to_string()
-          }
-          oxc_ast::ast::JSXAttributeName::NamespacedName(namespace) => {
+          JSXAttributeName::Identifier(ident) => ident.name.to_string(),
+          JSXAttributeName::NamespacedName(namespace) => {
             namespace.property.name.to_string()
           }
         };
 
         let value = attr.value.as_ref().map(|value| match value {
-          oxc_ast::ast::JSXAttributeValue::StringLiteral(string_literal) => {
+          JSXAttributeValue::StringLiteral(string_literal) => {
             string_literal.value.to_string()
           }
-          oxc_ast::ast::JSXAttributeValue::ExpressionContainer(_)
-          | oxc_ast::ast::JSXAttributeValue::Element(_)
-          | oxc_ast::ast::JSXAttributeValue::Fragment(_) => {
-            NOT_IMPLEMENTED.to_string()
-          }
+          JSXAttributeValue::ExpressionContainer(_)
+          | JSXAttributeValue::Element(_)
+          | JSXAttributeValue::Fragment(_) => NOT_IMPLEMENTED.to_string(),
         });
 
         return JSXProps {
@@ -316,7 +305,7 @@ fn get_jsx_props<'a>(kind: &JSXOpeningElement) -> Vec<JSXProps> {
           value: value,
         };
       }
-      oxc_ast::ast::JSXAttributeItem::SpreadAttribute(_) => {
+      JSXAttributeItem::SpreadAttribute(_) => {
         return JSXProps {
           namespace: None,
           name: SPREAD_ATTRIBUTE.to_string(),
@@ -331,10 +320,10 @@ fn get_jsx_props<'a>(kind: &JSXOpeningElement) -> Vec<JSXProps> {
 #[cfg(test)]
 mod tests {
   use itertools::Itertools;
-  use oxc_allocator::Allocator;
-  use oxc_parser::Parser;
-  use oxc_semantic::SemanticBuilder;
-  use oxc_span::SourceType;
+  use oxc::allocator::Allocator;
+  use oxc::parser::Parser;
+  use oxc::semantic::SemanticBuilder;
+  use oxc::span::SourceType;
   use std::collections::HashMap;
 
   use crate::{process::process, response::ModuleMemberUsageResponseItem};
