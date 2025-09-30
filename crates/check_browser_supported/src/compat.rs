@@ -78,6 +78,7 @@ pub trait CompatHandler: Send + Sync {
   fn get_compat(&self) -> &Compat;
 }
 
+#[allow(dead_code)]
 pub trait AstNodeHelper<'a> {
   fn text(&self, source: &str) -> String;
 }
