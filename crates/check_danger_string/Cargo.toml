@@ -1,22 +1,22 @@
 [package]
-name = "check_danger_string"
-version = "0.1.0"
 edition = "2021"
+name    = "check_danger_string"
+version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow      = { workspace = true }
+beans       = { path = "../beans" }
+camino      = { workspace = true }
+insta       = { workspace = true }
+napi        = { workspace = true }
 napi-derive = { workspace = true }
-napi = { workspace = true }
-serde = { workspace = true }
-utils = { path = "../utils" }
-beans = { path = "../beans" }
-anyhow = { workspace = true }
 parking_lot = { workspace = true }
-pathdiff = { workspace = true }
-camino = { workspace = true }
-wax = { workspace = true }
-rayon = { workspace = true }
-insta = { workspace = true }
+pathdiff    = { workspace = true }
+rayon       = { workspace = true }
+serde       = { workspace = true }
+utils       = { path = "../utils" }
+wax         = { workspace = true }
 
 oxc = { workspace = true }

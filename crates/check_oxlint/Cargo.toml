@@ -1,19 +1,19 @@
 [package]
-name = "check_oxlint"
-version = "0.1.0"
 edition = "2024"
- 
+name    = "check_oxlint"
+version = "0.1.0"
+
 
 [dependencies]
-anyhow = { workspace = true }
+anyhow      = { workspace = true }
+beans       = { path = "../beans" }
+insta       = { workspace = true }
+napi        = { workspace = true }
 napi-derive = { workspace = true }
-napi = { workspace = true }
-utils = { path = "../utils" }
-beans = { path = "../beans" }
-insta = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-pathdiff = { workspace = true }
+pathdiff    = { workspace = true }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+utils       = { path = "../utils" }
 
+oxc        = { workspace = true }
 oxc_linter = { workspace = true }
-oxc = { workspace = true }

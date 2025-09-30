@@ -1,23 +1,23 @@
 [package]
-name = "check_browser_supported"
-version = "0.1.0"
 edition = "2021"
+name    = "check_browser_supported"
+version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 
-serde = { workspace = true }
-napi = { workspace = true }
+anyhow      = { workspace = true }
+beans       = { path = "../beans" }
+insta       = { workspace = true }
+log         = { workspace = true }
+napi        = { workspace = true }
 napi-derive = { workspace = true }
-log = { workspace = true }
-beans = { path = "../beans" }
-utils = { path = "../utils" }
-anyhow = { workspace = true }
-insta = { workspace = true }
+serde       = { workspace = true }
+utils       = { path = "../utils" }
 
-oxc = { workspace = true }
-oxc-browserslist = {workspace = true}
+oxc              = { workspace = true }
+oxc-browserslist = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }

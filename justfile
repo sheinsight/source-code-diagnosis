@@ -24,6 +24,10 @@ test:
 ci-test:
     INSTA_UPDATE=always cargo test
 
+fmt:
+    cargo fmt --all -- --emit=files
+    taplo fmt **/Cargo.toml
+    @echo '✅ Format complete!'
 
 create name:
     #!/usr/bin/env bash

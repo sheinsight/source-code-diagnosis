@@ -1,7 +1,7 @@
 [package]
-name = "binding"
-version = "0.1.0"
 edition = "2021"
+name    = "binding"
+version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,26 +9,26 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-napi = { workspace = true, features = ["tokio_rt"] }
-napi-derive = { workspace = true }
-check_danger_string = { path = "../check_danger_string" }
+beans                   = { path = "../beans" }
 check_browser_supported = { path = "../check_browser_supported" }
-check_syntax = { path = "../check_syntax" }
-module_member_usage = { path = "../module_member_usage" }
-check_filename_case = { path = "../check_filename_case" }
-check_danger_jsx_props = { path = "../check_danger_jsx_props" }
-check_oxlint = { path = "../check_oxlint" }
-check_cloc = { path = "../check_cloc" }
-utils = { path = "../utils" }
-beans = { path = "../beans" }
-module_graph = { path = "../module_graph" }
-log = { workspace = true }
-env_logger = { workspace = true }
-tap = { workspace = true }
+check_cloc              = { path = "../check_cloc" }
+check_danger_jsx_props  = { path = "../check_danger_jsx_props" }
+check_danger_string     = { path = "../check_danger_string" }
+check_filename_case     = { path = "../check_filename_case" }
+check_oxlint            = { path = "../check_oxlint" }
+check_syntax            = { path = "../check_syntax" }
+env_logger              = { workspace = true }
+log                     = { workspace = true }
+module_graph            = { path = "../module_graph" }
+module_member_usage     = { path = "../module_member_usage" }
+napi                    = { workspace = true, features = ["tokio_rt"] }
+napi-derive             = { workspace = true }
+tap                     = { workspace = true }
+utils                   = { path = "../utils" }
 
 [build-dependencies]
-napi-build = "2.0.1"
+napi-build = { workspace = true }
 
 [features]
+noop        = []
 used_linker = []
-noop = []

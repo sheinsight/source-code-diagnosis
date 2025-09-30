@@ -1,18 +1,18 @@
 [package]
-name = "check_syntax"
-version = "0.1.0"
 edition = "2021"
+name    = "check_syntax"
+version = "0.1.0"
 
 [dependencies]
-utils = { path = "../utils" }
-anyhow = { workspace = true }
-wax = { workspace = true }
+anyhow      = { workspace = true }
+camino      = { workspace = true }
+insta       = { workspace = true }
+napi        = { workspace = true }
 napi-derive = { workspace = true }
-napi = { workspace = true }
-camino = { workspace = true }
-rayon = { workspace = true }
-insta = { workspace = true }
-pathdiff = { workspace = true }
+pathdiff    = { workspace = true }
+rayon       = { workspace = true }
+utils       = { path = "../utils" }
+wax         = { workspace = true }
 
 # oxc_allocator = { workspace = true }
 # oxc_parser = { workspace = true }

@@ -1,12 +1,12 @@
 [package]
-name = "check_cloc"
-version = "0.1.0"
 edition = "2024"
+name    = "check_cloc"
+version = "0.1.0"
 
 [dependencies]
-tokei = { workspace = true}
-anyhow = { workspace = true }
-napi = { workspace = true }
+anyhow      = { workspace = true }
+napi        = { workspace = true }
 napi-derive = { workspace = true }
-serde = { workspace = true }
-utils = { path = "../utils" }
+serde       = { workspace = true }
+tokei       = { workspace = true }
+utils       = { path = "../utils" }

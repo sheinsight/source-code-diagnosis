@@ -1,29 +1,29 @@
 [package]
-name = "module_graph"
-version = "0.1.0"
 edition = "2021"
+name    = "module_graph"
+version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-utils = { path = "../utils" }
-beans = { path = "../beans" }
-petgraph = "0.6.5"
-bimap = "0.6.2"
-camino = { workspace = true }
-wax = "0.6.0"
-rayon = { workspace = true }
-crossbeam = "0.8.4"
+anyhow      = { workspace = true }
+beans       = { path = "../beans" }
+bimap       = "0.6.2"
+camino      = { workspace = true }
+crossbeam   = "0.8.4"
+insta       = { workspace = true }
+log         = { workspace = true }
+napi        = { workspace = true }
 napi-derive = { workspace = true }
-napi = { workspace = true }
-anyhow = { workspace = true }
-log = { workspace = true }
-serde_json = { workspace = true }
-serde = { workspace = true }
-pathdiff = { workspace = true }
-tokio = { workspace = true, features = ["rt-multi-thread","test-util","macros"] }
 parking_lot = "0.12.1"
-insta = { workspace = true }
+pathdiff    = { workspace = true }
+petgraph    = "0.6.5"
+rayon       = { workspace = true }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+tokio       = { workspace = true, features = ["rt-multi-thread", "test-util", "macros"] }
+utils       = { path = "../utils" }
+wax         = "0.6.0"
 
+oxc          = { workspace = true }
 oxc_resolver = { workspace = true }
-oxc = { workspace = true }

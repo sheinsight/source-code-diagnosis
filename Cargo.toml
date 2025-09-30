@@ -1,33 +1,39 @@
 [workspace]
-members  = ["crates/*"]
+members = ["crates/*"]
 resolver = "2"
- 
+
 
 [workspace.dependencies]
-napi-derive = "2.16.13"
-napi = { version = "2.16.13", default-features = false, features = ["napi4"] }
-serde ={ version = "1.0.121", features = ["derive"] }
+napi = { version = "3.3.0", default-features = false, features = ["napi4"] }
+napi-build = { version = "2.2.3" }
+napi-derive = { version = "3.2.5" }
 
 
-oxc = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc", features = ["semantic"] }
+serde = { version = "1.0.121", features = ["derive"] }
+
+
+oxc = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc", features = [
+  "semantic",
+] }
 oxc_linter = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.15.0", package = "oxc_linter" }
 
 
-oxc-browserslist = "1.1.1"
-oxc_resolver = "2.1.1"
-ropey = "1.0.0"
-tokei = "12.1.2"
-tokio = "1.42.0"
+oxc-browserslist = { version = "1.1.1" }
+oxc_resolver = { version = "2.1.1" }
 
-log = "0.4.22"
-env_logger = "0.11.5"
-anyhow = "1.0.80"
-parking_lot = "0.12.3"
-serde_json = "1.0.128"
-itertools = "0.12.0"
-wax = "0.6.0"
-camino = "1.1.9"
-rayon = "1.10.0"
-insta = "1.36.1"
-pathdiff = "0.2"
-tap = "1.0.1"
+ropey = { version = "1.0.0" }
+tokei = { version = "12.1.2" }
+tokio = { version = "1.42.0" }
+
+anyhow = { version = "1.0.80" }
+camino = { version = "1.1.9" }
+env_logger = { version = "0.11.5" }
+insta = { version = "1.36.1" }
+itertools = { version = "0.12.0" }
+log = { version = "0.4.22" }
+parking_lot = { version = "0.12.3" }
+pathdiff = { version = "0.2" }
+rayon = { version = "1.10.0" }
+serde_json = { version = "1.0.128" }
+tap = { version = "1.0.1" }
+wax = { version = "0.6.0" }

@@ -1,0 +1,21 @@
+{
+  "name": "@shined/source-code-diagnosis-darwin-x64",
+  "version": "0.0.90",
+  "cpu": [
+    "x64"
+  ],
+  "main": "source-code-diagnosis.darwin-x64.node",
+  "files": [
+    "source-code-diagnosis.darwin-x64.node"
+  ],
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/sheinsight/source-code-diagnosis"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "os": [
+    "darwin"
+  ]
+}

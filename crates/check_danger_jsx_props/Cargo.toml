@@ -1,22 +1,22 @@
 [package]
-name = "check_danger_jsx_props"
-version = "0.1.0"
 edition = "2024"
+name    = "check_danger_jsx_props"
+version = "0.1.0"
 
 [dependencies]
+anyhow      = { workspace = true }
+beans       = { path = "../beans" }
+camino      = { workspace = true }
+insta       = "1.36.1"
+napi        = { workspace = true }
 napi-derive = { workspace = true }
-napi = { workspace = true }
-anyhow = { workspace = true }
-camino = { workspace = true }
-wax = { workspace = true }
-rayon = { workspace = true }
-pathdiff = { workspace = true }
-beans = { path = "../beans" }
-ropey = "1.0.0"
-insta = "1.36.1"
-serde = { workspace = true }
-serde_json = { workspace = true }
-utils = { path = "../utils" }
+pathdiff    = { workspace = true }
+rayon       = { workspace = true }
+ropey       = "1.0.0"
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+utils       = { path = "../utils" }
+wax         = { workspace = true }
 
+oxc        = { workspace = true }
 oxc_linter = { workspace = true }
-oxc = { workspace = true }

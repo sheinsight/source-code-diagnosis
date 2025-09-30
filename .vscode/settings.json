@@ -1,4 +1,19 @@
 {
+	"[toml]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
+	"[javascript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[rust]": {
+		"editor.defaultFormatter": "rust-lang.rust-analyzer",
+		"editor.formatOnSave": true
+	},
+	"editor.defaultFormatter": "biomejs.biome",
 	"cSpell.words": [
 		"aarch",
 		"androideabi",
@@ -39,15 +54,4 @@
 		"threadpool",
 		"tokei"
 	],
-	"[javascript]": {
-		"editor.defaultFormatter": "biomejs.biome"
-	},
-	"[typescript]": {
-		"editor.defaultFormatter": "biomejs.biome"
-	},
-	"[rust]": {
-		"editor.defaultFormatter": "rust-lang.rust-analyzer",
-		"editor.formatOnSave": true
-	},
-	"editor.defaultFormatter": "biomejs.biome"
 }

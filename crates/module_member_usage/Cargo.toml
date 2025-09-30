@@ -1,19 +1,19 @@
 [package]
-name = "module_member_usage"
-version = "0.1.0"
 edition = "2021"
+name    = "module_member_usage"
+version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow      = { workspace = true }
+beans       = { path = "../beans" }
+itertools   = { workspace = true }
+napi        = { workspace = true }
 napi-derive = { workspace = true }
-napi = { workspace = true }
-utils = { path = "../utils" }
-beans = { path = "../beans" }
-serde = { workspace = true }
-serde_json = { workspace = true }
 parking_lot = { workspace = true }
-anyhow = { workspace = true }
-itertools = { workspace = true }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+utils       = { path = "../utils" }
 
 oxc = { workspace = true }

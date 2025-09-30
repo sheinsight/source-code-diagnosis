@@ -1,20 +1,20 @@
 [package]
-name = "utils"
-version = "0.1.0"
 edition = "2021"
+name    = "utils"
+version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.88"
+anyhow      = "1.0.88"
+beans       = { path = "../beans" }
+camino      = { workspace = true }
+log         = { workspace = true }
+napi        = { workspace = true }
 napi-derive = { workspace = true }
-napi = { workspace = true }
-rayon = "1.10.0" 
-wax = "0.6.0"
-ropey = "1.0.0"
-pathdiff = {workspace = true}
-beans = { path = "../beans" }
-log = { workspace = true }
-camino = { workspace = true }
+pathdiff    = { workspace = true }
+rayon       = "1.10.0"
+ropey       = "1.0.0"
+wax         = "0.6.0"
 
-oxc = {workspace = true}
+oxc = { workspace = true }
