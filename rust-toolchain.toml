@@ -1,5 +1,2 @@
 [toolchain]
-channel = "nightly"
-targets = [
-    "aarch64-apple-darwin"
-]
+channel = "1.90.0"
