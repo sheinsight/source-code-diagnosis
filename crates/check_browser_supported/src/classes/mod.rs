@@ -10,7 +10,7 @@ use static_initialization_blocks::ClassesStaticInitializationBlocks;
 
 use super::compat::CompatHandler;
 
-pub mod classes;
+// pub mod classes;
 pub mod constructor;
 pub mod extends;
 pub mod private_class_fields;

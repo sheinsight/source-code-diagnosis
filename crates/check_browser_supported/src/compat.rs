@@ -15,15 +15,15 @@ pub struct Compat {
   pub support: Support,
 }
 
-#[napi(object)]
-#[derive(
-  Debug, Default, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize,
-)]
-pub struct Status {
-  pub experimental: bool,
-  pub standard_track: bool,
-  pub deprecated: bool,
-}
+// #[napi(object)]
+// #[derive(
+//   Debug, Default, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize,
+// )]
+// pub struct Status {
+//   pub experimental: bool,
+//   pub standard_track: bool,
+//   pub deprecated: bool,
+// }
 
 #[napi(object)]
 #[derive(
