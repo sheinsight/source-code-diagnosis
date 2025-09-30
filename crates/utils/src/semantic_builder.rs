@@ -169,7 +169,7 @@ impl<'a> SemanticHandler<'a> {
 
   pub fn each_node<F>(&self, mut f: F)
   where
-    F: FnMut(&SemanticHandler<'a>, &AstNode),
+    F: FnMut(&SemanticHandler<'a>, &AstNode<'_>),
   {
     for node in self.semantic.nodes().iter() {
       f(&self, node);
@@ -177,11 +177,11 @@ impl<'a> SemanticHandler<'a> {
   }
 
   pub fn is_in<F>(
-    &'_ self,
-    node: &AstNode,
+    &self,
+    node: &AstNode<'_>,
     max_depth: usize,
     predicate: F,
-  ) -> Option<&'_ AstNode>
+  ) -> Option<&AstNode<'_>>
   where
     F: Fn(&AstKind) -> bool,
   {
@@ -243,14 +243,14 @@ impl<'a> SemanticHandler<'a> {
     Location { start, end }
   }
 
-  pub fn get_span(&self, ast_node: &AstNode) -> oxc::span::Span {
+  pub fn get_span(&self, ast_node: &AstNode<'_>) -> oxc::span::Span {
     GetSpan::span(&ast_node.kind())
   }
 
   pub fn get_reference_node_box(
     &'_ self,
     reference: &oxc::semantic::Reference,
-  ) -> (&AstNode, oxc::span::Span, Location) {
+  ) -> (&AstNode<'_>, oxc::span::Span, Location) {
     let reference_node = self.parse_reference(reference);
     let span = GetSpan::span(&reference_node.kind());
     let loc = self.offset_to_location(self.semantic.source_text(), span);
@@ -276,12 +276,12 @@ impl<'a> SemanticHandler<'a> {
   pub fn parse_reference(
     &'_ self,
     reference: &oxc::semantic::Reference,
-  ) -> &AstNode {
+  ) -> &AstNode<'_> {
     let reference_node = self.semantic.nodes().get_node(reference.node_id());
     reference_node
   }
 
-  pub fn get_parent_node(&'_ self, node: &AstNode) -> Option<&AstNode<'_>> {
+  pub fn get_parent_node(&'_ self, node: &AstNode<'_>) -> Option<&AstNode<'_>> {
     self.semantic.nodes().parent_node(node.id())
   }
 }
