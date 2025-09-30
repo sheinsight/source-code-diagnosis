@@ -19,7 +19,7 @@ oxc_linter = { git = "https://github.com/oxc-project/oxc.git", tag = "oxlint_v0.
 
 
 oxc-browserslist = { version = "1.1.1" }
-oxc_resolver = { version = "2.1.1" }
+oxc_resolver = { version = "11.8.4" }
 
 ropey = { version = "1.0.0" }
 tokei = { version = "12.1.2" }
