@@ -1,4 +1,4 @@
-use oxc_ast::AstKind;
+use oxc::ast::AstKind;
 
 use crate::create_compat;
 
@@ -37,7 +37,7 @@ create_compat! {
     }
   },
   walk_await_expression,
-  |ctx: &mut Context, it: &oxc_ast::ast::AwaitExpression| {
+  |ctx: &mut Context, it: &oxc::ast::ast::AwaitExpression| {
     is_top_level_await(&ctx.stack)
   }
 }

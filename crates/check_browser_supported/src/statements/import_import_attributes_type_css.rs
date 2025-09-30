@@ -1,4 +1,4 @@
-use oxc_ast::{ast::ImportAttributeKey, AstKind};
+use oxc::ast::{ast::ImportAttributeKey, AstKind};
 
 use crate::create_compat;
 

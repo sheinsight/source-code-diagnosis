@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use napi_derive::napi;
-use oxc_ast::{AstKind, ast::JSXAttributeItem};
+use oxc::ast::{AstKind, ast::JSXAttributeItem};
 use serde::Serialize;
 use utils::{GlobErrorHandler, GlobSuccessHandler};
 

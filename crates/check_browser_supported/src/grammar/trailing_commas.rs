@@ -1,5 +1,5 @@
-use oxc_ast::AstKind;
-use oxc_span::GetSpan;
+use oxc::ast::AstKind;
+use oxc::span::GetSpan;
 
 use crate::{compat::get_source_code_segment, create_compat};
 

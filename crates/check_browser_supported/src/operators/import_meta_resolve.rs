@@ -1,4 +1,4 @@
-use oxc_ast::{
+use oxc::ast::{
   ast::{Expression, MemberExpression},
   AstKind,
 };

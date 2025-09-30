@@ -1,7 +1,9 @@
 use napi_derive::napi;
-use oxc_allocator::Allocator;
-use oxc_parser::{Parser, ParserReturn};
-use oxc_semantic::{Semantic, SemanticBuilder};
+use oxc::{
+  allocator::Allocator,
+  parser::{Parser, ParserReturn},
+  semantic::SemanticBuilder,
+};
 use rayon::prelude::*;
 use std::path::{Path, PathBuf};
 use wax::Glob;
@@ -81,7 +83,7 @@ where
 }
 
 pub struct GlobSuccessHandler<'a> {
-  pub semantic: Semantic<'a>,
+  pub semantic: oxc::semantic::Semantic<'a>,
   pub parse: ParserReturn<'a>,
   pub path: PathBuf,
   pub dir: PathBuf,

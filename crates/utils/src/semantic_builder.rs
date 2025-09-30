@@ -2,25 +2,32 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{bail, Result};
 use beans::{Location, Position};
-use oxc_allocator::Allocator;
-use oxc_ast::{ast::BindingIdentifier, AstKind};
-use oxc_parser::Parser;
-use oxc_semantic::{
-  AstNode, Reference, Semantic, SemanticBuilder as OxcSemanticBuilder,
+use oxc::ast::AstKind;
+use oxc::parser::Parser;
+use oxc::semantic::{
+  AstNode, Semantic, SemanticBuilder as OxcSemanticBuilder,
   SemanticBuilderReturn,
 };
-use oxc_span::{GetSpan, SourceType};
+use oxc::{allocator::Allocator, ast::ast::BindingIdentifier};
+// use oxc_allocator::Allocator;
+// use oxc_ast::{ast::BindingIdentifier, AstKind};
+// use oxc_parser::Parser;
+// use oxc_semantic::{
+//   AstNode, Reference, Semantic, SemanticBuilder as OxcSemanticBuilder,
+//   SemanticBuilderReturn,
+// };
+use oxc::span::{GetSpan, SourceType};
 use ropey::Rope;
 
 use crate::read_file_content;
 
-pub fn source_type_from_path(path: &std::path::Path) -> oxc_span::SourceType {
+pub fn source_type_from_path(path: &std::path::Path) -> SourceType {
   match path.extension().and_then(|ext| ext.to_str()) {
-    Some("ts") => oxc_span::SourceType::ts(),
-    Some("tsx") => oxc_span::SourceType::tsx(),
-    Some("jsx") => oxc_span::SourceType::jsx(),
-    Some("cjs") => oxc_span::SourceType::cjs(),
-    _ => oxc_span::SourceType::jsx(),
+    Some("ts") => SourceType::ts(),
+    Some("tsx") => SourceType::tsx(),
+    Some("jsx") => SourceType::jsx(),
+    Some("cjs") => SourceType::cjs(),
+    _ => SourceType::jsx(),
   }
 }
 
@@ -96,12 +103,8 @@ impl SemanticBuilder {
   }
 
   pub fn build_with_errors(&self) -> anyhow::Result<SemanticBuilderReturn<'_>> {
-    let parse = oxc_parser::Parser::new(
-      &self.allocator,
-      &self.source_code,
-      self.source_type,
-    )
-    .parse();
+    let parse =
+      Parser::new(&self.allocator, &self.source_code, self.source_type).parse();
 
     if parse.errors.len() > 0 {
       bail!(
@@ -233,21 +236,21 @@ impl<'a> SemanticHandler<'a> {
   pub fn offset_to_location(
     &self,
     source_text: &str,
-    span: oxc_span::Span,
+    span: oxc::span::Span,
   ) -> Location {
     let start = self.offset_to_position(span.start as usize, source_text);
     let end = self.offset_to_position(span.end as usize, source_text);
     Location { start, end }
   }
 
-  pub fn get_span(&self, ast_node: &AstNode) -> oxc_span::Span {
+  pub fn get_span(&self, ast_node: &AstNode) -> oxc::span::Span {
     GetSpan::span(&ast_node.kind())
   }
 
   pub fn get_reference_node_box(
     &self,
-    reference: &Reference,
-  ) -> (&AstNode, oxc_span::Span, Location) {
+    reference: &oxc::semantic::Reference,
+  ) -> (&AstNode, oxc::span::Span, Location) {
     let reference_node = self.parse_reference(reference);
     let span = GetSpan::span(&reference_node.kind());
     let loc = self.offset_to_location(self.semantic.source_text(), span);
@@ -257,7 +260,7 @@ impl<'a> SemanticHandler<'a> {
   pub fn get_symbol_references(
     &self,
     binding: &BindingIdentifier,
-  ) -> Vec<&Reference> {
+  ) -> Vec<&oxc::semantic::Reference> {
     if let Some(symbol_id) = binding.symbol_id.get() {
       self
         .semantic
@@ -270,7 +273,10 @@ impl<'a> SemanticHandler<'a> {
   }
 
   // 解析 reference
-  pub fn parse_reference(&self, reference: &Reference) -> &AstNode {
+  pub fn parse_reference(
+    &self,
+    reference: &oxc::semantic::Reference,
+  ) -> &AstNode {
     let reference_node = self.semantic.nodes().get_node(reference.node_id());
     reference_node
   }

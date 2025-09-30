@@ -21,7 +21,7 @@ pub struct Span {
 }
 
 impl Span {
-  pub fn new(span: &oxc_span::Span) -> Self {
+  pub fn new(span: &oxc::span::Span) -> Self {
     Self {
       start: span.start,
       end: span.end,

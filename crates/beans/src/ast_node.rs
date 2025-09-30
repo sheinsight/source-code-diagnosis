@@ -25,7 +25,7 @@ pub struct AstNode {
 impl AstNode {
   pub fn with_source_and_span(
     source_text: &str,
-    span: &oxc_span::Span,
+    span: &oxc::span::Span,
   ) -> Self {
     let span = Span::new(span);
     let loc = Location::with_source(source_text, span);
@@ -34,9 +34,9 @@ impl AstNode {
 
   pub fn with_source_and_ast_node(
     source_text: &str,
-    node: &oxc_semantic::AstNode,
+    node: &oxc::semantic::AstNode,
   ) -> Self {
-    let oxc_span = oxc_span::GetSpan::span(&node.kind());
+    let oxc_span = oxc::span::GetSpan::span(&node.kind());
     let span = Span::new(&oxc_span);
     let loc = Location::with_source(source_text, span);
     Self { span, loc }

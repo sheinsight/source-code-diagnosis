@@ -1,5 +1,5 @@
-use oxc_ast::AstKind;
-use oxc_syntax::operator::UnaryOperator;
+use oxc::ast::AstKind;
+use oxc::syntax::operator::UnaryOperator;
 
 use crate::create_compat;
 

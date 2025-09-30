@@ -1,4 +1,4 @@
-use oxc_ast::AstKind;
+use oxc::ast::AstKind;
 
 use crate::create_compat;
 
@@ -27,7 +27,7 @@ create_compat! {
     }
   },
   block_level_functions,
-  |ctx: &mut Context, it: &oxc_ast::ast::Function, flags: &oxc_semantic::ScopeFlags| {
+  |ctx: &mut Context, it: &oxc::ast::ast::Function, flags: &oxc_semantic::ScopeFlags| {
     if ctx.is_strict_mode {
       if let Some(parent) = ctx.stack.last() {
         matches!(parent, AstKind::BlockStatement(_))

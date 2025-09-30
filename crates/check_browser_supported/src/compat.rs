@@ -1,6 +1,6 @@
 use napi_derive::napi;
-use oxc_semantic::{AstNode, AstNodes};
-use oxc_span::GetSpan;
+use oxc::semantic::{AstNode, AstNodes};
+use oxc::span::GetSpan;
 use serde::{Deserialize, Serialize};
 
 #[napi(object)]

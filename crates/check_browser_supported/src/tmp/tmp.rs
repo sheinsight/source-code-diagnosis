@@ -1,4 +1,4 @@
-use oxc_ast::{ast::FunctionType, visit::walk, AstKind, Visit};
+use oxc::ast::{ast::FunctionType, visit::walk, AstKind, Visit};
 use serde_json5::from_str;
 
 use crate::syntax::{
@@ -31,11 +31,11 @@ impl<'a> CommonTrait for TmpVisitor<'a> {
 }
 
 impl<'a> Visit<'a> for TmpVisitor<'a> {
-  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
+  fn enter_node(&mut self, kind: oxc::ast::AstKind<'a>) {
     self.parent_stack.push(kind);
   }
 
-  fn leave_node(&mut self, _kind: oxc_ast::AstKind<'a>) {
+  fn leave_node(&mut self, _kind: oxc::ast::AstKind<'a>) {
     self.parent_stack.pop();
   }
 }

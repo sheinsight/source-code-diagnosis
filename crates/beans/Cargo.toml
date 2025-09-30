@@ -9,6 +9,7 @@ edition = "2021"
 napi-derive = { workspace = true }
 napi = { workspace = true }
 serde = { workspace = true }
-ropey = "1.0.0"
-oxc_span = { workspace = true }
-oxc_semantic = { workspace = true }
+ropey = {workspace = true}
+oxc = { workspace = true }
+
+

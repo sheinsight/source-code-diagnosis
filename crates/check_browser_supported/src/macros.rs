@@ -21,7 +21,7 @@ macro_rules! create_compat {
         },
         fn handle<'a>(&self, $source_code:ident: &str,$ast_node:ident: &AstNode<'a>, $nodes:ident: &AstNodes<'a>) -> bool $body:block
     ) => {
-        use oxc_semantic::{AstNode, AstNodes};
+        use oxc::semantic::{AstNode, AstNodes};
         use crate::compat::{Compat, CompatHandler, Support};
 
         pub struct $struct_name {
@@ -79,13 +79,13 @@ macro_rules! assert_source_seg {
             fn $test_name() {
                 let source_code = $source_code;
 
-                let allocator = oxc_allocator::Allocator::default();
-                let source_type = oxc_span::SourceType::default();
+                let allocator = oxc::allocator::Allocator::default();
+                let source_type = oxc::span::SourceType::default();
 
-                let ret = oxc_parser::Parser::new(&allocator, source_code, source_type).parse();
+                let ret = oxc::parser::Parser::new(&allocator, source_code, source_type).parse();
                 let program = allocator.alloc(ret.program);
 
-                let semantic = oxc_semantic::SemanticBuilder::new()
+                let semantic = oxc::semantic::SemanticBuilder::new()
                     .build(program)
                     .semantic;
 

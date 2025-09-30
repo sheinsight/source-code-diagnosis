@@ -1,14 +1,14 @@
 use std::{path::Path, rc::Rc, sync::Arc};
 
-use oxc_allocator::Allocator;
-use oxc_diagnostics::DiagnosticService;
-use oxc_diagnostics::OxcDiagnostic;
+use oxc::allocator::Allocator;
+use oxc::diagnostics::DiagnosticService;
+use oxc::diagnostics::OxcDiagnostic;
+use oxc::parser::Parser;
+use oxc::semantic::SemanticBuilder;
+use oxc::span::GetSpan;
+use oxc::span::SourceType;
 use oxc_linter::AllowWarnDeny;
 use oxc_linter::{FixKind, LintFilter, LinterBuilder};
-use oxc_parser::Parser;
-use oxc_semantic::SemanticBuilder;
-use oxc_span::GetSpan;
-use oxc_span::SourceType;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
   let path = Path::new(

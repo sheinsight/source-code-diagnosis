@@ -180,8 +180,7 @@ version = "0.1.0"
 dependencies = [
  "napi",
  "napi-derive",
- "oxc_semantic",
- "oxc_span",
+ "oxc",
  "ropey",
  "serde",
 ]
@@ -310,13 +309,8 @@ dependencies = [
  "log",
  "napi",
  "napi-derive",
+ "oxc",
  "oxc-browserslist",
- "oxc_allocator",
- "oxc_ast",
- "oxc_parser",
- "oxc_semantic",
- "oxc_span",
- "oxc_syntax",
  "serde",
  "tokio",
  "utils",
@@ -344,14 +338,8 @@ dependencies = [
  "insta",
  "napi",
  "napi-derive",
- "oxc_allocator",
- "oxc_ast",
- "oxc_diagnostics",
+ "oxc",
  "oxc_linter",
- "oxc_parser",
- "oxc_semantic",
- "oxc_span",
- "oxc_syntax",
  "pathdiff",
  "rayon",
  "ropey",
@@ -1548,6 +1536,21 @@ name = "owo-colors"
 version = "4.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fb37767f6569cd834a413442455e0f066d0d522de8630436e2a1761d9726ba56"
+
+[[package]]
+name = "oxc"
+version = "0.40.1"
+source = "git+https://github.com/oxc-project/oxc.git?tag=oxlint_v0.15.0#bde753b4eeb2aa235dbe60921a3b004e20d13477"
+dependencies = [
+ "oxc_allocator",
+ "oxc_ast",
+ "oxc_diagnostics",
+ "oxc_parser",
+ "oxc_regular_expression",
+ "oxc_semantic",
+ "oxc_span",
+ "oxc_syntax",
+]
 
 [[package]]
 name = "oxc-browserslist"
@@ -2869,11 +2872,7 @@ dependencies = [
  "log",
  "napi",
  "napi-derive",
- "oxc_allocator",
- "oxc_ast",
- "oxc_parser",
- "oxc_semantic",
- "oxc_span",
+ "oxc",
  "pathdiff",
  "rayon",
  "ropey",

@@ -1,4 +1,4 @@
-use oxc_ast::AstKind;
+use oxc::ast::AstKind;
 
 use crate::create_compat;
 

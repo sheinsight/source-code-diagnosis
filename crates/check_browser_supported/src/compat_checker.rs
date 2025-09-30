@@ -1,8 +1,8 @@
 use std::path::Path;
 
-use oxc_allocator::Allocator;
-use oxc_parser::Parser;
-use oxc_semantic::SemanticBuilder;
+use oxc::allocator::Allocator;
+use oxc::parser::Parser;
+use oxc::semantic::SemanticBuilder;
 use utils::{
   glob_by_semantic, source_type_from_path, GlobErrorHandler, GlobSuccessHandler,
 };
