@@ -1,8 +1,6 @@
 ---
 source: crates/check_danger_jsx_props/tests/lib_test.rs
-assertion_line: 23
 expression: response.to_string()
-snapshot_kind: text
 ---
 {
   "file_path": "b.tsx",
