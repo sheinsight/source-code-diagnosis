@@ -1,0 +1,31 @@
+---
+source: crates/check_danger_jsx_props/tests/lib_test.rs
+assertion_line: 23
+expression: response.to_string()
+snapshot_kind: text
+---
+{
+  "file_path": "a.jsx",
+  "items": [
+    {
+      "name": "data-if",
+      "ast_node": {
+        "span": {
+          "start": 132,
+          "end": 146
+        },
+        "loc": {
+          "start": {
+            "line": 6,
+            "col": 14
+          },
+          "end": {
+            "line": 6,
+            "col": 28
+          }
+        }
+      }
+    }
+  ],
+  "errors": []
+}
