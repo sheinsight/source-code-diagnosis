@@ -144,6 +144,13 @@ fn each_reference<'a>(
         });
       }
 
+      // Check if the reference is inside a JSX expression container (e.g., attribute value)
+      // If so, we should not treat it as a JSX element usage
+      let is_in_jsx_expr_container = is_in(&semantic, reference_node, |kind| {
+        matches!(kind, AstKind::JSXExpressionContainer(_))
+      })
+      .is_some();
+
       let opening_node = is_in(&semantic, reference_node, |kind| {
         matches!(kind, AstKind::JSXOpeningElement(_))
       });
@@ -151,22 +158,25 @@ fn each_reference<'a>(
       if let Some(AstKind::JSXOpeningElement(kind)) =
         opening_node.map(|node| node.kind())
       {
-        let name = get_jsx_opening_element_name(
-          kind,
-          specifier.is_default(),
-          specifier.is_namespace(),
-          specifier.get_imported_name().as_str(),
-        );
+        // If the reference is inside a JSX expression container, skip JSX element handling
+        if !is_in_jsx_expr_container {
+          let name = get_jsx_opening_element_name(
+            kind,
+            specifier.is_default(),
+            specifier.is_namespace(),
+            specifier.get_imported_name().as_str(),
+          );
 
-        let attributes = get_jsx_props(kind);
+          let attributes = get_jsx_props(kind);
 
-        return Some(ModuleMemberUsageResponseItem {
-          lib_name: library_name.to_string(),
-          module_value: module_name.to_string(),
-          member_name: name.to_string(),
-          ast_node: ast_node,
-          props: attributes,
-        });
+          return Some(ModuleMemberUsageResponseItem {
+            lib_name: library_name.to_string(),
+            module_value: module_name.to_string(),
+            member_name: name.to_string(),
+            ast_node: ast_node,
+            props: attributes,
+          });
+        }
       }
 
       return Some(ModuleMemberUsageResponseItem {
@@ -781,5 +791,32 @@ export default () => {
     assert_eq!(result[0].lib_name, "antd");
     assert_eq!(result[0].module_value, "antd/lib/hashHistory");
     assert_eq!(result[0].member_name, "ES:DEFAULT");
+  }
+
+  #[test]
+  fn test() {
+    let result = util(
+      vec!["@gyl/lib".to_string()],
+      r#"
+    import { noEmpty } from '@gyl/lib';
+    const SpuItem = React.memo((props) => {
+      return (
+        <div>
+          <div data-if={noEmpty("spu.purchaseTypeStr")}>
+                  "spu.purchaseTypeStr"
+            </div>
+        </div>
+      );
+    });
+    export default SpuItem;
+"#,
+    );
+
+    println!("--->{:#?}", result);
+
+    assert_eq!(result.len(), 1);
+    assert_eq!(result[0].lib_name, "@gyl/lib");
+    assert_eq!(result[0].module_value, "@gyl/lib");
+    assert_eq!(result[0].member_name, "noEmpty");
   }
 }
