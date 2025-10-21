@@ -18,7 +18,7 @@
 		]
 	},
 	"repository": {
-		"url": "https://github.com/sheinsight/source-code-diagnosis"
+		"url": "git+https://github.com/sheinsight/source-code-diagnosis.git"
 	},
 	"publishConfig": {
 		"access": "public"
