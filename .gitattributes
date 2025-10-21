@@ -1,0 +1,6 @@
+# 确保测试文件使用统一的 LF 换行符
+*.jsx text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.snap text eol=lf
