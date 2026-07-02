@@ -10,7 +10,7 @@ env:
 permissions:
   # To publish packages with provenance
   id-token: write
-  contents: write 
+  contents: write
   # Allow commenting on issues for `reusable-build.yml`
   issues: write
 
@@ -54,23 +54,23 @@ jobs:
       matrix:
         platform:
           # Linux 平台
-          - host: ubuntu-latest 
+          - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian 
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine-zig 
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine-zig
           - host: macos-latest
             target: aarch64-apple-darwin
           # Windows 平台
           - host: windows-latest
-            target: x86_64-pc-windows-msvc 
+            target: x86_64-pc-windows-msvc
 
     name: Test ${{ matrix.platform.target }}
     uses: ./.github/workflows/reusable-cargo-test.yml
     with:
       host: ${{ matrix.platform.host }}
-      target: ${{ matrix.platform.target }} 
+      target: ${{ matrix.platform.target }}
 
   build-platforms:
     strategy:
@@ -78,7 +78,7 @@ jobs:
       matrix:
         platform:
           # Linux 平台
-          - host: ubuntu-latest 
+          - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
           - host: ubuntu-latest
@@ -116,9 +116,6 @@ jobs:
     with:
       binding_dir: crates/binding
       npm_package_name: '@shined/source-code-diagnosis'
-    secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
 
   npm-publish:
     needs: [napi-publish]
@@ -126,6 +123,3 @@ jobs:
     with:
       binding_dir: crates/binding
       npm_package_name: '@shined/source-code-diagnosis'
-    secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-     

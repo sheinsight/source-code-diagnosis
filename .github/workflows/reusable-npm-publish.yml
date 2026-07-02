@@ -8,10 +8,7 @@ on:
         type: string
       npm_package_name:
         required: true
-        type: string 
-    secrets:
-      NPM_TOKEN:
-        required: true 
+        type: string
 
 env:
   DEBUG: napi:*
@@ -54,10 +51,15 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
           cache-dependency-path: '**/pnpm-lock.yaml'
-  
+          registry-url: 'https://registry.npmjs.org'
+
+      # npm 11.5.1+ supports OIDC
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --strict-peer-dependencies
-        
+
       - name: Build
         run: pnpm --filter ${{ inputs.npm_package_name }} build
 
@@ -73,15 +75,12 @@ jobs:
           prerelease: false
 
       - name: NPM Publish
-        run: |
-          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-          pnpm --filter ${{ inputs.npm_package_name }} publish --no-git-checks --force
+        run: pnpm --filter ${{ inputs.npm_package_name }} publish --no-git-checks --force
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           RELEASE_ID: ${{ steps.create_release.outputs.id }}
 
       - name: Update Release
         if: startsWith(github.ref, 'refs/tags/')
-        run: | 
+        run: |
           echo "Updating release..."
           gh release edit ${{ github.ref_name }} --draft=false --latest
