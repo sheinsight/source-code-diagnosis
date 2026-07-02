@@ -108,6 +108,24 @@ where
   E: Fn(GlobErrorHandler) -> Option<T> + Send + Sync + 'a,
   T: Send + 'a,
 {
+  glob_by_semantic_with_filter(handler_fn, err_handler_fn, |_, _| true, args)
+}
+
+/// 带预过滤的 glob_by_semantic。
+/// `pre_filter` 在 read_to_string 之后、Parse 之前调用，
+/// 返回 false 则跳过该文件的 AST 解析。
+pub fn glob_by_semantic_with_filter<'a, F, E, P, T>(
+  handler_fn: F,
+  err_handler_fn: E,
+  pre_filter: P,
+  args: &GlobArgs,
+) -> anyhow::Result<Vec<T>>
+where
+  F: Fn(GlobSuccessHandler) -> Option<T> + Send + Sync + 'a,
+  E: Fn(GlobErrorHandler) -> Option<T> + Send + Sync + 'a,
+  P: Fn(&str, &Path) -> bool + Send + Sync + 'a,
+  T: Send + 'a,
+{
   let glob = Glob::new(&args.pattern.as_str())?;
 
   let ignore_patterns = args
@@ -148,6 +166,10 @@ where
           });
         }
       };
+
+      if !pre_filter(&source_code, path) {
+        return None;
+      }
 
       let allocator = Allocator::default();
 

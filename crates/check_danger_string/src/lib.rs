@@ -25,7 +25,7 @@ pub fn check_danger_strings(
   danger_strings: Vec<String>,
   args: GlobArgs,
 ) -> Result<Vec<CheckDangerResponse>> {
-  let responses = utils::glob_by_semantic(
+  let responses = utils::glob_by_semantic_with_filter(
     |GlobSuccessHandler {
        semantic,
        relative_path,
@@ -72,6 +72,11 @@ pub fn check_danger_strings(
         items: vec![],
         errors: vec![error],
       });
+    },
+    |source_code, _path| {
+      danger_strings
+        .iter()
+        .any(|s| source_code.contains(s.as_str()))
     },
     &args,
   )?;

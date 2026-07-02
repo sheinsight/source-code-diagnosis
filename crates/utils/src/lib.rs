@@ -7,8 +7,8 @@ use std::{
 };
 
 pub use glob::{
-  glob_by_path, glob_by_semantic, GlobArgs, GlobErrorHandler, GlobJsArgs,
-  GlobSuccessHandler,
+  glob_by_path, glob_by_semantic, glob_by_semantic_with_filter, GlobArgs,
+  GlobErrorHandler, GlobJsArgs, GlobSuccessHandler,
 };
 pub use semantic_builder::{
   source_type_from_path, SemanticBuilder, SemanticHandler,
