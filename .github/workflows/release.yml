@@ -117,9 +117,9 @@ jobs:
       binding_dir: crates/binding
       npm_package_name: '@shined/source-code-diagnosis'
 
-  npm-publish:
-    needs: [napi-publish]
-    uses: ./.github/workflows/reusable-npm-publish.yml
-    with:
-      binding_dir: crates/binding
-      npm_package_name: '@shined/source-code-diagnosis'
+  # npm-publish:
+  #   needs: [napi-publish]
+  #   uses: ./.github/workflows/reusable-npm-publish.yml
+  #   with:
+  #     binding_dir: crates/binding
+  #     npm_package_name: '@shined/source-code-diagnosis'
